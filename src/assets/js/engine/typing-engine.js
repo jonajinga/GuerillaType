@@ -144,7 +144,23 @@ export class TypingEngine {
     this.renderer.setText(this._paragraphs || this.target);
     this.updateLive(0, 100);
     if (this.timerEl) this.timerEl.style.width = "0%";
-    this.setHint("Press any key to start");
+    // Mobile: never auto-focus, never tell the user to "press any key".
+    // The surface stays blurred until they tap. We re-arm the waiting
+    // flag on every start() (not just the constructor) so restart and
+    // post-completion flows behave the same way.
+    const isMobile =
+      typeof window.matchMedia === "function" &&
+      (window.matchMedia("(max-width: 767px)").matches ||
+       window.matchMedia("(hover: none) and (pointer: coarse)").matches);
+    if (isMobile) {
+      this.host.dataset.mobileWaiting = "true";
+      try {
+        if (document.activeElement === this.inputEl) this.inputEl.blur();
+      } catch {}
+      this.setHint("Tap here to start typing");
+    } else {
+      this.setHint("Press any key to start");
+    }
   }
 
   appendStream(text) {
