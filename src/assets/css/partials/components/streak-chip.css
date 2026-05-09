@@ -1,11 +1,16 @@
 .streak-chip{
-  display:inline-flex;align-items:center;gap:.4rem;
-  padding:.3rem .6rem;
-  background:var(--bg-1);border:1px solid var(--rule);
+  display:inline-flex;align-items:center;justify-content:center;gap:.4rem;
+  /* Match the .header-icon-btn metrics so the streak chip aligns with
+     the settings / fullscreen / search icon buttons next to it. The
+     chip is wider than the icon buttons because it has visible text
+     content -- the height + border + radius are what matter visually. */
+  height:44px;min-width:44px;padding:0 .75rem;
+  background:transparent;border:1px solid var(--rule);
   font-family:var(--font-mono);font-size:var(--fs-200);
   color:var(--fg-2);border-radius:var(--radius);
   transition:border-color var(--t-fast), color var(--t-fast);
   text-decoration:none;
+  line-height:1;
 }
 .streak-chip:hover{border-color:var(--accent);color:var(--accent)}
 .streak-chip__icon{color:var(--accent);font-size:1em;line-height:1}
