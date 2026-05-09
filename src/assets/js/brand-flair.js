@@ -104,6 +104,15 @@ function pick(arr) {
     console.warn("[brand-flair] Tippy load failed; skipping flair.", err);
     return;
   }
+  // Mobile: place tooltip above the icon (not to the right -- the
+   // footer mark sits at the left edge of the viewport, so a right-
+   // placed tooltip overflows the screen and gets clipped). Cap the
+   // max-width tighter on small screens so longer greetings wrap
+   // sooner rather than scrolling off-screen.
+  const isMobile =
+    typeof window.matchMedia === "function" &&
+    (window.matchMedia("(max-width: 640px)").matches ||
+     window.matchMedia("(hover: none) and (pointer: coarse)").matches);
   marks.forEach((mark) => {
     tippy(mark, {
       allowHTML: true,
@@ -111,12 +120,13 @@ function pick(arr) {
       theme: "guerilla",
       delay: [60, 60],
       duration: [120, 80],
-      placement: "right",
+      placement: isMobile ? "top" : "right",
       offset: [0, 10],
       interactive: false,
       appendTo: () => document.body,
       trigger: "mouseenter focus",
-      maxWidth: 320,
+      maxWidth: isMobile ? 220 : 320,
+      touch: ["hold", 400],
       content: pick(GREETINGS),
       onShow(instance) {
         instance.setContent(pick(GREETINGS));

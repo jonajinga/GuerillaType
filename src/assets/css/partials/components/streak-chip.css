@@ -1,12 +1,12 @@
 .streak-chip{
-  display:inline-flex;align-items:center;justify-content:center;gap:.4rem;
-  /* Match the .header-icon-btn metrics so the streak chip aligns with
-     the settings / fullscreen / search icon buttons next to it. The
-     chip is wider than the icon buttons because it has visible text
-     content -- the height + border + radius are what matter visually. */
-  height:44px;min-width:44px;padding:0 .75rem;
+  display:inline-flex;align-items:center;justify-content:center;gap:.2rem;
+  /* Exact 44x44 to match .header-icon-btn. The label is abbreviated
+     to "d" in the markup so "▲ <num> d" fits inside the square box
+     even at a 4-digit streak; for triple-digit streaks the chip can
+     grow horizontally if needed via min-width. */
+  width:44px;height:44px;min-width:44px;padding:0 .35rem;
   background:transparent;border:1px solid var(--rule);
-  font-family:var(--font-mono);font-size:var(--fs-200);
+  font-family:var(--font-mono);font-size:.74rem;
   color:var(--fg-2);border-radius:var(--radius);
   transition:border-color var(--t-fast), color var(--t-fast);
   text-decoration:none;

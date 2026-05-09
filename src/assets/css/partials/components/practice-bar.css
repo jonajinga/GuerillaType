@@ -33,6 +33,17 @@ body.is-hide-ui:not(.is-corpus-mode) .tt-stage{
   border-bottom:1px solid var(--rule);
   margin:0 calc(-1 * var(--gutter)) var(--space-4);
 }
+/* Mobile: glue the toolbar to the header. Pin top to 0 so it sits
+   directly below the also-sticky header (which itself is top:0 +
+   --header-h tall). Drop the bottom margin so the typing surface
+   begins right under the toolbar with no awkward gap. */
+@media (max-width:768px){
+  .practice-bar{
+    top:0;
+    margin-bottom:0;
+  }
+  .practice-page{padding-top:var(--space-3)}
+}
 .practice-bar__inner{
   max-width:var(--max-width);margin-inline:auto;
   padding:.55rem var(--gutter);
@@ -263,23 +274,28 @@ body.is-hide-ui:not(.is-corpus-mode) .tt-stage{
   }
   /* Scroll-direction chevrons. Anchored to the toolbar (not the inner
      scroll strip) so they stay still while content slides underneath.
-     Pointer-events:auto so they're tappable; tap scrolls the inner by
-     a chip's worth. Hidden via JS when there's nothing to scroll to. */
+     Sized 36 x 44 px -- same height as the toolbar chips beside them
+     for a clean visual rhythm. Pointer-events:auto so they're tappable;
+     tap scrolls the inner by 60% of the visible width. */
   .practice-bar__scroll{
     position:absolute;top:50%;transform:translateY(-50%);
-    width:1.6rem;height:2.2rem;
+    width:36px;height:44px;
     display:none;align-items:center;justify-content:center;
-    background:color-mix(in oklab, var(--bg-1) 92%, transparent);
+    background:color-mix(in oklab, var(--bg-1) 96%, transparent);
     border:1px solid var(--rule);border-radius:var(--radius);
-    color:var(--fg-1);cursor:pointer;
+    color:var(--fg-0);cursor:pointer;padding:0;
     z-index:2;
     backdrop-filter:blur(8px);
     -webkit-backdrop-filter:blur(8px);
+    box-shadow:0 1px 3px rgba(0,0,0,.25);
   }
   .practice-bar__scroll[data-show="true"]{display:flex}
-  .practice-bar__scroll--prev{left:.25rem}
-  .practice-bar__scroll--next{right:.25rem}
-  .practice-bar__scroll svg{width:14px;height:14px;display:block}
+  .practice-bar__scroll--prev{left:.35rem}
+  .practice-bar__scroll--next{right:.35rem}
+  .practice-bar__scroll svg{width:20px;height:20px;display:block}
+  /* Make room for the bigger arrows -- bump inner padding so chips
+     do not slide UNDER the arrow's idle position. */
+  .practice-bar__inner{padding:var(--space-2) calc(var(--gutter) + 2.4rem)}
 }
 
 /* Phone-portrait specifics. Mode buttons need taller hit areas
@@ -319,6 +335,26 @@ body.is-hide-ui:not(.is-corpus-mode) .tt-stage{
   min-width:9.5rem;
   flex:0 0 auto;
   justify-content:center;text-align:center;
+}
+/* Icon + label row inside each button. The icon hides on desktop --
+   the labels carry the meaning at full width -- and the label hides
+   on mobile so the buttons collapse to compact icon-only chips. */
+.tt-actions__btn{display:inline-flex;align-items:center;gap:.45rem}
+.tt-actions__icon{display:none}
+@media (max-width:640px){
+  .tt-actions{gap:.5rem}
+  .tt-actions > .btn{
+    /* Square icon-only buttons on mobile. Width matches height for a
+       clean trio. */
+    min-width:0;width:44px;height:44px;padding:0;
+  }
+  .tt-actions__btn{justify-content:center}
+  .tt-actions__icon{display:block}
+  .tt-actions__label{
+    /* Hide label visually but keep it for screen readers. */
+    position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;
+    overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+  }
 }
 .tt-actions__hint{
   flex-basis:100%;width:100%;
