@@ -274,6 +274,15 @@ body.is-hide-ui:not(.is-corpus-mode) .tt-stage{
 }
 
 .tt-actions{display:flex;align-items:center;justify-content:center;gap:var(--space-3);flex-wrap:wrap;margin-top:var(--space-4);color:var(--fg-2);font-size:var(--fs-200)}
+/* Restart / How it works / Send feedback share a min-width so the
+   row reads as a balanced trio rather than three differently-sized
+   chips. Without this, "Restart" sat short while the other two
+   stretched to fit their longer labels + ↗ glyphs. */
+.tt-actions > .btn{
+  min-width:9.5rem;
+  flex:0 0 auto;
+  justify-content:center;text-align:center;
+}
 .tt-actions__hint{
   flex-basis:100%;width:100%;
   display:flex;flex-wrap:wrap;justify-content:center;

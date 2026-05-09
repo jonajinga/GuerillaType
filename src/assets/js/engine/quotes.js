@@ -32,7 +32,13 @@ function normalize(q) {
 }
 
 export function pickQuote(quotes, b) {
-  const list = b ? filterByBucket(quotes, b) : quotes;
+  // "random" is a non-bucket selector that means "any quote, picked
+  // uniformly at random across the full corpus". Falls through to the
+  // un-filtered branch below. Without this, "random" gets passed to
+  // filterByBucket as if it were a length bucket and matches nothing,
+  // returning null and breaking the daily-quote -> Next-quote flow.
+  const isBucket = b && b !== "random";
+  const list = isBucket ? filterByBucket(quotes, b) : quotes;
   if (!list.length) return null;
   return normalize(list[Math.floor(Math.random() * list.length)]);
 }
