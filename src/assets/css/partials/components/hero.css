@@ -60,6 +60,14 @@
 }
 
 .hero__cta{display:flex;flex-wrap:wrap;gap:var(--space-3);margin-top:var(--space-5)}
+/* Hero CTAs share a min-width so the primary "today's quote" button
+   and the secondary "30-second test" button render at the same
+   width. Without this, the longer label inflated the primary into a
+   visibly wider box. */
+.hero__cta .btn--big{
+  min-width:14rem;flex:0 0 auto;
+  justify-content:center;text-align:center;
+}
 .hero__cta-hint{color:var(--fg-2);font-size:var(--fs-200);display:flex;align-items:center;gap:.5rem}
 .hero__cta-hint kbd{background:var(--bg-2);border:1px solid var(--rule);padding:.05em .35em;font-size:.85em;border-radius:var(--radius-sm);font-family:var(--font-mono)}
 

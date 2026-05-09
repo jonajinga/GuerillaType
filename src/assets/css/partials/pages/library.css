@@ -195,29 +195,78 @@
   .book-reader__page-nav{margin-left:0;justify-content:space-between}
 }
 
-/* Phone-portrait library toolbar -- the chip-group legends ("Genre",
-   "Era", "Length") sit beside their chips at desktop, but at <=480px
-   the chips wrap and the legend either overlaps or breaks the row.
-   Stack legend above its chips on phones, and shrink chip padding
-   so 4-5 fit per row. */
-@media (max-width:480px){
-  .library-toolbar{padding:var(--space-3)}
-  .library-toolbar__group{flex-direction:column;align-items:flex-start;gap:.35rem}
+/* Mobile + tablet portrait library toolbar (<=767px). Each filter
+   group ("Genre", "Era", "Length") collapses to a single horizontally
+   scrolling row with the legend tucked inline at the start. Stops the
+   wrap-explosion where 12 genre chips became 3 stacked lines and ate
+   half the viewport before any books were visible. */
+@media (max-width:767px){
+  .library-toolbar{padding:var(--space-3);gap:.5rem}
+  .library-toolbar__group{
+    /* Single row, no wrap, slides horizontally. Legend rides along
+       at the start of the strip in monospace caps. */
+    display:flex;flex-wrap:nowrap;align-items:center;gap:.4rem;
+    padding:0;
+    overflow-x:auto;overflow-y:hidden;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .library-toolbar__group::-webkit-scrollbar{display:none}
   .library-toolbar__legend{
-    width:auto;font-size:.6rem;
-    padding-bottom:.15rem;
+    width:auto;font-size:.62rem;flex-shrink:0;
+    padding-right:.2rem;
   }
   .library-toolbar__chip{
-    padding:.35rem .55rem;font-size:.7rem;
-    /* Touch-target sizing: pill chips need ≥36px height for thumb
-       accuracy on phones. Override the inherited button rule that
-       was set to compact desktop sizing. */
-    min-height:34px;display:inline-flex;align-items:center;
-  }
-  .library-toolbar__group > :nth-child(n+2):not(.library-toolbar__legend){
-    /* Wrap the chips in a flex row that flows in their own line. */
+    padding:.4rem .7rem;font-size:.72rem;
+    min-height:36px;display:inline-flex;align-items:center;
     flex-shrink:0;
   }
+}
+
+/* Tablet portrait + small phone (<=767px) -- ensure the books table
+   reads as cards (the rule in quotes.css is the source of truth, but
+   library.njk's inline rules previously fought it). Reset any column-
+   hiding so every row collapses cleanly to a single card. */
+@media (max-width:767px){
+  .corpus-table__wrap{border:0;overflow:visible}
+  #library-table thead{display:none}
+  #library-table,
+  #library-table tbody,
+  #library-table .library-row{display:block;width:100%}
+  #library-table .library-row{
+    background:var(--bg-1);
+    border:1px solid var(--rule);border-radius:var(--radius);
+    padding:.85rem .9rem;margin-bottom:.6rem;
+    position:relative;
+  }
+  #library-table .library-row > td{
+    display:block;border:0;padding:0;margin:0;text-align:left;
+    background:transparent;
+  }
+  #library-table .library-row > td.corpus-table__title{
+    font-size:var(--fs-400);line-height:1.35;margin-bottom:.3rem;
+    padding-right:5rem; /* leave room for the absolute Open button */
+  }
+  #library-table .library-row > td.corpus-table__second{
+    color:var(--fg-2);font-size:.85rem;margin-bottom:.35rem;
+  }
+  #library-table .library-row > td.corpus-table__len,
+  #library-table .library-row > td.library-row__progress{
+    display:inline-block;
+    font-family:var(--font-mono);font-size:.72rem;
+    color:var(--fg-3);letter-spacing:.04em;
+    margin-right:.7rem;text-align:left;
+  }
+  #library-table .library-row > td.corpus-table__actcol{
+    position:absolute;top:.7rem;right:.8rem;
+    padding:0;margin:0;
+  }
+  #library-table .library-row > td.corpus-table__actcol .btn{
+    min-width:0;padding:.3rem .7rem;font-size:.78rem;
+  }
+  /* Genre column shows as inline pill if rendered (it was hidden by
+     the page's inline rule; we keep that hiding so the card stays
+     compact on phones). */
 }
 
 /* Book-header on phones: the meta row was wrapping into two lines

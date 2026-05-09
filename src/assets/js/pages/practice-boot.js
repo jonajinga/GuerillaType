@@ -786,7 +786,23 @@ function renderResults(r) {
       </section>
     ` : ''}
     <div class="results__actions">
-      ${state.bookSlug ? `<a class="btn btn--primary" id="tt-next-page" href="${nextBookUrl()}" data-tip="Move on to the next paragraph in this book.">Next page →</a><button type="button" class="btn" onclick="window.ttRestart && window.ttRestart()" data-tip="Retype this same page from the start.">Type page again</button><a class="btn" href="/library/${encodeURIComponent(state.bookSlug)}/" data-tip="Return to the book's chapter index.">Back to chapter list</a>` : `<button type="button" class="btn btn--primary" onclick="window.ttRestart && window.ttRestart()" data-tip="Restart with the same mode, duration, and language.">Next test</button>${state.lessonId ? `<a class="btn" href="/practice/?lesson=${state.lessonId + 1}" data-tip="Move on to the next lesson in the curriculum.">Next lesson</a><a class="btn" href="/lessons/" data-tip="See every lesson available.">All lessons</a>` : `<a class="btn" href="/practice/?mode=adaptive" data-tip="Switch to adaptive mode -- the picker weights your weakest keys more heavily.">Practice weak keys</a><a class="btn" href="/stats/" data-tip="Open your full performance dashboard with charts, heatmaps, and history.">View stats</a>`}`}
+      ${(() => {
+        // Book mode: Next page / Type page again / back to chapter list.
+        if (state.bookSlug) {
+          return `<a class="btn btn--primary" id="tt-next-page" href="${nextBookUrl()}" data-tip="Move on to the next paragraph in this book.">Next page →</a><button type="button" class="btn" onclick="window.ttRestart && window.ttRestart()" data-tip="Retype this same page from the start.">Type page again</button><a class="btn" href="/library/${encodeURIComponent(state.bookSlug)}/" data-tip="Return to the book's chapter index.">Back to chapter list</a>`;
+        }
+        // Daily-quote mode: "Next test" should serve a fresh random quote
+        // rather than the same daily quote again. The daily quote is the
+        // *opening* of a session; subsequent ones are random by design.
+        const isDaily = state.mode === "quote" && state.quote === "daily";
+        const nextBtn = isDaily
+          ? `<a class="btn btn--primary" href="/practice/?mode=quote&quote=random" data-tip="Pull a fresh random quote from the public-domain corpus.">Next quote →</a>`
+          : `<button type="button" class="btn btn--primary" onclick="window.ttRestart && window.ttRestart()" data-tip="Restart with the same mode, duration, and language.">Next test</button>`;
+        const tail = state.lessonId
+          ? `<a class="btn" href="/practice/?lesson=${state.lessonId + 1}" data-tip="Move on to the next lesson in the curriculum.">Next lesson</a><a class="btn" href="/lessons/" data-tip="See every lesson available.">All lessons</a>`
+          : `<a class="btn" href="/practice/?mode=adaptive" data-tip="Switch to adaptive mode -- the picker weights your weakest keys more heavily.">Practice weak keys</a><a class="btn" href="/stats/" data-tip="Open your full performance dashboard with charts, heatmaps, and history.">View stats</a>`;
+        return nextBtn + tail;
+      })()}
     </div>
     ${testimonialPrompt}
     ${state.bookSlug && r._autoAdvance ? `<p class="muted" id="tt-autoadvance-note" style="margin-top:1rem;text-align:center">Auto-advancing in <span id="tt-autoadvance-count">4</span>s — press Esc to stay.</p>` : ''}

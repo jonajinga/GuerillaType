@@ -72,11 +72,35 @@ export class TypingEngine {
       // Pause the clock when the input loses focus, resume on focus.
       // The session pauses without ending so users can step away briefly.
       onBlur: () => { if (this.running) this.pauseTimer(); },
-      onFocus: () => { this.resumeTimer(); },
+      onFocus: () => {
+        this.resumeTimer();
+        // Clear the mobile "tap to start" hint once the surface gets
+        // its first real focus -- whether from a tap or otherwise.
+        if (this.host.dataset.mobileWaiting === "true") {
+          delete this.host.dataset.mobileWaiting;
+          this.setHint("");
+        }
+      },
       onRestartArmed: () => this.host.dataset.restartArmed = "true",
       onRestartDisarmed: () => delete this.host.dataset.restartArmed,
     });
-    this.capture.focus();
+    // Mobile: skip auto-focus. iOS Safari + Chrome Android won't raise
+    // the soft keyboard from a programmatic focus() call on page load --
+    // and even if they did, the keyboard sliding up the moment the
+    // page renders is a jarring experience. Show a "Tap to start
+    // typing" hint instead and wait for the user's first tap on the
+    // typing surface, which input-capture's touchend/click handlers
+    // will turn into a real focus that does raise the keyboard.
+    const isMobile =
+      typeof window.matchMedia === "function" &&
+      (window.matchMedia("(max-width: 767px)").matches ||
+       window.matchMedia("(hover: none) and (pointer: coarse)").matches);
+    if (isMobile) {
+      this.host.dataset.mobileWaiting = "true";
+      this.setHint("Tap here to start typing");
+    } else {
+      this.capture.focus();
+    }
   }
 
   setHint(text) {

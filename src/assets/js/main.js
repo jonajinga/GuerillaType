@@ -72,86 +72,20 @@ window.addEventListener("message", (e) => {
   }
 });
 
-// ── Settings modal (rebuilt from scratch) ──────────────────────
-// Plain <div> overlay -- no <dialog>, no form method=dialog, no
-// fancy native API quirks. Just two layers (scrim + panel), both
-// positioned fixed, toggled visible via the data-open attribute.
-// The close button is bound directly to closeSettingsModal() and
-// uses a plain inline onclick as a triple-fallback. Bulletproof.
-let _settingsModal = null;
-function buildSettingsModal() {
-  if (_settingsModal) return _settingsModal;
-  const el = document.createElement("div");
-  el.id = "settings-modal";
-  el.className = "settings-modal";
-  el.setAttribute("role", "dialog");
-  el.setAttribute("aria-label", "Settings");
-  el.setAttribute("aria-modal", "true");
-  el.dataset.open = "false";
-  el.innerHTML = `
-    <div class="settings-modal__scrim" data-close></div>
-    <div class="settings-modal__panel">
-      <div class="settings-modal__head">
-        <h2 class="settings-modal__title">Settings</h2>
-        <div class="settings-modal__actions">
-          <a class="settings-modal__open" href="/settings/" data-tip="Open the full Settings page">↗</a>
-          <button type="button" class="settings-modal__close" aria-label="Close" onclick="window.closeSettingsModal()">×</button>
-        </div>
-      </div>
-      <iframe class="settings-modal__frame" data-frame aria-label="Settings" loading="lazy"></iframe>
-    </div>
-  `;
-  document.body.appendChild(el);
-  // Scrim click closes. The button's inline onclick is the primary
-  // close path; this just covers backdrop clicks.
-  el.querySelector("[data-close]").addEventListener("click", () => window.closeSettingsModal());
-  _settingsModal = el;
-  return el;
-}
-// Esc closes when modal is open.
-document.addEventListener("keydown", (e) => {
-  if (e.key !== "Escape") return;
-  if (_settingsModal && _settingsModal.dataset.open === "true") {
-    e.preventDefault();
-    window.closeSettingsModal();
-  }
-});
-
-window.closeSettingsModal = function () {
-  if (!_settingsModal) return;
-  _settingsModal.dataset.open = "false";
-  document.body.style.overflow = "";
-  // Blank the iframe so its scripts stop running and don't keep
-  // playing audio/animations after close.
-  const frame = _settingsModal.querySelector("[data-frame]");
-  if (frame) frame.src = "about:blank";
-};
+// ── Settings modal -- removed ──────────────────────────────────
+// The site no longer overlays an iframe modal for /settings/. Click
+// handlers fall through to native navigation. closeSettingsModal is
+// kept as a no-op so any inline onclick referencing it does not throw.
+window.closeSettingsModal = function () {};
 window.openSettingsModal = function (e) {
-  // Bypass conditions that should fall through to native navigation.
-  if (e && (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button === 1)) return true;
-  if (location.pathname.replace(/\/+$/, "") === "/settings") return true;
-  // Mobile: skip the iframe modal entirely. Iframes have known issues
-  // on iOS Safari + Chrome Android with form-input scrolling, soft-
-  // keyboard sizing, and content that bleeds out of fixed parents.
-  // The full-page /settings/ route renders perfectly on mobile, so
-  // just navigate there. Use 768px as the hand-off line -- the same
-  // breakpoint where the full settings page switches to a single
-  // column layout.
-  const isMobile =
-    typeof window.matchMedia === "function" &&
-    (window.matchMedia("(max-width: 767px)").matches ||
-     window.matchMedia("(hover: none) and (pointer: coarse)").matches);
-  if (isMobile) return true;
-  if (e) e.preventDefault();
-  const el = buildSettingsModal();
-  const frame = el.querySelector("[data-frame]");
-  // Re-set the src each open so the iframe re-syncs with any
-  // localStorage changes the user made elsewhere on the page.
-  frame.src = "/settings/?embed=1";
-  el.dataset.open = "true";
-  // Lock body scroll while the modal is open.
-  document.body.style.overflow = "hidden";
-  return false;
+  // The "modal" is now just a normal navigation. The earlier iframe
+  // approach was unreliable across browsers (X-Frame-Options, sandbox
+  // quirks, mobile soft-keyboard sizing, broken-image fallbacks) and
+  // the trade-off was not worth keeping. The full-page /settings/
+  // route renders identically -- the user just clicks back to return.
+  // Returning true lets the click event continue to the native href
+  // navigation; the inline onclick wrappers stay non-breaking.
+  return true;
 };
 
 // ── Theme toggle ─────────────────────────────────────────────────
@@ -385,11 +319,21 @@ window.openNavPanel = function () {
   paintNavProfileCard();
   // Place focus on the search field so keyboard users can immediately
   // start filtering. Falls back to the first focusable.
+  // Mobile: skip the search-field focus. iOS Safari + Chrome Android
+  // zoom into the page whenever a soft-keyboard rises -- focusing the
+  // input on open caused the panel to feel like it was zooming itself
+  // in. Touch users can tap the search field if they want to filter;
+  // not auto-raising the keyboard is the lesser evil.
+  const isMobile =
+    typeof window.matchMedia === "function" &&
+    (window.matchMedia("(max-width: 767px)").matches ||
+     window.matchMedia("(hover: none) and (pointer: coarse)").matches);
   const search = document.getElementById("nav-panel-search");
-  if (search) search.focus();
-  else {
+  if (!isMobile && search) {
+    search.focus();
+  } else {
     const first = panel.querySelector("a, button");
-    if (first) first.focus();
+    if (first) first.focus({ preventScroll: true });
   }
 };
 window.closeNavPanel = function () {

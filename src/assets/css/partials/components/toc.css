@@ -12,6 +12,17 @@
   padding:var(--space-6) var(--gutter) var(--space-10);
 }
 .article-layout > .article-toc{margin-bottom:var(--space-5)}
+/* Phones (<=767px): hide the TOC entirely. On a narrow screen the
+   table of contents stacks above the article and eats most of the
+   above-the-fold space, pushing the actual prose below the device
+   bezel. The article still has its headings; readers scroll. The
+   TOC reappears as a side rail on tablet portrait and up. */
+@media (max-width:767px){
+  .article-layout > .article-toc,
+  .post__toc,
+  .toc-host > .article-toc,
+  .toc-host > .page-toc{display:none !important}
+}
 @media (min-width:1024px){
   .article-layout{display:grid;grid-template-columns:240px minmax(0,1fr);gap:var(--space-8)}
   .article-layout.has-cta{grid-template-columns:240px minmax(0,1fr) 280px}
