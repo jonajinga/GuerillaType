@@ -96,6 +96,18 @@
 .site-footer__contact:hover{
   color:var(--accent) !important;border-color:var(--accent);
 }
+/* Mobile bottom bar: stack copy line + contact pill onto separate
+   rows. The contact pill has the full email address inside, which
+   gets clipped at the right edge of a phone viewport when sharing
+   a row with the copy line. Stack vertically + center each row. */
+@media (max-width:640px){
+  .site-footer__bottom{
+    flex-direction:column;align-items:center;text-align:center;
+    gap:.6rem;
+  }
+  .site-footer__copy{flex:0 0 auto;text-align:center}
+  .site-footer__contact{align-self:center;max-width:100%}
+}
 
 /* "Shelf" -- a horizontal band between the columns and the bottom
    bar. Holds the Ingersoll quote on the left + a row of project
