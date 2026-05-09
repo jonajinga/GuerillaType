@@ -9,6 +9,15 @@
     "charCount": 188321
   },
   {
+    "slug": "secret-adversary",
+    "title": "The Secret Adversary",
+    "author": "Agatha Christie",
+    "year": "1922",
+    "chapterCount": 28,
+    "paragraphCount": 3319,
+    "charCount": 414475
+  },
+  {
     "slug": "federalist-papers",
     "title": "The Federalist Papers",
     "author": "Alexander Hamilton",
@@ -36,6 +45,15 @@
     "charCount": 1270213
   },
   {
+    "slug": "six-records",
+    "title": "Locrine",
+    "author": "Algernon Charles Swinburne",
+    "year": null,
+    "chapterCount": 10,
+    "paragraphCount": 1266,
+    "charCount": 96458
+  },
+  {
     "slug": "black-beauty",
     "title": "Black Beauty",
     "author": "Anna Sewell",
@@ -61,6 +79,42 @@
     "chapterCount": 1,
     "paragraphCount": 180,
     "charCount": 43832
+  },
+  {
+    "slug": "cherry-orchard",
+    "title": "The Cherry Orchard",
+    "author": "Anton Chekhov",
+    "year": "1904",
+    "chapterCount": 14,
+    "paragraphCount": 2767,
+    "charCount": 375236
+  },
+  {
+    "slug": "seagull-chekhov",
+    "title": "The Seagull",
+    "author": "Anton Chekhov",
+    "year": "1895",
+    "chapterCount": 1,
+    "paragraphCount": 770,
+    "charCount": 100651
+  },
+  {
+    "slug": "three-sisters-chekhov",
+    "title": "Three Sisters",
+    "author": "Anton Chekhov",
+    "year": "1900",
+    "chapterCount": 15,
+    "paragraphCount": 1586,
+    "charCount": 346225
+  },
+  {
+    "slug": "uncle-vanya",
+    "title": "Uncle Vanya",
+    "author": "Anton Chekhov",
+    "year": "1898",
+    "chapterCount": 1,
+    "paragraphCount": 684,
+    "charCount": 87969
   },
   {
     "slug": "nicomachean-ethics",
@@ -108,6 +162,15 @@
     "charCount": 463988
   },
   {
+    "slug": "green-mansions",
+    "title": "A Theological-Political Treatise [Part Iv]",
+    "author": "Benedict of Spinoza",
+    "year": null,
+    "chapterCount": 9,
+    "paragraphCount": 494,
+    "charCount": 159062
+  },
+  {
     "slug": "heartbreak-house",
     "title": "Heartbreak House",
     "author": "Bernard Shaw",
@@ -124,33 +187,6 @@
     "chapterCount": 1,
     "paragraphCount": 2175,
     "charCount": 379802
-  },
-  {
-    "slug": "penrod",
-    "title": "Penrod",
-    "author": "Booth Tarkington",
-    "year": "1914",
-    "chapterCount": 6,
-    "paragraphCount": 257,
-    "charCount": 126884
-  },
-  {
-    "slug": "seventeen",
-    "title": "Seventeen",
-    "author": "Booth Tarkington",
-    "year": "1916",
-    "chapterCount": 4,
-    "paragraphCount": 102,
-    "charCount": 37064
-  },
-  {
-    "slug": "magnificent-ambersons",
-    "title": "The Magnificent Ambersons",
-    "author": "Booth Tarkington",
-    "year": "1918",
-    "chapterCount": 62,
-    "paragraphCount": 2912,
-    "charCount": 805623
   },
   {
     "slug": "dracula",
@@ -288,6 +324,24 @@
     "charCount": 30959
   },
   {
+    "slug": "doctor-faustus-marlowe",
+    "title": "The Tragical History of Doctor Faustus",
+    "author": "Christopher Marlowe",
+    "year": "1604",
+    "chapterCount": 8,
+    "paragraphCount": 785,
+    "charCount": 112272
+  },
+  {
+    "slug": "moll-flanders",
+    "title": "Moll Flanders",
+    "author": "Daniel Defoe",
+    "year": "1722",
+    "chapterCount": 1,
+    "paragraphCount": 1998,
+    "charCount": 701011
+  },
+  {
     "slug": "robinson-crusoe",
     "title": "The Life and Adventures of Robinson Crusoe",
     "author": "Daniel Defoe",
@@ -306,6 +360,24 @@
     "charCount": 605119
   },
   {
+    "slug": "five-children-and-it",
+    "title": "Five Children and It",
+    "author": "E. Nesbit",
+    "year": "1902",
+    "chapterCount": 43,
+    "paragraphCount": 2471,
+    "charCount": 272341
+  },
+  {
+    "slug": "railway-children",
+    "title": "The Railway Children",
+    "author": "E. Nesbit",
+    "year": "1906",
+    "chapterCount": 20,
+    "paragraphCount": 2222,
+    "charCount": 320251
+  },
+  {
     "slug": "fall-of-house-usher",
     "title": "The Raven",
     "author": "Edgar Allan Poe",
@@ -315,10 +387,28 @@
     "charCount": 41593
   },
   {
+    "slug": "spoon-river-anthology",
+    "title": "Spoon River Anthology",
+    "author": "Edgar Lee Masters",
+    "year": "1915",
+    "chapterCount": 6,
+    "paragraphCount": 945,
+    "charCount": 207015
+  },
+  {
+    "slug": "at-earths-core",
+    "title": "At the Earth's Core",
+    "author": "Edgar Rice Burroughs",
+    "year": "1914",
+    "chapterCount": 15,
+    "paragraphCount": 941,
+    "charCount": 263032
+  },
+  {
     "slug": "beasts-of-tarzan",
     "title": "The Beasts of Tarzan",
     "author": "Edgar Rice Burroughs",
-    "year": "1914",
+    "year": null,
     "chapterCount": 20,
     "paragraphCount": 1439,
     "charCount": 333316
@@ -327,37 +417,46 @@
     "slug": "gods-of-mars",
     "title": "The Gods of Mars",
     "author": "Edgar Rice Burroughs",
-    "year": "1913",
+    "year": null,
     "chapterCount": 22,
     "paragraphCount": 1901,
     "charCount": 439178
   },
   {
-    "slug": "land-time-forgot",
-    "title": "The Land That Time Forgot",
-    "author": "Edgar Rice Burroughs",
-    "year": "1918",
-    "chapterCount": 9,
-    "paragraphCount": 607,
-    "charCount": 180650
-  },
-  {
     "slug": "return-of-tarzan",
     "title": "The Return of Tarzan",
     "author": "Edgar Rice Burroughs",
-    "year": "1913",
+    "year": null,
     "chapterCount": 26,
     "paragraphCount": 1919,
     "charCount": 475749
   },
   {
+    "slug": "son-of-tarzan",
+    "title": "The Son of Tarzan",
+    "author": "Edgar Rice Burroughs",
+    "year": "1914",
+    "chapterCount": 46,
+    "paragraphCount": 2109,
+    "charCount": 568362
+  },
+  {
     "slug": "warlord-mars",
     "title": "The Warlord of Mars",
     "author": "Edgar Rice Burroughs",
-    "year": "1914",
+    "year": null,
     "chapterCount": 11,
     "paragraphCount": 1343,
     "charCount": 307966
+  },
+  {
+    "slug": "thuvia-maid-mars",
+    "title": "Thuvia, Maid of Mars",
+    "author": "Edgar Rice Burroughs",
+    "year": "1916",
+    "chapterCount": 13,
+    "paragraphCount": 631,
+    "charCount": 180444
   },
   {
     "slug": "house-of-mirth",
@@ -369,6 +468,24 @@
     "charCount": 358444
   },
   {
+    "slug": "germinal",
+    "title": "Germinal",
+    "author": "Émile Zola",
+    "year": "1885",
+    "chapterCount": 5,
+    "paragraphCount": 367,
+    "charCount": 110113
+  },
+  {
+    "slug": "therese-raquin",
+    "title": "Thérèse Raquin",
+    "author": "Émile Zola",
+    "year": "1867",
+    "chapterCount": 34,
+    "paragraphCount": 1491,
+    "charCount": 400687
+  },
+  {
     "slug": "wuthering-heights",
     "title": "Wuthering Heights",
     "author": "Emily Bronte",
@@ -376,6 +493,24 @@
     "chapterCount": 34,
     "paragraphCount": 2569,
     "charCount": 639866
+  },
+  {
+    "slug": "riddle-of-sands",
+    "title": "The Riddle of the Sands",
+    "author": "Erskine Childers",
+    "year": "1903",
+    "chapterCount": 29,
+    "paragraphCount": 2590,
+    "charCount": 593539
+  },
+  {
+    "slug": "evelina",
+    "title": "Evelina",
+    "author": "Frances Burney",
+    "year": "1778",
+    "chapterCount": 10,
+    "paragraphCount": 4079,
+    "charCount": 855119
   },
   {
     "slug": "the-secret-garden",
@@ -423,6 +558,15 @@
     "charCount": 379129
   },
   {
+    "slug": "demons",
+    "title": "Demons",
+    "author": "Fyodor Dostoevsky",
+    "year": "1872",
+    "chapterCount": 99,
+    "paragraphCount": 6580,
+    "charCount": 1401691
+  },
+  {
     "slug": "crime-and-punishment",
     "title": "Crime and Punishment",
     "author": "Fyodor Dostoyevsky",
@@ -457,6 +601,24 @@
     "chapterCount": 28,
     "paragraphCount": 2601,
     "charCount": 643257
+  },
+  {
+    "slug": "innocence-father-brown",
+    "title": "The Innocence of Father Brown",
+    "author": "G. K. Chesterton",
+    "year": "1911",
+    "chapterCount": 1,
+    "paragraphCount": 1860,
+    "charCount": 436675
+  },
+  {
+    "slug": "man-who-was-thursday",
+    "title": "The Man Who Was Thursday",
+    "author": "G. K. Chesterton",
+    "year": "1908",
+    "chapterCount": 16,
+    "paragraphCount": 1515,
+    "charCount": 316838
   },
   {
     "slug": "canterbury-tales",
@@ -513,6 +675,15 @@
     "charCount": 1145770
   },
   {
+    "slug": "princess-and-goblin",
+    "title": "The Princess and the Goblin",
+    "author": "George MacDonald",
+    "year": "1872",
+    "chapterCount": 33,
+    "paragraphCount": 1490,
+    "charCount": 270171
+  },
+  {
     "slug": "madame-bovary",
     "title": "Madame Bovary",
     "author": "Gustave Flaubert",
@@ -520,6 +691,24 @@
     "chapterCount": 3,
     "paragraphCount": 3276,
     "charCount": 645102
+  },
+  {
+    "slug": "seventeen",
+    "title": "Floor Games; a Companion Volume to \"Little Wars\"",
+    "author": "H. G. Wells",
+    "year": "January 1, 2003",
+    "chapterCount": 4,
+    "paragraphCount": 102,
+    "charCount": 37064
+  },
+  {
+    "slug": "first-men-moon",
+    "title": "The First Men in the Moon",
+    "author": "H. G. Wells",
+    "year": "1901",
+    "chapterCount": 26,
+    "paragraphCount": 1776,
+    "charCount": 374167
   },
   {
     "slug": "invisible-man",
@@ -549,6 +738,24 @@
     "charCount": 320897
   },
   {
+    "slug": "tono-bungay",
+    "title": "Tono-Bungay",
+    "author": "H. G. Wells",
+    "year": "1909",
+    "chapterCount": 94,
+    "paragraphCount": 3434,
+    "charCount": 731420
+  },
+  {
+    "slug": "when-sleeper-wakes",
+    "title": "When the Sleeper Wakes",
+    "author": "H. G. Wells",
+    "year": "1899",
+    "chapterCount": 24,
+    "paragraphCount": 2124,
+    "charCount": 466891
+  },
+  {
     "slug": "mountains-of-madness",
     "title": "At the Mountains of Madness",
     "author": "H. P. Lovecraft",
@@ -565,6 +772,15 @@
     "chapterCount": 1,
     "paragraphCount": 1358,
     "charCount": 138912
+  },
+  {
+    "slug": "hedda-gabler",
+    "title": "Hedda Gabler",
+    "author": "Henrik Ibsen",
+    "year": "1890",
+    "chapterCount": 1,
+    "paragraphCount": 3379,
+    "charCount": 144149
   },
   {
     "slug": "civil-disobedience",
@@ -585,6 +801,15 @@
     "charCount": 629251
   },
   {
+    "slug": "tom-jones",
+    "title": "The History of Tom Jones, a Foundling",
+    "author": "Henry Fielding",
+    "year": "1749",
+    "chapterCount": 33,
+    "paragraphCount": 6280,
+    "charCount": 1942219
+  },
+  {
     "slug": "daisy-miller",
     "title": "Daisy Miller",
     "author": "Henry James",
@@ -594,19 +819,10 @@
     "charCount": 121127
   },
   {
-    "slug": "roderick-hudson",
-    "title": "Roderick Hudson",
-    "author": "Henry James",
-    "year": "1875",
-    "chapterCount": 3299,
-    "paragraphCount": 4915,
-    "charCount": 1540552
-  },
-  {
     "slug": "ambassadors",
     "title": "The Ambassadors",
     "author": "Henry James",
-    "year": "1903",
+    "year": null,
     "chapterCount": 35,
     "paragraphCount": 3835,
     "charCount": 852587
@@ -622,21 +838,12 @@
   },
   {
     "slug": "the-bostonians",
-    "title": "The Bostonians",
+    "title": "The Bostonians, Vol. II (Of Ii)",
     "author": "Henry James",
-    "year": "1886",
+    "year": "November 5, 2006",
     "chapterCount": 19,
     "paragraphCount": 1750,
     "charCount": 453296
-  },
-  {
-    "slug": "golden-bowl",
-    "title": "The Golden Bowl",
-    "author": "Henry James",
-    "year": "1904",
-    "chapterCount": 9,
-    "paragraphCount": 893,
-    "charCount": 204871
   },
   {
     "slug": "portrait-of-a-lady",
@@ -648,6 +855,15 @@
     "charCount": 650838
   },
   {
+    "slug": "princess-casamassima",
+    "title": "The Princess Casamassima",
+    "author": "Henry James",
+    "year": "1886",
+    "chapterCount": 1,
+    "paragraphCount": 184,
+    "charCount": 24459
+  },
+  {
     "slug": "turn-of-the-screw",
     "title": "The Turn of the Screw",
     "author": "Henry James",
@@ -657,31 +873,22 @@
     "charCount": 209247
   },
   {
-    "slug": "turn-of-screw",
-    "title": "The Turn of the Screw",
-    "author": "Henry James",
-    "year": "1898",
-    "chapterCount": 24,
-    "paragraphCount": 1024,
-    "charCount": 209247
-  },
-  {
-    "slug": "wings-of-dove",
-    "title": "The Wings of the Dove",
-    "author": "Henry James",
-    "year": "1902",
-    "chapterCount": 21,
-    "paragraphCount": 2593,
-    "charCount": 573806
-  },
-  {
     "slug": "washington-square",
     "title": "Washington Square",
     "author": "Henry James",
-    "year": "1880",
+    "year": null,
     "chapterCount": 35,
     "paragraphCount": 1908,
     "charCount": 348019
+  },
+  {
+    "slug": "what-maisie-knew",
+    "title": "What Maisie Knew",
+    "author": "Henry James",
+    "year": "1897",
+    "chapterCount": 32,
+    "paragraphCount": 2265,
+    "charCount": 517173
   },
   {
     "slug": "bartleby",
@@ -693,6 +900,15 @@
     "charCount": 81166
   },
   {
+    "slug": "billy-budd",
+    "title": "Billy Budd, Sailor",
+    "author": "Herman Melville",
+    "year": "1924",
+    "chapterCount": 1,
+    "paragraphCount": 599,
+    "charCount": 86403
+  },
+  {
     "slug": "moby-dick",
     "title": "Moby Dick",
     "author": "Herman Melville",
@@ -702,6 +918,15 @@
     "charCount": 1179461
   },
   {
+    "slug": "typee",
+    "title": "Typee",
+    "author": "Herman Melville",
+    "year": "1846",
+    "chapterCount": 19,
+    "paragraphCount": 1999,
+    "charCount": 651521
+  },
+  {
     "slug": "the-odyssey",
     "title": "The Odyssey",
     "author": "Homer",
@@ -709,6 +934,24 @@
     "chapterCount": 21,
     "paragraphCount": 2121,
     "charCount": 672935
+  },
+  {
+    "slug": "eugenie-grandet",
+    "title": "Eugénie Grandet",
+    "author": "Honoré de Balzac",
+    "year": "1833",
+    "chapterCount": 16,
+    "paragraphCount": 1803,
+    "charCount": 370082
+  },
+  {
+    "slug": "pere-goriot",
+    "title": "Père Goriot",
+    "author": "Honoré de Balzac",
+    "year": "1835",
+    "chapterCount": 1,
+    "paragraphCount": 36,
+    "charCount": 3880
   },
   {
     "slug": "fathers-and-sons",
@@ -729,24 +972,6 @@
     "charCount": 234373
   },
   {
-    "slug": "john-barleycorn",
-    "title": "John Barleycorn",
-    "author": "Jack London",
-    "year": "1913",
-    "chapterCount": 18,
-    "paragraphCount": 1092,
-    "charCount": 132935
-  },
-  {
-    "slug": "martin-eden",
-    "title": "Martin Eden",
-    "author": "Jack London",
-    "year": "1909",
-    "chapterCount": 46,
-    "paragraphCount": 3100,
-    "charCount": 762672
-  },
-  {
     "slug": "call-of-the-wild",
     "title": "The Call of the Wild",
     "author": "Jack London",
@@ -756,58 +981,22 @@
     "charCount": 153625
   },
   {
-    "slug": "the-iron-heel",
-    "title": "The Iron Heel",
-    "author": "Jack London",
-    "year": "1908",
-    "chapterCount": 26,
-    "paragraphCount": 1900,
-    "charCount": 494195
-  },
-  {
     "slug": "sea-wolf",
     "title": "The Sea-Wolf",
     "author": "Jack London",
-    "year": "1904",
+    "year": "October 1, 1997",
     "chapterCount": 39,
     "paragraphCount": 2596,
     "charCount": 568656
   },
   {
-    "slug": "star-rover",
-    "title": "The Star Rover",
-    "author": "Jack London",
-    "year": "1915",
-    "chapterCount": 22,
-    "paragraphCount": 2157,
-    "charCount": 546793
-  },
-  {
-    "slug": "portrait-artist",
-    "title": "A Portrait of the Artist as a Young Man",
-    "author": "James Joyce",
-    "year": "1916",
-    "chapterCount": 5,
-    "paragraphCount": 2506,
-    "charCount": 456827
-  },
-  {
     "slug": "dubliners",
     "title": "Dubliners",
     "author": "James Joyce",
-    "year": "1914",
+    "year": null,
     "chapterCount": 11,
     "paragraphCount": 2002,
     "charCount": 364994
-  },
-  {
-    "slug": "ulysses",
-    "title": "Ulysses",
-    "author": "James Joyce",
-    "year": "1922",
-    "chapterCount": 43,
-    "paragraphCount": 7376,
-    "charCount": 1375480
   },
   {
     "slug": "pride-and-prejudice",
@@ -846,6 +1035,15 @@
     "charCount": 130857
   },
   {
+    "slug": "werther",
+    "title": "The Sorrows of Young Werther",
+    "author": "Johann Wolfgang von Goethe",
+    "year": "1774",
+    "chapterCount": 6,
+    "paragraphCount": 771,
+    "charCount": 233931
+  },
+  {
     "slug": "heidi",
     "title": "Heidi",
     "author": "Johanna Spyri",
@@ -853,6 +1051,33 @@
     "chapterCount": 25,
     "paragraphCount": 1903,
     "charCount": 485335
+  },
+  {
+    "slug": "39-steps",
+    "title": "The Thirty-Nine Steps",
+    "author": "John Buchan",
+    "year": "1915",
+    "chapterCount": 10,
+    "paragraphCount": 856,
+    "charCount": 211709
+  },
+  {
+    "slug": "forsyte-saga",
+    "title": "The Forsyte Saga",
+    "author": "John Galsworthy",
+    "year": "1922",
+    "chapterCount": 35,
+    "paragraphCount": 890,
+    "charCount": 248163
+  },
+  {
+    "slug": "on-liberty-mill",
+    "title": "On Liberty",
+    "author": "John Stuart Mill",
+    "year": "1859",
+    "chapterCount": 8,
+    "paragraphCount": 832,
+    "charCount": 303499
   },
   {
     "slug": "a-modest-proposal",
@@ -918,6 +1143,15 @@
     "charCount": 350450
   },
   {
+    "slug": "five-weeks-balloon",
+    "title": "Five Weeks in a Balloon",
+    "author": "Jules Verne",
+    "year": "1863",
+    "chapterCount": 62,
+    "paragraphCount": 2973,
+    "charCount": 527328
+  },
+  {
     "slug": "20000-leagues",
     "title": "Twenty Thousand Leagues Under the Sea",
     "author": "Jules Verne",
@@ -954,6 +1188,24 @@
     "charCount": 297588
   },
   {
+    "slug": "ozma-of-oz",
+    "title": "Ozma of Oz",
+    "author": "L. Frank Baum",
+    "year": "1907",
+    "chapterCount": 16,
+    "paragraphCount": 1301,
+    "charCount": 391294
+  },
+  {
+    "slug": "land-of-oz",
+    "title": "The Marvelous Land of Oz",
+    "author": "L. Frank Baum",
+    "year": "1904",
+    "chapterCount": 2,
+    "paragraphCount": 1602,
+    "charCount": 232325
+  },
+  {
     "slug": "wizard-of-oz",
     "title": "The Wonderful Wizard of Oz",
     "author": "L. Frank Baum",
@@ -972,6 +1224,15 @@
     "charCount": 554133
   },
   {
+    "slug": "tristram-shandy",
+    "title": "The Life and Opinions of Tristram Shandy, Gentleman",
+    "author": "Laurence Sterne",
+    "year": "1759",
+    "chapterCount": 117,
+    "paragraphCount": 3627,
+    "charCount": 1016934
+  },
+  {
     "slug": "war-and-peace",
     "title": "War and Peace",
     "author": "Leo Tolstoy",
@@ -988,6 +1249,15 @@
     "chapterCount": 11,
     "paragraphCount": 817,
     "charCount": 129898
+  },
+  {
+    "slug": "roderick-hudson",
+    "title": "Orlando Furioso",
+    "author": "Lodovico Ariosto",
+    "year": "August 1, 1996",
+    "chapterCount": 3299,
+    "paragraphCount": 4915,
+    "charCount": 1540552
   },
   {
     "slug": "little-women",
@@ -1017,6 +1287,33 @@
     "charCount": 559073
   },
   {
+    "slug": "following-the-equator",
+    "title": "Following the Equator",
+    "author": "Mark Twain",
+    "year": "1897",
+    "chapterCount": 81,
+    "paragraphCount": 3643,
+    "charCount": 1049799
+  },
+  {
+    "slug": "joan-of-arc-twain",
+    "title": "Personal Recollections of Joan of Arc",
+    "author": "Mark Twain",
+    "year": "1896",
+    "chapterCount": 39,
+    "paragraphCount": 1913,
+    "charCount": 423828
+  },
+  {
+    "slug": "puddnhead-wilson",
+    "title": "Pudd'nhead Wilson",
+    "author": "Mark Twain",
+    "year": "1894",
+    "chapterCount": 35,
+    "paragraphCount": 1339,
+    "charCount": 290819
+  },
+  {
     "slug": "tom-sawyer",
     "title": "The Adventures of Tom Sawyer",
     "author": "Mark Twain",
@@ -1035,6 +1332,15 @@
     "charCount": 220277
   },
   {
+    "slug": "tom-sawyer-abroad",
+    "title": "Tom Sawyer Abroad",
+    "author": "Mark Twain",
+    "year": "1894",
+    "chapterCount": 12,
+    "paragraphCount": 811,
+    "charCount": 155380
+  },
+  {
     "slug": "life-on-mississippi",
     "title": "Life on the Mississippi",
     "author": "Mark Twain (Samuel Clemens)",
@@ -1051,6 +1357,15 @@
     "chapterCount": 53,
     "paragraphCount": 1902,
     "charCount": 387836
+  },
+  {
+    "slug": "hans-brinker",
+    "title": "Hans Brinker, or The Silver Skates",
+    "author": "Mary Mapes Dodge",
+    "year": "1865",
+    "chapterCount": 1,
+    "paragraphCount": 2425,
+    "charCount": 465144
   },
   {
     "slug": "frankenstein",
@@ -1087,6 +1402,24 @@
     "chapterCount": 31,
     "paragraphCount": 800,
     "charCount": 276505
+  },
+  {
+    "slug": "dead-souls",
+    "title": "Dead Souls",
+    "author": "Nikolai Gogol",
+    "year": "1842",
+    "chapterCount": 15,
+    "paragraphCount": 3190,
+    "charCount": 803971
+  },
+  {
+    "slug": "taras-bulba",
+    "title": "Taras Bulba",
+    "author": "Nikolai Gogol",
+    "year": "1835",
+    "chapterCount": 23,
+    "paragraphCount": 2226,
+    "charCount": 613107
   },
   {
     "slug": "earnest",
@@ -1134,6 +1467,15 @@
     "charCount": 534820
   },
   {
+    "slug": "gitanjali",
+    "title": "Gitanjali",
+    "author": "Rabindranath Tagore",
+    "year": "1912",
+    "chapterCount": 4,
+    "paragraphCount": 551,
+    "charCount": 73959
+  },
+  {
     "slug": "self-reliance",
     "title": "Essays by Ralph Waldo Emerson",
     "author": "Ralph Waldo Emerson",
@@ -1141,6 +1483,15 @@
     "chapterCount": 13,
     "paragraphCount": 1945,
     "charCount": 530294
+  },
+  {
+    "slug": "penrod",
+    "title": "A Discourse on Method",
+    "author": "Rene Descartes",
+    "year": null,
+    "chapterCount": 6,
+    "paragraphCount": 257,
+    "charCount": 126884
   },
   {
     "slug": "jekyll-and-hyde",
@@ -1188,6 +1539,24 @@
     "charCount": 269089
   },
   {
+    "slug": "erewhon",
+    "title": "Erewhon",
+    "author": "Samuel Butler",
+    "year": "1872",
+    "chapterCount": 32,
+    "paragraphCount": 1334,
+    "charCount": 459466
+  },
+  {
+    "slug": "way-of-all-flesh",
+    "title": "The Way of All Flesh",
+    "author": "Samuel Butler",
+    "year": "1903",
+    "chapterCount": 88,
+    "paragraphCount": 2693,
+    "charCount": 867627
+  },
+  {
     "slug": "where-angels-fear",
     "title": "Confessions of an Inquiring Spirit",
     "author": "Samuel Taylor Coleridge",
@@ -1197,13 +1566,13 @@
     "charCount": 253340
   },
   {
-    "slug": "six-records",
-    "title": "Six Records of a Floating Life",
-    "author": "Shen Fu",
-    "year": "1809",
-    "chapterCount": 10,
-    "paragraphCount": 1266,
-    "charCount": 96458
+    "slug": "country-pointed-firs",
+    "title": "The Country of the Pointed Firs",
+    "author": "Sarah Orne Jewett",
+    "year": "1896",
+    "chapterCount": 1,
+    "paragraphCount": 779,
+    "charCount": 226997
   },
   {
     "slug": "oedipus-rex",
@@ -1215,6 +1584,24 @@
     "charCount": 202970
   },
   {
+    "slug": "red-and-black",
+    "title": "The Red and the Black",
+    "author": "Stendhal",
+    "year": "1830",
+    "chapterCount": 79,
+    "paragraphCount": 4212,
+    "charCount": 1064511
+  },
+  {
+    "slug": "maggie-girl-streets",
+    "title": "Maggie: A Girl of the Streets",
+    "author": "Stephen Crane",
+    "year": "1893",
+    "chapterCount": 19,
+    "paragraphCount": 752,
+    "charCount": 127134
+  },
+  {
     "slug": "art-of-war",
     "title": "The Art of War",
     "author": "Sun Tzu",
@@ -1222,6 +1609,15 @@
     "chapterCount": 15,
     "paragraphCount": 1474,
     "charCount": 308541
+  },
+  {
+    "slug": "financier-dreiser",
+    "title": "The Financier",
+    "author": "Theodore Dreiser",
+    "year": "1912",
+    "chapterCount": 60,
+    "paragraphCount": 3824,
+    "charCount": 1073897
   },
   {
     "slug": "common-sense",
@@ -1395,6 +1791,15 @@
     "charCount": 419705
   },
   {
+    "slug": "golden-bowl",
+    "title": "Golden Bowl",
+    "author": "Unknown",
+    "year": null,
+    "chapterCount": 9,
+    "paragraphCount": 893,
+    "charCount": 204871
+  },
+  {
     "slug": "hard-times",
     "title": "Hard Times",
     "author": "Unknown",
@@ -1431,6 +1836,15 @@
     "charCount": 1084902
   },
   {
+    "slug": "john-barleycorn",
+    "title": "John Barleycorn",
+    "author": "Unknown",
+    "year": null,
+    "chapterCount": 18,
+    "paragraphCount": 1092,
+    "charCount": 132935
+  },
+  {
     "slug": "julius-caesar",
     "title": "Julius Caesar",
     "author": "Unknown",
@@ -1465,6 +1879,15 @@
     "chapterCount": 1,
     "paragraphCount": 1399,
     "charCount": 151552
+  },
+  {
+    "slug": "land-time-forgot",
+    "title": "Land Time Forgot",
+    "author": "Unknown",
+    "year": null,
+    "chapterCount": 9,
+    "paragraphCount": 607,
+    "charCount": 180650
   },
   {
     "slug": "last-of-the-mohicans",
@@ -1546,6 +1969,15 @@
     "chapterCount": 47,
     "paragraphCount": 2865,
     "charCount": 859320
+  },
+  {
+    "slug": "martin-eden",
+    "title": "Martin Eden",
+    "author": "Unknown",
+    "year": null,
+    "chapterCount": 46,
+    "paragraphCount": 3100,
+    "charCount": 762672
   },
   {
     "slug": "merchant-of-venice",
@@ -1710,6 +2142,15 @@
     "charCount": 309044
   },
   {
+    "slug": "portrait-artist",
+    "title": "Portrait Artist",
+    "author": "Unknown",
+    "year": null,
+    "chapterCount": 5,
+    "paragraphCount": 2506,
+    "charCount": 456827
+  },
+  {
     "slug": "princess-of-mars",
     "title": "Princess Of Mars",
     "author": "Unknown",
@@ -1791,6 +2232,15 @@
     "charCount": 844882
   },
   {
+    "slug": "star-rover",
+    "title": "Star Rover",
+    "author": "Unknown",
+    "year": null,
+    "chapterCount": 22,
+    "paragraphCount": 2157,
+    "charCount": 546793
+  },
+  {
     "slug": "study-in-scarlet",
     "title": "Study In Scarlet",
     "author": "Unknown",
@@ -1861,6 +2311,15 @@
     "chapterCount": 27,
     "paragraphCount": 3355,
     "charCount": 1024416
+  },
+  {
+    "slug": "the-iron-heel",
+    "title": "The Iron Heel",
+    "author": "Unknown",
+    "year": null,
+    "chapterCount": 26,
+    "paragraphCount": 1900,
+    "charCount": 494195
   },
   {
     "slug": "the-jungle",
@@ -1935,6 +2394,15 @@
     "charCount": 159792
   },
   {
+    "slug": "turn-of-screw",
+    "title": "Turn Of Screw",
+    "author": "Unknown",
+    "year": null,
+    "chapterCount": 24,
+    "paragraphCount": 1024,
+    "charCount": 209247
+  },
+  {
     "slug": "twelfth-night",
     "title": "Twelfth Night",
     "author": "Unknown",
@@ -1960,6 +2428,15 @@
     "chapterCount": 7,
     "paragraphCount": 699,
     "charCount": 172503
+  },
+  {
+    "slug": "ulysses",
+    "title": "Ulysses",
+    "author": "Unknown",
+    "year": null,
+    "chapterCount": 43,
+    "paragraphCount": 7376,
+    "charCount": 1375480
   },
   {
     "slug": "up-from-slavery",
@@ -2007,6 +2484,15 @@
     "charCount": 379804
   },
   {
+    "slug": "wings-of-dove",
+    "title": "Wings Of Dove",
+    "author": "Unknown",
+    "year": null,
+    "chapterCount": 21,
+    "paragraphCount": 2593,
+    "charCount": 573806
+  },
+  {
     "slug": "hunchback-notre-dame",
     "title": "Notre-Dame De Paris",
     "author": "Victor Hugo",
@@ -2032,15 +2518,6 @@
     "chapterCount": 4,
     "paragraphCount": 951,
     "charCount": 316952
-  },
-  {
-    "slug": "green-mansions",
-    "title": "Green Mansions",
-    "author": "W. H. Hudson",
-    "year": "1904",
-    "chapterCount": 9,
-    "paragraphCount": 494,
-    "charCount": 159062
   },
   {
     "slug": "of-human-bondage",
@@ -2086,6 +2563,15 @@
     "chapterCount": 45,
     "paragraphCount": 1486,
     "charCount": 426725
+  },
+  {
+    "slug": "magnificent-ambersons",
+    "title": "The Song of the Lark",
+    "author": "Willa Cather",
+    "year": null,
+    "chapterCount": 62,
+    "paragraphCount": 2912,
+    "charCount": 805623
   },
   {
     "slug": "hamlet",

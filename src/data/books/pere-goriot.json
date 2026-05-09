@@ -1,0 +1,160 @@
+{
+  "slug": "pere-goriot",
+  "title": "Père Goriot",
+  "author": "Honoré de Balzac",
+  "year": "1835",
+  "chapters": [
+    {
+      "title": "Addendum",
+      "paragraphs": [
+        {
+          "id": "p0",
+          "text": "The following personages appear in other stories of the Human Comedy."
+        },
+        {
+          "id": "p1",
+          "text": "Ajuda-Pinto, Marquis Miguel d' Scenes from a Courtesan's Life The Secrets of a Princess Beatrix"
+        },
+        {
+          "id": "p2",
+          "text": "Beauseant, Marquis An Episode under the Terror"
+        },
+        {
+          "id": "p3",
+          "text": "Beauseant, Vicomte de The Deserted Woman"
+        },
+        {
+          "id": "p4",
+          "text": "Beauseant, Vicomtesse de The Deserted Woman Albert Savarus"
+        },
+        {
+          "id": "p5",
+          "text": "Bianchon, Horace The Atheist's Mass Cesar Birotteau The Commission in Lunacy Lost Illusions A Distinguished Provincial at Paris A Bachelor's Establishment The Secrets of a Princess The Government Clerks Pierrette A Study of Woman Scenes from a Courtesan's Life Honorine The Seamy Side of History The Magic Skin A Second Home A Prince of Bohemia Letters of Two Brides The Muse of the Department The Imaginary Mistress The Middle Classes Cousin Betty The Country Parson In addition, M."
+        },
+        {
+          "id": "p6",
+          "text": "Bianchon narrated the following: Another Study of Woman La Grande Breteche"
+        },
+        {
+          "id": "p7",
+          "text": "Bibi-Lupin (chief of secret police, called himself Gondureau) Scenes from a Courtesan's Life"
+        },
+        {
+          "id": "p8",
+          "text": "Carigliano, Marechal, Duc de Sarrasine"
+        },
+        {
+          "id": "p9",
+          "text": "Collin, Jacques Lost Illusions A Distinguished Provincial at Paris Scenes from a Courtesan's Life The Member for Arcis"
+        },
+        {
+          "id": "p10",
+          "text": "Derville Gobseck A Start in Life The Gondreville Mystery Colonel Chabert Scenes from a Courtesan's Life"
+        },
+        {
+          "id": "p11",
+          "text": "Franchessini, Colonel The Member for Arcis"
+        },
+        {
+          "id": "p12",
+          "text": "Galathionne, Princess A Daughter of Eve"
+        },
+        {
+          "id": "p13",
+          "text": "Gobseck, Jean-Esther Van Gobseck Cesar Birotteau The Government Clerks The Unconscious Humorists"
+        },
+        {
+          "id": "p14",
+          "text": "Jacques (M. de Beauseant's butler) The Deserted Woman"
+        },
+        {
+          "id": "p15",
+          "text": "Langeais, Duchesse Antoinette de The Thirteen"
+        },
+        {
+          "id": "p16",
+          "text": "Marsay, Henri de The Thirteen The Unconscious Humorists Another Study of Woman The Lily of the Valley Jealousies of a Country Town Ursule Mirouet A Marriage Settlement Lost Illusions A Distinguished Provincial at Paris Letters of Two Brides The Ball at Sceaux Modest Mignon The Secrets of a Princess The Gondreville Mystery A Daughter of Eve"
+        },
+        {
+          "id": "p17",
+          "text": "Maurice (de Restaud's valet) Gobseck"
+        },
+        {
+          "id": "p18",
+          "text": "Montriveau, General Marquis Armand de The Thirteen Lost Illusions A Distinguished Provincial at Paris Another Study of Woman Pierrette The Member for Arcis"
+        },
+        {
+          "id": "p19",
+          "text": "Nucingen, Baron Frederic de The Firm of Nucingen Pierrette Cesar Birotteau Lost Illusions A Distinguished Provincial at Paris Scenes from a Courtesan's Life Another Study of Woman The Secrets of a Princess A Man of Business Cousin Betty The Muse of the Department The Unconscious Humorists"
+        },
+        {
+          "id": "p20",
+          "text": "Nucingen, Baronne Delphine de The Thirteen Eugenie Grandet Cesar Birotteau Melmoth Reconciled Lost Illusions A Distinguished Provincial at Paris The Commission in Lunacy Scenes from a Courtesan's Life Modeste Mignon The Firm of Nucingen Another Study of Woman A Daughter of Eve The Member for Arcis"
+        },
+        {
+          "id": "p21",
+          "text": "Poiret The Government Clerks A Start in Life Scenes from a Courtesan's Life The Middle Classes"
+        },
+        {
+          "id": "p22",
+          "text": "Poiret, Madame (nee Christine-Michelle Michonneau) Scenes from a Courtesan's Life The Middle Classes"
+        },
+        {
+          "id": "p23",
+          "text": "Rastignac, Baron and Baronne de (Eugene's parents) Lost Illusions"
+        },
+        {
+          "id": "p24",
+          "text": "Rastignac, Eugene de A Distinguished Provincial at Paris Scenes from a Courtesan's Life The Ball at Sceaux The Interdiction A Study of Woman Another Study of Woman The Magic Skin The Secrets of a Princess A Daughter of Eve The Gondreville Mystery The Firm of Nucingen Cousin Betty The Member for Arcis The Unconscious Humorists"
+        },
+        {
+          "id": "p25",
+          "text": "Rastignac, Laure-Rose and Agathe de Lost Illusions The Member for Arcis"
+        },
+        {
+          "id": "p26",
+          "text": "Rastignac, Monseigneur Gabriel de The Country Parson A Daughter of Eve"
+        },
+        {
+          "id": "p27",
+          "text": "Restaud, Comte de Gobseck"
+        },
+        {
+          "id": "p28",
+          "text": "Restaud, Comtesse Anastasie de Gobseck"
+        },
+        {
+          "id": "p29",
+          "text": "Selerier Scenes from a Courtesan's Life"
+        },
+        {
+          "id": "p30",
+          "text": "Taillefer, Jean-Frederic The Firm of Nucingen The Magic Skin The Red Inn"
+        },
+        {
+          "id": "p31",
+          "text": "Taillefer, Victorine The Red Inn"
+        },
+        {
+          "id": "p32",
+          "text": "Therese A Daughter of Eve"
+        },
+        {
+          "id": "p33",
+          "text": "Tissot, Pierre-Francois A Prince of Bohemia"
+        },
+        {
+          "id": "p34",
+          "text": "Trailles, Comte Maxime de Cesar Birotteau Gobseck Ursule Mirouet A Man of Business The Member for Arcis The Secrets of a Princess Cousin Betty The Member for Arcis Beatrix The Unconscious Humorists"
+        },
+        {
+          "id": "p35",
+          "text": "End of the Project Gutenberg EBook of Father Goriot, by Honore de Balzac"
+        }
+      ]
+    }
+  ],
+  "chapterCount": 1,
+  "paragraphCount": 36,
+  "charCount": 3880
+}
