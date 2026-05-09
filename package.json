@@ -1,7 +1,16 @@
 {
-  "name": "typing-tutor",
+  "name": "guerillatype",
   "version": "0.1.0",
   "description": "A free, open-source, adaptive typing tutor. localStorage only, no accounts.",
+  "homepage": "https://guerillatype.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jonajinga/GuerillaType.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jonajinga/GuerillaType/issues"
+  },
+  "author": "Jon Ajinga",
   "type": "module",
   "license": "MIT",
   "scripts": {
