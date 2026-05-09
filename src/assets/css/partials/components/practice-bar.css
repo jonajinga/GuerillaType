@@ -41,8 +41,18 @@ body.is-hide-ui:not(.is-corpus-mode) .tt-stage{
 }
 .practice-bar__modes{
   flex:1;display:flex;align-items:center;
-  justify-content:flex-start;min-width:0;gap:.6rem;flex-wrap:wrap;
+  justify-content:flex-start;min-width:0;gap:.6rem;flex-wrap:nowrap;
+  /* Mobile + narrow desktops: never wrap. The bar slides
+     horizontally if there is more content than fits. -webkit-overflow-
+     scrolling momentum keeps it feeling native on iOS. The track
+     stays scroll-snappy via scroll-snap-type so each chip lands cleanly. */
+  overflow-x:auto;overflow-y:hidden;
+  scroll-snap-type:x proximity;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
 }
+.practice-bar__modes::-webkit-scrollbar{display:none}
+.practice-bar__modes > *{flex-shrink:0;scroll-snap-align:start}
 .practice-bar__stats{
   flex-shrink:0;padding-left:var(--space-4);
   border-left:1px solid var(--rule);

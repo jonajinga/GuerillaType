@@ -62,6 +62,13 @@ function bindElement(el) {
     offset: [0, 8],
     interactive: false,
     appendTo: () => document.body,
+    // Touch devices: only show after a 500 ms hold, and hide the
+    // moment the user stops holding. Without this, every tap on a
+    // tooltip-bound element fires the tooltip *and* the underlying
+    // click handler -- which on mobile causes flicker, reads as a
+    // misfire, and blocks the user's actual tap target. The "hold"
+    // mode mirrors how Android long-press shows tooltips natively.
+    touch: ["hold", 500],
   });
 }
 

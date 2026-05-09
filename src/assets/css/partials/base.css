@@ -34,6 +34,17 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible{
 button, a.btn, [role="button"], summary{min-height:44px}
 button[data-touch="compact"], a[data-touch="compact"]{min-height:0}
 
+/* iOS auto-zoom guard. iOS Safari (and Chrome Android, occasionally)
+   auto-zoom into any focused form control whose font-size is below
+   16px. The zoom doesn't reverse automatically -- the user has to
+   pinch back out -- which on the hamburger search box, settings
+   selects, and contribute forms reads as a bug. Floor every form
+   control at 16px on phone-sized viewports. The visual scale is
+   handled by line-height + padding, not by shrinking the font. */
+@media (max-width:640px){
+  input, select, textarea{font-size:max(16px, 1rem)}
+}
+
 .muted{color:var(--fg-2)}
 .center{text-align:center}
 .visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}

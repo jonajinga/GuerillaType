@@ -61,6 +61,19 @@
 
 .stats-section{margin-top:var(--space-6)}
 .stats-section__title{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:.6rem;margin-bottom:var(--space-3)}
+/* Mode-toggle bars inside stats sections (kb-toggle, contrib-toggle,
+   tabs__btn rows) -- on mobile they should slide horizontally rather
+   than wrap to a second line, matching the practice toolbar. */
+.kb-toggle, .contrib-toggle, .tabs{
+  flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  max-width:100%;
+}
+.kb-toggle::-webkit-scrollbar,
+.contrib-toggle::-webkit-scrollbar,
+.tabs::-webkit-scrollbar{display:none}
+.kb-toggle > *, .contrib-toggle > *, .tabs > *{flex-shrink:0;white-space:nowrap}
 .stats-section__actions{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
 /* Buttons inside section action rows share a min-width AND a fixed
    flex basis so a long primary label and a short secondary one render

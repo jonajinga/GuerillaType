@@ -34,6 +34,23 @@ export function attachInput(inputEl, host, handlers) {
   host.addEventListener("mousedown", (e) => {
     if (e.button === 0) { e.preventDefault(); focus(); }
   });
+  // Mobile: mousedown synthetic events don't reliably trigger the soft
+  // keyboard. iOS / Chrome Android only raise the on-screen keyboard
+  // from a focus() call that happens INSIDE a user-gesture handler,
+  // and "user gesture" on touch means touchend or click. Without this
+  // listener, the user has to tap out of the surface and tap back in
+  // before the soft keyboard appears -- the original bug. Bind both
+  // to handle Safari quirks where one event sometimes does not fire.
+  const focusFromTouch = (e) => {
+    // Only steal focus when the tap target is the host itself or a
+    // non-interactive descendant. If the user tapped a button (toolbar,
+    // toggle, etc.), let that button receive its own click.
+    const t = e.target;
+    if (t && t.closest("button, a, input, select, textarea, [role=button]")) return;
+    focus();
+  };
+  host.addEventListener("touchend", focusFromTouch, { passive: true });
+  host.addEventListener("click", focusFromTouch);
   document.addEventListener("keydown", (e) => {
     if (e.target === inputEl) return;
     if (e.ctrlKey || e.metaKey || e.altKey) return;

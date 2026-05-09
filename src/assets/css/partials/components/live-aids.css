@@ -11,6 +11,15 @@
 }
 .live-kb[hidden]{display:none}
 .live-kb__svg{display:block;width:100%;height:auto;margin:0 auto}
+/* On mobile (≤640px wide OR coarse-pointer touch devices), force-hide
+   the virtual keyboard regardless of the user's preference. There is
+   no physical keyboard for it to mirror -- the user is typing on a
+   soft keyboard the OS already shows -- and the SVG kb takes a huge
+   chunk of screen real-estate for no payoff. */
+@media (max-width:640px),
+       (hover:none) and (pointer:coarse){
+  .live-kb{display:none !important}
+}
 .live-kb__cap{
   fill:var(--bg-2);stroke:var(--rule);stroke-width:1;
   transition:fill var(--t-fast), stroke var(--t-fast);

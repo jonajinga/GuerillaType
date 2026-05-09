@@ -130,6 +130,18 @@ window.openSettingsModal = function (e) {
   // Bypass conditions that should fall through to native navigation.
   if (e && (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button === 1)) return true;
   if (location.pathname.replace(/\/+$/, "") === "/settings") return true;
+  // Mobile: skip the iframe modal entirely. Iframes have known issues
+  // on iOS Safari + Chrome Android with form-input scrolling, soft-
+  // keyboard sizing, and content that bleeds out of fixed parents.
+  // The full-page /settings/ route renders perfectly on mobile, so
+  // just navigate there. Use 768px as the hand-off line -- the same
+  // breakpoint where the full settings page switches to a single
+  // column layout.
+  const isMobile =
+    typeof window.matchMedia === "function" &&
+    (window.matchMedia("(max-width: 767px)").matches ||
+     window.matchMedia("(hover: none) and (pointer: coarse)").matches);
+  if (isMobile) return true;
   if (e) e.preventDefault();
   const el = buildSettingsModal();
   const frame = el.querySelector("[data-frame]");

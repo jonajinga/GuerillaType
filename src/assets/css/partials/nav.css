@@ -307,6 +307,15 @@
   overflow:hidden;
 }
 .nav-panel[data-open="true"]{right:0}
+/* Mobile: full-screen panel. The 92vw cap on phones leaves a slim
+   strip of the page visible behind, which looks half-finished and
+   makes touch targets cramped. Go edge-to-edge instead. */
+@media (max-width:640px){
+  .nav-panel{
+    width:100vw;max-width:100vw;
+    border-left:0;box-shadow:none;
+  }
+}
 
 /* Brand header -- icon + wordmark + close. Replaces the bare "Menu"
    title with a self-anchoring identity row that doubles as a home link. */
@@ -380,7 +389,13 @@
     no-repeat .75rem center;
   color:var(--fg-0);
   border:1px solid var(--rule);border-radius:var(--radius);
-  font-family:var(--font-sans);font-size:var(--fs-300);
+  font-family:var(--font-sans);
+  /* Floor at 16px on phones. iOS Safari (and Chrome Android) auto-zoom
+     into any focused input whose font-size is below 16px, which the
+     user then has to manually zoom back out of. var(--fs-300) clamps
+     down to ~14px on small viewports, which is what triggered the bug
+     when opening the hamburger panel. Force at-least-16px on mobile. */
+  font-size:max(16px, var(--fs-300));
   appearance:none;-webkit-appearance:none;outline:0;
   transition:border-color .15s, box-shadow .15s;
 }
