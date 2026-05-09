@@ -76,8 +76,8 @@
   },
   {
     "id": "q-darkest-moments",
-    "text": "It is during our darkest moments that we must focus to see the light. nothing is impossible to a willing heart, and a small spark can light a great flame in the heart of every person who chooses courage over fear.",
-    "author": "Aristotle (paraphrase)",
+    "text": "It is during our darkest moments that we must focus to see the light. Nothing is impossible to a willing heart, and a small spark can light a great flame in the heart of every person who chooses courage over fear.",
+    "author": "Aristotle",
     "tags": [
       "motivation"
     ]
@@ -108,7 +108,7 @@
   },
   {
     "id": "q-be-kind",
-    "text": "You must be the change you wish to see in the world. be kind whenever possible. it is always possible.",
+    "text": "You must be the change you wish to see in the world. Be kind whenever possible. It is always possible.",
     "author": "Dalai Lama",
     "tags": [
       "kindness"
@@ -116,41 +116,100 @@
   },
   {
     "id": "q-excellence-habit",
-    "text": "We are what we repeatedly do. excellence, then, is not an act, but a habit.",
+    "text": "We are what we repeatedly do. Excellence, then, is not an act, but a habit.",
     "author": "Will Durant",
     "tags": [
       "philosophy"
     ]
   },
   {
-    "id": "q-unexamined-life",
-    "text": "The unexamined life is not worth living. the secret of happiness, you see, is not found in seeking more, but in developing the capacity to enjoy less. yet happiness is the meaning and the purpose of life, the whole aim and end of human existence.",
-    "author": "Socrates / Aristotle",
+    "id": "q-unexamined-life-1",
+    "text": "The unexamined life is not worth living.",
+    "author": "Socrates",
     "tags": [
       "philosophy"
     ]
   },
   {
-    "id": "q-trail",
-    "text": "Do not go where the path may lead, go instead where there is no path and leave a trail. always remember that you are absolutely unique. just like everyone else.",
-    "author": "Ralph Waldo Emerson / Margaret Mead",
+    "id": "q-unexamined-life-2",
+    "text": "The secret of happiness is not found in seeking more, but in developing the capacity to enjoy less.",
+    "author": "Socrates",
+    "tags": [
+      "philosophy"
+    ]
+  },
+  {
+    "id": "q-unexamined-life-3",
+    "text": "Happiness is the meaning and the purpose of life, the whole aim and end of human existence.",
+    "author": "Aristotle",
+    "tags": [
+      "philosophy"
+    ]
+  },
+  {
+    "id": "q-trail-1",
+    "text": "Do not go where the path may lead, go instead where there is no path and leave a trail.",
+    "author": "Ralph Waldo Emerson",
     "tags": [
       "philosophy",
       "humor"
     ]
   },
   {
-    "id": "q-rising",
-    "text": "The greatest glory in living lies not in never falling, but in rising every time we fall. our greatest weakness lies in giving up. the most certain way to succeed is always to try just one more time. believe you can and you're halfway there.",
-    "author": "Nelson Mandela / Edison / Roosevelt",
+    "id": "q-trail-2",
+    "text": "Always remember that you are absolutely unique. Just like everyone else.",
+    "author": "Margaret Mead",
+    "tags": [
+      "philosophy",
+      "humor"
+    ]
+  },
+  {
+    "id": "q-rising-1",
+    "text": "The greatest glory in living lies not in never falling, but in rising every time we fall.",
+    "author": "Nelson Mandela",
     "tags": [
       "motivation"
     ]
   },
   {
-    "id": "q-shoulders-giants",
-    "text": "If i have seen further than others, it is by standing upon the shoulders of giants. logic will get you from a to b. imagination will take you everywhere. the important thing is not to stop questioning.",
-    "author": "Newton / Einstein",
+    "id": "q-rising-2",
+    "text": "Our greatest weakness lies in giving up. The most certain way to succeed is always to try just one more time.",
+    "author": "Thomas Edison",
+    "tags": [
+      "motivation"
+    ]
+  },
+  {
+    "id": "q-rising-3",
+    "text": "Believe you can and you're halfway there.",
+    "author": "Theodore Roosevelt",
+    "tags": [
+      "motivation"
+    ]
+  },
+  {
+    "id": "q-shoulders-giants-1",
+    "text": "If I have seen further than others, it is by standing upon the shoulders of giants.",
+    "author": "Isaac Newton",
+    "tags": [
+      "science",
+      "learning"
+    ]
+  },
+  {
+    "id": "q-shoulders-giants-2",
+    "text": "Logic will get you from A to B. Imagination will take you everywhere.",
+    "author": "Albert Einstein",
+    "tags": [
+      "science",
+      "learning"
+    ]
+  },
+  {
+    "id": "q-shoulders-giants-3",
+    "text": "The important thing is not to stop questioning.",
+    "author": "Albert Einstein",
     "tags": [
       "science",
       "learning"
@@ -167,7 +226,7 @@
   },
   {
     "id": "q-call-me",
-    "text": "Call me ishmael. some years ago -- never mind how long precisely -- having little or no money in my purse, and nothing particular to interest me on shore, i thought i would sail about a little and see the watery part of the world.",
+    "text": "Call me ishmael. Some years ago -- never mind how long precisely -- having little or no money in my purse, and nothing particular to interest me on shore, i thought i would sail about a little and see the watery part of the world.",
     "author": "Herman Melville",
     "tags": [
       "literature"
@@ -2998,7 +3057,7 @@
   {
     "id": "q-voltaire-disagree",
     "text": "I disapprove of what you say, but I will defend to the death your right to say it.",
-    "author": "Voltaire (paraphrase)",
+    "author": "Voltaire",
     "tags": [
       "liberty"
     ]
@@ -3206,7 +3265,7 @@
   {
     "id": "q-orwell-1984-truth",
     "text": "The further a society drifts from truth, the more it will hate those who speak it.",
-    "author": "George Orwell (attributed)",
+    "author": "George Orwell",
     "tags": [
       "truth"
     ]
@@ -3438,7 +3497,7 @@
   {
     "id": "q-frankl-meaning",
     "text": "Those who have a why to live, can bear with almost any how.",
-    "author": "Viktor Frankl (after Nietzsche)",
+    "author": "Viktor Frankl",
     "tags": [
       "meaning"
     ]
@@ -3647,7 +3706,7 @@
   {
     "id": "q-confucius-revenge",
     "text": "Before you embark on a journey of revenge, dig two graves.",
-    "author": "Confucius (attributed)",
+    "author": "Confucius",
     "tags": [
       "revenge"
     ]
