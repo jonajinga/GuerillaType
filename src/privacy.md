@@ -3,7 +3,7 @@ layout: layouts/article.njk
 title: "Privacy"
 eyebrow: "Your data"
 lede: "What I collect (almost nothing), what stays on your device (everything else), what your rights are."
-description: "Privacy policy for Guerilla Type — privacy-first by design, no accounts, no cookies, no third-party tracking."
+description: "Privacy policy for GuerillaType — privacy-first by design, no accounts, no cookies, no third-party tracking."
 ---
 
 ## Privacy at a glance

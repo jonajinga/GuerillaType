@@ -3,7 +3,7 @@ layout: layouts/article.njk
 title: "About"
 eyebrow: "What this is"
 lede: "A free, open-source typing tutor for the rest of us. No accounts, no tracking, no premium tier — just a clean place to practice typing."
-description: "About Guerilla Type: what it is, why it exists, who built it, how it's made."
+description: "About GuerillaType: what it is, why it exists, who built it, how it's made."
 cta:
   title: "Start typing"
   body: "The fastest way to understand it is to use it."
@@ -24,7 +24,7 @@ The site doesn't ask who you are or what you're working toward. Pick a mode, typ
 
 Typing is one of the most-used skills in modern life and one of the least-taught. Most of the free tools that exist are either dated and unloved or tied to platforms that collect data they do not need.
 
-Guerilla Type is the typing tutor I wanted to use: instant practice, structured lessons, a real adaptive engine, and the ability to type through any text I bring in. It is calm, it is fast, and nothing leaves the device.
+GuerillaType is the typing tutor I wanted to use: instant practice, structured lessons, a real adaptive engine, and the ability to type through any text I bring in. It is calm, it is fast, and nothing leaves the device.
 
 ## How it works
 

@@ -3,7 +3,7 @@ layout: layouts/article.njk
 title: "FAQ"
 eyebrow: "Common questions"
 lede: "How the engine works, where your data lives, why the keyboard heatmap shows what it shows. If your question isn't here, open a GitHub issue."
-description: "Frequently asked questions about Guerilla Type — how it works, what's stored, where it runs."
+description: "Frequently asked questions about GuerillaType — how it works, what's stored, where it runs."
 ---
 
 ## What's the keyboard shortcut to restart?

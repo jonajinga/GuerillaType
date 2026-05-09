@@ -34,10 +34,10 @@ export default [
   },
   {
     date: "2026-05-07",
-    title: "Site named: Guerilla Type",
+    title: "Site named: GuerillaType",
     tag: "v0.3",
     notes: [
-      "New name: Guerilla Type at guerillatype.com",
+      "New name: GuerillaType at guerillatype.com",
       "New brand mark, favicon set, and OG card",
       "Toolbar groups now have visible legends — Mode, Duration, Word count, Quote length",
       "Live stats: third metric label changes per mode (seconds left / words typed / complete %)",

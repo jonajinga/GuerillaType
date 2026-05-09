@@ -3,7 +3,7 @@ layout: layouts/article.njk
 title: "Analytics"
 eyebrow: "What I track"
 lede: "Almost nothing leaves your device. Here's exactly what gets collected, by whom, and how to opt out."
-description: "What Guerilla Type's analytics actually track. Privacy-first by design — no cookies, no personal data, full transparency."
+description: "What GuerillaType's analytics actually track. Privacy-first by design — no cookies, no personal data, full transparency."
 cta:
   title: "Read the privacy policy"
   body: "Full statement on what stays on-device and what (if anything) is transmitted."

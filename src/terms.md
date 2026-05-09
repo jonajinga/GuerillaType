@@ -2,8 +2,8 @@
 layout: layouts/article.njk
 title: "Terms"
 eyebrow: "Fine print"
-lede: "Guerilla Type is provided as-is, MIT-licensed, with no warranty. Use it however you like."
-description: "Terms of use for Guerilla Type."
+lede: "GuerillaType is provided as-is, MIT-licensed, with no warranty. Use it however you like."
+description: "Terms of use for GuerillaType."
 ---
 
 ## What you get
@@ -19,7 +19,7 @@ description: "Terms of use for Guerilla Type."
 
 ## Liability
 
-Guerilla Type is a hobby project. The maintainers are not liable for any data loss, missed deadlines from over-practicing, or hand strain. Take regular breaks; the WCAG 2.2 universe and your wrists will thank you.
+GuerillaType is a hobby project. The maintainers are not liable for any data loss, missed deadlines from over-practicing, or hand strain. Take regular breaks; the WCAG 2.2 universe and your wrists will thank you.
 
 ## License
 

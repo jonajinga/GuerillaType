@@ -2,7 +2,7 @@
 layout: layouts/article.njk
 title: "Tech stack"
 eyebrow: "Under the hood"
-lede: "How Guerilla Type is built. A static site, vanilla JavaScript, no frameworks, no backend, no database. Open source under MIT."
+lede: "How GuerillaType is built. A static site, vanilla JavaScript, no frameworks, no backend, no database. Open source under MIT."
 description: "Tech stack: Eleventy v3, Nunjucks, vanilla CSS, vanilla JS, Cloudflare Pages, Bunny Fonts. No frameworks, no build tooling beyond Eleventy itself."
 cta:
   title: "Source on GitHub"

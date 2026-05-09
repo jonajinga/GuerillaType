@@ -2,8 +2,8 @@
 layout: layouts/article.njk
 title: "License"
 eyebrow: "MIT"
-lede: "Guerilla Type is MIT licensed. Fork it, host your own copy, ship a derivative — attribution appreciated but not required."
-description: "Full MIT license text for Guerilla Type."
+lede: "GuerillaType is MIT licensed. Fork it, host your own copy, ship a derivative — attribution appreciated but not required."
+description: "Full MIT license text for GuerillaType."
 cta:
   title: "Source on GitHub"
   body: "Read the same text in the repo, plus all the source code under the same license."

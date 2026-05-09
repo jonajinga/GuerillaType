@@ -2,7 +2,7 @@
 layout: layouts/article.njk
 title: "Features"
 eyebrow: "What ships"
-lede: "Everything that's built into Guerilla Type today. No paywalls, no premium tier — every feature is available to every visitor on every device."
+lede: "Everything that's built into GuerillaType today. No paywalls, no premium tier — every feature is available to every visitor on every device."
 description: "Complete feature list: practice modes, adaptive engine, custom text, stats dashboard, profiles, themes, keyboard layouts."
 cta:
   title: "Try it now"
@@ -113,7 +113,7 @@ Eight Web3Forms-backed forms at [/contribute/](/contribute/) let users suggest c
 
 ## Blog + RSS
 
-Notes on building Guerilla Type at [/blog/](/blog/) — feature announcements, design decisions, the occasional rabbit hole. Atom RSS feed at [/feed.xml](/feed.xml). Each post has a sticky TOC, reading-progress bar, social-share row, prev/next nav, and a drop cap on the first paragraph.
+Notes on building GuerillaType at [/blog/](/blog/) — feature announcements, design decisions, the occasional rabbit hole. Atom RSS feed at [/feed.xml](/feed.xml). Each post has a sticky TOC, reading-progress bar, social-share row, prev/next nav, and a drop cap on the first paragraph.
 
 ## Fullscreen
 

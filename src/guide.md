@@ -3,7 +3,7 @@ layout: layouts/article.njk
 title: "User guide"
 eyebrow: "How to use the site"
 lede: "A complete walkthrough of every mode, every page, every shortcut. Start anywhere, jump around with the table of contents on the left."
-description: "Comprehensive user guide for Guerilla Type — practice modes, lessons, drills, challenges, custom text, stats, settings, keyboard shortcuts."
+description: "Comprehensive user guide for GuerillaType — practice modes, lessons, drills, challenges, custom text, stats, settings, keyboard shortcuts."
 cta:
   title: "Skip the guide"
   body: "Prefer to learn by doing? Jump straight in."

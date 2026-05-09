@@ -49,7 +49,7 @@ function buildChip() {
   el.className = "pwa-chip";
   el.hidden = true;
   el.innerHTML = `
-    <span class="pwa-chip__copy">Install Guerilla Type for offline practice and faster startup.</span>
+    <span class="pwa-chip__copy">Install GuerillaType for offline practice and faster startup.</span>
     <button type="button" class="btn btn--small btn--primary" data-pwa-install>Install</button>
     <button type="button" class="pwa-chip__close" aria-label="Dismiss" data-pwa-dismiss>×</button>
   `;

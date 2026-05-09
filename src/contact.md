@@ -3,7 +3,7 @@ layout: layouts/article.njk
 title: "Contact"
 eyebrow: "Get in touch"
 lede: "Bug reports, feature requests, or just typing notes. The form below sends straight to my inbox via Web3Forms — no account or backend on my side."
-description: "Contact form for Guerilla Type. Sends to hello@guerillatype.com via Web3Forms."
+description: "Contact form for GuerillaType. Sends to hello@guerillatype.com via Web3Forms."
 cta:
   title: "Other ways to reach me"
   body: "Code-related discussion is best on GitHub Issues so the conversation is searchable."
@@ -16,7 +16,7 @@ cta:
 
 <form id="contact-form" class="contact-form" action="{{ web3forms.endpoint }}" method="POST">
   <input type="hidden" name="access_key" value="{{ web3forms.accessKey }}">
-  <input type="hidden" name="subject" value="Guerilla Type — contact form">
+  <input type="hidden" name="subject" value="GuerillaType — contact form">
   <input type="hidden" name="from_name" value="guerillatype.com">
   <input type="hidden" name="contribution_kind" value="contact">
   <!-- Honeypot -->

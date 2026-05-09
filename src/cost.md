@@ -3,7 +3,7 @@ layout: layouts/article.njk
 title: "Cost"
 eyebrow: "Real numbers"
 lede: "What it costs to run a free typing tutor for everyone, every day. Spoiler: not much. Here's the breakdown."
-description: "What Guerilla Type costs to host and operate. Cloudflare Pages + Bunny Fonts on the free tier — total monthly bill is near zero."
+description: "What GuerillaType costs to host and operate. Cloudflare Pages + Bunny Fonts on the free tier — total monthly bill is near zero."
 cta:
   title: "Help keep it free"
   body: "Star the repo, file good bugs, contribute a feature. That's the whole funding model."
