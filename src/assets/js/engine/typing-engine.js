@@ -97,7 +97,14 @@ export class TypingEngine {
        window.matchMedia("(hover: none) and (pointer: coarse)").matches);
     if (isMobile) {
       this.host.dataset.mobileWaiting = "true";
-      this.setHint("Tap here to start typing");
+      // Force the unfocused visual state. The .tt-stage[data-focused
+      // ="false"] selector blurs the typing text and surfaces the
+      // existing "Click or press a key to focus" overlay, which is
+      // exactly what we want to tell the user to tap into the field.
+      // The default in the markup is data-focused="true", so we have
+      // to flip it explicitly here.
+      this.host.dataset.focused = "false";
+      this.setHint("");
     } else {
       this.capture.focus();
     }
@@ -154,10 +161,11 @@ export class TypingEngine {
        window.matchMedia("(hover: none) and (pointer: coarse)").matches);
     if (isMobile) {
       this.host.dataset.mobileWaiting = "true";
+      this.host.dataset.focused = "false";
       try {
         if (document.activeElement === this.inputEl) this.inputEl.blur();
       } catch {}
-      this.setHint("Tap here to start typing");
+      this.setHint("");
     } else {
       this.setHint("Press any key to start");
     }

@@ -35,14 +35,15 @@ button, a.btn, [role="button"], summary{min-height:44px}
 button[data-touch="compact"], a[data-touch="compact"]{min-height:0}
 
 /* iOS auto-zoom guard. iOS Safari (and Chrome Android, occasionally)
-   auto-zoom into any focused form control whose font-size is below
-   16px. The zoom doesn't reverse automatically -- the user has to
-   pinch back out -- which on the hamburger search box, settings
-   selects, and contribute forms reads as a bug. Floor every form
-   control at 16px on phone-sized viewports. The visual scale is
-   handled by line-height + padding, not by shrinking the font. */
-@media (max-width:640px){
-  input, select, textarea{font-size:max(16px, 1rem)}
+   auto-zoom into any focused form control whose font-size resolves
+   below 16 px. The site's root font-size is var(--fs-300), a clamp()
+   that lands at ~14 px on small viewports -- so `1rem` here would
+   compute below the iOS threshold and still trigger zoom. Use a
+   literal 16 px and !important so the rule beats every component
+   stylesheet that sets a smaller size on its own inputs. */
+@media (max-width:767px),
+       (hover:none) and (pointer:coarse){
+  input, select, textarea{font-size:16px !important}
 }
 
 .muted{color:var(--fg-2)}

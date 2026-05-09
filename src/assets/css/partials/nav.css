@@ -403,7 +403,13 @@
 @media (max-width:767px),
        (hover:none) and (pointer:coarse){
   .nav-panel__search{
-    height:48px;font-size:16px;
+    height:48px;
+    /* font-size:16px !important so iOS Safari does NOT zoom on focus.
+       The base.css html rule sets font-size to var(--fs-300) which is
+       a clamp() that resolves below 16px on small viewports -- using
+       `1rem` here would compute to ~14px and still trigger the zoom.
+       Use a literal pixel value AND !important so any cascade wins. */
+    font-size:16px !important;
     padding:0 .9rem 0 2.5rem;
   }
 }
