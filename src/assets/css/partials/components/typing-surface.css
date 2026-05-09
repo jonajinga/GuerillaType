@@ -266,10 +266,15 @@
 }
 /* Landscape phones: viewport height is ~360-414, so the typing
    surface must stay above the fold. Compress vertical breathing
-   without touching line-height (see note above). */
+   without touching line-height (see note above). The 2-line clamp
+   is scoped to the short-text standard mode -- long-form modes
+   (.tt-text--full for quotes, books, custom, long lessons; and
+   .tt-text--reader for literary content) MUST stay full-height
+   or the text gets cut off mid-render and the user can never
+   reach the cursor at the end. */
 @media (max-height:480px) and (orientation:landscape){
   .tt-stage{margin-block:var(--space-2);padding:var(--space-2)}
-  .tt-text{height:calc(1.55em * 2)}
+  .tt-text:not(.tt-text--full):not(.tt-text--reader){height:calc(1.55em * 2)}
   .tt-stage__hint{margin-bottom:var(--space-2)}
 }
 

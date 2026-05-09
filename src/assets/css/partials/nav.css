@@ -390,14 +390,22 @@
   color:var(--fg-0);
   border:1px solid var(--rule);border-radius:var(--radius);
   font-family:var(--font-sans);
-  /* Floor at 16px on phones. iOS Safari (and Chrome Android) auto-zoom
-     into any focused input whose font-size is below 16px, which the
-     user then has to manually zoom back out of. var(--fs-300) clamps
-     down to ~14px on small viewports, which is what triggered the bug
-     when opening the hamburger panel. Force at-least-16px on mobile. */
-  font-size:max(16px, var(--fs-300));
+  font-size:var(--fs-300);
   appearance:none;-webkit-appearance:none;outline:0;
   transition:border-color .15s, box-shadow .15s;
+}
+/* Mobile auto-zoom guard. iOS Safari and Chrome Android zoom into any
+   focused input with font-size below 16 px AND/OR an unusually small
+   touch box. The earlier max(16px, var(--fs-300)) trick still failed
+   on iOS 18 in some testing -- the engine reads the inherited compute
+   under specific viewport widths and zooms anyway. Hard-code 16 px
+   plus a taller box at <=767 px so the input is unambiguously big. */
+@media (max-width:767px),
+       (hover:none) and (pointer:coarse){
+  .nav-panel__search{
+    height:48px;font-size:16px;
+    padding:0 .9rem 0 2.5rem;
+  }
 }
 .nav-panel__search:focus{
   border-color:var(--accent);
