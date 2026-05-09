@@ -1,0 +1,27 @@
+---
+layout: layouts/base.njk
+title: "Offline"
+description: "You're offline -- but your typing data is on this device."
+permalink: /offline/
+hideBreadcrumbs: true
+eleventyExcludeFromCollections: true
+---
+
+<div class="offline-page" style="max-width:560px;margin:var(--space-7) auto;padding:0 var(--space-4);text-align:center">
+  <p class="eyebrow">No connection</p>
+  <h1>You're offline.</h1>
+  <p class="article-lede">All your sessions, stats, and saved texts live on this device, so most of the site still works. Try one of these:</p>
+  <div class="offline-page__actions" style="display:flex;justify-content:center;gap:.6rem;flex-wrap:wrap;margin-top:var(--space-5)">
+    <a class="btn btn--primary" href="/practice/">Practice</a>
+    <a class="btn" href="/stats/">Your stats</a>
+    <a class="btn" href="/settings/">Settings</a>
+    <a class="btn btn--ghost" href="/custom/">Custom texts</a>
+  </div>
+  <p style="margin-top:var(--space-5);color:var(--fg-3);font-size:var(--fs-200)">When you're back online, the page will refresh on its own.</p>
+</div>
+
+<script type="module">
+  // Auto-refresh when connectivity returns so the user gets the
+  // live page they tried to reach.
+  window.addEventListener("online", () => { location.reload(); });
+</script>

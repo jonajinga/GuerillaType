@@ -1,0 +1,263 @@
+/* Practice toolbar — sticky, minimalist, single-row.
+   Mode + variant pills on the left, live stats on the right, separated
+   by a 1px rule. A 2px accent strip pinned to the bottom edge fills as
+   the session progresses.
+
+   Hidden when the user enables "Hide practice toolbar" or the broader
+   "Hide UI" preference -- practice-boot.js applies the body classes.
+   "Hide UI" also hides the action row (Restart / How it works / Send
+   feedback / kbd-legend) for a fully distraction-free surface. With
+   chrome gone, the typing area centers vertically in the viewport.   */
+body.is-hide-toolbar .practice-bar{display:none}
+body.is-hide-ui .tt-actions{display:none}
+/* Push the typing surface down to a comfortable read height when the
+   toolbar/UI is hidden on plain word modes (time, words, zen, etc.) --
+   without chrome above, the text would sit right under the header and
+   force users to look up. ~22vh lands it in the upper-middle of the
+   viewport where the eye naturally settles.
+   Corpus modes (idiom, quote, parable, poem, book, custom, lesson,
+   drill) are excluded -- they show an attribution card above the
+   typing surface that already fills that space. */
+body.is-hide-toolbar:not(.is-corpus-mode) .tt-stage,
+body.is-hide-ui:not(.is-corpus-mode) .tt-stage{
+  margin-top:22vh;
+}
+
+.practice-bar{
+  position:sticky;
+  top:var(--header-h, 58px);
+  z-index:40;
+  background:color-mix(in oklab, var(--bg-1) 92%, transparent);
+  backdrop-filter:saturate(160%) blur(14px);
+  -webkit-backdrop-filter:saturate(160%) blur(14px);
+  border-bottom:1px solid var(--rule);
+  margin:0 calc(-1 * var(--gutter)) var(--space-4);
+}
+.practice-bar__inner{
+  max-width:var(--max-width);margin-inline:auto;
+  padding:.55rem var(--gutter);
+  display:flex;align-items:center;justify-content:space-between;
+  gap:var(--space-4);min-height:0;
+}
+.practice-bar__modes{
+  flex:1;display:flex;align-items:center;
+  justify-content:flex-start;min-width:0;gap:.6rem;flex-wrap:wrap;
+}
+.practice-bar__stats{
+  flex-shrink:0;padding-left:var(--space-4);
+  border-left:1px solid var(--rule);
+}
+
+/* Active-challenge pill — sits in the toolbar's center between
+   __modes and __stats. Hidden via [hidden] when no challenge active. */
+.practice-bar__challenge{
+  display:flex;align-items:baseline;gap:.6rem;flex-wrap:nowrap;min-width:0;
+  padding:0 var(--space-4);
+  border-left:1px solid var(--rule);border-right:1px solid var(--rule);
+  cursor:help;
+}
+.practice-bar__challenge[hidden]{display:none}
+.practice-bar__challenge-eyebrow{
+  font-family:var(--font-mono);font-size:.62rem;
+  letter-spacing:.18em;text-transform:uppercase;
+  color:var(--accent);font-weight:600;flex-shrink:0;
+}
+.practice-bar__challenge-name{
+  font-family:var(--font-display);font-size:var(--fs-400);
+  color:var(--fg-0);font-weight:500;line-height:1.1;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;
+}
+.practice-bar__challenge-goal{
+  font-family:var(--font-mono);font-size:.7rem;
+  color:var(--fg-2);letter-spacing:.04em;
+  white-space:nowrap;flex-shrink:0;
+}
+@media (max-width:1023px){
+  .practice-bar__challenge-goal{display:none}
+}
+@media (max-width:768px){
+  .practice-bar__challenge{
+    border-left:0;border-right:0;padding:0;
+    border-top:1px solid var(--rule);padding-top:var(--space-2);
+    justify-content:center;
+  }
+}
+
+/* ── Mode bar inside the toolbar ────────────────────────────────── */
+.practice-bar .mode-bar{
+  display:flex;flex-wrap:nowrap;align-items:center;
+  gap:.9rem;justify-content:flex-start;min-width:0;
+}
+.practice-bar .mode-bar__field{
+  display:inline-flex;flex-direction:row;flex-wrap:nowrap;
+  align-items:center;gap:.5rem;
+  padding:0;border:0;margin:0;min-width:0;
+}
+.practice-bar .mode-bar__field[hidden]{display:none}
+.practice-bar .mode-bar__field + .mode-bar__field{
+  padding-left:.9rem;
+  border-left:1px solid var(--rule);
+}
+.practice-bar .mode-bar__legend{
+  /* Inline legend -- sits to the LEFT of the button row so MODE +
+     DURATION (or QUOTE LENGTH) keep their group labels visible while
+     the whole toolbar stays on a single line. The flexbox normal-flow
+     layout (no absolute positioning) means each legend pushes the
+     buttons that follow without overlap. */
+  margin:0;padding:0;line-height:1;
+  font-family:var(--font-mono);font-size:.62rem;
+  letter-spacing:.16em;text-transform:uppercase;
+  color:var(--fg-3);font-weight:500;
+  white-space:nowrap;flex-shrink:0;
+}
+.practice-bar .mode-bar__legend .mode-bar__unit{
+  color:var(--fg-3);font-style:normal;letter-spacing:.1em;
+  margin-left:.25em;
+}
+/* Wrap to a second row only on phones / very narrow tablets. */
+@media (max-width:768px){
+  .practice-bar .mode-bar{flex-wrap:wrap}
+  .practice-bar .mode-bar__field{flex-wrap:wrap}
+}
+.practice-bar .mode-bar__btn{
+  height:32px;padding:0 .65rem;min-height:0;
+  font-family:var(--font-mono);font-size:.74rem;letter-spacing:.02em;
+  color:var(--fg-1);background:transparent;
+  border:1px solid var(--rule);
+  border-radius:var(--radius);
+  margin:0;
+  transition:color var(--t-fast), background var(--t-fast),
+             border-color var(--t-fast);
+}
+.practice-bar .mode-bar__btn:hover{
+  color:var(--fg-0);background:var(--bg-2);border-color:var(--fg-3);
+}
+.practice-bar .mode-bar__btn[aria-pressed="true"]{
+  color:var(--accent);
+  border-color:var(--accent);
+  background:color-mix(in oklab, var(--accent) 12%, transparent);
+}
+/* Custom-value inputs sitting alongside the duration / word-count
+   preset buttons. Match the button metrics exactly -- same height,
+   same padding, same width-to-content ratio -- so the input visually
+   reads as just another preset chip. */
+.practice-bar .mode-bar__custom{
+  height:32px;width:3.6rem;padding:0 .65rem;
+  font-family:var(--font-mono);font-size:.74rem;letter-spacing:.02em;
+  color:var(--fg-1);background:transparent;
+  border:1px solid var(--rule);
+  border-radius:var(--radius);
+  margin:0;
+  text-align:center;
+  -moz-appearance:textfield;
+  appearance:textfield;
+}
+.practice-bar .mode-bar__custom::-webkit-outer-spin-button,
+.practice-bar .mode-bar__custom::-webkit-inner-spin-button{
+  -webkit-appearance:none;margin:0;
+}
+.practice-bar .mode-bar__custom::placeholder{
+  color:var(--fg-3);font-style:italic;
+}
+.practice-bar .mode-bar__custom:focus-visible{
+  outline:2px solid var(--accent);outline-offset:2px;
+  border-color:var(--accent);
+  color:var(--fg-0);
+}
+.practice-bar .mode-bar__custom:not(:placeholder-shown){
+  color:var(--accent);border-color:var(--accent);
+  background:color-mix(in oklab, var(--accent) 8%, transparent);
+}
+
+/* ── Live stats column ──────────────────────────────────────────── */
+.practice-bar .live-stats{
+  min-height:0;gap:var(--space-4);align-items:baseline;
+  padding:0;background:transparent;border:0;
+}
+.practice-bar .live-stats__metric{
+  padding-inline:0;display:inline-flex;align-items:baseline;gap:.35rem;
+  min-width:0;
+}
+.practice-bar .live-stats__metric + .live-stats__metric::before{display:none}
+.practice-bar .live-stats__value{
+  font-family:var(--font-display);font-size:var(--fs-500);
+  line-height:1;letter-spacing:-.01em;color:var(--accent);
+  font-variant-numeric:tabular-nums;font-weight:500;
+}
+.practice-bar .live-stats__label{
+  font-family:var(--font-mono);font-size:.6rem;
+  margin:0;letter-spacing:.14em;
+  color:var(--fg-3);text-transform:uppercase;font-weight:500;
+}
+.practice-bar .timer-bar{display:none}
+
+/* Bottom-edge progress strip — fills as the session runs. */
+.practice-bar__progress{
+  position:absolute;left:0;right:0;bottom:-1px;height:2px;
+  background:var(--accent);
+  width:0;transition:width 120ms linear;
+}
+
+.practice-page{padding-block:var(--space-3) var(--space-5)}
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width:768px){
+  .practice-bar__inner{
+    flex-direction:column;align-items:stretch;
+    gap:var(--space-2);padding-block:var(--space-2);
+  }
+  .practice-bar__stats{
+    border-left:0;border-top:1px solid var(--rule);
+    padding-left:0;padding-top:var(--space-2);
+  }
+  .practice-bar .mode-bar{justify-content:center}
+  .practice-bar .live-stats{justify-content:center}
+}
+
+/* Phone-portrait specifics. Mode buttons need taller hit areas
+   (32px → 36px) and the live-stats labels were 0.6rem (~9.6px) which
+   is below readable for a glance-down stat. The custom inputs need
+   to fit alongside preset buttons without spilling off the row. */
+@media (max-width:480px){
+  .practice-bar{margin-inline:calc(-1 * var(--gutter))}
+  .practice-bar__inner{padding-inline:var(--gutter)}
+  .practice-bar .mode-bar{gap:.4rem .35rem}
+  .practice-bar .mode-bar__field{gap:.3rem .35rem}
+  .practice-bar .mode-bar__btn{
+    height:36px;padding:0 .55rem;font-size:.78rem;
+  }
+  .practice-bar .mode-bar__custom{
+    height:36px;width:4.6rem;font-size:.78rem;
+  }
+  .practice-bar .mode-bar__legend{
+    width:100%;flex-basis:100%;
+    font-size:.66rem;letter-spacing:.18em;
+    padding-top:.25rem;
+  }
+  .practice-bar .live-stats{
+    gap:var(--space-3);justify-content:space-around;
+  }
+  .practice-bar .live-stats__metric{gap:.25rem}
+  .practice-bar .live-stats__label{font-size:.66rem}
+  .practice-bar .live-stats__value{font-size:var(--fs-500)}
+}
+
+.tt-actions{display:flex;align-items:center;justify-content:center;gap:var(--space-3);flex-wrap:wrap;margin-top:var(--space-4);color:var(--fg-2);font-size:var(--fs-200)}
+.tt-actions__hint{
+  flex-basis:100%;width:100%;
+  display:flex;flex-wrap:wrap;justify-content:center;
+  gap:.4rem .8rem;
+  margin-top:.6rem;color:var(--fg-3);
+  font-family:var(--font-mono);font-size:var(--fs-200);
+}
+.tt-actions__hint-group{
+  display:inline-flex;align-items:center;gap:.35rem;
+  padding:.2rem .55rem;
+  background:var(--bg-1);border:1px solid var(--rule);border-radius:var(--radius);
+}
+.tt-actions__hint-group em{
+  font-style:normal;color:var(--fg-2);
+  font-family:var(--font-sans);font-size:.85em;
+}
+.tt-actions__hint-group kbd{margin:0}
+.tt-actions__hint kbd{margin-right:.15em}

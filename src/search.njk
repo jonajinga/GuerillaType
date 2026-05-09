@@ -1,0 +1,32 @@
+---
+layout: layouts/base.njk
+title: "Search"
+description: "Search every page, quote, book, idiom, fable, and poem on Guerilla Type."
+---
+<header class="page__head">
+  <h1>Search</h1>
+  <p class="page__subtitle">One field, every corpus. Pages, quotes, books, idioms, fables, and poetry — all browsable at once.</p>
+</header>
+
+<section class="search-page">
+  <div class="search-page__bar">
+    <span class="search-page__icon" aria-hidden="true">⌕</span>
+    <input
+      id="search-page-input"
+      type="search"
+      class="search-page__input"
+      placeholder="Search the entire site…"
+      autocomplete="off"
+      autocapitalize="off"
+      spellcheck="false"
+      aria-label="Search query"
+    >
+    <span class="search-page__hint">Ctrl + K opens the quick palette anywhere on the site.</span>
+  </div>
+
+  <p id="search-page-summary" class="search-page__summary"></p>
+
+  <div id="search-page-results" class="search-page__results"></div>
+</section>
+
+<script type="module" src="/assets/js/search.js?v={{ cssVersion }}"></script>

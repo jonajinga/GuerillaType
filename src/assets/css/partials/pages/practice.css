@@ -1,0 +1,3 @@
+.practice-page{display:flex;flex-direction:column;gap:var(--space-3);padding-block:var(--space-5);min-height:60vh}
+.practice-page__top{display:flex;flex-direction:column;gap:var(--space-3);align-items:center}
+.practice-page__bottom{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:var(--space-3)}

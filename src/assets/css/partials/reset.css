@@ -1,0 +1,21 @@
+*,*::before,*::after{box-sizing:border-box}
+html,body,h1,h2,h3,h4,h5,h6,p,figure,blockquote,dl,dd,ul,ol{margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+/* overflow-x:clip prevents stray wide elements (long titles, code
+   blocks, tables) from blowing out the horizontal viewport on phones.
+   `clip` over `hidden` keeps sticky positioning intact. */
+html,body{overflow-x:clip}
+body{min-height:100svh;line-height:1.55;-webkit-font-smoothing:antialiased;font-synthesis:none}
+img,picture,svg,video{display:block;max-width:100%}
+/* Long words / URLs / unbreakable strings should wrap rather than
+   force horizontal scroll on phones. Body text already does this via
+   normal wrapping; the safety net catches code, kbd, urls. */
+pre,code,kbd,samp{overflow-wrap:anywhere;word-break:break-word}
+input,button,textarea,select{font:inherit;color:inherit}
+button{background:transparent;border:0;cursor:pointer;color:inherit}
+a{color:inherit;text-decoration-thickness:1px;text-underline-offset:2px}
+ul,ol{list-style:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:0}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}

@@ -1,0 +1,27 @@
+{# Live virtual keyboard. Hidden by default; shown when
+   `preferences.showVirtualKeyboard` is on. The SVG is built at boot
+   from the active layout in src/assets/js/viz/live-keyboard.js. #}
+<aside class="live-kb" id="tt-live-keyboard" hidden aria-label="Virtual keyboard guide">
+  <div class="live-kb__legend" aria-label="Finger color legend">
+    <span class="live-kb__legend-item"><span class="live-kb__legend-swatch" style="background:color-mix(in oklab,#c1413c 22%,var(--bg-2))"></span>L pinky</span>
+    <span class="live-kb__legend-item"><span class="live-kb__legend-swatch" style="background:color-mix(in oklab,#e58060 22%,var(--bg-2))"></span>L ring</span>
+    <span class="live-kb__legend-item"><span class="live-kb__legend-swatch" style="background:color-mix(in oklab,#e3b873 22%,var(--bg-2))"></span>L middle</span>
+    <span class="live-kb__legend-item"><span class="live-kb__legend-swatch" style="background:color-mix(in oklab,#b58900 22%,var(--bg-2))"></span>L index</span>
+    <span class="live-kb__legend-item"><span class="live-kb__legend-swatch" style="background:color-mix(in oklab,#859900 22%,var(--bg-2))"></span>R index</span>
+    <span class="live-kb__legend-item"><span class="live-kb__legend-swatch" style="background:color-mix(in oklab,#6ba9b3 22%,var(--bg-2))"></span>R middle</span>
+    <span class="live-kb__legend-item"><span class="live-kb__legend-swatch" style="background:color-mix(in oklab,#6c71c4 22%,var(--bg-2))"></span>R ring</span>
+    <span class="live-kb__legend-item"><span class="live-kb__legend-swatch" style="background:color-mix(in oklab,#d33682 22%,var(--bg-2))"></span>R pinky</span>
+    <span class="live-kb__legend-item"><span class="live-kb__legend-swatch" style="background:color-mix(in oklab,#b88930 22%,var(--bg-2))"></span>thumb</span>
+  </div>
+  <svg id="tt-live-keyboard-svg" class="live-kb__svg" viewBox="0 0 720 220"></svg>
+  <p class="live-kb__finger" id="tt-live-keyboard-finger" aria-live="polite"></p>
+</aside>
+
+{# Ticker — keystroke-by-keystroke pulse strip + per-keystroke WPM
+   ribbon. Hidden by default. The single explanatory tooltip lives
+   on the WPM ribbon so it doesn't conflict with per-cell timing
+   tooltips painted on the strip. #}
+<div class="live-ticker" id="tt-live-ticker" hidden aria-label="Recent keystrokes">
+  <div class="live-ticker__strip" id="tt-live-ticker-strip"></div>
+  <p class="live-ticker__wpm" id="tt-live-ticker-wpm" data-tip="<strong>Live WPM</strong><br>Cumulative net WPM updated on every keystroke. The strip beside it shows the last 40 keystrokes -- green = correct, red = wrong. Hover any cell for timing.">— wpm</p>
+</div>

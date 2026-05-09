@@ -1,0 +1,280 @@
+/* The typing surface — the heart of the UI. Optimized for fast, calm reading
+   while typing. Caret moves character by character; text doesn't shift. */
+
+.tt-stage{position:relative;width:100%;max-width:1100px;margin:var(--space-5) auto;padding:var(--space-4);background:transparent}
+
+.tt-stage__hint{text-align:center;color:var(--fg-2);font-size:var(--fs-200);margin-bottom:var(--space-3);letter-spacing:.04em;text-transform:uppercase}
+
+.tt-stage__hint[data-state="ready"]{color:var(--accent)}
+
+/* Restart-armed indicator: when the user presses Tab on the typing
+   surface, this banner appears prompting Enter to confirm. It auto-
+   dismisses after 2s if Enter doesn't follow (handled in JS). */
+.tt-stage[data-restart-armed="true"]::before{
+  content:"Press Enter to restart, any other key to cancel";
+  display:block;text-align:center;
+  margin:0 auto var(--space-3);padding:.5rem 1rem;
+  background:color-mix(in oklab, var(--accent) 18%, var(--bg-1));
+  color:var(--accent);border:1px solid var(--accent);border-radius:var(--radius);
+  font-family:var(--font-mono);font-size:var(--fs-200);letter-spacing:.04em;
+  max-width:32rem;
+}
+
+/* Hidden input absorbs every keystroke, focus is forced. */
+.tt-input{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+
+.tt-text{
+  position:relative;
+  font-family:var(--font-typing, var(--font-mono));
+  font-size:var(--fs-typing);
+  line-height:1.55;
+  color:var(--fg-2);
+  letter-spacing:0;
+  word-spacing:0;
+  word-break:keep-all;
+  overflow-wrap:normal;
+  user-select:none;
+  -webkit-user-select:none;
+  cursor:text;
+  text-align:left;
+  /* Three-line viewport, lines slide up as you progress.
+     Disabled for long-form modes (custom / book / quote / parable /
+     idiom / poem / lesson-literal) where the user wants the full text
+     visible at once — the engine adds .tt-text--full to opt out. */
+  height:calc(1.55em * 3);
+  overflow:hidden;
+  mask-image:linear-gradient(180deg,#000 0%,#000 75%,transparent 100%);
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 75%,transparent 100%);
+}
+.tt-text--full{
+  height:auto;max-height:none;
+  mask-image:none;-webkit-mask-image:none;
+}
+.tt-text--full .tt-text__inner{transform:none!important}
+
+/* Book-typing reader mode — styled to mirror the /library/{slug}/
+   reader: cream-on-ink card with serif body, comfortable leading,
+   no per-char boxes. The engine wraps each char in a span for the
+   cursor/highlight machinery; reader mode gives those spans clean
+   prose typography. */
+.tt-text--reader{
+  font-family:var(--font-display);
+  font-size:var(--fs-400);
+  line-height:1.75;
+  color:var(--fg-1);
+  max-width:780px;margin-inline:auto;
+  background:var(--bg-1);
+  border:1px solid var(--rule);border-radius:var(--radius);
+  padding:var(--space-6) var(--space-7);
+}
+.tt-text--reader .tt-word{margin:0}
+.tt-text--reader .tt-char{transition:color 80ms linear}
+.tt-text--reader .tt-char--correct{color:var(--fg-0)}
+.tt-text--reader .tt-char--incorrect{color:var(--bad);text-decoration:underline;text-decoration-color:var(--bad)}
+
+/* Paragraph blocks — when the renderer gets an array, each paragraph
+   becomes a `.tt-paragraph` div. Inter-paragraph space chars get the
+   `tt-char--paraspace` class and are hidden visually (the block break
+   already separates paragraphs) but still count as a typeable space
+   the user types to cross from one paragraph to the next. */
+.tt-paragraph{display:block;margin:0 0 1.1em}
+.tt-paragraph:last-child{margin-bottom:0}
+
+/* Parable typing surface: the last paragraph is the moral. Pull it
+   onto its own line, italicize, center it, and lift the spacing so it
+   reads as the punchline of the story rather than another paragraph. */
+.tt-text[data-kind="parable"] .tt-paragraph:last-child{
+  margin-top:1.4em;
+  text-align:center;
+  font-style:italic;
+  color:var(--fg-2);
+  font-size:.95em;
+}
+.tt-char--paraspace{display:none}
+
+/* Contextual back link — appears above the typing surface, points
+   to the page the user came from (book, quotes, idioms, parables,
+   poetry, lessons, drills, challenges, custom). The underline (when
+   shown on hover) only spans the text via text-decoration, not the
+   full box, so it doesn't draw a long horizontal rule. */
+/* Subtle by default -- the typing surface is the focus, not the
+   back affordance. Mostly invisible until hovered, then lights up
+   in accent. Small, muted, no underline at rest. */
+.tt-back-link{
+  display:inline-block;margin:0 0 var(--space-3);
+  font-family:var(--font-mono);font-size:.7rem;letter-spacing:.04em;
+  color:var(--fg-3);opacity:.55;
+  text-decoration:none;
+  transition:opacity var(--t-fast), color var(--t-fast);
+}
+.tt-back-link:hover, .tt-back-link:focus-visible{
+  color:var(--accent);opacity:1;
+  text-decoration:underline;text-underline-offset:.25em;
+}
+.tt-back-link[hidden]{display:none}
+
+/* Attribution header for quote / parable / poem / idiom / meta'd
+   custom sessions. Sits above the typing surface, clean centered
+   eyebrow → title → cite → source/meaning stack. */
+.tt-attribution{
+  max-width:780px;margin:0 auto var(--space-4);
+  padding:0 var(--space-3);text-align:center;
+}
+.tt-attribution__eyebrow{
+  font-family:var(--font-mono);font-size:.7rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--fg-3);margin:0 0 .35rem;
+}
+.tt-attribution__title{
+  font-family:var(--font-display);font-size:var(--fs-500);
+  font-weight:500;color:var(--fg-0);margin:0 0 .35rem;letter-spacing:-.005em;
+}
+.tt-attribution__cite{
+  font-family:var(--font-display);font-style:italic;
+  color:var(--fg-1);font-size:var(--fs-300);margin:0;
+}
+.tt-attribution__source{
+  font-family:var(--font-mono);font-size:.78rem;letter-spacing:.04em;
+  color:var(--fg-2);margin:.35rem 0 0;
+}
+.tt-attribution__source em{font-family:var(--font-display);font-style:italic;color:var(--fg-1)}
+.tt-attribution__meaning{
+  font-family:var(--font-sans);font-size:var(--fs-200);
+  color:var(--fg-2);margin:.6rem 0 0;line-height:1.5;
+  max-width:48em;margin-inline:auto;
+}
+.tt-attribution__meaning strong{color:var(--accent);font-weight:600}
+
+/* Book header that sits above the typing surface in book mode. */
+/* Book reader header above the typing surface. Vertical rhythm:
+   eyebrow → title → page indicator, with consistent gaps so a
+   long-title chapter (multi-line) doesn't break the layout. The
+   title cap is a max-width-by-character so it wraps at a natural
+   reading measure, not at the surface's full width. */
+.tt-book-header{
+  display:flex;flex-direction:column;align-items:center;
+  max-width:780px;margin:0 auto var(--space-5);
+  padding:0 var(--space-3);
+  text-align:center;
+  gap:.5rem;
+}
+.tt-book-eyebrow{
+  font-family:var(--font-mono);font-size:.7rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--fg-3);margin:0;
+}
+/* Author -- always its own line, just below the book title eyebrow,
+   in italics so the title|author hierarchy reads at a glance. */
+.tt-book-author{
+  font-family:var(--font-display);font-style:italic;
+  font-size:var(--fs-300);color:var(--fg-2);
+  margin:.15rem 0 0;letter-spacing:0;text-transform:none;
+}
+.tt-book-chapter{
+  font-family:var(--font-display);
+  font-size:clamp(1.4rem, 1rem + 1.6vw, 2rem);
+  font-weight:500;color:var(--fg-0);margin:0;letter-spacing:-.005em;
+  line-height:1.25;max-width:30ch;text-wrap:balance;
+}
+.tt-book-page{
+  font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--fg-3);margin:0;
+}
+
+@media (max-width:768px){
+  .tt-text--reader{padding:var(--space-4) var(--space-4);font-size:var(--fs-300)}
+}
+
+.tt-text__inner{display:block;will-change:transform}
+
+/* Word wrapper — keeps an entire word on one line. No horizontal
+   margin: the natural space character between words already provides
+   the gap; an extra margin would push the caret past the last
+   character of the word when the cursor lands on the space. */
+.tt-word{display:inline-block;white-space:nowrap}
+
+.tt-char{position:relative;color:var(--fg-3);transition:color 60ms linear}
+.tt-char--correct{color:var(--fg-0)}
+.tt-char--incorrect{color:var(--bad);text-decoration:underline;text-decoration-color:var(--bad);text-decoration-thickness:2px}
+.tt-char--extra{color:var(--bad);background:rgba(226,92,74,.18)}
+.tt-char--space{position:relative}
+.tt-char--space.tt-char--incorrect{background:rgba(226,92,74,.18)}
+/* Whitespace mark — driven by `data-whitespace` on <html>. The mark
+   is rendered as a ::before overlay positioned absolutely so it doesn't
+   add width — only the natural space character contributes layout
+   width. Default: NONE (no visual mark) — user opts in via Settings. */
+[data-whitespace="bullet"] .tt-char--space::before{
+  content:"·";position:absolute;inset:0;display:flex;
+  align-items:center;justify-content:center;
+  color:var(--fg-3);opacity:.45;pointer-events:none;font-size:.9em;
+}
+[data-whitespace="bar"] .tt-char--space::before{
+  content:"";position:absolute;left:15%;right:15%;bottom:.22em;
+  height:1.5px;background:var(--fg-3);opacity:.5;pointer-events:none;
+}
+[data-whitespace="none"] .tt-char--space::before{display:none}
+.tt-char--space.tt-char--correct::before, .tt-char--space.tt-char--incorrect::before{display:none}
+
+/* Caret — appears at the leading edge of the current char. */
+.tt-caret{position:absolute;width:2px;background:var(--accent);top:.18em;height:1.1em;animation:tt-blink 1.05s steps(1) infinite;pointer-events:none}
+.tt-caret--block{width:.55em;background:var(--accent);opacity:.35}
+/* Underline caret — JS sets `top` to the character's top edge (matching
+   the line caret), so we use transform to push the underline down to
+   sit beneath the text. transform doesn't conflict with the inline
+   style.top the JS sets. */
+.tt-caret--underline{width:.55em;height:2px;background:var(--accent);transform:translateY(1.1em);animation-name:tt-blink}
+.tt-caret[data-state="active"]{animation:none;opacity:1}
+@keyframes tt-blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+
+/* Focus prompt — when input loses focus, blur the text and show a hint.
+   When a session was running, the timer pauses; the message says so. */
+.tt-stage[data-focused="false"] .tt-text{filter:blur(2px)}
+.tt-stage[data-focused="false"]::after{
+  content:"Click or press a key to focus";
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  background:var(--bg-2);border:1px solid var(--rule);padding:.45rem .85rem;color:var(--fg-1);font-size:var(--fs-200);
+  pointer-events:none;border-radius:var(--radius);
+}
+.tt-stage[data-focused="false"][data-state="running"]::after{
+  content:"Paused — click or press a key to resume";
+  border-color:var(--accent);color:var(--accent);
+}
+
+/* Toolbar above the surface */
+.tt-toolbar{display:flex;justify-content:center;align-items:center;gap:.65rem;flex-wrap:wrap;color:var(--fg-2);font-size:var(--fs-200);margin-bottom:var(--space-3)}
+
+/* Below-surface action row */
+.tt-actions{display:flex;justify-content:center;align-items:center;gap:.6rem;margin-top:var(--space-4);color:var(--fg-2);font-size:var(--fs-200)}
+.tt-actions kbd{font-family:var(--font-mono);background:var(--bg-2);border:1px solid var(--rule);padding:.05em .35em;font-size:.85em}
+
+/* Mobile sizing */
+@media (max-width:640px){
+  .tt-text{height:calc(1.55em * 4)}
+  .tt-caret{width:2px;height:1.05em}
+}
+/* Phone-portrait: tighter padding only. Don't touch line-height --
+   the caret JS reads computed line-height to drive scroll math, and
+   any mismatch puts the caret in the wrong position when lines wrap. */
+@media (max-width:480px){
+  .tt-stage{padding:var(--space-2);margin-block:var(--space-3)}
+  /* Nudge the line-caret down by half the leading so it visually
+     centers on the glyph rather than pinning to the line-box top
+     (which on a tight mobile viewport reads as "between lines").
+     Scoped to the short-text standard mode -- skipped on the reader
+     and full-text modes which already align correctly. */
+  .tt-text:not(.tt-text--full):not(.tt-text--reader) .tt-caret{
+    margin-top:.22em;
+  }
+}
+/* Landscape phones: viewport height is ~360-414, so the typing
+   surface must stay above the fold. Compress vertical breathing
+   without touching line-height (see note above). */
+@media (max-height:480px) and (orientation:landscape){
+  .tt-stage{margin-block:var(--space-2);padding:var(--space-2)}
+  .tt-text{height:calc(1.55em * 2)}
+  .tt-stage__hint{margin-bottom:var(--space-2)}
+}
+
+/* When zen mode (no end), the mask still applies but caret stays put. */
+.tt-stage[data-mode="zen"] .tt-text{mask-image:none;-webkit-mask-image:none;height:auto;max-height:30vh}
+
+/* When session is done, fade text but keep visible. */
+.tt-stage[data-state="done"] .tt-text{opacity:.55;pointer-events:none}

@@ -1,0 +1,17 @@
+.streak-chip{
+  display:inline-flex;align-items:center;gap:.4rem;
+  padding:.3rem .6rem;
+  background:var(--bg-1);border:1px solid var(--rule);
+  font-family:var(--font-mono);font-size:var(--fs-200);
+  color:var(--fg-2);border-radius:var(--radius);
+  transition:border-color var(--t-fast), color var(--t-fast);
+  text-decoration:none;
+}
+.streak-chip:hover{border-color:var(--accent);color:var(--accent)}
+.streak-chip__icon{color:var(--accent);font-size:1em;line-height:1}
+.streak-chip__num{color:var(--fg-0);font-weight:600;font-variant-numeric:tabular-nums}
+.streak-chip[hidden]{display:none}
+
+@media (max-width:640px){
+  .streak-chip__lbl{display:none}
+}

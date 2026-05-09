@@ -1,0 +1,46 @@
+---
+layout: layouts/base.njk
+title: "Suggest a parable"
+description: "Suggest a public-domain parable, fable, or short moral story for Guerilla Type."
+permalink: /contribute/parable/
+---
+
+{% import "partials/contribute/form-shell.njk" as cf %}
+
+{{ cf.head("Suggest a parable", "Aesop, Zen koans, folk fables, biblical parables -- short stories with a moral.", "parable") }}
+
+<aside class="contribute-page__guidelines">
+  <h2>Guidelines</h2>
+  <ul>
+    <li>Public-domain only.</li>
+    <li>Best length: 100-1500 characters. Long enough to feel substantial, short enough to type in a single sitting.</li>
+    <li>Include the moral if there's a traditional one. Optional otherwise.</li>
+    <li>Translations are fine if the translation itself is public domain.</li>
+  </ul>
+</aside>
+
+<form class="contribute-form" method="POST" action="{{ web3forms.endpoint }}" data-contribute-kind="parable">
+  {{ cf.hidden("parable", "GT contribution: parable", web3forms) }}
+
+  {{ cf.text("parable_title", "Title", required=true, maxlength=160, placeholder="e.g. The Tortoise and the Hare") }}
+  {{ cf.select("tradition", "Tradition", [
+    { value: "aesop", label: "Aesop's Fables" },
+    { value: "zen", label: "Zen / Buddhist" },
+    { value: "biblical", label: "Biblical" },
+    { value: "folk", label: "Folk tradition" },
+    { value: "sufi", label: "Sufi" },
+    { value: "hindu", label: "Hindu / Sanskrit" },
+    { value: "other", label: "Other" }
+  ], required=true) }}
+  {{ cf.textarea("parable_text", "Full text", required=true, minlength=80, maxlength=3000, rows=8, hint="Verbatim. ASCII punctuation preferred.") }}
+  {{ cf.text("parable_moral", "Moral / lesson", maxlength=240, placeholder="Slow and steady wins the race.") }}
+  {{ cf.text("source_url", "Source URL", maxlength=400, type="url", placeholder="https://www.gutenberg.org/...") }}
+  {{ cf.checkbox("public_domain", "I confirm this parable is in the public domain.", required=true) }}
+  {{ cf.text("submitter_name", "Your name", maxlength=120, placeholder="Optional") }}
+
+  {{ cf.submit("Send parable suggestion") }}
+</form>
+
+{{ cf.byline() }}
+
+<script type="module" src="/assets/js/pages/contribute-boot.js?v={{ cssVersion }}"></script>

@@ -1,0 +1,133 @@
+{# Site-wide JSON-LD. One @graph block emits every schema relevant to
+   the current page so Google can crawl them in a single pass.
+
+   Always present: WebSite (with SearchAction), Organization,
+                   SoftwareApplication, WebPage, BreadcrumbList.
+   Conditional:    Book on /library/<slug>/, BlogPosting on /blog/<slug>/.
+#}
+{% set isHome = page.url == "/" %}
+{% set urlStr = page.url | string %}
+{% set isPost = urlStr | startsWith("/blog/") and urlStr != "/blog/" and not (urlStr | startsWith("/blog/tag/")) %}
+{% set canonical = canonicalUrl or (site.url + page.url) %}
+{% set crumbs = page.url | breadcrumbItems(title, site.url) %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "{{ site.url }}/#website",
+      "url": "{{ site.url }}/",
+      "name": "{{ site.title | jsonString | safe }}",
+      "description": "{{ site.description | jsonString | safe }}",
+      "inLanguage": "{{ site.language }}",
+      "publisher": { "@id": "{{ site.url }}/#organization" },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "{{ site.url }}/search/?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@type": "Organization",
+      "@id": "{{ site.url }}/#organization",
+      "name": "{{ site.title | jsonString | safe }}",
+      "url": "{{ site.url }}/",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "{{ site.url }}{{ site.ogImage }}"
+      },
+      "email": "{{ site.email }}",
+      "sameAs": [
+        "{{ site.repo }}"
+      ]
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "{{ site.url }}/#app",
+      "name": "{{ site.title | jsonString | safe }}",
+      "url": "{{ site.url }}/",
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "Web",
+      "description": "{{ site.description | jsonString | safe }}",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "publisher": { "@id": "{{ site.url }}/#organization" }
+    },
+    {
+      "@type": "WebPage",
+      "@id": "{{ canonical }}#webpage",
+      "url": "{{ canonical }}",
+      "name": "{{ (title or site.title) | jsonString | safe }}",
+      "description": "{{ (description or site.description) | jsonString | safe }}",
+      "isPartOf": { "@id": "{{ site.url }}/#website" },
+      "inLanguage": "{{ site.language }}"{% if not isHome %},
+      "breadcrumb": { "@id": "{{ canonical }}#breadcrumbs" }{% endif %}
+    }{% if not isHome %},
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ canonical }}#breadcrumbs",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ site.url }}/"
+        }{% for c in crumbs %},
+        {
+          "@type": "ListItem",
+          "position": {{ c.position }},
+          "name": "{{ c.name | jsonString | safe }}"{% if c.item %},
+          "item": "{{ c.item }}"{% endif %}
+        }{% endfor %}
+      ]
+    }{% endif %}{% if book %}{% set bm = bookMeta[book.slug] %},
+    {
+      "@type": "Book",
+      "@id": "{{ canonical }}#book",
+      "name": "{{ book.title | jsonString | safe }}",
+      "author": {
+        "@type": "Person",
+        "name": "{{ book.author | jsonString | safe }}"
+      },
+      "url": "{{ canonical }}",
+      "inLanguage": "{{ site.language }}",
+      "bookFormat": "https://schema.org/EBook",
+      "isAccessibleForFree": true,{% if bm and bm.pubYear %}
+      "datePublished": "{% if bm.pubYear > 0 %}{{ bm.pubYear }}{% else %}{{ -bm.pubYear }} BC{% endif %}",{% endif %}{% if bm and bm.genre %}
+      "genre": "{{ bm.genre }}",{% endif %}
+      "numberOfPages": {{ book.chapterCount }},
+      "description": "{{ (description or (book.title + ' by ' + book.author)) | jsonString | safe }}",
+      "publisher": { "@id": "{{ site.url }}/#organization" },
+      "mainEntityOfPage": { "@id": "{{ canonical }}#webpage" }
+    }{% endif %}{% if isPost and date %},
+    {
+      "@type": "BlogPosting",
+      "@id": "{{ canonical }}#post",
+      "headline": "{{ title | jsonString | safe }}",
+      "description": "{{ (description or site.description) | jsonString | safe }}",
+      "url": "{{ canonical }}",
+      "datePublished": "{{ date | htmlDateString }}",
+      "dateModified": "{{ date | htmlDateString }}",
+      "inLanguage": "{{ site.language }}",
+      "mainEntityOfPage": { "@id": "{{ canonical }}#webpage" },
+      "image": "{{ site.url }}{{ ogImage or site.ogImage }}",
+      "author": {
+        "@type": "Person",
+        "@id": "{{ site.url }}/#author",
+        "name": "{{ (author or 'Jon Ajinga') | jsonString | safe }}",
+        "url": "https://jonajinga.com",
+        "image": "{{ site.url }}/assets/img/jon-ajinga.webp"
+      },
+      "publisher": { "@id": "{{ site.url }}/#organization" }{% if tags %},
+      "keywords": "{{ tags | without('post') | join(', ') | jsonString | safe }}"{% endif %}
+    }{% endif %}
+  ]
+}
+</script>

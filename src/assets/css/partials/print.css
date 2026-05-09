@@ -1,0 +1,314 @@
+/* ── Page rules ────────────────────────────────────────────────
+   Browser-supported margin boxes (Chrome 105+, Firefox, Safari
+   recent) -- top-center renders the site name on every page;
+   bottom-center renders the page number. The cover page (first
+   page) suppresses both via `@page :first`. */
+@page{
+  size:auto;
+  margin:0.85in 0.6in 0.85in 0.6in;
+
+  @top-center{
+    content:"GuerillaType";
+    font-family:"Lora", Georgia, serif;
+    font-size:9pt;
+    color:#666;
+    letter-spacing:.06em;
+    padding-bottom:6pt;
+  }
+  @bottom-center{
+    content:"Page " counter(page) " of " counter(pages);
+    font-family:"JetBrains Mono", ui-monospace, monospace;
+    font-size:8pt;
+    color:#888;
+    letter-spacing:.08em;
+  }
+}
+/* Cover page: no header, no page number, more vertical breathing
+   room. The title block on the cover page already includes the
+   brand mark + name so the running header would be redundant. */
+@page :first{
+  margin:0.6in;
+  @top-center{content:none}
+  @bottom-center{content:none}
+}
+
+@media print{
+  /* Reveal print-only elements (stats cover page, etc.). */
+  .print-only{display:block !important}
+
+  /* Strip every interactive / chrome element so the print is just
+     the report. Site nav, panels, sticky bars, modals, theme toggle,
+     tooltip overlays, instant.page artifacts -- gone. */
+  .site-header,
+  .site-footer,
+  .nav-panel,
+  .nav-panel__scrim,
+  .back-to-top,
+  .skip-link,
+  .pwa-chip,
+  .tt-stage,
+  .practice-bar,
+  .toast,
+  .breadcrumbs,
+  .settings-modal,
+  [data-tippy-root],
+  .corpus-suggest-cta,
+  .article-toc,
+  .post__toc,
+  .toc-host > .page-toc,
+  .post__share,
+  .post__neighbors,
+  .page__head-actions,
+  .stats-section__actions,
+  .contrib-detail__close,
+  /* The on-page stats heading + summary appears on screen but the
+     cover page has its own report title -- duplicate would look like
+     two competing headers above the cover. */
+  .page__head{
+    display:none !important;
+  }
+
+  /* Force light-on-white regardless of the active theme so the
+     report prints legibly without bleeding ink across the page. */
+  html, body{
+    background:#fff !important;
+    color:#000 !important;
+    overflow-x:visible !important;
+  }
+  body{font-size:10pt;line-height:1.45;display:block !important}
+
+  /* Outer wrappers fill the printable page width set by @page margins.
+     Inner content blocks expand wider on print so the report fills
+     the printable column instead of squeezing into a narrow ribbon. */
+  main, .site-main, .toc-host{
+    max-width:none !important;
+    margin:0 !important;padding:0 !important;
+    width:100% !important;
+  }
+  .stats-grid, .stats-section, .results, .achievements-grid{
+    /* Page-margin is 0.6in so usable column is ~7.3in on Letter,
+       ~7.6in on A4. We push content to fill it. */
+    max-width:none !important;width:100% !important;
+    margin:0.25in 0 !important;
+  }
+  /* Tile grid + chart blocks center their internal content. */
+  .stats-tile{text-align:center}
+  .stats-section__title{justify-content:center !important;text-align:center}
+  .chart, .kb, .contrib{
+    display:flex;justify-content:center;align-items:center;
+  }
+  .chart svg, .kb svg, .contrib svg{
+    margin:0 auto;display:block;
+    /* Charts fill the full column width. */
+    width:100% !important;height:auto !important;max-width:none !important;
+  }
+  /* The character report's max-height + overflow:auto would print a
+     scrollbar with the table cropped at row N. Release both so the
+     full table flows across pages. */
+  .char-table__wrap, .corpus-table__wrap{
+    max-height:none !important;overflow:visible !important;
+    page-break-inside:auto;
+  }
+  .char-table, .corpus-table{
+    page-break-inside:auto;
+  }
+  .char-table tr, .corpus-table tr{
+    page-break-inside:avoid;page-break-after:auto;
+  }
+  /* Repeat table headers across page breaks so the printed report
+     stays legible when a table runs longer than one page. */
+  .char-table thead, .corpus-table thead{display:table-header-group}
+  .char-table tfoot, .corpus-table tfoot{display:table-footer-group}
+  /* Achievements grid widens to fit more across the column. */
+  .achievements-grid{
+    grid-template-columns:repeat(3, 1fr) !important;gap:6pt !important;
+  }
+  /* Missed-words list spans full column width. */
+  .missed-words{max-width:none}
+
+  /* ── Cover page polish ────────────────────────────────────────
+     Flex column with align-items:center centers every direct child
+     in the page horizontally regardless of its content width --
+     more reliable than `text-align:center` alone, which only
+     centers inline text inside block boxes. Each child is also
+     given an explicit max-width so a tagline doesn't span edge to
+     edge of the printable column. */
+  .stats-print-cover{
+    width:100% !important;max-width:none !important;
+    margin:0 !important;padding:.5in 0 !important;
+    display:flex !important;flex-direction:column !important;
+    align-items:center !important;justify-content:flex-start !important;
+    text-align:center !important;
+    min-height:9in;
+    page-break-after:always !important;break-after:page !important;
+  }
+  /* Universal cover-child reset -- pure-black ink, centered text,
+     transparent background, no inherited theme colors. */
+  .stats-print-cover *,
+  .stats-print-cover *::before,
+  .stats-print-cover *::after{
+    color:#000 !important;background:transparent !important;
+    text-align:center !important;
+    border-color:#000 !important;
+  }
+  .stats-print-cover__mark{
+    width:1.4in !important;height:1.4in !important;
+    margin:.4in 0 var(--space-4) !important;
+    /* Site mark prints as a pure black silhouette regardless of
+       theme variant or whether the cached src is the light or
+       dark version. */
+    filter:brightness(0) saturate(0) !important;
+    -webkit-filter:brightness(0) saturate(0) !important;
+  }
+  .stats-print-cover__brand{
+    font-size:42pt !important;line-height:1.1 !important;
+    font-weight:600 !important;
+    margin:0 0 .2in !important;
+    white-space:nowrap;letter-spacing:-.01em;
+    max-width:none !important;
+  }
+  .stats-print-cover__tagline{
+    font-size:11pt !important;color:#444 !important;
+    max-width:5in !important;line-height:1.55 !important;
+    font-style:italic;
+    margin:0 0 .5in !important;
+  }
+  .stats-print-cover__rule{
+    width:.8in !important;
+    margin:.4in 0 !important;
+    border:0 !important;border-top:1.5pt solid #000 !important;
+  }
+  .stats-print-cover__report-eyebrow{
+    font-family:"JetBrains Mono", ui-monospace, monospace !important;
+    font-size:9pt !important;letter-spacing:.32em !important;
+    color:#555 !important;text-transform:uppercase !important;
+    margin:0 0 .15in !important;
+  }
+  .stats-print-cover__report-title{
+    font-size:28pt !important;font-weight:500 !important;
+    margin:0 0 .55in !important;
+  }
+  .stats-print-cover__date{
+    font-size:12pt !important;
+    margin:.3in 0 .12in !important;
+  }
+  .stats-print-cover__profile{
+    font-family:"JetBrains Mono", ui-monospace, monospace !important;
+    font-size:9.5pt !important;color:#555 !important;
+    letter-spacing:.04em;
+    margin:0 0 .5in !important;
+  }
+  .stats-print-cover__url{
+    font-family:"JetBrains Mono", ui-monospace, monospace !important;
+    font-size:9pt !important;color:#888 !important;
+    letter-spacing:.05em;
+    margin-top:auto !important;
+    padding-top:.5in;
+  }
+
+  /* Anything with our themed token backgrounds (cards, tiles, table
+     rows, accent strips) flattens to white with hairline borders. */
+  *{
+    background:transparent !important;
+    color:#000 !important;
+    box-shadow:none !important;
+    text-shadow:none !important;
+  }
+  a{color:#000 !important;text-decoration:underline}
+  /* Append the URL after every external link so the printed page is
+     actually useful as a paper artifact. Skip page-internal anchors
+     (#) and relative-only paths so the text isn't cluttered. */
+  a[href^="http"]:not([href*="guerillatype.com"])::after{
+    content:" (" attr(href) ")";font-size:.85em;color:#444 !important;
+  }
+
+  /* Card/section outlines so structure survives the flattening. */
+  .stats-tile,
+  .stats-section,
+  .results,
+  .ach,
+  .missed-word,
+  .corpus-table,
+  .corpus-table__row,
+  .quote-card,
+  .article-body,
+  .post,
+  .book-header{
+    border:1px solid #ccc !important;
+  }
+  /* Each visual unit opts out of mid-element page breaks so the
+     printer never slices a tile, achievement, or row in half across
+     the seam. Card-level break-inside avoidance applies whether or
+     not the element renders a visible border. */
+  .stats-tile,
+  .stats-section,
+  .results,
+  .ach,
+  .missed-word,
+  .corpus-table__row,
+  .quote-card,
+  .article-body,
+  .post,
+  .book-header,
+  .achievements-grid > *,
+  .stats-grid > *,
+  blockquote,
+  figure{
+    page-break-inside:avoid !important;
+    break-inside:avoid !important;
+  }
+  /* Visual pieces that aren't cards but still shouldn't split. */
+  .chart, .kb, .contrib, .missed-words, .book-paras{
+    page-break-inside:avoid !important;
+    break-inside:avoid !important;
+    border:0 !important;
+  }
+  /* Headings stick to the next paragraph/element so a section title
+     never lands as the last line of a page. Adopting the typography
+     convention `widows: 3; orphans: 3` keeps body text from being
+     split with one or two stranded lines either side of a break. */
+  h1, h2, h3, h4, h5, h6{
+    page-break-after:avoid !important;
+    break-after:avoid !important;
+    page-break-inside:avoid !important;
+  }
+  p, li{orphans:3;widows:3}
+  .stats-section{margin-block:8pt;padding:8pt}
+  .stats-section__title{margin-bottom:6pt;border-bottom:1px solid #888;padding-bottom:3pt}
+  .stats-section__actions{display:none !important}
+  .stats-tile{padding:6pt}
+  .stats-tile__value{color:#000 !important;font-size:14pt}
+
+  /* Charts and SVGs print as outlines -- color-fills lose meaning in
+     grayscale anyway. Bumping stroke for visibility. */
+  svg .chart__line,
+  svg .chart__axis,
+  svg .kb__key,
+  svg .contrib__cell,
+  svg .chart__tick{
+    stroke:#000 !important;color:#000 !important;
+  }
+  svg .chart__area{fill:rgba(0,0,0,.08) !important}
+  svg .contrib__cell[data-level="0"]{fill:#f0f0f0 !important}
+  svg .contrib__cell[data-level="1"]{fill:#bdbdbd !important}
+  svg .contrib__cell[data-level="2"]{fill:#888 !important}
+  svg .contrib__cell[data-level="3"]{fill:#555 !important}
+  svg .contrib__cell[data-level="4"]{fill:#222 !important}
+
+  /* Headings with a touch of breathing room before each section so
+     the report doesn't read as a dense wall of stats. */
+  h1{font-size:20pt;margin:0 0 6pt;page-break-after:avoid}
+  h2{font-size:14pt;margin:12pt 0 4pt;page-break-after:avoid}
+  h3{font-size:12pt;margin:8pt 0 3pt;page-break-after:avoid}
+
+  /* The achievements grid prints as a 3-up grid with each badge as
+     a compact chip. */
+  .achievements-grid{display:grid !important;grid-template-columns:repeat(3, 1fr) !important;gap:4pt}
+  .ach{padding:4pt;font-size:9pt}
+
+  /* Force page breaks between the major report blocks for clarity. */
+  .stats-section + .stats-section{page-break-before:auto}
+  .stats-section:has(#achievements-grid){page-break-before:always}
+
+  @page{margin:0.6in;size:auto}
+}

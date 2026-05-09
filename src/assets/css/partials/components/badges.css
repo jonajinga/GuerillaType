@@ -1,0 +1,4 @@
+.badge{display:inline-flex;align-items:center;padding:.15rem .55rem;font-size:var(--fs-200);background:var(--bg-2);color:var(--fg-1);border:1px solid var(--rule);font-family:var(--font-mono)}
+.badge--accent{color:var(--accent);border-color:var(--accent)}
+.badge--good{color:var(--good);border-color:var(--good)}
+.badge--bad{color:var(--bad);border-color:var(--bad)}

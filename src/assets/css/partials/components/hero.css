@@ -1,0 +1,115 @@
+/* Editorial hero — large display headline, eyebrow, em-italic accent. */
+
+.hero{position:relative;padding-block:var(--space-7) var(--space-6);max-width:var(--max-width);margin-inline:auto;padding-inline:var(--gutter)}
+.hero__rule{display:flex;align-items:center;gap:.8rem;color:var(--rule);margin-bottom:var(--space-3)}
+.hero__rule::after{content:"";flex:1;height:1px;background:currentColor}
+.hero__rule__mark{font-family:var(--font-mono);color:var(--fg-2);font-size:var(--fs-200);letter-spacing:.18em;text-transform:uppercase;white-space:nowrap}
+
+.hero__title{
+  font-family:var(--font-display);
+  font-size:clamp(2.6rem, 1.8rem + 4.2vw, 5rem);
+  line-height:.97;letter-spacing:-.025em;font-weight:500;
+  max-width:18ch;margin-block:var(--space-3) var(--space-4);
+}
+.hero__title em{color:var(--accent);font-style:italic;font-weight:500}
+
+/* One-time fade-in-up on first paint -- the title and subtitle ease
+   in from 12px below their final position. Triggered by setting
+   data-hero-title="ready" in JS so the animation only runs once and
+   server-rendered HTML doesn't get a flash of pre-animation state. */
+[data-hero-title]{
+  opacity:0;transform:translateY(12px);
+  transition:opacity .55s var(--ease, ease-out), transform .55s var(--ease, ease-out);
+}
+[data-hero-title="ready"]{opacity:1;transform:none}
+[data-hero-title="ready"] + .hero__subtitle,
+[data-hero-title="ready"] ~ .hero__cta{
+  animation:hero-fadein .65s var(--ease, ease-out) backwards;
+}
+[data-hero-title="ready"] + .hero__subtitle{animation-delay:.12s}
+[data-hero-title="ready"] ~ .hero__cta{animation-delay:.24s}
+@keyframes hero-fadein{
+  from{opacity:0;transform:translateY(8px)}
+  to  {opacity:1;transform:none}
+}
+
+/* Rotating accent word ("better"/"faster"/"smoother"/...). The
+   inner <span> swaps text on a timer; CSS handles the cross-fade.
+   No min-width -- the em flows like normal italic text so the
+   trailing comma always sits right next to the last letter, even
+   as the word changes length across rotations. */
+[data-hero-rotor]{display:inline-block}
+[data-rotor-word]{
+  display:inline-block;
+  transition:opacity .35s ease, transform .35s ease;
+}
+[data-rotor-word][data-rotor-state="out"]{opacity:0;transform:translateY(-4px)}
+[data-rotor-word][data-rotor-state="in"] {opacity:1;transform:none}
+
+/* Reduced-motion users skip every hero animation. */
+@media (prefers-reduced-motion: reduce){
+  [data-hero-title]{opacity:1;transform:none;transition:none}
+  [data-hero-title="ready"] + .hero__subtitle,
+  [data-hero-title="ready"] ~ .hero__cta{animation:none}
+  [data-rotor-word]{transition:none}
+}
+.hero__subtitle{
+  font-family:var(--font-display);
+  color:var(--fg-1);font-size:var(--fs-500);
+  max-width:62ch;line-height:1.45;font-weight:400;
+}
+
+.hero__cta{display:flex;flex-wrap:wrap;gap:var(--space-3);margin-top:var(--space-5)}
+.hero__cta-hint{color:var(--fg-2);font-size:var(--fs-200);display:flex;align-items:center;gap:.5rem}
+.hero__cta-hint kbd{background:var(--bg-2);border:1px solid var(--rule);padding:.05em .35em;font-size:.85em;border-radius:var(--radius-sm);font-family:var(--font-mono)}
+
+/* Two-up: copy + featured. */
+.hero--split{display:grid;grid-template-columns:1fr;gap:var(--space-5)}
+@media (min-width:1024px){.hero--split{grid-template-columns:1.2fr 1fr;align-items:center}}
+
+.hero__sidecard{
+  background:var(--bg-1);border:1px solid var(--rule);
+  padding:var(--space-5);border-radius:var(--radius);
+  position:relative;
+}
+.hero__sidecard::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg, transparent 60%, color-mix(in oklab, var(--accent) 6%, transparent) 100%);
+}
+.hero__sidecard__eyebrow{display:flex;align-items:center;gap:.5rem;color:var(--accent);font-family:var(--font-mono);font-size:var(--fs-200);text-transform:uppercase;letter-spacing:.16em;margin-bottom:var(--space-2)}
+.hero__sidecard__quote{font-family:var(--font-display);font-style:italic;font-size:var(--fs-500);color:var(--fg-0);line-height:1.4;margin-bottom:var(--space-3)}
+.hero__sidecard__cite{font-family:var(--font-sans);font-size:var(--fs-200);color:var(--fg-2);margin-top:var(--space-2)}
+.hero__sidecard__live{margin-left:auto;color:var(--fg-2);font-size:.7rem;letter-spacing:.06em}
+.hero__sidecard__progress{display:block;height:2px;background:var(--accent);width:0;transition:width .12s linear;margin-top:var(--space-2);border-radius:1px;opacity:.7}
+.hero__sidecard__actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:var(--space-3)}
+
+/* Embedded typing surface inside the hero sidecard. Slim variant of
+   .tt-stage -- uses the same engine but trims chrome so the card stays
+   compact. The full tt-text styles still apply; the wrapper just resets
+   the surrounding padding so caret math lines up with the visible box. */
+.hero__sidecard--typing{padding:var(--space-4)}
+.tt-stage--embed{margin:0;padding:.4rem 0;max-width:none}
+.tt-stage--embed .tt-text{
+  font-family:var(--font-display);font-style:italic;
+  font-size:var(--fs-400);line-height:1.55;color:var(--fg-0);
+  min-height:8rem;
+}
+.tt-stage--embed .tt-stage__hint{
+  text-transform:none;letter-spacing:0;
+  font-family:var(--font-sans);font-size:var(--fs-200);
+  margin-bottom:.4rem;
+}
+
+/* Numbered feature blocks for "How it works" / "Why" sections. */
+.numbered-list{counter-reset:nl;display:grid;grid-template-columns:1fr;gap:var(--space-5);margin-block:var(--space-6)}
+@media (min-width:768px){.numbered-list{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:1024px){.numbered-list{grid-template-columns:repeat(3,1fr)}}
+.numbered-list__item{counter-increment:nl;padding-top:var(--space-3);border-top:1px solid var(--rule);position:relative}
+.numbered-list__item::before{content:counter(nl,decimal-leading-zero);font-family:var(--font-mono);color:var(--accent);font-size:var(--fs-200);letter-spacing:.06em;position:absolute;top:.7rem;right:0}
+.numbered-list__item h3{font-size:var(--fs-500);margin-block:.3rem .4rem}
+.numbered-list__item p{color:var(--fg-1)}
+
+/* Pull quote */
+.pull{margin-block:var(--space-6);padding-block:var(--space-4);border-block:1px solid var(--rule);text-align:center}
+.pull__text{font-family:var(--font-display);font-style:italic;font-size:var(--fs-700);color:var(--fg-0);max-width:24ch;margin-inline:auto;line-height:1.1;font-weight:400}
+.pull__cite{display:block;margin-top:var(--space-3);font-family:var(--font-mono);color:var(--fg-2);font-size:var(--fs-200);text-transform:uppercase;letter-spacing:.12em}

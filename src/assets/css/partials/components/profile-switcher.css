@@ -1,0 +1,4 @@
+.profile-switcher{display:inline-flex;align-items:center;gap:.4rem;background:var(--bg-1);border:1px solid var(--rule);padding:.25rem .25rem .25rem .65rem;font-size:var(--fs-200)}
+.profile-switcher__select{background:transparent;border:0;color:var(--fg-0);min-height:36px;padding:0 .25rem}
+.profile-switcher__btn{height:32px;padding:0 .5rem;font-size:.85em;color:var(--fg-2)}
+.profile-switcher__btn:hover{color:var(--accent)}

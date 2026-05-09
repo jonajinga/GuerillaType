@@ -1,0 +1,80 @@
+[
+  {
+    "id": "p-aesop-tortoise",
+    "title": "The Tortoise and the Hare",
+    "source": "Aesop's Fables (public domain)",
+    "tags": ["patience","persistence"],
+    "text": "A hare one day ridiculed the short feet and slow pace of the tortoise. The tortoise replied, laughing, Though you be swift as the wind, I will beat you in a race. The hare, deeming her assertion to be impossible, agreed to the proposal; and they agreed that the fox should choose the course, and fix the goal."
+  },
+  {
+    "id": "p-aesop-fox-grapes",
+    "title": "The Fox and the Grapes",
+    "source": "Aesop's Fables (public domain)",
+    "tags": ["envy"],
+    "text": "A famished fox saw some clusters of ripe black grapes hanging from a trellised vine. She resorted to all her tricks to get at them, but wearied herself in vain, for she could not reach them. At last she turned away, hiding her disappointment, saying: The grapes are sour, and not ripe as I thought."
+  },
+  {
+    "id": "p-aesop-ant-grasshopper",
+    "title": "The Ant and the Grasshopper",
+    "source": "Aesop's Fables (public domain)",
+    "tags": ["work","preparation"],
+    "text": "In a field one summer's day a grasshopper was hopping about, chirping and singing to its heart's content. An ant passed by, bearing along with great toil an ear of corn he was taking to the nest. Why not come and chat with me, said the grasshopper, instead of toiling and moiling in that way? I am helping to lay up food for the winter, said the ant."
+  },
+  {
+    "id": "p-aesop-lion-mouse",
+    "title": "The Lion and the Mouse",
+    "source": "Aesop's Fables (public domain)",
+    "tags": ["mercy","gratitude"],
+    "text": "A lion was awakened from sleep by a mouse running over his face. Rising up angrily, he caught him and was about to kill him, when the mouse piteously entreated, saying: If you would only spare my life, I would be sure to repay your kindness. The lion laughed and let him go. It happened shortly after this that the lion was caught by some hunters, who bound him by strong ropes to the ground. The mouse, recognizing his roar, came and gnawed the rope with his teeth, and set him free."
+  },
+  {
+    "id": "p-aesop-crow-pitcher",
+    "title": "The Crow and the Pitcher",
+    "source": "Aesop's Fables (public domain)",
+    "tags": ["ingenuity"],
+    "text": "A crow perishing with thirst saw a pitcher, and hoping to find water, flew to it with delight. When he reached it, he discovered to his grief that it contained so little water that he could not possibly get at it. He tried everything he could think of to reach the water, but all his efforts were in vain. At last he collected as many stones as he could carry and dropped them one by one with his beak into the pitcher, until he brought the water within his reach and saved his life."
+  },
+  {
+    "id": "p-aesop-boy-wolf",
+    "title": "The Boy Who Cried Wolf",
+    "source": "Aesop's Fables (public domain)",
+    "tags": ["honesty"],
+    "text": "A shepherd boy who tended his flock not far from a village used to amuse himself at times by crying out Wolf, Wolf. Twice or thrice his trick succeeded. The whole village came running out to his assistance, only to be laughed at for their pains. At last one day the wolf came indeed. The boy cried out in earnest, but his neighbours, supposing him to be at his old sport, paid no heed to his cries, and the wolf devoured the sheep."
+  },
+  {
+    "id": "p-aesop-north-wind-sun",
+    "title": "The North Wind and the Sun",
+    "source": "Aesop's Fables (public domain)",
+    "tags": ["persuasion","gentleness"],
+    "text": "The North Wind and the Sun disputed which was the most powerful, and agreed that he should be declared the victor who could first strip a wayfaring man of his clothes. The North Wind first tried his power, and blew with all his might, but the keener his blasts, the closer the traveller wrapped his cloak around him. The Sun, suddenly shining forth with all his warmth, the traveller no sooner felt his genial rays than he took off one garment after another."
+  },
+  {
+    "id": "p-aesop-milkmaid-pail",
+    "title": "The Milkmaid and Her Pail",
+    "source": "Aesop's Fables (public domain)",
+    "tags": ["counting-chickens"],
+    "text": "A farmer's daughter was carrying her pail of milk from the field to the farmhouse, when she fell a-musing. The money for which this milk will be sold will buy at least three hundred eggs. The eggs will produce at least two hundred and fifty chickens. The chickens will become ready for the market when poultry will fetch the highest price. So lost was she in her fanciful calculation that, tossing her head, the pail fell off, and all the milk was spilled."
+  },
+  {
+    "id": "p-aesop-fox-crow",
+    "title": "The Fox and the Crow",
+    "source": "Aesop's Fables (public domain)",
+    "tags": ["flattery"],
+    "text": "A crow having stolen a piece of cheese from a cottage window, flew up into a high tree with the prize, in order to eat it at her leisure. A fox, spying her, longed to obtain the cheese, and casting about for some stratagem, saluted the crow with these words: How handsome is the crow, what beauty in her plumage. If only her voice were equal to her shape, she would deserve to be called the queen of the birds. The crow, anxious to refute this, began to caw and dropped the cheese."
+  },
+  {
+    "id": "p-aesop-dog-shadow",
+    "title": "The Dog and the Shadow",
+    "source": "Aesop's Fables (public domain)",
+    "tags": ["greed"],
+    "text": "A dog, crossing a bridge over a stream with a piece of meat in his mouth, saw his own shadow in the water and took it for that of another dog, with a piece of meat double his own in size. He immediately let go of his own, and fiercely attacked the other dog to get his larger piece from him. He thus lost both: that which he grasped at in the water, because it was a shadow; and his own, because the stream swept it away."
+  },
+  {
+    "id": "p-aesop-frogs-ox",
+    "title": "The Frogs and the Ox",
+    "source": "Aesop's Fables (public domain)",
+    "tags": ["pride","limits"],
+    "text": "An ox came down to a reedy pool to drink. As he splashed heavily into the water, he crushed a young frog into the mud. The old frog soon missed the little one and asked his brothers and sisters what had become of him. \"A great big monster,\" said one of them, \"stepped on little brother with one of his huge feet!\" \"Big, was he!\" said the old frog, puffing herself up. \"Was he as big as this?\" \"Oh, much bigger!\" they cried. The frog puffed up still more. \"He could not have been bigger than this,\" she said. But the little frogs all declared that the monster was much, much bigger and the old frog kept puffing herself out more and more until, all at once, she burst.",
+    "moral": "Do not attempt the impossible."
+  }
+]

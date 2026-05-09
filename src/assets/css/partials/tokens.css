@@ -1,0 +1,215 @@
+/* Canonical breakpoints — enforced as a comment. CSS custom properties
+   don't work inside @media queries; new responsive rules MUST snap to
+   one of these stops:
+     360  bp-xs   smallest phone (iPhone SE)
+     480  bp-sm   large phone portrait
+     640  bp-md   phone landscape / very small tablet portrait
+     768  bp-tab  tablet portrait
+     1024 bp-lg   tablet landscape / small laptop
+     1180 bp-xl   standard desktop
+     1280 bp-2xl  wide desktop (matches --max-width)
+   No ad-hoc values. Mobile-first; prefer min-width on multi-column
+   layouts. */
+
+/* ── Visual identity ──────────────────────────────────────────────
+   Warm-paper editorial. Cream + deep navy ink, persimmon accent,
+   ocean-teal secondary. Typewriter-ribbon red for incorrect-key signal.
+   Lora serif display, Inter body, JetBrains Mono for the surface. */
+
+:root{
+  --max-width: 1280px;
+  --content-width: 70ch;
+  --gutter: clamp(1rem, 2vw, 1.5rem);
+
+  /* Paper / ink — DARK theme (default) */
+  --bg-0: #14161e;       /* deep ocean ink */
+  --bg-1: #1c1f29;
+  --bg-2: #252836;
+  --bg-3: #353846;
+  --fg-0: #ece6d6;       /* warm fog */
+  --fg-1: #c9c2b1;
+  --fg-2: #a39e8e;       /* AA-passing muted text on bg-0/bg-1 */
+  --fg-3: #8d887d;       /* tertiary; AA-passing on bg-0 + bg-1 */
+  --rule: #353848;       /* slightly lifted so it reads as a hairline */
+
+  --accent: #e58060;     /* warm coral / persimmon */
+  --accent-soft: #f59c80;
+  --accent-deep: #c1413c;
+  --secondary: #6ba9b3;  /* lifted teal */
+  --secondary-soft: #93c5cd;
+  --good: #8fbf90;
+  --bad: #d76050;
+  --warn: #e3b873;
+
+  --surface-0: var(--bg-0);
+  --surface-1: var(--bg-1);
+  --surface-2: var(--bg-2);
+  --on-surface: var(--fg-0);
+  --on-surface-mute: var(--fg-2);
+
+  /* Typography */
+  --font-display: "Lora", "Iowan Old Style", "Palatino", Georgia, serif;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* Typing surface font — selectable in settings via data-typing-font
+     on <html>. Defaults to JetBrains Mono. Each preset just rebinds
+     --font-typing. Surface CSS reads var(--font-typing). */
+  --font-typing: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Type scale — calmer rhythm, larger display sizes */
+  --fs-200: clamp(.8125rem, .76rem + .25vw, .9rem);
+  --fs-300: clamp(.9rem, .85rem + .25vw, 1rem);
+  --fs-400: clamp(1rem, .92rem + .4vw, 1.125rem);
+  --fs-500: clamp(1.15rem, 1rem + .6vw, 1.4rem);
+  --fs-600: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
+  --fs-700: clamp(2rem, 1.5rem + 2vw, 2.85rem);
+  --fs-800: clamp(2.6rem, 1.8rem + 3.5vw, 4rem);
+  --fs-display: clamp(3rem, 2rem + 5vw, 5.5rem);
+  --fs-typing: clamp(1.4rem, 1.1rem + 1.4vw, 2.05rem);
+
+  /* Space */
+  --space-1: .25rem;
+  --space-2: .5rem;
+  --space-3: .75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 2.5rem;
+  --space-8: 3rem;
+  --space-10: 4.5rem;
+  --space-12: 6.5rem;
+
+  /* Radius — tiny radii (2px) for soft hairline edges. Typing surface
+     stays at 0 for pixel-perfect span alignment. */
+  --radius: 2px;
+  --radius-sm: 1px;
+  --radius-lg: 4px;
+  --radius-pill: 999px;
+
+  /* Borders + shadows */
+  --bw: 1px;
+  --shadow-1: 0 1px 0 rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.28);
+  --shadow-2: 0 2px 0 rgba(0,0,0,.5), 0 18px 42px rgba(0,0,0,.4);
+  --shadow-paper: 0 1px 0 rgba(0,0,0,.06), 0 8px 18px rgba(20,22,30,.06);
+
+  /* Animation */
+  --ease: cubic-bezier(.2,.8,.2,1);
+  --ease-elastic: cubic-bezier(.34, 1.56, .64, 1);
+  --t-fast: 120ms;
+  --t-med: 240ms;
+  --t-slow: 420ms;
+}
+
+/* Paper / ink — LIGHT theme. Warm cream like new newsprint. */
+[data-theme="light"]{
+  --bg-0: #f4ecdb;       /* warm paper */
+  --bg-1: #ebe2cd;
+  --bg-2: #e0d6bd;
+  --bg-3: #cabf9f;
+  --fg-0: #1c1d22;       /* deep ink */
+  --fg-1: #383a44;
+  --fg-2: #5a574e;       /* AA pass on bg-0/bg-1 (was 6c6a62 — 4.33:1 fail) */
+  --fg-3: #676356;       /* AA pass on bg-0 + bg-1 (was 6e6a5c — bg-1 4.20:1) */
+  --rule: #c0b390;
+
+  --accent: #a8362e;     /* deepened persimmon for AA on bg-2 (was c1413c) */
+  --accent-soft: #d76050;
+  --accent-deep: #8e2c28;
+  --secondary: #1f3d4a;  /* deep ocean teal */
+  --secondary-soft: #355766;
+  --good: #4a7c4f;
+  --bad: #c1413c;
+  --warn: #b88930;
+}
+
+/* ── Theme presets ──────────────────────────────────────────────
+   Each preset is gated by [data-theme="<id>"] and only redefines the
+   color tokens that change. All presets respect the AA-passing
+   contrast targets verified in earlier phases (4.5:1 normal text,
+   3:1 UI). Apply via the Settings → Theme picker.
+   The original "dark" + "light" themes remain at the top of this
+   file; presets here are the additional named variants. */
+
+[data-theme="solarized-dark"]{
+  --bg-0:#002b36;--bg-1:#073642;--bg-2:#0e4250;--bg-3:#194a5d;
+  --fg-0:#fdf6e3;--fg-1:#eee8d5;--fg-2:#93a1a1;--fg-3:#92a0a1;
+  --rule:#0e4250;--accent:#cb4b16;--accent-soft:#dc7b53;--accent-deep:#b03a08;
+  --secondary:#268bd2;--good:#859900;--bad:#dc322f;--warn:#b58900;
+}
+[data-theme="solarized-light"]{
+  --bg-0:#fdf6e3;--bg-1:#eee8d5;--bg-2:#e6dfc5;--bg-3:#d6cfb1;
+  --fg-0:#073642;--fg-1:#586e75;--fg-2:#556a71;--fg-3:#5d686c;
+  --rule:#d6cfb1;--accent:#b03a08;--accent-soft:#cb4b16;--accent-deep:#7c2a04;
+  --secondary:#1d6da4;--good:#586e0f;--bad:#dc322f;--warn:#8e6c00;
+}
+[data-theme="dracula"]{
+  --bg-0:#282a36;--bg-1:#343746;--bg-2:#44475a;--bg-3:#565a73;
+  --fg-0:#f8f8f2;--fg-1:#dcdcdc;--fg-2:#bdbdbe;--fg-3:#a3a3a3;
+  --rule:#44475a;--accent:#ff79c6;--accent-soft:#ff92d0;--accent-deep:#cc4d97;
+  --secondary:#8be9fd;--good:#50fa7b;--bad:#ff5555;--warn:#f1fa8c;
+}
+[data-theme="nord"]{
+  --bg-0:#2e3440;--bg-1:#3b4252;--bg-2:#434c5e;--bg-3:#4c566a;
+  --fg-0:#eceff4;--fg-1:#e5e9f0;--fg-2:#d8dee9;--fg-3:#a8b0bb;
+  --rule:#434c5e;--accent:#88c0d0;--accent-soft:#a8cfdb;--accent-deep:#5e81ac;
+  --secondary:#81a1c1;--good:#a3be8c;--bad:#bf616a;--warn:#ebcb8b;
+}
+[data-theme="gruvbox-dark"]{
+  --bg-0:#282828;--bg-1:#3c3836;--bg-2:#504945;--bg-3:#665c54;
+  --fg-0:#fbf1c7;--fg-1:#ebdbb2;--fg-2:#d5c4a1;--fg-3:#bdae93;
+  --rule:#504945;--accent:#fe8019;--accent-soft:#fa9b4a;--accent-deep:#d65d0e;
+  --secondary:#83a598;--good:#b8bb26;--bad:#fb4934;--warn:#fabd2f;
+}
+[data-theme="one-dark"]{
+  --bg-0:#282c34;--bg-1:#21252b;--bg-2:#3a3f4b;--bg-3:#4b5263;
+  --fg-0:#dde2ea;--fg-1:#c1c8d4;--fg-2:#9aa0ad;--fg-3:#91969e;
+  --rule:#3a3f4b;--accent:#e06c75;--accent-soft:#ee878f;--accent-deep:#be5046;
+  --secondary:#61afef;--good:#98c379;--bad:#e06c75;--warn:#e5c07b;
+}
+[data-theme="tokyo-night"]{
+  --bg-0:#1a1b26;--bg-1:#1f2335;--bg-2:#24283b;--bg-3:#414868;
+  --fg-0:#c0caf5;--fg-1:#a9b1d6;--fg-2:#9aa5ce;--fg-3:#868c9d;
+  --rule:#414868;--accent:#bb9af7;--accent-soft:#caaff7;--accent-deep:#7c66ad;
+  --secondary:#7aa2f7;--good:#9ece6a;--bad:#f7768e;--warn:#e0af68;
+}
+[data-theme="catppuccin"]{
+  --bg-0:#1e1e2e;--bg-1:#181825;--bg-2:#313244;--bg-3:#45475a;
+  --fg-0:#cdd6f4;--fg-1:#bac2de;--fg-2:#a6adc8;--fg-3:#83889f;
+  --rule:#313244;--accent:#f5c2e7;--accent-soft:#f8d4ed;--accent-deep:#c98ec0;
+  --secondary:#89b4fa;--good:#a6e3a1;--bad:#f38ba8;--warn:#f9e2af;
+}
+[data-theme="rose-pine"]{
+  --bg-0:#191724;--bg-1:#1f1d2e;--bg-2:#26233a;--bg-3:#403d52;
+  --fg-0:#e0def4;--fg-1:#cdcbe1;--fg-2:#908caa;--fg-3:#89859c;
+  --rule:#26233a;--accent:#ebbcba;--accent-soft:#f0cdcc;--accent-deep:#b88e8d;
+  --secondary:#9ccfd8;--good:#3e8fb0;--bad:#eb6f92;--warn:#f6c177;
+}
+[data-theme="github-dark"]{
+  --bg-0:#0d1117;--bg-1:#161b22;--bg-2:#21262d;--bg-3:#30363d;
+  --fg-0:#c9d1d9;--fg-1:#b1bac4;--fg-2:#8b949e;--fg-3:#7e858f;
+  --rule:#30363d;--accent:#58a6ff;--accent-soft:#79b8ff;--accent-deep:#1f6feb;
+  --secondary:#a371f7;--good:#3fb950;--bad:#f85149;--warn:#d29922;
+}
+[data-theme="github-light"]{
+  --bg-0:#ffffff;--bg-1:#f6f8fa;--bg-2:#eaeef2;--bg-3:#d0d7de;
+  --fg-0:#1f2328;--fg-1:#424a53;--fg-2:#57606a;--fg-3:#69717b;
+  --rule:#d0d7de;--accent:#0969da;--accent-soft:#218bff;--accent-deep:#0a3069;
+  --secondary:#8250df;--good:#1a7f37;--bad:#cf222e;--warn:#9a6700;
+}
+
+/* ── Typing-font presets ─────────────────────────────────────────
+   Each binding only redefines --font-typing; the surface CSS picks
+   it up. Bunny Fonts loads all faces — they're cached after first
+   selection. Default (no attribute) keeps JetBrains Mono. */
+[data-typing-font="fira-code"]      { --font-typing: "Fira Code", ui-monospace, monospace; }
+[data-typing-font="ibm-plex-mono"]  { --font-typing: "IBM Plex Mono", ui-monospace, monospace; }
+[data-typing-font="roboto-mono"]    { --font-typing: "Roboto Mono", ui-monospace, monospace; }
+[data-typing-font="source-code-pro"]{ --font-typing: "Source Code Pro", ui-monospace, monospace; }
+[data-typing-font="ubuntu-mono"]    { --font-typing: "Ubuntu Mono", ui-monospace, monospace; }
+[data-typing-font="space-mono"]     { --font-typing: "Space Mono", ui-monospace, monospace; }
+[data-typing-font="inconsolata"]    { --font-typing: "Inconsolata", ui-monospace, monospace; }
+[data-typing-font="cousine"]        { --font-typing: "Cousine", ui-monospace, monospace; }
+/* System monospace stack -- whatever the OS provides as a default
+   monospace font (San Francisco Mono on macOS, Consolas on Windows,
+   Liberation Mono on most Linux desktops). Zero network cost. */
+[data-typing-font="system"]         { --font-typing: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; }

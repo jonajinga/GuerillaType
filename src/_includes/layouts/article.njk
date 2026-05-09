@@ -1,0 +1,32 @@
+---
+layout: layouts/base.njk
+---
+<div class="article-layout{% if cta %} has-cta{% endif %}">
+
+  <aside class="article-toc" aria-label="On this page">
+    <div class="article-toc__title">On this page</div>
+    <nav class="article-toc__list"></nav>
+  </aside>
+
+  <article class="article-body">
+    <header class="article-head">
+      {% if eyebrow %}<span class="eyebrow">{{ eyebrow }}</span>{% endif %}
+      <h1>{{ title }}</h1>
+      {% if lede %}<p class="article-lede">{{ lede }}</p>{% endif %}
+    </header>
+    {{ content | safe }}
+  </article>
+
+  {% if cta %}
+  <aside class="article-cta">
+    <h3>{{ cta.title }}</h3>
+    <p>{{ cta.body }}</p>
+    {% for action in cta.actions %}
+    <a class="btn{% if action.primary %} btn--primary{% endif %}" href="{{ action.url }}">{{ action.label }}</a>
+    {% endfor %}
+  </aside>
+  {% endif %}
+
+</div>
+
+<script type="module" src="/assets/js/auto-toc.js?v={{ cssVersion }}"></script>

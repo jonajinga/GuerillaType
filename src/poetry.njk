@@ -1,0 +1,26 @@
+---
+layout: layouts/base.njk
+title: "Poetry"
+description: "Public-domain poems — Frost, Dickinson, Whitman, Shakespeare, Blake, more. Type any one or save it for later."
+---
+<header class="page__head">
+  <h1>Poetry</h1>
+  <p class="page__subtitle">A small library of public-domain poems and excerpts. Poetry rewards careful typing — the line breaks and meter make rhythm visible.</p>
+</header>
+
+<div class="quotes-toolbar">
+  <input type="search" id="corpus-search" class="quotes-search" placeholder="Search title or author…" aria-label="Search poetry">
+  <button type="button" id="corpus-random" class="btn btn--small btn--primary">Random poem →</button>
+</div>
+
+<section class="corpus-list" data-corpus-url="/data/poetry.json" data-corpus-kind="poem" data-corpus-mode="custom" id="corpus-root">
+  <div id="corpus-list" aria-live="polite"></div>
+</section>
+
+<aside class="corpus-suggest-cta">
+  <div class="corpus-suggest-cta__copy">
+    <h3>Have a pre-1929 poem we should add?</h3>
+    <p>Send the title, poet, year, and full text -- line breaks preserved.</p>
+  </div>
+  <a class="btn btn--primary" href="/contribute/poem/?from=poetry">Suggest a poem →</a>
+</aside>

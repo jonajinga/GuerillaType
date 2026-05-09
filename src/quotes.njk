@@ -1,0 +1,45 @@
+---
+layout: layouts/base.njk
+title: "Quotes"
+description: "Browse every quote in the library. Pick the one you want to type, or build a collection of favorites."
+---
+<header class="page__head">
+  <h1>Quotes</h1>
+  <p class="page__subtitle">Every curated quote, searchable and pickable. Click "type this" on any card to start a session with that exact quote — or add it to a collection to type a sequence.</p>
+</header>
+
+<div class="quotes-toolbar">
+  <input type="search" id="quote-search" class="quotes-search" placeholder="Search quotes, authors, tags…" aria-label="Search quotes">
+  <div class="quotes-filter" role="tablist" aria-label="Filter by length">
+    <button type="button" class="quotes-filter__btn" data-bucket="all" aria-pressed="true">All</button>
+    <button type="button" class="quotes-filter__btn" data-bucket="short" aria-pressed="false">Short</button>
+    <button type="button" class="quotes-filter__btn" data-bucket="medium" aria-pressed="false">Medium</button>
+    <button type="button" class="quotes-filter__btn" data-bucket="long" aria-pressed="false">Long</button>
+  </div>
+  <button type="button" class="btn btn--small btn--primary" id="quote-random">Random quote →</button>
+</div>
+
+<div id="quotes-collection-bar" class="quotes-collections" hidden>
+  <strong>Active collection:</strong> <span id="active-collection-name">none</span>
+  <span id="active-collection-count" class="muted"></span>
+  <button type="button" class="btn btn--small" id="quotes-clear-collection">Done</button>
+</div>
+
+<section id="quotes-list" class="quotes-list quotes-list--full" aria-live="polite"></section>
+
+<aside class="corpus-suggest-cta">
+  <div class="corpus-suggest-cta__copy">
+    <h3>Have a favorite public-domain quote?</h3>
+    <p>Help grow the library -- send the quote, author, and source.</p>
+  </div>
+  <a class="btn btn--primary" href="/contribute/quote/?from=quotes">Suggest a quote →</a>
+</aside>
+
+<section class="stats-section" id="collections-section">
+  <div class="stats-section__title">
+    <h2>Your collections</h2>
+    <button type="button" class="btn btn--small btn--primary" id="collection-new">New collection</button>
+  </div>
+  <p class="muted" style="max-width:62ch">A collection is a personal playlist of quotes — type them in sequence, reorder them, build a daily warm-up set. Collections live in your browser only.</p>
+  <div id="collections-grid" class="collections-grid"></div>
+</section>

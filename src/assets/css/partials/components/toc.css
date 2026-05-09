@@ -1,0 +1,186 @@
+/* Sticky TOC — appears alongside .article-layout on wide viewports.
+   Below 1024px, collapses to a top-of-page summary. */
+
+/* Mobile: block flow so the TOC and body share one containing block
+   and `position:sticky` on the TOC has the article body's full height
+   to stick within. Single-column grid on mobile would put each item
+   in its own row track, and sticky on a grid item is constrained to
+   the row -- so a one-row TOC effectively can't stick. */
+.article-layout{
+  display:block;
+  max-width:var(--max-width);margin-inline:auto;
+  padding:var(--space-6) var(--gutter) var(--space-10);
+}
+.article-layout > .article-toc{margin-bottom:var(--space-5)}
+@media (min-width:1024px){
+  .article-layout{display:grid;grid-template-columns:240px minmax(0,1fr);gap:var(--space-8)}
+  .article-layout.has-cta{grid-template-columns:240px minmax(0,1fr) 280px}
+  .article-layout > .article-toc{margin-bottom:0}
+}
+
+/* Article TOC -- sticky only on desktop. On phones / small tablets
+   the TOC stacks above the article body and scrolls away with it,
+   so it doesn't eat valuable above-the-fold space while reading on
+   a small viewport. Sticky returns at >=1024px where there's room
+   for it in a side rail. */
+.article-toc{
+  align-self:start;
+  scrollbar-width:none;-ms-overflow-style:none;
+}
+.article-toc::-webkit-scrollbar{width:0;height:0;display:none}
+@media (min-width:1024px){
+  .article-toc{
+    position:sticky;top:calc(var(--header-h, 58px) + 12px);
+    max-height:calc(100svh - var(--header-h, 58px) - 32px);overflow:auto;
+    z-index:5;
+  }
+}
+.article-toc__title{
+  font-family:var(--font-mono);font-size:var(--fs-200);
+  text-transform:uppercase;letter-spacing:.16em;
+  color:var(--fg-2);font-weight:500;
+  margin-bottom:.6rem;padding-bottom:.45rem;border-bottom:1px solid var(--rule);
+}
+.article-toc__list{display:flex;flex-direction:column;gap:.05rem}
+.article-toc__list a{
+  display:block;padding:.45rem .65rem;
+  color:var(--fg-2);text-decoration:none;
+  border-left:2px solid transparent;
+  font-size:var(--fs-200);line-height:1.4;
+  transition:color var(--t-fast), border-color var(--t-fast), background var(--t-fast);
+}
+.article-toc__list a:hover{color:var(--fg-0);background:var(--bg-1)}
+.article-toc__list a.is-active{color:var(--accent);border-left-color:var(--accent);background:var(--bg-1)}
+.article-toc__list a[data-level="3"]{padding-left:1.4rem;font-size:.84em}
+
+.article-body{max-width:78ch}
+.article-body p,.article-body ul,.article-body ol{max-width:none}
+.article-body > p:first-of-type{font-size:var(--fs-400);color:var(--fg-1);margin-top:var(--space-2)}
+.article-body h2{margin-top:var(--space-8);margin-bottom:var(--space-3);scroll-margin-top:120px;padding-top:var(--space-3);border-top:1px solid var(--rule)}
+.article-body h2:first-of-type{padding-top:0;border-top:0}
+.article-body h3{margin-top:var(--space-6);margin-bottom:var(--space-3);scroll-margin-top:120px}
+.article-body ul,.article-body ol{padding-left:1.4em;margin-bottom:var(--space-4);margin-top:var(--space-2)}
+.article-body p + ul, .article-body p + ol{margin-top:calc(-1 * var(--space-1))}
+.article-body ul{list-style:disc}
+.article-body ol{list-style:decimal}
+.article-body li{margin-bottom:.4em}
+.article-body table{width:100%;border-collapse:collapse;margin:var(--space-4) 0;font-size:var(--fs-300)}
+.article-body th,.article-body td{padding:.55rem .8rem;border-bottom:1px solid var(--rule);text-align:left;vertical-align:top}
+.article-body th{color:var(--fg-2);font-family:var(--font-mono);font-size:var(--fs-200);text-transform:uppercase;letter-spacing:.06em;font-weight:500}
+.article-body figure{margin:var(--space-5) 0}
+.article-body figcaption{font-size:var(--fs-200);color:var(--fg-2);margin-top:.4em}
+
+.article-head{margin-bottom:var(--space-7);padding-bottom:var(--space-5);border-bottom:1px solid var(--rule)}
+.article-head .eyebrow{margin-bottom:var(--space-3)}
+
+/* Collapsible article TOC. The title is a clickable toggle that
+   collapses the list while keeping itself visible. Plus/minus glyph
+   on the right indicates state. State persists per-page in localStorage.
+   NOTE: do NOT add `position:relative` here -- the earlier rule sets
+   `position:sticky` and overriding it with relative breaks the sticky
+   behavior site-wide. */
+.article-toc__title{
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;user-select:none;
+}
+.article-toc__title::after{
+  content:"−";
+  display:inline-flex;align-items:center;justify-content:center;
+  width:20px;height:20px;line-height:1;
+  font-family:var(--font-mono);font-size:1rem;color:var(--fg-3);
+}
+.article-toc[data-collapsed="true"] .article-toc__title::after{content:"+"}
+.article-toc[data-collapsed="true"] .article-toc__list{display:none}
+
+/* Sitemap page -- collapsible sections via native <details>. */
+.sitemap-page{max-width:920px}
+.sitemap-page__controls{
+  display:flex;gap:.5rem;margin-bottom:var(--space-4);
+}
+.sitemap-section{
+  margin:0 0 var(--space-3);
+  border:1px solid var(--rule);border-radius:var(--radius);
+  background:var(--bg-1);overflow:hidden;
+}
+.sitemap-section > summary{
+  list-style:none;cursor:pointer;
+  padding:.7rem var(--space-4);
+  background:var(--bg-1);
+  display:flex;align-items:center;gap:.6rem;
+  transition:background var(--t-fast);
+}
+.sitemap-section > summary::-webkit-details-marker{display:none}
+.sitemap-section > summary::before{
+  content:"+";
+  display:inline-flex;align-items:center;justify-content:center;
+  width:24px;height:24px;border-radius:var(--radius-sm);
+  background:var(--bg-2);color:var(--accent);
+  font-family:var(--font-mono);font-weight:700;font-size:1rem;line-height:1;
+  flex-shrink:0;
+}
+.sitemap-section[open] > summary::before{content:"−"}
+.sitemap-section > summary:hover{background:var(--bg-2)}
+.sitemap-section > summary h2{
+  margin:0;font-size:var(--fs-400);font-weight:600;color:var(--fg-0);
+}
+.sitemap-section > ul,
+.sitemap-section > p,
+.sitemap-section > h3{padding-left:var(--space-4);padding-right:var(--space-4)}
+.sitemap-section > ul{margin:0;padding-top:.4rem;padding-bottom:.4rem;list-style:disc;padding-left:calc(var(--space-4) + 1.2em)}
+.sitemap-section > ul:last-child{padding-bottom:var(--space-3)}
+.sitemap-section > p{margin:.4rem 0;color:var(--fg-2)}
+.sitemap-section > h3{
+  margin:var(--space-3) 0 .4rem;
+  font-size:var(--fs-200);font-family:var(--font-mono);
+  text-transform:uppercase;letter-spacing:.1em;color:var(--fg-3);
+  font-weight:500;
+}
+.sitemap-section li{margin:.25rem 0;line-height:1.45;color:var(--fg-1)}
+.sitemap-section li::marker{color:var(--accent)}
+.sitemap-section a{color:var(--fg-1);text-decoration:none;border-bottom:1px dotted transparent}
+.sitemap-section a:hover{color:var(--accent);border-bottom-color:var(--accent)}
+.article-head h1{margin-top:0;margin-bottom:var(--space-4)}
+.article-lede{font-family:var(--font-display);font-size:var(--fs-500);color:var(--fg-1);max-width:62ch;margin:0;font-weight:400;line-height:1.45}
+
+/* Page-level floating TOC — for pages that opt in via the page-toc.njk
+   partial without committing to the full article-layout grid. On wide
+   viewports the host becomes a 2-column grid (TOC + content); narrow
+   viewports stack and the TOC hides. */
+.toc-host{display:block;position:relative}
+/* page-toc shown always now (mobile + desktop); sticky at every
+   viewport. On narrow screens it stacks above the content and
+   anchors to the top as you scroll. On wide screens it slots into
+   a left gutter via float. */
+.toc-host > .page-toc{
+  display:block;
+  scrollbar-width:none;-ms-overflow-style:none;
+  margin-bottom:var(--space-3);
+}
+.toc-host > .page-toc::-webkit-scrollbar{width:0;height:0;display:none}
+@media (min-width:1024px){
+  /* Wide viewport: TOC pulled into a left gutter via float so the
+     content keeps its full reading width, and pinned sticky so it
+     follows the reader down the page. */
+  .toc-host{padding-left:226px}
+  .toc-host > .page-toc{
+    position:sticky;
+    top:calc(var(--header-h, 58px) + 12px);
+    max-height:calc(100svh - var(--header-h, 58px) - 32px);
+    overflow:auto;z-index:5;
+    width:200px;
+    margin-left:-226px;margin-bottom:0;
+    float:left;
+  }
+  .toc-host::after{content:"";display:block;clear:both}
+}
+
+/* Stat callout block — used in cost/analytics pages. */
+.stat-row{
+  display:grid;grid-template-columns:repeat(auto-fit, minmax(160px,1fr));
+  gap:var(--space-3);margin:var(--space-4) 0;
+}
+.stat-row__cell{
+  padding:var(--space-3) var(--space-4);background:var(--bg-1);border:1px solid var(--rule);border-radius:var(--radius);
+}
+.stat-row__cell strong{display:block;font-family:var(--font-mono);font-size:var(--fs-600);color:var(--accent);font-weight:500;line-height:1}
+.stat-row__cell span{display:block;color:var(--fg-2);font-size:var(--fs-200);text-transform:uppercase;letter-spacing:.06em;margin-top:.4em}

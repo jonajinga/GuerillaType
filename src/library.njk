@@ -1,0 +1,215 @@
+---
+layout: layouts/base.njk
+title: "Library"
+description: "Public-domain literature from Project Gutenberg, ready to type. Per-paragraph progress tracking -- pick up where you left off, across sessions."
+---
+<header class="page__head">
+  <h1>Library</h1>
+  <p class="page__subtitle">Public-domain literature, broken into typeable paragraphs. Your progress through each book persists in your local profile -- pick up where you left off across sessions.</p>
+</header>
+
+<div class="library-toolbar">
+  <input type="search" id="library-search" class="library-toolbar__search" placeholder="Search by title or author..." aria-label="Search the library" autocomplete="off" autocapitalize="off" spellcheck="false">
+
+  <div class="library-toolbar__group" role="tablist" aria-label="Genre">
+    <span class="library-toolbar__legend">Genre</span>
+    <button type="button" class="library-toolbar__chip is-active" data-filter-genre="all">All</button>
+    <button type="button" class="library-toolbar__chip" data-filter-genre="fiction">Fiction</button>
+    <button type="button" class="library-toolbar__chip" data-filter-genre="adventure">Adventure</button>
+    <button type="button" class="library-toolbar__chip" data-filter-genre="gothic">Gothic</button>
+    <button type="button" class="library-toolbar__chip" data-filter-genre="mystery">Mystery</button>
+    <button type="button" class="library-toolbar__chip" data-filter-genre="children">Children's</button>
+    <button type="button" class="library-toolbar__chip" data-filter-genre="play">Plays</button>
+    <button type="button" class="library-toolbar__chip" data-filter-genre="essay">Essays</button>
+    <button type="button" class="library-toolbar__chip" data-filter-genre="philosophy">Philosophy</button>
+    <button type="button" class="library-toolbar__chip" data-filter-genre="autobiography">Autobiography</button>
+    <button type="button" class="library-toolbar__chip" data-filter-genre="science">Science</button>
+    <button type="button" class="library-toolbar__chip" data-filter-genre="fables">Fables</button>
+  </div>
+
+  <div class="library-toolbar__group" role="tablist" aria-label="Era">
+    <span class="library-toolbar__legend">Era</span>
+    <button type="button" class="library-toolbar__chip is-active" data-filter-era="all">All</button>
+    <button type="button" class="library-toolbar__chip" data-filter-era="ancient">Ancient (pre-1500)</button>
+    <button type="button" class="library-toolbar__chip" data-filter-era="early">Early modern (1500-1800)</button>
+    <button type="button" class="library-toolbar__chip" data-filter-era="1800s">19th century</button>
+    <button type="button" class="library-toolbar__chip" data-filter-era="1900s">20th century</button>
+  </div>
+
+  <div class="library-toolbar__group" role="tablist" aria-label="Length">
+    <span class="library-toolbar__legend">Length</span>
+    <button type="button" class="library-toolbar__chip is-active" data-filter-length="all">All</button>
+    <button type="button" class="library-toolbar__chip" data-filter-length="short">Short (under 100k chars)</button>
+    <button type="button" class="library-toolbar__chip" data-filter-length="medium">Medium (100-400k)</button>
+    <button type="button" class="library-toolbar__chip" data-filter-length="long">Long (400k-1M)</button>
+    <button type="button" class="library-toolbar__chip" data-filter-length="epic">Epic (1M+)</button>
+  </div>
+
+  <p class="library-toolbar__count" id="library-count" aria-live="polite"></p>
+</div>
+
+<div class="corpus-table__wrap" id="library-table-wrap">
+  <table class="corpus-table" id="library-table">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Genre</th>
+        <th class="num">Year</th>
+        <th class="num">Length</th>
+        <th class="num">Progress</th>
+        <th class="corpus-table__actcol">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for book in books %}
+      {% set meta = bookMeta[book.slug] %}
+      {% set pubYear = meta.pubYear if meta else "" %}
+      {% set genre = meta.genre if meta else "fiction" %}
+      <tr class="corpus-table__row library-row"
+          data-slug="{{ book.slug }}"
+          data-title="{{ book.title | lower }}"
+          data-author="{{ book.author | lower }}"
+          data-genre="{{ genre }}"
+          data-year="{{ pubYear }}"
+          data-chars="{{ book.charCount }}">
+        <td class="corpus-table__title"><a href="{{ book.permalink }}">{{ book.title }}</a></td>
+        <td class="corpus-table__second">{{ book.author }}</td>
+        <td><span class="library-row__genre">{{ genre }}</span></td>
+        <td class="num corpus-table__len">{% if pubYear %}{% if pubYear > 0 %}{{ pubYear }}{% else %}{{ -pubYear }} BC{% endif %}{% else %}—{% endif %}</td>
+        <td class="num corpus-table__len">{{ (book.charCount / 1000) | round }}k</td>
+        <td class="num library-row__progress" data-slug="{{ book.slug }}" data-total="{{ book.paragraphCount }}">0 / {{ book.paragraphCount }}</td>
+        <td class="corpus-table__actcol">
+          <a class="btn btn--small btn--primary" href="{{ book.permalink }}">Open</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<p id="library-empty" class="muted" hidden style="text-align:center;padding:var(--space-7) 0">No books match those filters. Try clearing them above.</p>
+
+<aside class="corpus-suggest-cta">
+  <div class="corpus-suggest-cta__copy">
+    <h3>Know a public-domain book we should add?</h3>
+    <p>Project Gutenberg classics with a clear chapter structure work best.</p>
+  </div>
+  <a class="btn btn--primary" href="/contribute/book/?from=library">Suggest a book &rarr;</a>
+</aside>
+
+<script type="module">
+  import { getActive } from "/assets/js/profiles.js?v={{ cssVersion }}";
+
+  /* Per-row progress paint from localStorage. Each progress cell shows
+     "<typed> / <total>" using the active profile's bookProgress. */
+  const profile = getActive();
+  const progMap = profile.bookProgress || {};
+  document.querySelectorAll(".library-row__progress").forEach((el) => {
+    const slug = el.dataset.slug;
+    const total = parseInt(el.dataset.total, 10) || 0;
+    const prog = progMap[slug];
+    const done = prog && prog.typed ? Object.keys(prog.typed).length : 0;
+    el.textContent = `${done} / ${total}`;
+    if (done > 0 && done >= total) el.classList.add("is-done");
+    else if (done > 0) el.classList.add("is-partial");
+  });
+
+  /* Library search + filter. Each row carries data-title, -author,
+     -genre, -year, -chars. Filtering is client-side only -- works
+     offline, instant, no fetch. */
+  const tableWrap = document.getElementById("library-table-wrap");
+  const rows = Array.from(document.querySelectorAll(".library-row"));
+  const search = document.getElementById("library-search");
+  const countEl = document.getElementById("library-count");
+  const emptyEl = document.getElementById("library-empty");
+  const state = { q: "", genre: "all", era: "all", length: "all" };
+
+  function eraOf(year) {
+    const y = parseInt(year, 10);
+    if (!y && y !== 0) return null;
+    if (y < 1500) return "ancient";
+    if (y < 1800) return "early";
+    if (y < 1900) return "1800s";
+    return "1900s";
+  }
+  function lengthOf(chars) {
+    const n = parseInt(chars, 10) || 0;
+    if (n < 100000)  return "short";
+    if (n < 400000)  return "medium";
+    if (n < 1000000) return "long";
+    return "epic";
+  }
+  function visible(row) {
+    if (state.q) {
+      const hay = row.dataset.title + " " + row.dataset.author;
+      if (!hay.includes(state.q)) return false;
+    }
+    if (state.genre !== "all" && row.dataset.genre !== state.genre) return false;
+    if (state.era !== "all" && eraOf(row.dataset.year) !== state.era) return false;
+    if (state.length !== "all" && lengthOf(row.dataset.chars) !== state.length) return false;
+    return true;
+  }
+  function applyFilters() {
+    let shown = 0;
+    rows.forEach((r) => {
+      const ok = visible(r);
+      r.hidden = !ok;
+      if (ok) shown++;
+    });
+    countEl.textContent = `${shown} of ${rows.length} books`;
+    emptyEl.hidden = shown !== 0;
+    tableWrap.hidden = shown === 0;
+  }
+
+  search.addEventListener("input", () => {
+    state.q = search.value.trim().toLowerCase();
+    applyFilters();
+  });
+
+  document.querySelectorAll("[data-filter-genre], [data-filter-era], [data-filter-length]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const groupKeys = ["genre", "era", "length"];
+      let changedKey = null;
+      for (const k of groupKeys) {
+        const v = btn.dataset["filter" + k.charAt(0).toUpperCase() + k.slice(1)];
+        if (v != null) { state[k] = v; changedKey = k; break; }
+      }
+      if (!changedKey) return;
+      // Sync active state across the chip group.
+      const groupSel = `[data-filter-${changedKey}]`;
+      document.querySelectorAll(groupSel).forEach((b) => b.classList.toggle("is-active", b === btn));
+      applyFilters();
+    });
+  });
+
+  applyFilters();
+</script>
+
+<style>
+  /* Library table: a uppercase mono genre chip on each row, plus
+     simple done/partial accent on the progress cell. */
+  .library-row__genre{
+    font-family:var(--font-mono);
+    font-size:.7rem;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--fg-2);
+    padding:.18rem .5rem;
+    border:1px solid var(--rule);
+    border-radius:999px;
+    white-space:nowrap;
+  }
+  .library-row__progress{font-variant-numeric:tabular-nums}
+  .library-row__progress.is-partial{color:var(--accent)}
+  .library-row__progress.is-done{color:var(--good);font-weight:600}
+  .library-row[hidden]{display:none}
+  /* Hide the genre/year columns on small screens to keep the table
+     readable; title+author+length+action remain. */
+  @media (max-width:768px){
+    .corpus-table thead th:nth-child(3),
+    .corpus-table thead th:nth-child(4),
+    .library-row > td:nth-child(3),
+    .library-row > td:nth-child(4){display:none}
+  }
+</style>

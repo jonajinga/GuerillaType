@@ -1,0 +1,51 @@
+---
+layout: layouts/base.njk
+title: "Blog"
+description: "Notes on building Guerilla Type — features shipping, decisions made, lessons learned. RSS available."
+permalink: /blog/
+---
+
+<div class="blog-index">
+  <header class="blog-index__head">
+    <p class="eyebrow">Notes from the keyboard</p>
+    <h1>Blog</h1>
+    <p class="article-lede">Posts on building Guerilla Type -- new features, design decisions, the occasional rabbit hole. Subscribe via <a href="/feed.xml">RSS</a>, or scan by tag.</p>
+    <p class="blog-index__tags">
+      <strong>Tags:</strong>
+      {% set allTags = [] %}
+      {%- for p in collections.post -%}
+        {%- for t in p.data.tags -%}
+          {%- if t != "post" and allTags.indexOf(t) === -1 -%}
+            {%- set allTags = (allTags.push(t), allTags) -%}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endfor -%}
+      {% for t in allTags %}
+      <a class="blog-tag-chip" href="/blog/tag/{{ t | slugify }}/">{{ t }}</a>
+      {% endfor %}
+    </p>
+  </header>
+
+  {% if collections.post and collections.post.length %}
+  <div class="blog-list">
+    {% for post in collections.post | reverse %}
+    <article class="blog-card">
+      {% if post.data.tags %}
+      <p class="blog-card__date">
+        {%- for t in post.data.tags -%}{%- if t != "post" -%}<a class="blog-card__tag" href="/blog/tag/{{ t | slugify }}/">{{ t }}</a>{%- endif -%}{%- endfor -%}
+      </p>
+      {% endif %}
+      <h2 class="blog-card__title"><a href="{{ post.url }}">{{ post.data.title }}</a></h2>
+      <p class="blog-card__deck">{{ post.data.description }}</p>
+      <p class="blog-card__readmore"><a href="{{ post.url }}">Read post →</a></p>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="muted">No posts yet -- come back soon.</p>
+  {% endif %}
+
+  <aside class="blog-index__rss">
+    <p>Subscribe via RSS: <a href="/feed.xml"><code>/feed.xml</code></a></p>
+  </aside>
+</div>

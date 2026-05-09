@@ -1,0 +1,31 @@
+---
+layout: layouts/base.njk
+title: "Custom Text"
+description: "Drop a .txt or .md file, paste a chapter, or grab a URL. Type your way through anything."
+---
+<header class="page__head">
+  <h1>Custom text</h1>
+  <p class="page__subtitle">Drop a <code>.txt</code>, <code>.md</code>, <code>.epub</code>, or <code>.pdf</code> file — paste a chapter — or fetch text from a URL. Sanitized, chunked into ~500-char segments, and saved per profile.</p>
+</header>
+
+<div class="custom-form">
+  <div class="uploader" id="uploader">
+    <span class="uploader__title">Drop a .txt, .md, .epub, or .pdf file</span>
+    <span class="uploader__hint">or click to browse — large files are split automatically</span>
+    <input class="uploader__file" id="uploader-file" type="file" accept=".txt,.md,.epub,.pdf,text/plain,text/markdown,application/epub+zip,application/pdf">
+  </div>
+  <div class="field">
+    <label for="paste-title">Title</label>
+    <input type="text" id="paste-title" placeholder="My chapter">
+  </div>
+  <div class="field">
+    <label for="paste-text">Or paste text</label>
+    <textarea id="paste-text" placeholder="Paste any text here…"></textarea>
+  </div>
+  <div class="custom-form__row">
+    <button type="button" class="btn btn--primary" id="paste-save">Save text</button>
+  </div>
+</div>
+
+<h2>Saved texts</h2>
+<div id="saved-list" class="saved-list"></div>

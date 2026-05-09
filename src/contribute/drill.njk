@@ -1,0 +1,51 @@
+---
+layout: layouts/base.njk
+title: "Suggest a drill"
+description: "Suggest a typing drill for Guerilla Type -- key clusters, bigrams, finger isolation, symbol packs."
+permalink: /contribute/drill/
+---
+
+{% import "partials/contribute/form-shell.njk" as cf %}
+
+{{ cf.head("Suggest a drill", "Drills are short, focused sequences -- a key cluster, a bigram, a finger row, a symbol pack.", "drill") }}
+
+<aside class="contribute-page__guidelines">
+  <h2>Guidelines</h2>
+  <ul>
+    <li>Drills are word lists, not sentences. 20-100 entries is the sweet spot.</li>
+    <li>Stay focused on a single thing -- one finger, one cluster, one bigram, one symbol family.</li>
+    <li>Tell me <em>why</em> the drill matters -- what skill it targets.</li>
+    <li>If you're submitting a code/symbol drill, indicate the language.</li>
+  </ul>
+</aside>
+
+<form class="contribute-form" method="POST" action="{{ web3forms.endpoint }}" data-contribute-kind="drill">
+  {{ cf.hidden("drill", "GT contribution: drill", web3forms) }}
+
+  {{ cf.text("drill_title", "Drill title", required=true, maxlength=120, placeholder="e.g. Right pinky -- ; ' / ?") }}
+  {{ cf.select("category", "Category", [
+    { value: "finger", label: "Finger isolation" },
+    { value: "row", label: "Row drill (home / top / bottom)" },
+    { value: "bigram", label: "Bigram or trigram pack" },
+    { value: "symbol", label: "Symbol cluster" },
+    { value: "number", label: "Numbers / numpad" },
+    { value: "code", label: "Code patterns" },
+    { value: "other", label: "Other" }
+  ], required=true) }}
+  {{ cf.textarea("drill_words", "Words / sequences", required=true, minlength=40, maxlength=4000, rows=10, hint="One per line OR comma-separated. 20-100 entries.") }}
+  {{ cf.select("difficulty", "Difficulty", [
+    { value: "1", label: "1 -- absolute beginner" },
+    { value: "2", label: "2 -- novice" },
+    { value: "3", label: "3 -- intermediate" },
+    { value: "4", label: "4 -- advanced" },
+    { value: "5", label: "5 -- expert / pro" }
+  ], required=true) }}
+  {{ cf.textarea("why_it_matters", "Why this drill matters", required=true, minlength=20, maxlength=500, rows=3, hint="What skill does this build?") }}
+  {{ cf.text("submitter_name", "Your name", maxlength=120, placeholder="Optional") }}
+
+  {{ cf.submit("Send drill suggestion") }}
+</form>
+
+{{ cf.byline() }}
+
+<script type="module" src="/assets/js/pages/contribute-boot.js?v={{ cssVersion }}"></script>

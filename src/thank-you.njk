@@ -1,0 +1,141 @@
+---
+layout: layouts/base.njk
+title: "Thank you"
+description: "Thanks for contributing to Guerilla Type."
+permalink: /thank-you/
+eleventyExcludeFromCollections: true
+---
+
+<div class="thank-you">
+  <header class="thank-you__head">
+    <p class="eyebrow" data-eyebrow>Submission received</p>
+    <h1 data-heading>Thank you.</h1>
+    <p class="article-lede" data-lede>Your message is in the project inbox. I read everything.</p>
+  </header>
+
+  <div class="thank-you__actions">
+    <a class="btn btn--primary" href="/contribute/" data-primary>Submit another</a>
+    <a class="btn" href="/" data-secondary>Back to home</a>
+  </div>
+
+  <aside class="thank-you__share" data-share hidden>
+    <h2>Help even more</h2>
+    <p>Word of mouth keeps free, no-account tools alive.</p>
+    <div class="thank-you__share-row">
+      <a class="btn btn--small" href="https://twitter.com/intent/tweet?text=I+just+helped+grow+Guerilla+Type+--+a+free%2C+open-source+typing+tutor.+You+can+too%3A&url=https%3A%2F%2Fguerillatype.com%2Fcontribute%2F" target="_blank" rel="noopener">Share on X</a>
+      <a class="btn btn--small" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fguerillatype.com%2Fcontribute%2F" target="_blank" rel="noopener">Share on LinkedIn</a>
+      <button type="button" class="btn btn--small" data-copy>Copy link</button>
+    </div>
+  </aside>
+</div>
+
+<script type="module">
+  /* Smart confirmation. Reads ?for=<kind> from the redirect URL that
+     each contribution form set, and tailors the heading + lede + CTAs
+     to match what the user just sent. Falls back to a generic
+     "thank you" when no kind is supplied. */
+  const KIND_COPY = {
+    "drill": {
+      eyebrow: "Drill suggestion received",
+      heading: "Thanks for the drill idea.",
+      lede: "I'll review it against the existing drill set and ship it as part of the next content drop if it fits.",
+      primary: { label: "Suggest another drill", url: "/contribute/drill/" },
+      secondary: { label: "Browse drills", url: "/drills/" },
+    },
+    "book": {
+      eyebrow: "Book suggestion received",
+      heading: "Thanks for the book recommendation.",
+      lede: "Public-domain ingestion is a manual process -- I'll verify the source and add it to the library queue.",
+      primary: { label: "Suggest another book", url: "/contribute/book/" },
+      secondary: { label: "Browse the library", url: "/library/" },
+    },
+    "parable": {
+      eyebrow: "Parable suggestion received",
+      heading: "Thanks for the parable.",
+      lede: "I'll check the source for public-domain status and add it to the corpus when verified.",
+      primary: { label: "Suggest another parable", url: "/contribute/parable/" },
+      secondary: { label: "Browse parables", url: "/parables/" },
+    },
+    "quote": {
+      eyebrow: "Quote suggestion received",
+      heading: "Thanks for the quote.",
+      lede: "I'll verify the attribution and source and add it to the next quote batch.",
+      primary: { label: "Suggest another quote", url: "/contribute/quote/" },
+      secondary: { label: "Browse quotes", url: "/quotes/" },
+    },
+    "idiom": {
+      eyebrow: "Idiom suggestion received",
+      heading: "Thanks for the idiom.",
+      lede: "I'll cross-check the meaning and origin and add it to the corpus.",
+      primary: { label: "Suggest another idiom", url: "/contribute/idiom/" },
+      secondary: { label: "Browse idioms", url: "/idioms/" },
+    },
+    "poem": {
+      eyebrow: "Poem suggestion received",
+      heading: "Thanks for the poem.",
+      lede: "I'll verify pre-1928 public-domain status and add it to the poetry collection.",
+      primary: { label: "Suggest another poem", url: "/contribute/poem/" },
+      secondary: { label: "Browse poetry", url: "/poetry/" },
+    },
+    "testimonial": {
+      eyebrow: "Testimonial received",
+      heading: "Thank you for the kind words.",
+      lede: "If you opted in to publication, your review will appear on /reviews/ after a quick read-through.",
+      primary: { label: "Read other reviews", url: "/reviews/" },
+      secondary: { label: "Back to home", url: "/" },
+      showShare: true,
+    },
+    "thanks-note": {
+      eyebrow: "Thanks-note received",
+      heading: "Right back at you.",
+      lede: "Your note made the day better. If approved, it'll land on the thanks wall for everyone to see.",
+      primary: { label: "Visit the thanks wall", url: "/thanks-wall/" },
+      secondary: { label: "Back to home", url: "/" },
+    },
+    "contact": {
+      eyebrow: "Message received",
+      heading: "Thanks for reaching out.",
+      lede: "I read every message and reply when I can -- usually within a few days.",
+      primary: { label: "Browse the FAQ", url: "/faq/" },
+      secondary: { label: "Back to home", url: "/" },
+    },
+  };
+
+  const params = new URLSearchParams(location.search);
+  const kind = (params.get("for") || "").toLowerCase();
+  const cfg = KIND_COPY[kind];
+
+  if (cfg) {
+    document.querySelector("[data-eyebrow]").textContent = cfg.eyebrow;
+    document.querySelector("[data-heading]").textContent = cfg.heading;
+    document.querySelector("[data-lede]").textContent = cfg.lede;
+    const p = document.querySelector("[data-primary]");
+    p.textContent = cfg.primary.label;
+    p.href = cfg.primary.url;
+    const s = document.querySelector("[data-secondary]");
+    s.textContent = cfg.secondary.label;
+    s.href = cfg.secondary.url;
+    if (cfg.showShare) {
+      const share = document.querySelector("[data-share]");
+      if (share) share.hidden = false;
+    }
+  }
+
+  // Copy-link button (visible when share is shown).
+  const copyBtn = document.querySelector("[data-copy]");
+  if (copyBtn) {
+    copyBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText("https://guerillatype.com/contribute/");
+        copyBtn.textContent = "Copied!";
+        setTimeout(() => { copyBtn.textContent = "Copy link"; }, 1600);
+      } catch {}
+    });
+  }
+
+  // Clear any stashed contribute draft for this kind so the form
+  // doesn't re-populate with the just-submitted content next visit.
+  if (kind) {
+    try { localStorage.removeItem(`tt:contribute-draft-${kind}`); } catch {}
+  }
+</script>

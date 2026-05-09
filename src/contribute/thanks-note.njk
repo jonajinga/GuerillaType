@@ -1,0 +1,33 @@
+---
+layout: layouts/base.njk
+title: "Send a thanks note"
+description: "Leave a quick note of appreciation. Approved notes appear on the thanks wall."
+permalink: /contribute/thanks-note/
+---
+
+{% import "partials/contribute/form-shell.njk" as cf %}
+
+{{ cf.head("Send a thanks note", "A quick line of appreciation goes a long way. With your permission, approved notes appear on the thanks wall.", "thanks-note") }}
+
+<aside class="contribute-page__guidelines">
+  <h2>About this</h2>
+  <ul>
+    <li>This is a short, no-pressure way to say "this helped me" or "keep going".</li>
+    <li>Approved notes appear on <a href="/thanks-wall/">/thanks-wall/</a> -- a small wall of kindness.</li>
+    <li>Skip the testimonial form unless you want a star rating attached. This one is just notes.</li>
+  </ul>
+</aside>
+
+<form class="contribute-form" method="POST" action="{{ web3forms.endpoint }}" data-contribute-kind="thanks-note">
+  {{ cf.hidden("thanks-note", "GT thanks-note", web3forms) }}
+
+  {{ cf.textarea("message", "Your note", required=true, minlength=4, maxlength=400, rows=4, hint="Keep it short. A line or two is plenty.") }}
+  {{ cf.text("display_name", "Display name", maxlength=80, placeholder="e.g. Marie, or M.", hint="Leave blank to post anonymously.") }}
+  {{ cf.checkbox("permission_publish", "Yes, you may publish this on the thanks wall.", hint="If unchecked, the note still gets to me -- it just stays private.") }}
+
+  {{ cf.submit("Send thanks note") }}
+</form>
+
+{{ cf.byline() }}
+
+<script type="module" src="/assets/js/pages/contribute-boot.js?v={{ cssVersion }}"></script>

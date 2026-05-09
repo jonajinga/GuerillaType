@@ -1,0 +1,4 @@
+{# Umami analytics — privacy-friendly, cookieless. Set site.umami.enabled = true and fill in src + websiteId in src/_data/site.js to enable. #}
+{% if site.umami.enabled %}
+<script defer src="{{ site.umami.src }}" data-website-id="{{ site.umami.websiteId }}"></script>
+{% endif %}

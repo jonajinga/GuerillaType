@@ -1,0 +1,44 @@
+---
+layout: layouts/base.njk
+title: "Leave a testimonial"
+description: "Tell other typists why Guerilla Type is worth their time. Approved testimonials appear on the reviews page."
+permalink: /contribute/testimonial/
+---
+
+{% import "partials/contribute/form-shell.njk" as cf %}
+
+{{ cf.head("Leave a testimonial", "Tell other typists why GT is worth their time. With your permission, approved reviews appear on /reviews/.", "testimonial") }}
+
+<aside class="contribute-page__guidelines">
+  <h2>What makes a great review</h2>
+  <ul>
+    <li>Specific -- mention what you actually use (adaptive mode, drills, daily quote, etc.).</li>
+    <li>Honest -- nothing reads more fake than glowing copy with no substance.</li>
+    <li>Short is fine. Two sentences and a star rating beats a wall of text.</li>
+    <li>Suggestions for improvement are welcome too -- this isn't a marketing form.</li>
+  </ul>
+</aside>
+
+<form class="contribute-form" method="POST" action="{{ web3forms.endpoint }}" data-contribute-kind="testimonial">
+  {{ cf.hidden("testimonial", "GT testimonial", web3forms) }}
+
+  {{ cf.rating("rating", "Your rating", required=true) }}
+  {{ cf.select("how_long", "How long have you been using Guerilla Type?", [
+    { value: "first-week", label: "First week" },
+    { value: "first-month", label: "First month" },
+    { value: "few-months", label: "A few months" },
+    { value: "regular", label: "Regular -- 6+ months" },
+    { value: "power-user", label: "Power user -- 1+ year" }
+  ], required=true) }}
+  {{ cf.textarea("what_you_love", "What you love", required=true, minlength=20, maxlength=600, rows=5, hint="What's actually working for you? Be specific.") }}
+  {{ cf.textarea("what_to_improve", "What we should improve", maxlength=600, rows=4, hint="Optional. Honest feedback is gold.") }}
+  {{ cf.text("display_name", "Display name", maxlength=80, placeholder="e.g. Jane D., or just Jane", hint="What should appear next to your review on /reviews/. Leave blank for 'Anonymous'.") }}
+  {{ cf.text("display_role", "Role / context", maxlength=120, placeholder="e.g. Software engineer, Student, Court reporter", hint="Optional. Adds credibility.") }}
+  {{ cf.checkbox("permission_publish", "Yes, you may publish this on /reviews/.", hint="If unchecked, the review still comes to me -- it just won't appear publicly.") }}
+
+  {{ cf.submit("Send testimonial") }}
+</form>
+
+{{ cf.byline() }}
+
+<script type="module" src="/assets/js/pages/contribute-boot.js?v={{ cssVersion }}"></script>

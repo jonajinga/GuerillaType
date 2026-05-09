@@ -1,0 +1,285 @@
+/* Library page — public-domain texts with per-paragraph progress. */
+
+.library-list{display:flex;flex-direction:column;gap:var(--space-5)}
+
+/* ── Library index grid ─────────────────────────────────────── */
+.library-grid{
+  display:grid;grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));
+  gap:var(--space-4);margin-top:var(--space-4);
+}
+.library-card{
+  display:flex;flex-direction:column;gap:var(--space-3);
+  padding:var(--space-4);background:var(--bg-1);
+  border:1px solid var(--rule);border-radius:var(--radius);
+  transition:border-color var(--t-fast);
+}
+.library-card:hover{border-color:var(--accent)}
+.library-card__head{display:flex;flex-direction:column;gap:.3rem}
+.library-card__title{font-family:var(--font-display);font-size:var(--fs-500);margin:0;line-height:1.2}
+.library-card__title a{color:var(--fg-0);text-decoration:none}
+.library-card__title a:hover{color:var(--accent)}
+.library-card__author{font-family:var(--font-mono);font-size:.78rem;color:var(--fg-2);letter-spacing:.04em}
+.library-card__meta{
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin:0;
+  font-size:.78rem;
+}
+.library-card__meta > div{display:flex;flex-direction:column;gap:.15rem}
+.library-card__meta dt{font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.08em;color:var(--fg-3);font-size:.62rem}
+.library-card__meta dd{margin:0;color:var(--fg-1);font-family:var(--font-mono);font-size:.78rem}
+.library-card__progress{display:flex;flex-direction:column;gap:.3rem}
+.library-card__progress-num{font-family:var(--font-mono);font-size:.7rem;color:var(--fg-2)}
+.library-card__progress-bar{display:block;height:4px;background:var(--bg-2);border-radius:var(--radius-pill);overflow:hidden}
+.library-card__progress-fill{display:block;height:100%;background:var(--accent);transition:width var(--t-med) var(--ease)}
+.library-card__actions{margin-top:auto}
+
+/* ── Library toolbar (search + filter chips) ───────────────────
+   Sits above the grid. Search filters by title/author; chips
+   restrict by genre, era, length. Filtering happens client-side
+   in library.njk's inline script. */
+.library-toolbar{
+  display:flex;flex-direction:column;gap:.6rem;
+  margin:0 0 var(--space-5);
+  padding:var(--space-4);
+  background:var(--bg-1);border:1px solid var(--rule);border-radius:var(--radius);
+}
+.library-toolbar__search{
+  width:100%;padding:.65rem .85rem;
+  background:var(--bg-2);color:var(--fg-0);
+  border:1px solid var(--rule);border-radius:var(--radius);
+  font-family:var(--font-sans);font-size:var(--fs-300);
+}
+.library-toolbar__search:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in oklab, var(--accent) 22%, transparent)}
+.library-toolbar__group{
+  display:flex;align-items:center;flex-wrap:wrap;
+  gap:.3rem;padding:.2rem 0;
+}
+.library-toolbar__legend{
+  flex:0 0 auto;font-family:var(--font-mono);font-size:.62rem;
+  text-transform:uppercase;letter-spacing:.14em;color:var(--fg-3);
+  width:5em;
+}
+.library-toolbar__chip{
+  flex:0 0 auto;
+  padding:.3rem .7rem;border:1px solid var(--rule);border-radius:var(--radius-pill, 999px);
+  background:transparent;color:var(--fg-2);
+  font-family:var(--font-mono);font-size:.7rem;letter-spacing:.04em;
+  cursor:pointer;line-height:1.2;min-height:0;
+  transition:color var(--t-fast), border-color var(--t-fast), background var(--t-fast);
+}
+.library-toolbar__chip:hover{color:var(--accent);border-color:var(--accent)}
+.library-toolbar__chip.is-active{
+  color:#fff;background:var(--accent);border-color:var(--accent);
+}
+.library-toolbar__count{
+  margin:.2rem 0 0;color:var(--fg-3);font-family:var(--font-mono);
+  font-size:var(--fs-200);letter-spacing:.04em;
+}
+.library-card[hidden]{display:none}
+
+/* ── Book reader (TypeLit-style) ────────────────────────────── */
+.book-header{
+  max-width:880px;margin:0 auto var(--space-5);
+  padding-bottom:var(--space-4);border-bottom:1px solid var(--rule);
+}
+.book-header__title{font-family:var(--font-display);font-size:var(--fs-700);margin:0 0 .25rem}
+.book-header__byline{font-family:var(--font-display);font-style:italic;color:var(--fg-2);margin:0 0 var(--space-3)}
+.book-header__meta{
+  display:flex;flex-wrap:wrap;gap:var(--space-3);
+  font-family:var(--font-mono);font-size:.78rem;color:var(--fg-2);letter-spacing:.04em;
+}
+.book-header__meta strong{color:var(--accent);font-family:var(--font-display);font-size:var(--fs-400);font-weight:500}
+.book-header__progress{margin-left:auto;color:var(--accent)}
+.book-header__actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:var(--space-4)}
+
+/* Reader and header share the same 880px max-width and the same
+   left/right edges (no extra inner gutter on the reader -- site-main
+   already provides the page-level gutter). This keeps the chapter
+   bar, the content card, and the book-header all aligned vertically. */
+.book-reader{max-width:880px;margin:0 auto;padding:0 0 var(--space-8)}
+.book-reader__nav{
+  display:flex;flex-direction:column;gap:.5rem;
+  padding:var(--space-3) var(--space-4);
+  background:var(--bg-1);border:1px solid var(--rule);border-radius:var(--radius);
+  position:sticky;top:calc(var(--header-h, 58px) + 8px);z-index:5;
+  margin-bottom:var(--space-5);
+}
+.book-reader__nav-row{
+  display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;
+}
+.book-reader__nav-row--chapter .book-reader__chapter-select{
+  flex:1 1 auto;max-width:none;
+}
+.book-reader__nav-row--page{
+  justify-content:space-between;
+  padding-top:.4rem;
+  border-top:1px solid var(--rule);
+}
+.book-reader__nav-row--page .book-reader__page-nav{margin-left:0}
+.book-reader__chapter-label{
+  font-family:var(--font-mono);font-size:.66rem;text-transform:uppercase;
+  letter-spacing:.14em;color:var(--fg-3);margin:0;
+  flex-shrink:0;
+}
+/* Chapter dropdown -- spans the full row; font sized small enough
+   that long treatise titles ("Of the Origin and Design of Government
+   in General with Concise Remarks on the English Constitution")
+   render in full without ellipsis. Custom chevron via two diagonal
+   gradients; native styling suppressed via appearance:none. */
+.book-reader__chapter-select{
+  width:100%;flex:1 1 auto;min-width:0;
+  padding:.55rem 2.2rem .55rem .85rem;
+  background:var(--bg-2);color:var(--fg-0);
+  border:1px solid var(--rule);border-radius:var(--radius);
+  font-family:var(--font-display);font-size:.92rem;font-weight:500;
+  line-height:1.35;
+  cursor:pointer;
+  appearance:none;-webkit-appearance:none;-moz-appearance:none;
+  background-image:linear-gradient(45deg, transparent 50%, var(--accent) 50%),
+                   linear-gradient(135deg, var(--accent) 50%, transparent 50%);
+  background-position:calc(100% - 1.1rem) 50%, calc(100% - .65rem) 50%;
+  background-size:6px 6px;
+  background-repeat:no-repeat;
+  /* Truncate long descriptive chapter titles ("Wherein is related the
+     grand adventure of the cave of Montesinos...") to one line in the
+     closed dropdown. The full title still renders in the open dropdown
+     options because browsers ignore overflow on <option>. */
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  transition:border-color var(--t-fast), background-color var(--t-fast);
+}
+.book-reader__chapter-select:hover{border-color:var(--accent);background-color:color-mix(in oklab, var(--accent) 8%, var(--bg-2))}
+.book-reader__chapter-select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in oklab, var(--accent) 25%, transparent)}
+.book-reader__page{
+  font-family:var(--font-mono);font-size:.78rem;color:var(--fg-2);
+  letter-spacing:.04em;white-space:nowrap;flex-shrink:0;
+}
+.book-reader__page-nav{display:flex;gap:.4rem;margin-left:auto}
+
+.book-reader__page-content{
+  font-family:var(--font-display);font-size:var(--fs-400);
+  color:var(--fg-0);line-height:1.75;
+  background:var(--bg-1);border:1px solid var(--rule);border-radius:var(--radius);
+  padding:var(--space-6) var(--space-7);
+}
+.book-reader__chapter-title{
+  font-family:var(--font-display);font-size:var(--fs-600);
+  font-weight:500;margin:0 0 var(--space-5);
+  padding-bottom:var(--space-3);border-bottom:1px solid var(--rule);
+  color:var(--fg-0);
+}
+.book-reader__para{
+  margin:0 0 var(--space-4);cursor:pointer;
+  padding:.5rem .75rem;border-radius:var(--radius);
+  transition:background var(--t-fast), color var(--t-fast);
+  position:relative;
+}
+.book-reader__para:hover{background:color-mix(in oklab, var(--accent) 8%, transparent)}
+.book-reader__para:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.book-reader__para.is-typed{
+  color:var(--fg-2);
+  text-decoration:line-through;text-decoration-color:color-mix(in oklab, var(--good) 50%, transparent);
+}
+.book-reader__para.is-typed::before{
+  content:"✓ ";color:var(--good);font-style:normal;font-family:var(--font-mono);font-weight:700;
+}
+
+.book-reader__footer{
+  display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);
+  flex-wrap:wrap;margin-top:var(--space-5);padding-top:var(--space-4);
+  border-top:1px solid var(--rule);
+}
+.book-reader__hint{font-family:var(--font-mono);font-size:.78rem;letter-spacing:.04em}
+
+@media (max-width:768px){
+  .book-reader__page-content{padding:var(--space-4) var(--space-4)}
+  .book-reader__nav{flex-direction:column;align-items:stretch}
+  .book-reader__page-nav{margin-left:0;justify-content:space-between}
+}
+
+/* Phone-portrait library toolbar -- the chip-group legends ("Genre",
+   "Era", "Length") sit beside their chips at desktop, but at <=480px
+   the chips wrap and the legend either overlaps or breaks the row.
+   Stack legend above its chips on phones, and shrink chip padding
+   so 4-5 fit per row. */
+@media (max-width:480px){
+  .library-toolbar{padding:var(--space-3)}
+  .library-toolbar__group{flex-direction:column;align-items:flex-start;gap:.35rem}
+  .library-toolbar__legend{
+    width:auto;font-size:.6rem;
+    padding-bottom:.15rem;
+  }
+  .library-toolbar__chip{
+    padding:.35rem .55rem;font-size:.7rem;
+    /* Touch-target sizing: pill chips need ≥36px height for thumb
+       accuracy on phones. Override the inherited button rule that
+       was set to compact desktop sizing. */
+    min-height:34px;display:inline-flex;align-items:center;
+  }
+  .library-toolbar__group > :nth-child(n+2):not(.library-toolbar__legend){
+    /* Wrap the chips in a flex row that flows in their own line. */
+    flex-shrink:0;
+  }
+}
+
+/* Book-header on phones: the meta row was wrapping into two lines
+   that overlapped the action buttons. Tighter gaps + smaller meta
+   font keep the title card readable. */
+@media (max-width:480px){
+  .book-header__title{font-size:var(--fs-600)}
+  .book-header__meta{gap:.5rem .8rem;font-size:var(--fs-200)}
+  .book-header__actions{gap:.4rem}
+  .book-header__actions .btn{flex:1 1 auto;min-width:0}
+}
+
+/* ── Book detail page (legacy) ──────────────────────────────── */
+.book-detail__meta{
+  display:flex;flex-wrap:wrap;gap:var(--space-3);margin-top:var(--space-3);
+  color:var(--fg-2);font-size:var(--fs-200);font-family:var(--font-mono);
+}
+.book-detail__meta strong{color:var(--accent);font-family:var(--font-display);font-size:var(--fs-400);font-weight:500}
+.book-detail__actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:var(--space-4)}
+
+.book-detail{margin-top:var(--space-5)}
+.book-detail__chapters{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:var(--space-6)}
+.book-chapter{display:flex;flex-direction:column;gap:var(--space-3)}
+.book-chapter__head{
+  display:flex;justify-content:space-between;align-items:baseline;
+  padding-bottom:.5rem;border-bottom:1px solid var(--rule);
+}
+.book-chapter__title{margin:0;font-family:var(--font-display);font-size:var(--fs-500)}
+.book-chapter__progress{font-family:var(--font-mono);font-size:.72rem;color:var(--fg-3);letter-spacing:.04em}
+.book-chapter__paragraphs{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.4rem}
+
+.book-paragraph{padding:0;margin:0}
+.book-paragraph__link{
+  display:grid;grid-template-columns:auto 1fr auto;gap:var(--space-3);
+  align-items:baseline;padding:.7rem .9rem;
+  background:var(--bg-1);border:1px solid var(--rule);border-radius:var(--radius);
+  text-decoration:none;color:inherit;
+  transition:border-color var(--t-fast), background var(--t-fast);
+}
+.book-paragraph__link:hover{border-color:var(--accent);background:color-mix(in oklab, var(--accent) 6%, var(--bg-1))}
+.book-paragraph[data-done="true"] .book-paragraph__link{
+  border-color:color-mix(in oklab, var(--good) 50%, var(--rule));
+  background:color-mix(in oklab, var(--good) 8%, var(--bg-1));
+}
+.book-paragraph[data-done="true"] .book-paragraph__num::after{content:" ✓";color:var(--good)}
+.book-paragraph__num{font-family:var(--font-mono);font-size:.72rem;color:var(--fg-3);letter-spacing:.04em;white-space:nowrap}
+.book-paragraph__preview{color:var(--fg-1);font-size:var(--fs-300);line-height:1.5;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+.book-paragraph__cta{font-family:var(--font-mono);font-size:.72rem;color:var(--accent);letter-spacing:.04em;white-space:nowrap}
+.lib-book{
+  background:var(--bg-1);border:1px solid var(--rule);
+  border-radius:var(--radius);padding:var(--space-5);
+}
+.lib-book__head{margin-bottom:var(--space-4);padding-bottom:var(--space-3);border-bottom:1px solid var(--rule)}
+.lib-book__title{margin:0 0 .4rem 0}
+.lib-book__meta{display:flex;gap:.5rem;flex-wrap:wrap;color:var(--fg-2);font-family:var(--font-mono);font-size:var(--fs-200)}
+.lib-book__meta a{color:var(--fg-2);text-decoration:none}
+.lib-book__meta a:hover{color:var(--accent)}
+.lib-book__passages{display:flex;flex-direction:column;gap:var(--space-3);margin:0;padding:0;list-style:none}
+.lib-passage{
+  display:flex;flex-direction:column;gap:.6rem;
+  padding:var(--space-3);background:var(--bg-2);border:1px solid var(--rule);border-radius:var(--radius-sm);
+}
+.lib-passage__text{margin:0;color:var(--fg-1);font-family:var(--font-display);font-style:italic;line-height:1.55}
+.lib-passage__actions{display:flex;gap:.4rem;align-items:center;flex-wrap:wrap}
+.lib-passage__len{margin-left:auto;font-family:var(--font-mono);font-size:var(--fs-200);color:var(--fg-3)}

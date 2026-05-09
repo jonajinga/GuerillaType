@@ -1,0 +1,60 @@
+---
+layout: layouts/base.njk
+title: "Lessons"
+description: "Three hundred progressive lessons: home row drills, bigrams, speed builders, programming, long-form prose, poetry, speeches, foreign phrases, and specialized formats."
+---
+<header class="page__head">
+  <h1>Lessons</h1>
+  <p class="page__subtitle">Three hundred progressive lessons across home-row foundations, micro-drills, programming, long-form prose, poetry, famous speeches, and specialized formats. Each foundation lesson restricts the surface to a focused key cluster; later lessons use literal text.</p>
+  <p class="page__hint">Clear a lesson by hitting 90% accuracy at 18 wpm. Open a card to start. Bests are saved locally per profile.</p>
+</header>
+
+{# Stages are precomputed in src/_data/lessonStages.js so that the
+   template avoids Nunjucks' for-loop scoping pitfall (set inside a
+   for cannot mutate an outer flag). Each stage carries its lessons
+   list directly. #}
+{% for stage in lessonStages %}{% if stage.lessons.length %}
+<div class="lessons-stage" style="margin-bottom:var(--space-5)">
+  <h2>{{ stage.label }}</h2>
+  {% if stage.desc %}<p class="muted" style="margin:0 0 var(--space-3)">{{ stage.desc }}</p>{% endif %}
+  <div class="lessons-grid">
+    {% for lesson in stage.lessons %}
+    <a class="lesson-card" href="/practice/?lesson={{ lesson.id }}" data-lesson="{{ lesson.id }}">
+      <span class="lesson-card__num">Lesson {{ lesson.displayNum }}</span>
+      <span class="lesson-card__title">{{ lesson.title }}</span>
+      {% if lesson.keys %}
+        <span class="lesson-card__keys">{% for k in lesson.keys %}{% if loop.index <= 10 %}<span class="lesson-card__key">{{ k }}</span>{% endif %}{% endfor %}</span>
+      {% else %}
+        <span class="lesson-card__keys"><span class="lesson-card__key">{{ stage.chip }}</span></span>
+      {% endif %}
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}{% endfor %}
+
+{# User-pinned custom texts. Hidden until at least one is pinned. The
+   list is rendered client-side from localStorage. #}
+<div class="lessons-stage" id="user-lessons-stage" hidden>
+  <h2>Your custom lessons</h2>
+  <p class="muted" style="margin-top:0">Pin a saved text on the <a href="/custom/">Custom text</a> page to make it appear here.</p>
+  <div class="lessons-grid" id="user-lessons-grid"></div>
+</div>
+
+<script type="module">
+  import { listLessonPinned } from "/assets/js/engine/custom-text.js?v={{ cssVersion }}";
+  const stage = document.getElementById("user-lessons-stage");
+  const grid = document.getElementById("user-lessons-grid");
+  const pinned = listLessonPinned();
+  if (pinned.length) {
+    stage.hidden = false;
+    grid.innerHTML = pinned.map((it) => `
+      <a class="lesson-card" href="/practice/?mode=custom&custom=${encodeURIComponent(it.id)}&seg=0">
+        <span class="lesson-card__num">Custom</span>
+        <span class="lesson-card__title">${escape(it.title)}</span>
+        <span class="lesson-card__keys"><span class="lesson-card__key">${it.segments.length} segments</span></span>
+      </a>
+    `).join("");
+  }
+  function escape(s){return String(s).replace(/[<>&"]/g,(c)=>({"<":"&lt;",">":"&gt;","&":"&amp;","\"":"&quot;"}[c]));}
+</script>

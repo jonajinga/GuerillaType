@@ -1,0 +1,26 @@
+---
+layout: layouts/base.njk
+title: "Challenges"
+description: "Sprint, marathon, mountain climb, code mode, numbers gauntlet, pangram run. Hit the goal or start over."
+---
+<header class="page__head">
+  <h1>Challenges</h1>
+  <p class="page__subtitle">Practice tests with concrete goals. Each challenge has a target wpm and accuracy — clear both and your local best is saved. No leaderboards, no online scoring; just you against your own bar.</p>
+  <p class="page__hint">{{ challenges.length }} challenges total: short sprints, long endurance, accuracy gauntlets, code mode, mountain climb. Bests stay on this device per profile.</p>
+</header>
+
+<div class="challenges-grid">
+  {% for c in challenges %}
+  <a class="challenge-card" href="/practice/?mode={{ c.mode }}{% if c.durationSec %}&duration={{ c.durationSec }}{% endif %}{% if c.words %}&words={{ c.words }}{% endif %}&challenge={{ c.id }}">
+    <span class="challenge-card__title">{{ c.name }}</span>
+    <p class="challenge-card__blurb">{{ c.blurb }}</p>
+    <div class="challenge-card__goal">
+      {% if c.goal.wpm %}<span>{{ c.goal.wpm }} wpm</span>{% endif %}
+      {% if c.goal.acc %}<span>{{ c.goal.acc }}% acc</span>{% endif %}
+      {% if c.durationSec %}<span>{{ c.durationSec | formatDuration }}</span>{% endif %}
+      {% if c.words %}<span>{{ c.words }} words</span>{% endif %}
+    </div>
+    <span class="challenge-card__best" data-best="{{ c.id }}">Best: —</span>
+  </a>
+  {% endfor %}
+</div>

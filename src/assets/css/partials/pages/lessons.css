@@ -1,0 +1,9 @@
+.lessons-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));gap:var(--space-3);margin-top:var(--space-4)}
+.lesson-card{display:flex;flex-direction:column;gap:.4rem;padding:var(--space-3);background:var(--bg-1);border:1px solid var(--rule);text-decoration:none;color:inherit;min-height:130px}
+.lesson-card:hover{border-color:var(--accent)}
+.lesson-card__num{font-family:var(--font-mono);font-size:var(--fs-200);color:var(--fg-2)}
+.lesson-card__title{font-weight:600}
+.lesson-card__keys{display:flex;gap:.25rem;flex-wrap:wrap;margin-top:auto}
+.lesson-card__key{font-family:var(--font-mono);font-size:var(--fs-200);background:var(--bg-2);border:1px solid var(--rule);padding:.05em .35em}
+.lesson-card[data-mastered="true"]{border-left:2px solid var(--good)}
+.lesson-card[data-mastered="true"] .lesson-card__num{color:var(--good)}

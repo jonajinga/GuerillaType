@@ -1,0 +1,53 @@
+---
+layout: layouts/base.njk
+title: "Reviews"
+description: "What typists say about Guerilla Type. Honest reviews, opted in by their authors."
+permalink: /reviews/
+---
+
+{% set total = reviews.length %}
+{% set sumRating = 0 %}
+{% for r in reviews %}{% set sumRating = sumRating + r.rating %}{% endfor %}
+{% set avg = (total > 0) and (sumRating / total) or 0 %}
+
+<div class="article-body" style="max-width:920px;margin:var(--space-5) auto;padding:0 var(--space-4)">
+  <header class="page__head">
+    <p class="eyebrow">Community</p>
+    <h1>Reviews</h1>
+    <p class="article-lede">Honest feedback from people who use Guerilla Type. Each review is opted in by its author. Want to add yours? <a href="/contribute/testimonial/">Leave a testimonial →</a></p>
+  </header>
+
+  {% if total > 0 %}
+  <div class="reviews-summary">
+    <span class="reviews-summary__num">{{ avg | round(1) }}</span>
+    <span class="reviews-summary__stars" aria-hidden="true">
+      {%- for n in [1,2,3,4,5] -%}
+        {%- if n <= avg -%}★{%- else -%}☆{%- endif -%}
+      {%- endfor -%}
+    </span>
+    <span class="reviews-summary__count">{{ total }} review{% if total != 1 %}s{% endif %}</span>
+  </div>
+
+  <div class="reviews-grid">
+    {% for r in reviews %}
+    <article class="review-card">
+      <span class="review-card__stars" aria-label="{{ r.rating }} out of 5 stars">
+        {%- for n in [1,2,3,4,5] -%}
+          {%- if n <= r.rating -%}★{%- else -%}☆{%- endif -%}
+        {%- endfor -%}
+      </span>
+      <p class="review-card__quote">{{ r.body }}</p>
+      <p class="review-card__byline">
+        <strong>{{ r.name or "Anonymous" }}</strong>{% if r.role %} -- {{ r.role }}{% endif %}
+        {% if r.date %}<br><span>{{ r.date | readableDate }}</span>{% endif %}
+      </p>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="stats-empty" style="padding:var(--space-6);text-align:center">
+    <p>No published reviews yet -- but the first one could be yours.</p>
+    <p style="margin-top:var(--space-3)"><a class="btn btn--primary" href="/contribute/testimonial/">Leave a testimonial →</a></p>
+  </div>
+  {% endif %}
+</div>

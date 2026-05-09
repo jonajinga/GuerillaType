@@ -1,0 +1,154 @@
+.results{margin:var(--space-5) auto;max-width:880px;padding:var(--space-5);background:var(--bg-1);border:1px solid var(--rule);border-radius:var(--radius);box-shadow:var(--shadow-paper);scroll-margin-top:calc(var(--header-h, 58px) + 80px)}
+.results__intro{margin-bottom:var(--space-4);padding-bottom:var(--space-4);border-bottom:1px solid var(--rule)}
+.results__eyebrow{font-family:var(--font-mono);font-size:var(--fs-200);color:var(--accent);text-transform:uppercase;letter-spacing:.14em;margin:0 0 .35rem;font-weight:500}
+.results__heading{font-family:var(--font-display);font-size:var(--fs-700);font-weight:500;color:var(--fg-0);margin:0 0 .35rem;line-height:1.1}
+.results__sub{color:var(--fg-2);font-size:var(--fs-300);max-width:62ch;margin:0;line-height:1.5}
+
+/* Inline achievement announcements — appear inside the results card
+   instead of as ephemeral toasts. Triple-layered celebration:
+     1. The container pops in via scale + opacity
+     2. A subtle gradient sweep fires once across the panel
+     3. Each individual achievement chip slides up + fades in
+        with a small staggered delay so multiple unlocks read as
+        cascading rewards rather than a single block */
+.results__achievements{
+  position:relative;overflow:hidden;
+  margin-top:var(--space-4);
+  padding:var(--space-4) var(--space-4);
+  background:color-mix(in oklab, var(--accent) 12%, var(--bg-1));
+  border:1px solid var(--accent);border-radius:var(--radius);
+  box-shadow:0 0 0 1px color-mix(in oklab, var(--accent) 30%, transparent),
+             0 8px 24px color-mix(in oklab, var(--accent) 18%, transparent);
+  animation:resultsAchPop var(--t-slow) var(--ease-elastic) both;
+}
+.results__achievements::before{
+  /* One-shot sheen sweep -- a diagonal gradient panel that rides
+     across the card from left to right, drawing the eye to the
+     unlock without distracting from the rest of the results. */
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(115deg,
+    transparent 30%,
+    color-mix(in oklab, var(--accent-soft) 35%, transparent) 50%,
+    transparent 70%);
+  transform:translateX(-100%);
+  animation:resultsAchSheen 1.4s var(--ease, ease-out) .15s both;
+}
+@keyframes resultsAchPop{
+  0%   {opacity:0;transform:scale(.94)}
+  100% {opacity:1;transform:scale(1)}
+}
+@keyframes resultsAchSheen{
+  0%   {transform:translateX(-100%)}
+  100% {transform:translateX(100%)}
+}
+@media (prefers-reduced-motion: reduce){
+  .results__achievements{animation:none}
+  .results__achievements::before{display:none}
+}
+.results__achievements-eyebrow{
+  margin:0 0 .65rem;font-family:var(--font-mono);
+  font-size:var(--fs-200);color:var(--accent);
+  text-transform:uppercase;letter-spacing:.14em;font-weight:600;
+  display:flex;align-items:center;gap:.5rem;
+}
+.results__achievements-eyebrow::before{
+  content:"★";font-size:1.4em;color:var(--warn);line-height:1;
+  text-shadow:0 0 8px color-mix(in oklab, var(--warn) 60%, transparent);
+  animation:starTwinkle 1.6s ease-in-out infinite alternate;
+  animation-delay:.4s;
+}
+@keyframes starTwinkle{
+  0%   {transform:rotate(-8deg) scale(.95);opacity:.85}
+  100% {transform:rotate(8deg) scale(1.08);opacity:1}
+}
+@media (prefers-reduced-motion: reduce){
+  .results__achievements-eyebrow::before{animation:none}
+}
+.results__achievements-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem}
+.results__achievement{
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:.4rem .8rem;
+  padding:.65rem .8rem;background:var(--bg-1);
+  border:1px solid var(--rule);border-radius:var(--radius);
+  border-left:3px solid var(--accent);
+  animation:resultsAchSlide var(--t-med) var(--ease-elastic) backwards;
+}
+.results__achievement:nth-child(1){animation-delay:.25s}
+.results__achievement:nth-child(2){animation-delay:.4s}
+.results__achievement:nth-child(3){animation-delay:.55s}
+.results__achievement:nth-child(4){animation-delay:.7s}
+.results__achievement:nth-child(n+5){animation-delay:.85s}
+@keyframes resultsAchSlide{
+  0%   {opacity:0;transform:translateY(8px)}
+  100% {opacity:1;transform:translateY(0)}
+}
+@media (prefers-reduced-motion: reduce){
+  .results__achievement{animation:none}
+}
+.results__achievement-name{
+  font-weight:600;color:var(--fg-0);font-size:var(--fs-300);
+  display:inline-flex;align-items:baseline;gap:.4rem;
+}
+.results__achievement-name::before{
+  content:"✓";color:var(--good);font-weight:700;font-size:.9em;
+}
+.results__achievement-desc{color:var(--fg-2);font-size:var(--fs-200);flex:1;min-width:200px;line-height:1.4}
+.results__head{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:var(--space-3);margin-bottom:var(--space-4);padding-bottom:var(--space-3);border-bottom:1px solid var(--rule)}
+.results__title{font-size:var(--fs-800);color:var(--accent);font-family:var(--font-display);font-weight:500;line-height:1;margin:0}
+.results__title-num{display:inline}
+.results__title-unit{font-size:.45em;color:var(--fg-2);font-weight:400}
+.results__meta{color:var(--fg-2);font-size:var(--fs-200);font-family:var(--font-mono)}
+.results__meta-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:.4rem}
+.results__pr{
+  display:inline-flex;align-items:center;gap:.35rem;
+  padding:.2em .6em;font-family:var(--font-mono);font-size:var(--fs-200);
+  background:var(--accent);color:#fff;letter-spacing:.12em;
+  font-weight:600;border-radius:var(--radius);
+  animation:pr-pop var(--t-slow) var(--ease-elastic) both;
+}
+.results__pr--lifetime{background:linear-gradient(90deg, var(--accent) 0%, var(--accent-deep) 100%)}
+.results__pr::before{content:"★"}
+@keyframes pr-pop{
+  0%{opacity:0;transform:scale(.5) translateY(-6px)}
+  100%{opacity:1;transform:scale(1) translateY(0)}
+}
+
+.results__grid{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--space-4);margin-bottom:var(--space-4)}
+@media (min-width:640px){.results__grid{grid-template-columns:repeat(4,1fr)}}
+.results__metric{display:flex;flex-direction:column;gap:.2rem;border-left:2px solid var(--rule);padding-left:var(--space-3)}
+.results__metric--big{border-left-color:var(--accent)}
+.results__value{font-size:var(--fs-700);font-family:var(--font-mono);color:var(--fg-0);font-variant-numeric:tabular-nums}
+.results__metric--big .results__value{color:var(--accent)}
+.results__label{font-size:var(--fs-200);color:var(--fg-2);text-transform:uppercase;letter-spacing:.06em}
+
+.results__chart{margin-block:var(--space-4);background:var(--bg-2);padding:var(--space-3);border:1px solid var(--rule);height:180px}
+.results__chart svg{width:100%;height:100%}
+
+.results__actions{display:flex;flex-wrap:wrap;gap:var(--space-2);justify-content:center;margin-top:var(--space-4)}
+
+.results__weakkeys{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:var(--space-3)}
+.results__weakkey{display:inline-flex;align-items:center;padding:.2em .6em;font-family:var(--font-mono);background:color-mix(in oklab, var(--bad) 15%, transparent);border:1px solid var(--bad);color:var(--bad);font-size:var(--fs-200);border-radius:var(--radius-sm)}
+
+.results__challenge{
+  margin-top:var(--space-3);padding:var(--space-3);border-radius:var(--radius);
+  font-family:var(--font-mono);font-size:var(--fs-300);
+  border:1px solid var(--rule);
+}
+.results__challenge--pass{border-color:var(--good);background:color-mix(in oklab, var(--good) 12%, var(--bg-1));color:var(--good)}
+.results__challenge--fail{border-color:var(--bad);background:color-mix(in oklab, var(--bad) 12%, var(--bg-1));color:var(--bad)}
+
+/* Challenge HUD above the typing surface */
+.challenge-hud{
+  display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;
+  padding:var(--space-3) var(--space-4);
+  background:color-mix(in oklab, var(--accent) 10%, var(--bg-1));
+  border:1px solid var(--accent);border-radius:var(--radius);
+  margin:0 auto var(--space-3);max-width:1100px;
+}
+.challenge-hud__label{
+  font-family:var(--font-mono);font-size:var(--fs-200);
+  color:var(--accent);text-transform:uppercase;letter-spacing:.14em;
+  font-weight:600;
+}
+.challenge-hud__name{font-family:var(--font-display);font-weight:600;color:var(--fg-0);font-size:var(--fs-500)}
+.challenge-hud__goal{font-family:var(--font-mono);font-size:var(--fs-200);color:var(--fg-2)}
+.challenge-hud__blurb{font-family:var(--font-display);font-style:italic;color:var(--fg-1);font-size:var(--fs-300);flex-basis:100%;margin-top:.2rem}

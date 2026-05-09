@@ -1,0 +1,6 @@
+.page--narrow h2{margin-top:var(--space-5);font-size:var(--fs-500)}
+.page--narrow h3{margin-top:var(--space-4);font-size:var(--fs-400)}
+.page--narrow ul{list-style:disc;padding-left:1.4em;margin-bottom:1em;max-width:var(--content-width)}
+.page--narrow ol{list-style:decimal;padding-left:1.4em;margin-bottom:1em;max-width:var(--content-width)}
+.page--narrow li{margin-bottom:.4em}
+.page--narrow a{color:var(--accent)}

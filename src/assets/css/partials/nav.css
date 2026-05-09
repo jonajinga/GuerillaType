@@ -1,0 +1,565 @@
+/* Site header — editorial. Sticky paper bar with hairline at the bottom.
+   Megamenu drops from each top-level item on hover/click. */
+
+.site-header{position:sticky;top:0;z-index:50;background:color-mix(in oklab, var(--bg-0) 94%, transparent);backdrop-filter:saturate(140%) blur(10px);border-bottom:1px solid var(--rule)}
+.site-header__inner{max-width:var(--max-width);margin-inline:auto;padding:var(--space-3) var(--gutter);display:flex;align-items:center;gap:var(--space-3);justify-content:space-between}
+
+/* Brand mark — small filled square that becomes a frame on hover. */
+.site-brand{display:inline-flex;align-items:center;gap:.55rem;text-decoration:none;letter-spacing:-.015em}
+/* Brand mark is an <img> element so the icon survives any CSS
+   loading hiccup (page-nav transitions, stale SW cache, etc.).
+   Theme-aware src swap is driven by main.js watching data-theme. */
+.site-brand__mark{
+  display:inline-block;width:50px;height:50px;
+  transition:transform var(--t-fast);
+  object-fit:contain;
+}
+.site-brand:hover .site-brand__mark{transform:scale(1.05)}
+.site-brand__name{font-family:var(--font-display);font-weight:600;font-size:1.18rem;color:var(--fg-0)}
+.site-brand__name em{font-style:italic;color:var(--accent);font-weight:500;margin-left:.1em}
+
+/* Primary nav row -- only render on truly wide desktops. Below the
+   wide-desktop threshold the hamburger panel handles navigation, so
+   the brand wordmark + actions can keep their full breathing room
+   without colliding with the dropdown links. */
+.site-nav{display:none}
+@media (min-width:1280px){
+  .site-nav{display:block}
+  .site-nav__list{display:flex;gap:.1rem;align-items:center}
+  .site-nav__item{position:relative}
+  .site-nav__link{
+    display:inline-flex;align-items:center;gap:.35rem;
+    height:44px;padding:0 .9rem;
+    color:var(--fg-1);text-decoration:none;white-space:nowrap;
+    font-size:var(--fs-300);font-weight:500;font-family:inherit;
+    transition:color var(--t-fast) var(--ease);
+    cursor:pointer;border:0;background:transparent;position:relative;
+  }
+  .site-nav__link:hover,.site-nav__link[aria-expanded="true"]{color:var(--fg-0)}
+  .site-nav__link[aria-current="page"]{color:var(--accent)}
+  .site-nav__link[aria-current="page"]::after{content:"";position:absolute;left:.9rem;right:.9rem;bottom:.4rem;height:2px;background:var(--accent)}
+  .site-nav__chev{transition:transform var(--t-fast), color var(--t-fast);font-size:1.05em;line-height:1;color:var(--fg-2);margin-left:.15em}
+  .site-nav__link:hover .site-nav__chev{color:var(--fg-0)}
+  .site-nav__link[aria-expanded="true"] .site-nav__chev{transform:rotate(180deg);color:var(--accent)}
+}
+
+.site-header__actions{display:flex;align-items:center;gap:var(--space-2)}
+
+/* Hamburger — always visible across breakpoints. Pairs with the
+   primary nav on desktop for one-click access to every page. */
+.hamburger{width:44px;height:44px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;border:1px solid var(--rule);background:transparent;border-radius:var(--radius)}
+.hamburger:hover{border-color:var(--accent);color:var(--accent)}
+.hamburger__bar{display:block;width:18px;height:2px;background:currentColor}
+
+/* ── Phone-portrait header compaction ───────────────────────────────
+   At <=480px the row of brand+name + 5-6 icon buttons exceeds the
+   viewport (5×44 + gaps + brand ~ 320+ px alone). Hide the brand
+   wordmark and the secondary header icons (search, fullscreen) --
+   they're all reachable from the hamburger panel and Ctrl+K. Keep
+   theme toggle, settings, hamburger as the essentials. */
+@media (max-width:480px){
+  .site-header__inner{padding-block:.5rem;gap:.4rem}
+  .site-header__inner > .site-brand{min-width:0}
+  .site-brand__name{display:none}
+  .site-brand__mark{width:36px;height:36px}
+  .site-header__actions{gap:.3rem}
+  .site-header__actions #header-fullscreen,
+  .site-header__actions #header-search{display:none}
+  .header-icon-btn,
+  .theme-toggle,
+  .hamburger{width:40px;height:40px}
+}
+/* Streak chip eats horizontal room on phones and small tablets where
+   the header is already crowded with icon buttons. It's still
+   reachable on /stats/ so users haven't lost the data point. */
+@media (max-width:768px){
+  .site-header__actions #streak-chip{display:none}
+}
+
+/* ── Megamenu — full-bleed panel anchored to the header bottom ───── */
+.mega{
+  display:none;
+  position:fixed;left:0;right:0;top:var(--header-h, 58px);
+  background:var(--bg-1);
+  border-bottom:1px solid var(--rule);
+  box-shadow:0 18px 42px rgba(0,0,0,.4);
+  /* Comfortable height that holds 7-9 link items per column + section
+     header without scrolling. Below 720 the two longest sections
+     (Library, Insights) clipped their last items. */
+  height:760px;
+  padding:0;
+  z-index:60;
+  box-sizing:border-box;
+  border-top:1px solid var(--rule);
+  overflow:hidden;
+}
+.mega__inner{
+  /* Stretch wider than the body's --max-width so the link columns get
+     real breathing room -- the megamenu doesn't have to share gutter
+     with article body content. Capped at the viewport with a small
+     side padding. */
+  max-width:min(96vw, 1640px);margin-inline:auto;
+  padding:var(--space-6) var(--space-5);
+  display:grid;
+  /* 3 link columns + featured rail. The link columns get 1.1fr each
+     so they expand wider than the featured panel (0.75fr), giving
+     longer link descriptions room without forcing 2-line wraps. */
+  grid-template-columns:repeat(3, minmax(0, 1.1fr)) 0.75fr;
+  gap:var(--space-5) var(--space-6);
+  height:100%;
+}
+@media (max-width:1380px){
+  /* Standard desktop -- drop the featured rail and let the 3 link
+     columns split the width evenly. */
+  .mega__inner{
+    max-width:min(96vw, 1280px);
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    gap:var(--space-4) var(--space-5);
+  }
+  .mega__featured{display:none}
+}
+
+/* Live user-stats strip inside the Insights panel. Lives inside
+   .mega__inner so it shares the same horizontal gutter as the columns
+   below, and spans both grid columns. */
+.mega-stats{
+  grid-column:1 / -1;
+  display:flex;flex-direction:column;gap:var(--space-3);
+  padding:var(--space-3) var(--space-4);
+  background:color-mix(in oklab, var(--accent) 6%, var(--bg-2));
+  border:1px solid var(--rule);border-radius:var(--radius);
+}
+.mega-stats__head{
+  display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-3);
+  border-bottom:1px solid var(--rule);padding-bottom:.4rem;
+}
+.mega-stats__head-label{
+  font-family:var(--font-mono);font-size:var(--fs-200);color:var(--fg-2);
+  text-transform:uppercase;letter-spacing:.14em;
+}
+.mega-stats__more{
+  font-family:var(--font-mono);font-size:var(--fs-200);color:var(--accent);
+  text-decoration:none;letter-spacing:.04em;white-space:nowrap;
+}
+.mega-stats__more:hover{text-decoration:underline}
+.mega-stats__row{
+  display:grid;grid-template-columns:repeat(6, minmax(0, 1fr));
+  gap:var(--space-3);align-items:end;
+}
+.mega-stats__cell{
+  display:flex;flex-direction:column;gap:.25rem;line-height:1;min-width:0;
+}
+.mega-stats__value{
+  font-family:var(--font-display);font-size:var(--fs-500);color:var(--accent);
+  font-weight:500;letter-spacing:-.01em;font-variant-numeric:tabular-nums;line-height:1;
+}
+.mega-stats__value small{font-family:var(--font-mono);font-size:.55em;color:var(--fg-2);margin-left:.1em;font-weight:400}
+.mega-stats__label{
+  font-family:var(--font-mono);font-size:.7rem;color:var(--fg-2);
+  text-transform:uppercase;letter-spacing:.08em;
+}
+.mega-stats__cell--spark{min-width:0}
+.mega-stats__spark{width:100%;height:30px;color:var(--accent);display:block;margin-bottom:.25rem}
+.mega-stats__spark-empty{color:var(--fg-3);font-family:var(--font-mono);font-size:var(--fs-200)}
+.mega__group{display:flex;flex-direction:column;height:100%;min-width:0}
+.mega__group .mega__list{flex:1}
+.mega__desc{
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  overflow:hidden;
+}
+
+.site-nav__item[data-open="true"] .mega{display:block;animation:mega-in var(--t-med) var(--ease)}
+@keyframes mega-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.mega__group h3{
+  font-family:var(--font-mono);font-size:var(--fs-200);
+  text-transform:uppercase;letter-spacing:.16em;color:var(--fg-2);
+  font-weight:500;margin-bottom:.6rem;padding-bottom:.3rem;border-bottom:1px solid var(--rule);
+}
+.mega__list{display:flex;flex-direction:column;gap:.1rem}
+.mega__item{
+  display:flex;align-items:flex-start;gap:.7rem;
+  padding:.5rem .65rem;text-decoration:none;
+  border-radius:var(--radius);
+  transition:background var(--t-fast);
+}
+.mega__item:hover{background:var(--bg-2)}
+.mega__chip{
+  flex-shrink:0;width:32px;height:32px;
+  display:inline-flex;align-items:center;justify-content:center;
+  border:1px solid var(--rule);background:var(--bg-2);
+  color:var(--accent);
+  font-family:var(--font-display);font-size:.78rem;font-weight:600;font-style:italic;
+  letter-spacing:0;line-height:1;border-radius:var(--radius-sm);
+  transition:border-color var(--t-fast), background var(--t-fast);
+  overflow:hidden;padding:0;text-align:center;
+}
+.mega__item:hover .mega__chip{border-color:var(--accent);background:color-mix(in oklab, var(--accent) 15%, var(--bg-2))}
+.mega__item-body{display:flex;flex-direction:column;gap:.1rem;min-width:0}
+.mega__label{font-weight:600;color:var(--fg-0);display:inline-flex;align-items:baseline;gap:.3rem;font-family:var(--font-sans);font-size:var(--fs-300);line-height:1.2}
+.mega__label::after{content:"→";color:var(--accent);opacity:0;transform:translateX(-4px);transition:opacity var(--t-fast), transform var(--t-fast)}
+.mega__item:hover .mega__label::after{opacity:1;transform:translateX(0)}
+.mega__desc{color:var(--fg-2);font-size:var(--fs-200);line-height:1.4}
+
+/* Featured slot — third column on desktop */
+.mega__featured{
+  display:flex;flex-direction:column;gap:var(--space-3);
+  padding:var(--space-4);
+  background:color-mix(in oklab, var(--accent) 7%, var(--bg-2));
+  border:1px solid var(--rule);border-radius:var(--radius);
+  height:100%;box-sizing:border-box;overflow:hidden;
+}
+.mega__featured-eyebrow{
+  font-family:var(--font-mono);font-size:var(--fs-200);
+  text-transform:uppercase;letter-spacing:.16em;
+  color:var(--accent);font-weight:500;
+}
+.mega__featured-title{
+  font-family:var(--font-display);font-size:var(--fs-500);
+  color:var(--fg-0);font-weight:500;margin:0;
+  border-bottom:0;padding-bottom:0;
+}
+.mega__featured-body{
+  flex:1;color:var(--fg-1);font-size:var(--fs-300);
+  display:flex;flex-direction:column;gap:.4rem;
+  min-height:0;overflow-y:auto;
+  /* Hide the scrollbar while keeping the scroll behavior. The list
+     scrolls on hover/wheel/touch but never shows a visible track,
+     so the featured panel keeps its clean rectangle silhouette. */
+  scrollbar-width:none;          /* Firefox */
+  -ms-overflow-style:none;       /* IE/Edge */
+}
+.mega__featured-body::-webkit-scrollbar{display:none}  /* Webkit */
+.mega__featured-cta{
+  font-family:var(--font-mono);font-size:var(--fs-200);
+  color:var(--accent);text-decoration:none;letter-spacing:.04em;
+  border-top:1px solid var(--rule);padding-top:var(--space-2);
+}
+.mega__featured-cta:hover{text-decoration:underline}
+
+.mega-featured-quote{font-family:var(--font-display);font-style:italic;font-size:var(--fs-400);color:var(--fg-0);line-height:1.4;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.mega-featured-quote-cite{font-family:var(--font-sans);font-style:normal;color:var(--fg-2);font-size:var(--fs-200);margin-top:.2rem}
+
+/* Contribute featured note -- personal thank-you from the maker. */
+.mega-featured-note{font-size:var(--fs-300);line-height:1.5;color:var(--fg-1)}
+.mega-featured-note__head{display:flex;align-items:center;gap:.6rem;margin:0 0 .6rem}
+.mega-featured-note__photo{
+  flex:0 0 auto;display:block;
+  width:44px;height:44px;border-radius:50%;overflow:hidden;
+  border:1px solid var(--rule);
+  transition:border-color var(--t-fast);
+}
+.mega-featured-note__photo:hover{border-color:var(--accent)}
+.mega-featured-note__photo picture,
+.mega-featured-note__photo img{width:100%;height:100%;display:block}
+.mega-featured-note__photo img{object-fit:cover;object-position:50% 28%}
+.mega-featured-note__greeting{
+  margin:0;font-family:var(--font-mono);
+  font-size:var(--fs-200);text-transform:uppercase;letter-spacing:.12em;
+  color:var(--accent);
+}
+.mega-featured-note__greeting a{color:var(--accent);text-decoration:none;border-bottom:1px dotted color-mix(in oklab, var(--accent) 40%, transparent)}
+.mega-featured-note__greeting a:hover{border-bottom-color:var(--accent)}
+.mega-featured-note__body{margin:0 0 .7rem}
+.mega-featured-note__body strong{color:var(--accent)}
+.mega-featured-note__sig{
+  margin:.6rem 0 0;font-family:var(--font-display);font-style:italic;
+  color:var(--fg-2);font-size:var(--fs-300);
+}
+
+.mega-featured-stats{display:grid;grid-template-columns:repeat(2, 1fr);gap:var(--space-3) var(--space-2);margin-bottom:var(--space-3)}
+.mega-featured-stats__cell{display:flex;flex-direction:column;gap:.18rem;line-height:1;min-width:0}
+.mega-featured-stats__value{font-family:var(--font-display);font-size:var(--fs-500);color:var(--accent);font-weight:500;letter-spacing:-.01em;font-variant-numeric:tabular-nums;line-height:1.05}
+.mega-featured-stats__value small{font-family:var(--font-mono);font-size:.5em;color:var(--fg-2);margin-left:.12em;font-weight:400}
+.mega-featured-stats__label{font-family:var(--font-mono);font-size:.65rem;color:var(--fg-2);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mega-featured-spark{width:100%;height:42px;color:var(--accent);display:block;margin-top:auto}
+
+.mega-featured-lesson{display:flex;flex-direction:column;gap:.3rem}
+.mega-featured-lesson__num{font-family:var(--font-mono);font-size:var(--fs-200);color:var(--fg-2);text-transform:uppercase;letter-spacing:.06em}
+.mega-featured-lesson__title{font-family:var(--font-display);font-size:var(--fs-500);color:var(--fg-0);font-weight:500}
+
+.mega-featured-challenge{display:flex;flex-direction:column;gap:.4rem}
+.mega-featured-challenge__row{display:flex;justify-content:space-between;align-items:baseline;gap:var(--space-2);padding-bottom:.3rem;border-bottom:1px solid var(--rule)}
+.mega-featured-challenge__row:last-child{border-bottom:0}
+.mega-featured-challenge__name{font-weight:500;color:var(--fg-1);font-size:var(--fs-200)}
+.mega-featured-challenge__best{font-family:var(--font-mono);color:var(--accent);font-size:var(--fs-200)}
+
+/* ── Slide-in panel ────────────────────────────────────────────────
+   Best-in-class navigation drawer.
+     - 380px wide (more horizontal room than the previous 360 for
+       2-line item descriptions).
+     - Slides in from the right with a smooth ease.
+     - Subtle internal hairlines instead of one big border-left so
+       the panel reads as paper, not a slab.
+     - Each section: brand header, quick row, search, profile card,
+       sections (sticky search above the scroll), theme toggle, social
+       footer. Sections except header + foot scroll inside the middle. */
+.nav-panel{
+  position:fixed;top:0;right:-100%;
+  width:min(420px, 92vw);height:100svh;
+  background:var(--bg-1);
+  border-left:1px solid var(--rule);
+  box-shadow:-24px 0 48px rgba(0,0,0,.35);
+  z-index:80;
+  display:flex;flex-direction:column;
+  transition:right var(--t-med) var(--ease);
+  /* Inner scroll lives on .nav-panel__nav so the head + quick + search
+     + theme + foot all stay anchored. */
+  overflow:hidden;
+}
+.nav-panel[data-open="true"]{right:0}
+
+/* Brand header -- icon + wordmark + close. Replaces the bare "Menu"
+   title with a self-anchoring identity row that doubles as a home link. */
+.nav-panel__head{
+  flex:0 0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:var(--space-3) var(--space-4);
+  border-bottom:1px solid var(--rule);
+  background:color-mix(in oklab, var(--bg-1) 92%, var(--bg-0));
+}
+.nav-panel__brand{
+  display:inline-flex;align-items:center;gap:.55rem;
+  text-decoration:none;color:var(--fg-0);
+  letter-spacing:-.01em;
+}
+.nav-panel__brand-mark{
+  width:32px;height:32px;display:inline-block;object-fit:contain;
+  transition:transform var(--t-fast);
+}
+.nav-panel__brand:hover .nav-panel__brand-mark{transform:rotate(-6deg) scale(1.05)}
+.nav-panel__brand-name{
+  font-family:var(--font-display);font-weight:600;font-size:1.15rem;
+}
+.nav-panel__brand-name em{font-style:italic;color:var(--accent);font-weight:500}
+.nav-panel__close{
+  width:40px;height:40px;min-height:40px;
+  display:inline-flex;align-items:center;justify-content:center;
+  border:1px solid var(--rule);border-radius:var(--radius);
+  color:var(--fg-1);background:transparent;cursor:pointer;
+  transition:color var(--t-fast), border-color var(--t-fast);
+}
+.nav-panel__close:hover{color:var(--accent);border-color:var(--accent)}
+
+/* Quick-launch row -- four iconographic CTAs that route to the most
+   common destinations. Sits flush under the head, no gap. */
+.nav-panel__quick{
+  flex:0 0 auto;
+  display:grid;grid-template-columns:repeat(4, 1fr);gap:1px;
+  padding:0;background:var(--rule);
+  border-bottom:1px solid var(--rule);
+}
+.nav-panel__quick-btn{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:.35rem;padding:.85rem .4rem;
+  background:var(--bg-1);
+  text-decoration:none;color:var(--fg-1);
+  font-family:var(--font-mono);font-size:.65rem;letter-spacing:.06em;
+  text-transform:uppercase;text-align:center;
+  transition:color var(--t-fast), background var(--t-fast);
+  min-height:0;
+}
+.nav-panel__quick-btn svg{color:var(--fg-2);transition:color var(--t-fast)}
+.nav-panel__quick-btn:hover{
+  color:var(--accent);background:color-mix(in oklab, var(--accent) 7%, var(--bg-1));
+}
+.nav-panel__quick-btn:hover svg{color:var(--accent)}
+
+/* Search filter -- live-filters the link list below. Magnifying-glass
+   sits on the input as a background SVG so there's no separate element
+   to misalign or render its own border. The SVG color is hard-coded to
+   the muted-text token so it tints with the theme. */
+.nav-panel__search-wrap{
+  flex:0 0 auto;
+  margin:var(--space-3) var(--space-4) var(--space-2);
+}
+.nav-panel__search{
+  display:block;width:100%;height:36px;
+  padding:0 .8rem 0 2.3rem;
+  background:var(--bg-2)
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238d887d' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='7'/><path d='m20 20-3.5-3.5'/></svg>")
+    no-repeat .75rem center;
+  color:var(--fg-0);
+  border:1px solid var(--rule);border-radius:var(--radius);
+  font-family:var(--font-sans);font-size:var(--fs-300);
+  appearance:none;-webkit-appearance:none;outline:0;
+  transition:border-color .15s, box-shadow .15s;
+}
+.nav-panel__search:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px color-mix(in oklab, var(--accent) 22%, transparent);
+}
+.nav-panel__search::placeholder{color:var(--fg-3);font-style:italic}
+/* Strip WebKit's default search-input decorations so they don't draw an
+   inner outline that competes with our background icon. */
+.nav-panel__search::-webkit-search-decoration,
+.nav-panel__search::-webkit-search-cancel-button{appearance:none;display:none}
+
+/* Profile snapshot card -- streak / sessions / best wpm at a glance.
+   Hidden by default, JS reveals when the active profile has data. */
+.nav-panel__profile-card{
+  flex:0 0 auto;
+  margin:0 var(--space-4) var(--space-3);
+  padding:.75rem .9rem;
+  background:color-mix(in oklab, var(--accent) 7%, var(--bg-1));
+  border:1px solid color-mix(in oklab, var(--accent) 30%, var(--rule));
+  border-radius:var(--radius);
+}
+.nav-panel__profile-row{
+  display:grid;grid-template-columns:repeat(3, 1fr);gap:.5rem;
+  margin-bottom:.5rem;
+}
+.nav-panel__profile-stat{
+  display:flex;flex-direction:column;align-items:center;gap:.1rem;
+  text-align:center;
+}
+.nav-panel__profile-num{
+  font-family:var(--font-display);font-size:1.4rem;line-height:1;
+  color:var(--accent);font-weight:500;font-variant-numeric:tabular-nums;
+}
+.nav-panel__profile-lbl{
+  font-family:var(--font-mono);font-size:.6rem;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--fg-3);
+}
+.nav-panel__profile-link{
+  display:block;text-align:center;
+  font-family:var(--font-mono);font-size:.72rem;letter-spacing:.04em;
+  color:var(--accent);text-decoration:none;
+  padding-top:.4rem;border-top:1px solid color-mix(in oklab, var(--accent) 25%, var(--rule));
+}
+.nav-panel__profile-link:hover{text-decoration:underline}
+
+/* Scrolling section list. The wrapping <nav> takes the remaining
+   vertical space and scrolls internally so the head + quick + search
+   + theme + foot stay anchored. */
+.nav-panel__nav{
+  flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;
+  padding:0 var(--space-4);
+  scrollbar-width:thin;
+  scrollbar-color:var(--bg-3) transparent;
+}
+.nav-panel__nav::-webkit-scrollbar{width:6px}
+.nav-panel__nav::-webkit-scrollbar-thumb{background:var(--bg-3);border-radius:3px}
+
+.nav-panel__group{
+  border-bottom:1px solid var(--rule);
+}
+.nav-panel__group:last-of-type{border-bottom:0}
+.nav-panel__group-summary{
+  display:flex;align-items:center;gap:.55rem;
+  padding:.9rem 0;cursor:pointer;
+  font-family:var(--font-mono);font-size:.72rem;
+  text-transform:uppercase;letter-spacing:.16em;
+  color:var(--fg-2);font-weight:500;
+  list-style:none;user-select:none;
+  min-height:44px;
+  transition:color var(--t-fast);
+}
+.nav-panel__group-summary::-webkit-details-marker{display:none}
+.nav-panel__group-summary::marker{content:""}
+.nav-panel__group-summary:hover{color:var(--fg-0)}
+.nav-panel__group-summary:focus-visible{
+  outline:2px solid var(--accent);outline-offset:4px;
+  color:var(--fg-0);border-radius:var(--radius-sm);
+}
+.nav-panel__group-label{flex:1;min-width:0}
+.nav-panel__group-count{
+  font-family:var(--font-mono);font-size:.64rem;letter-spacing:.04em;
+  color:var(--fg-3);background:var(--bg-2);
+  padding:.18rem .45rem;border-radius:var(--radius-pill);
+  min-width:1.6em;text-align:center;
+}
+.nav-panel__chev{
+  display:inline-flex;align-items:center;justify-content:center;
+  color:var(--fg-3);transition:transform var(--t-fast), color var(--t-fast);
+}
+.nav-panel__group[open] > .nav-panel__group-summary{color:var(--fg-0)}
+.nav-panel__group[open] > .nav-panel__group-summary .nav-panel__chev{
+  transform:rotate(180deg);color:var(--accent);
+}
+.nav-panel__list{
+  display:flex;flex-direction:column;gap:.15rem;
+  padding:0 0 .8rem .25rem;
+  margin:0;list-style:none;
+}
+.nav-panel__item[hidden]{display:none}
+.nav-panel__list a{
+  display:flex;flex-direction:column;gap:.1rem;
+  padding:.55rem .65rem;
+  color:var(--fg-1);text-decoration:none;
+  border-left:2px solid transparent;border-radius:0 var(--radius) var(--radius) 0;
+  transition:color var(--t-fast), background var(--t-fast), border-color var(--t-fast);
+  min-height:44px;justify-content:center;
+}
+.nav-panel__list a:hover{
+  color:var(--fg-0);
+  background:color-mix(in oklab, var(--accent) 5%, transparent);
+  border-left-color:var(--accent);
+}
+.nav-panel__list a:focus-visible{
+  outline:2px solid var(--accent);outline-offset:2px;
+  color:var(--fg-0);border-radius:var(--radius-sm);
+}
+.nav-panel__list a[aria-current="page"]{
+  color:var(--accent);border-left-color:var(--accent);
+  background:color-mix(in oklab, var(--accent) 8%, transparent);
+}
+.nav-panel__item-label{font-size:var(--fs-300);font-weight:500;line-height:1.3}
+.nav-panel__item-desc{
+  font-size:var(--fs-200);color:var(--fg-3);line-height:1.35;
+}
+.nav-panel__list a:hover .nav-panel__item-desc{color:var(--fg-2)}
+
+/* Theme-toggle row above the social footer. Compact, mono-labeled. */
+.nav-panel__theme{
+  flex:0 0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.7rem var(--space-4);
+  border-top:1px solid var(--rule);
+  font-family:var(--font-mono);font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--fg-2);
+}
+.nav-panel__theme-btn{
+  display:inline-flex;align-items:center;gap:.45rem;
+  padding:.4rem .7rem;min-height:36px;
+  border:1px solid var(--rule);border-radius:var(--radius);
+  background:transparent;color:var(--fg-1);cursor:pointer;
+  font-family:var(--font-mono);font-size:.72rem;letter-spacing:.04em;
+  transition:color var(--t-fast), border-color var(--t-fast);
+}
+.nav-panel__theme-btn:hover{color:var(--accent);border-color:var(--accent)}
+[data-theme="dark"] .nav-panel__theme-sun{display:block}
+[data-theme="dark"] .nav-panel__theme-moon{display:none}
+[data-theme="light"] .nav-panel__theme-sun{display:none}
+[data-theme="light"] .nav-panel__theme-moon{display:block}
+
+/* Social footer -- 4 iconographic links across the bottom. */
+.nav-panel__foot{
+  flex:0 0 auto;
+  display:grid;grid-template-columns:repeat(4, 1fr);gap:1px;
+  padding:0;background:var(--rule);
+  border-top:1px solid var(--rule);
+}
+.nav-panel__foot-link{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:.3rem;padding:.7rem .4rem;
+  background:var(--bg-1);
+  color:var(--fg-2);text-decoration:none;
+  font-family:var(--font-mono);font-size:.62rem;letter-spacing:.08em;
+  text-transform:uppercase;
+  transition:color var(--t-fast), background var(--t-fast);
+}
+.nav-panel__foot-link:hover{
+  color:var(--accent);
+  background:color-mix(in oklab, var(--accent) 7%, var(--bg-1));
+}
+
+.nav-panel__scrim{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.6);
+  backdrop-filter:saturate(120%) blur(3px);
+  -webkit-backdrop-filter:saturate(120%) blur(3px);
+  z-index:70;
+}
+@media (prefers-reduced-motion: reduce){
+  .nav-panel{transition:none}
+}

@@ -1,0 +1,12 @@
+.uploader{display:flex;flex-direction:column;gap:var(--space-3);padding:var(--space-5);background:var(--bg-1);border:2px dashed var(--rule);text-align:center;color:var(--fg-2);transition:border-color var(--t-fast), background var(--t-fast)}
+.uploader[data-drag="true"]{border-color:var(--accent);background:color-mix(in oklab, var(--accent) 8%, var(--bg-1))}
+.uploader__title{color:var(--fg-0);font-size:var(--fs-500)}
+.uploader__hint{font-size:var(--fs-200)}
+.uploader__file{display:none}
+
+.saved-list{display:grid;gap:var(--space-3);grid-template-columns:1fr;margin-top:var(--space-5)}
+@media (min-width:640px){.saved-list{grid-template-columns:repeat(2,1fr)}}
+.saved-item{display:flex;flex-direction:column;gap:.4rem;padding:var(--space-3);background:var(--bg-1);border:1px solid var(--rule)}
+.saved-item__title{font-weight:600;display:flex;justify-content:space-between;align-items:baseline}
+.saved-item__meta{color:var(--fg-2);font-size:var(--fs-200);font-family:var(--font-mono)}
+.saved-item__actions{display:flex;gap:.4rem;margin-top:.4rem}

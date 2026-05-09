@@ -1,0 +1,80 @@
+.chart{width:100%;background:var(--bg-1);border:1px solid var(--rule);padding:var(--space-3)}
+.chart__title{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:var(--space-2);font-size:var(--fs-200);color:var(--fg-2);text-transform:uppercase;letter-spacing:.06em}
+.chart__svg{width:100%;display:block}
+.chart__line{fill:none;stroke:var(--accent);stroke-width:1.5}
+.chart__area{fill:var(--accent);opacity:.12}
+.chart__axis{stroke:var(--rule);stroke-width:1}
+.chart__tick{font-family:var(--font-mono);font-size:10px;fill:var(--fg-3)}
+.chart__bar{fill:var(--accent)}
+.chart__bar--mute{fill:var(--bg-3)}
+.chart__bar--bad{fill:var(--bad)}
+.chart__bar--warn{fill:color-mix(in oklab, var(--bad) 55%, var(--accent))}
+.chart__bar--ok{fill:var(--good, var(--accent))}
+.chart__bar-label{font-family:var(--font-mono);font-size:10px;fill:var(--fg-2);dominant-baseline:central}
+.chart__dot{fill:var(--accent)}
+.stats-section__lede{margin:.25rem 0 .75rem;color:var(--fg-2);font-size:var(--fs-300);line-height:1.5}
+.stats-section__lede:empty{display:none}
+
+/* Character report table — sortable per-character breakdown. */
+.char-table__wrap{max-height:520px;overflow-y:auto;border:1px solid var(--rule);border-radius:var(--radius)}
+.char-table{width:100%;border-collapse:collapse;font-size:var(--fs-200)}
+.char-table th, .char-table td{padding:.5rem .8rem;border-bottom:1px solid var(--rule);text-align:left;vertical-align:middle}
+.char-table tbody tr:last-child td{border-bottom:0}
+.char-table tbody tr:hover{background:var(--bg-2)}
+.char-table th{
+  font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.08em;
+  color:var(--fg-3);font-weight:500;cursor:pointer;user-select:none;font-size:.66rem;
+  background:var(--bg-1);position:sticky;top:0;z-index:1;
+  border-bottom:2px solid var(--rule);
+}
+.char-table th:hover{color:var(--fg-0);background:var(--bg-2)}
+.char-table th.num, .char-table td.num{text-align:right}
+.char-table th.is-asc::after{content:" ↑";color:var(--accent)}
+.char-table th.is-desc::after{content:" ↓";color:var(--accent)}
+.char-table .tabular{font-variant-numeric:tabular-nums;font-family:var(--font-mono);font-size:.82rem;color:var(--fg-1)}
+.char-table__char{font-family:var(--font-mono);font-size:1rem;color:var(--accent);font-weight:600;width:3.5em}
+.char-table__when{color:var(--fg-3);font-family:var(--font-mono);font-size:.72rem}
+
+/* ── Keys at a glance -- mastery strip A-Z ──────────────────── */
+.key-strip{display:flex;flex-direction:column;gap:var(--space-3)}
+.key-strip__legend{
+  display:flex;flex-wrap:wrap;gap:var(--space-3);margin:0;
+  font-family:var(--font-mono);font-size:.72rem;letter-spacing:.04em;
+  color:var(--fg-2);
+}
+.key-strip__legend-item{display:inline-flex;align-items:center;gap:.4rem}
+.key-strip__swatch{
+  display:inline-block;width:14px;height:14px;border-radius:3px;
+  border:1px solid var(--rule);
+}
+.key-strip__swatch[data-status="mastered"]{background:color-mix(in oklab, var(--good) 60%, var(--bg-2))}
+.key-strip__swatch[data-status="learning"]{background:color-mix(in oklab, var(--accent) 50%, var(--bg-2))}
+.key-strip__swatch[data-status="untyped"]{background:var(--bg-2)}
+
+.key-strip__row{
+  display:grid;grid-template-columns:repeat(13, minmax(0, 1fr));
+  gap:.35rem;
+}
+@media (min-width:768px){.key-strip__row{grid-template-columns:repeat(26, minmax(0, 1fr))}}
+.key-strip__tile{
+  aspect-ratio:1;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-mono);font-weight:700;font-size:var(--fs-300);
+  border:1px solid var(--rule);border-radius:var(--radius-sm);
+  background:var(--bg-2);color:var(--fg-1);
+  cursor:help;min-height:0;padding:0;
+  transition:transform var(--t-fast), border-color var(--t-fast);
+}
+.key-strip__tile:hover{transform:translateY(-1px);border-color:var(--accent)}
+.key-strip__tile[data-status="mastered"]{
+  background:color-mix(in oklab, var(--good) 55%, var(--bg-2));
+  color:var(--bg-0);border-color:var(--good);
+}
+.key-strip__tile[data-status="learning"]{
+  background:color-mix(in oklab, var(--accent) 35%, var(--bg-2));
+  color:var(--fg-0);border-color:var(--accent);
+}
+.key-strip__tile[data-status="untyped"]{
+  background:var(--bg-2);color:var(--fg-3);
+  border-style:dashed;
+}

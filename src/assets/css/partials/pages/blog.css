@@ -1,0 +1,213 @@
+/* Blog index + individual post pages. */
+
+.blog-index{max-width:920px;margin:var(--space-5) auto;padding:0 var(--space-4)}
+.blog-index__head{margin-bottom:var(--space-6)}
+.blog-index__tags{margin-top:var(--space-3);font-size:var(--fs-300);color:var(--fg-2);display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
+.blog-tag-chip{
+  display:inline-block;padding:.2rem .55rem;
+  background:var(--bg-2);border:1px solid var(--rule);border-radius:var(--radius);
+  color:var(--fg-1);font-family:var(--font-mono);font-size:var(--fs-200);
+  text-decoration:none;
+}
+.blog-tag-chip:hover{border-color:var(--accent);color:var(--accent)}
+
+.blog-list{display:flex;flex-direction:column;gap:var(--space-5);margin:var(--space-5) 0}
+.blog-card{
+  padding:var(--space-4);background:var(--bg-1);
+  border:1px solid var(--rule);border-radius:var(--radius);
+  transition:border-color var(--t-fast);
+}
+.blog-card:hover{border-color:var(--accent)}
+.blog-card__date{font-family:var(--font-mono);font-size:var(--fs-200);color:var(--fg-3);margin:0 0 .4rem;display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
+.blog-card__dot{color:var(--rule)}
+.blog-card__tag{color:var(--fg-2);text-decoration:none;border-bottom:1px dotted var(--rule)}
+.blog-card__tag:hover{color:var(--accent);border-bottom-color:var(--accent)}
+.blog-card__title{margin:0 0 .4rem;font-size:var(--fs-500);font-weight:600}
+.blog-card__title a{color:var(--fg-0);text-decoration:none}
+.blog-card__title a:hover{color:var(--accent)}
+.blog-card__deck{margin:0 0 var(--space-2);color:var(--fg-1);line-height:1.5}
+.blog-card__readmore{margin:0;font-size:var(--fs-300)}
+.blog-card__readmore a{color:var(--accent);text-decoration:none;font-weight:500}
+.blog-card__readmore a:hover{text-decoration:underline}
+
+.blog-index__rss{
+  margin-top:var(--space-6);padding-top:var(--space-4);
+  border-top:1px solid var(--rule);
+  color:var(--fg-2);font-size:var(--fs-300);text-align:center;
+}
+
+/* Reading-progress bar at the very top of post pages. */
+.post-progress{
+  position:fixed;top:0;left:0;height:3px;width:0;
+  background:var(--accent);z-index:30;
+  transition:width .12s linear;
+}
+
+/* Single post page */
+.post-page{max-width:1100px;margin:var(--space-4) auto var(--space-6);padding:0 var(--space-4)}
+/* Flex column with align-items:center so every direct child -- back
+   link (inline-block), eyebrow (block <p>), title, deck, meta --
+   centers reliably regardless of its display type. text-align:center
+   alone leaves inline-block elements pinned to the line's start in
+   some browsers; flex centering is the bulletproof version. */
+.post__head{
+  display:flex;flex-direction:column;align-items:center;
+  text-align:center;
+  padding:var(--space-5) 0 var(--space-4);
+  border-bottom:1px solid var(--rule);
+  margin-bottom:var(--space-5);
+}
+.post__head > *{max-width:60ch}
+.post__head .tt-back-link{margin-bottom:var(--space-3)}
+.post__eyebrow{margin:0;font-family:var(--font-mono);font-size:var(--fs-200);text-transform:uppercase;letter-spacing:.16em;color:var(--accent);text-align:center}
+.post__title{font-size:clamp(2rem, 5vw, 3.2rem);margin:.4rem 0;font-weight:600;line-height:1.15;max-width:none}
+.post__deck{font-family:var(--font-display);font-style:italic;font-size:var(--fs-500);color:var(--fg-1);max-width:50ch;margin:0 auto var(--space-3);line-height:1.4}
+.post__meta{
+  display:inline-flex;flex-wrap:wrap;justify-content:center;gap:.4rem;
+  font-family:var(--font-mono);font-size:var(--fs-200);color:var(--fg-3);
+}
+.post__meta-dot{color:var(--rule)}
+.post__tags a{color:var(--fg-2);text-decoration:none;border-bottom:1px dotted var(--rule);margin-left:.3em}
+.post__tags a:hover{color:var(--accent);border-bottom-color:var(--accent)}
+
+.post__layout{display:grid;grid-template-columns:1fr;gap:var(--space-5);align-items:start}
+@media (min-width:1024px){
+  .post__layout{grid-template-columns:220px 1fr;gap:var(--space-6)}
+}
+
+.post__toc{
+  font-family:var(--font-mono);font-size:var(--fs-200);
+}
+@media (min-width:1024px){
+  /* Sticky only on desktop where the TOC sits in a side rail. On
+     phones it stacks inline with the article and scrolls away. */
+  .post__toc{position:sticky;top:calc(var(--header-h, 64px) + var(--space-4))}
+}
+.post__toc-title{
+  margin:0 0 .6rem;color:var(--fg-3);
+  text-transform:uppercase;letter-spacing:.12em;
+}
+.post__toc-list{display:flex;flex-direction:column;gap:.4rem}
+.post__toc-link{
+  color:var(--fg-2);text-decoration:none;line-height:1.4;
+  border-left:2px solid transparent;padding-left:.6rem;
+}
+.post__toc-link:hover{color:var(--accent)}
+.post__toc-link.is-active{color:var(--accent);border-left-color:var(--accent)}
+.post__toc-link--sub{padding-left:1.2rem;font-size:.85em}
+
+.post__share{margin-top:var(--space-5);padding-top:var(--space-4);border-top:1px solid var(--rule)}
+.post__share-title{font-size:.7rem;text-transform:uppercase;letter-spacing:.12em;color:var(--fg-3);margin:0 0 .5rem}
+.post__share-row{display:flex;gap:.4rem;flex-wrap:wrap}
+.post__share-link{
+  width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;
+  background:transparent;border:1px solid var(--rule);border-radius:var(--radius);
+  color:var(--fg-2);text-decoration:none;cursor:pointer;
+  transition:color var(--t-fast), border-color var(--t-fast), background var(--t-fast);
+  padding:0;
+}
+.post__share-link svg{display:block;width:18px;height:18px}
+.post__share-link:hover{border-color:var(--accent);color:var(--accent);background:color-mix(in oklab, var(--accent) 8%, transparent)}
+.post__share-link.is-copied{border-color:var(--good, #2a8);color:var(--good, #2a8);background:color-mix(in oklab, var(--good, #2a8) 12%, transparent)}
+.post__share-link.is-copied::after{
+  content:"Copied";position:absolute;margin-top:48px;
+  font-family:var(--font-mono);font-size:.62rem;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--good, #2a8);
+  pointer-events:none;
+}
+.post__share-link{position:relative}
+
+.post__body{
+  font-size:var(--fs-400);line-height:1.7;color:var(--fg-0);
+  max-width:64ch;margin:0 auto;
+}
+.post__body p{margin-block:0 var(--space-4)}
+.post__body h2{margin-block:var(--space-6) var(--space-3);font-size:var(--fs-600);font-weight:600;scroll-margin-top:calc(var(--header-h, 64px) + var(--space-4))}
+.post__body h3{margin-block:var(--space-5) var(--space-2);font-size:var(--fs-500);font-weight:600;scroll-margin-top:calc(var(--header-h, 64px) + var(--space-4))}
+.post__body ul, .post__body ol{margin-block:0 var(--space-4);padding-left:1.4em}
+.post__body li{margin-bottom:.5rem;line-height:1.6}
+.post__body a{color:var(--accent);text-decoration:underline;text-decoration-color:color-mix(in oklab, var(--accent) 30%, transparent);text-underline-offset:3px}
+.post__body a:hover{text-decoration-color:var(--accent)}
+.post__body code{font-family:var(--font-mono);font-size:.9em;padding:.1rem .35rem;background:var(--bg-2);border:1px solid var(--rule);border-radius:4px}
+.post__body pre{
+  margin-block:0 var(--space-4);padding:var(--space-3);
+  background:var(--bg-2);border:1px solid var(--rule);border-radius:var(--radius);
+  overflow-x:auto;font-family:var(--font-mono);font-size:.92em;line-height:1.5;
+}
+.post__body pre code{background:transparent;border:0;padding:0}
+.post__body blockquote{
+  margin-block:0 var(--space-4);padding:var(--space-3) var(--space-4);
+  border-left:3px solid var(--accent);background:var(--bg-1);
+  font-style:italic;color:var(--fg-1);
+}
+.post__body hr{margin-block:var(--space-5);border:0;border-top:1px solid var(--rule)}
+.post__body img{max-width:100%;border-radius:var(--radius);margin-block:var(--space-3)}
+
+/* Drop cap removed -- the first letter renders as normal body text. */
+
+.post__foot{
+  margin-top:var(--space-7);padding-top:var(--space-5);
+  border-top:1px solid var(--rule);
+  display:flex;flex-direction:column;gap:var(--space-5);
+}
+.post__author{
+  display:flex;align-items:center;gap:var(--space-3);
+  padding:var(--space-4);background:var(--bg-1);
+  border:1px solid var(--rule);border-radius:var(--radius);
+  flex-wrap:wrap;
+}
+.post__author-photo{
+  flex:0 0 auto;display:block;
+  width:64px;height:64px;border-radius:50%;overflow:hidden;
+  border:1px solid var(--rule);
+  transition:border-color var(--t-fast);
+}
+.post__author-photo:hover{border-color:var(--accent)}
+.post__author-photo picture,
+.post__author-photo img{width:100%;height:100%;display:block}
+.post__author-photo img{object-fit:cover;object-position:50% 28%}
+.post__author-text{flex:1;min-width:0}
+.post__author-name{margin:0;font-weight:600;font-size:var(--fs-400);color:var(--fg-0)}
+.post__author-name a{color:var(--fg-0);text-decoration:none}
+.post__author-name a:hover{color:var(--accent)}
+.post__author-bio{margin:.2rem 0 0;color:var(--fg-2);font-size:var(--fs-300);line-height:1.5}
+.post__author-bio a{color:var(--accent);text-decoration:none;border-bottom:1px dotted color-mix(in oklab, var(--accent) 40%, transparent)}
+.post__author-bio a:hover{border-bottom-color:var(--accent)}
+.post__neighbors{
+  display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3);
+}
+.post__neighbor{
+  padding:var(--space-3);background:var(--bg-1);
+  border:1px solid var(--rule);border-radius:var(--radius);
+  text-decoration:none;color:var(--fg-0);
+  display:flex;flex-direction:column;gap:.3rem;
+  transition:border-color var(--t-fast);
+}
+.post__neighbor:hover{border-color:var(--accent)}
+.post__neighbor--next{text-align:right}
+.post__neighbor-eyebrow{font-family:var(--font-mono);font-size:var(--fs-200);color:var(--fg-3);text-transform:uppercase;letter-spacing:.08em}
+.post__neighbor-title{font-weight:500;color:var(--fg-0)}
+
+@media (max-width: 640px){
+  .post__neighbors{grid-template-columns:1fr}
+}
+
+/* About-page maker block. Same photo as the post-author card,
+   slightly larger, paired with two short paragraphs. */
+.about-author{
+  display:flex;align-items:flex-start;gap:var(--space-4);
+  padding:var(--space-4);background:var(--bg-1);
+  border:1px solid var(--rule);border-radius:var(--radius);
+  margin:var(--space-3) 0;flex-wrap:wrap;
+}
+.about-author__photo{
+  flex:0 0 auto;display:block;
+  width:96px;height:96px;border-radius:50%;overflow:hidden;
+  border:1px solid var(--rule);
+}
+.about-author__photo picture,
+.about-author__photo img{width:100%;height:100%;display:block}
+.about-author__photo img{object-fit:cover;object-position:50% 28%}
+.about-author > div{flex:1;min-width:240px}
+.about-author p{margin:0 0 .6rem}
+.about-author p:last-child{margin-bottom:0}

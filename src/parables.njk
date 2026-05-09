@@ -1,0 +1,26 @@
+---
+layout: layouts/base.njk
+title: "Parables"
+description: "Public-domain parables and short fables. Pick one to type, save it for later, or build a collection."
+---
+<header class="page__head">
+  <h1>Parables</h1>
+  <p class="page__subtitle">Aesop's fables — short stories with a moral, all public domain. Type any one to drill rhythm and punctuation; save your favorites for later.</p>
+</header>
+
+<div class="quotes-toolbar">
+  <input type="search" id="corpus-search" class="quotes-search" placeholder="Search parables…" aria-label="Search parables">
+  <button type="button" id="corpus-random" class="btn btn--small btn--primary">Random parable →</button>
+</div>
+
+<section class="corpus-list" data-corpus-url="/data/parables.json" data-corpus-kind="parable" data-corpus-mode="custom" id="corpus-root">
+  <div id="corpus-list" aria-live="polite"></div>
+</section>
+
+<aside class="corpus-suggest-cta">
+  <div class="corpus-suggest-cta__copy">
+    <h3>Got a public-domain parable?</h3>
+    <p>Aesop, Zen, biblical, folk -- any tradition welcome.</p>
+  </div>
+  <a class="btn btn--primary" href="/contribute/parable/?from=parables">Suggest a parable →</a>
+</aside>

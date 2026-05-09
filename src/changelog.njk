@@ -1,0 +1,22 @@
+---
+layout: layouts/article.njk
+title: "Changelog"
+eyebrow: "Release history"
+lede: "Every notable change shipped to Guerilla Type, newest first. Each entry maps to a tag in the GitHub repo."
+description: "Release history for Guerilla Type — every notable change, newest first."
+---
+
+<div class="changelog">
+  {% for entry in changelog %}
+  <article class="changelog__entry">
+    <div class="changelog__head">
+      <h2 class="changelog__title" id="{{ entry.tag | slugify or (entry.date + '-' + (entry.title | slugify)) }}">{{ entry.title }}</h2>
+      {% if entry.tag %}<span class="changelog__tag">{{ entry.tag }}</span>{% endif %}
+    </div>
+    <p class="changelog__date">{{ entry.date | readableDate }}</p>
+    <ul>
+      {% for n in entry.notes %}<li>{{ n }}</li>{% endfor %}
+    </ul>
+  </article>
+  {% endfor %}
+</div>

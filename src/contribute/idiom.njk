@@ -1,0 +1,44 @@
+---
+layout: layouts/base.njk
+title: "Suggest an idiom"
+description: "Suggest an English idiom for the Guerilla Type library, with meaning and origin."
+permalink: /contribute/idiom/
+---
+
+{% import "partials/contribute/form-shell.njk" as cf %}
+
+{{ cf.head("Suggest an idiom", "Phrase, meaning, origin -- the corpus surfaces these as typeable practice items.", "idiom") }}
+
+<aside class="contribute-page__guidelines">
+  <h2>Guidelines</h2>
+  <ul>
+    <li>Real idiomatic phrases only -- not slang, not memes, not catchphrases.</li>
+    <li>Meaning should be a one-sentence plain-English explanation.</li>
+    <li>Origin is optional but appreciated -- helps the library feel substantive.</li>
+    <li>Region tells the corpus filter where the idiom belongs.</li>
+  </ul>
+</aside>
+
+<form class="contribute-form" method="POST" action="{{ web3forms.endpoint }}" data-contribute-kind="idiom">
+  {{ cf.hidden("idiom", "GT contribution: idiom", web3forms) }}
+
+  {{ cf.text("idiom_text", "The idiom", required=true, maxlength=200, placeholder="e.g. bite off more than you can chew") }}
+  {{ cf.textarea("idiom_meaning", "Meaning", required=true, minlength=10, maxlength=400, rows=3, hint="One plain-English sentence.") }}
+  {{ cf.textarea("idiom_origin", "Origin", maxlength=600, rows=3, hint="A line or two on where the phrase came from. Optional.") }}
+  {{ cf.select("region", "Region", [
+    { value: "american", label: "American English" },
+    { value: "british", label: "British English" },
+    { value: "australian", label: "Australian English" },
+    { value: "indian", label: "Indian English" },
+    { value: "global", label: "Global / unattributed" },
+    { value: "other", label: "Other" }
+  ], required=true) }}
+  {{ cf.text("idiom_example", "Example sentence", maxlength=240, placeholder='e.g. "She bit off more than she could chew with three classes."') }}
+  {{ cf.text("submitter_name", "Your name", maxlength=120, placeholder="Optional") }}
+
+  {{ cf.submit("Send idiom suggestion") }}
+</form>
+
+{{ cf.byline() }}
+
+<script type="module" src="/assets/js/pages/contribute-boot.js?v={{ cssVersion }}"></script>

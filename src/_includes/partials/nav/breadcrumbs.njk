@@ -1,0 +1,71 @@
+{# Site-wide breadcrumbs. URL-prefix matching for nested sections
+   (blog posts, contribute forms) so children land under the right
+   parent. Falls back to a slug map for top-level pages. Skipped on
+   home, the practice surface, and when `hideBreadcrumbs` is set. #}
+{% set slug = page.fileSlug %}
+{% if not hideBreadcrumbs and slug and page.url and page.url != "/" and page.url != "/practice/" %}
+  {%- set parents = [] -%}
+  {%- if page.url | startsWith("/blog/") and page.url != "/blog/" -%}
+    {%- set parents = [{ label: "Blog", url: "/blog/" }] -%}
+  {%- elif page.url | startsWith("/contribute/") and page.url != "/contribute/" -%}
+    {%- set parents = [{ label: "Contribute", url: "/contribute/" }] -%}
+  {%- elif page.url | startsWith("/library/") and page.url != "/library/" -%}
+    {%- set parents = [{ label: "Library", url: "/library/" }] -%}
+  {%- elif page.url | startsWith("/wordlists/") and page.url != "/wordlists/" -%}
+    {%- set parents = [{ label: "Word lists", url: "/wordlists/" }] -%}
+  {%- else -%}
+    {% set sectionMap = {
+      "blog":         { label: "Blog",     url: "/blog/" },
+      "lessons":      { label: "Learn",    url: "/lessons/" },
+      "drills":       { label: "Learn",    url: "/lessons/" },
+      "guide":        { label: "Insights", url: "/stats/" },
+      "faq":          { label: "Insights", url: "/stats/" },
+      "quotes":       { label: "Library",  url: "/library/" },
+      "library":      { label: "Library",  url: "/library/" },
+      "idioms":       { label: "Library",  url: "/library/" },
+      "poetry":       { label: "Library",  url: "/library/" },
+      "parables":     { label: "Library",  url: "/library/" },
+      "custom":       { label: "Practice", url: "/practice/" },
+      "challenges":   { label: "Compete",  url: "/challenges/" },
+      "stats":        { label: "Insights", url: "/stats/" },
+      "settings":     { label: "Insights", url: "/stats/" },
+      "contribute":   { label: "Contribute", url: "/contribute/" },
+      "reviews":      { label: "Contribute", url: "/contribute/" },
+      "thanks-wall":  { label: "Contribute", url: "/contribute/" },
+      "about":        { label: "Project",  url: "/about/" },
+      "features":     { label: "Project",  url: "/about/" },
+      "tech-stack":   { label: "Project",  url: "/about/" },
+      "cost":         { label: "Project",  url: "/about/" },
+      "analytics":    { label: "Project",  url: "/about/" },
+      "changelog":    { label: "Project",  url: "/about/" },
+      "license":      { label: "Project",  url: "/about/" },
+      "privacy":      { label: "Legal",    url: "/privacy/" },
+      "terms":        { label: "Legal",    url: "/privacy/" },
+      "contact":      { label: "Project",  url: "/about/" },
+      "search":       { label: "Site",     url: "/" },
+      "sitemap":      { label: "Site",     url: "/" },
+      "style-guide":  { label: "Project",  url: "/about/" },
+      "thank-you":    { label: "Site",     url: "/" }
+    } %}
+    {% set section = sectionMap[slug] %}
+    {%- if section and section.url != page.url -%}
+      {%- set parents = [section] -%}
+    {%- endif -%}
+  {%- endif -%}
+  <nav class="breadcrumbs" aria-label="Breadcrumb">
+    <ol class="breadcrumbs__list">
+      <li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/">Home</a></li>
+      {% for p in parents %}
+        <li class="breadcrumbs__item" aria-hidden="true"><span class="breadcrumbs__sep">|</span></li>
+        <li class="breadcrumbs__item"><a class="breadcrumbs__link" href="{{ p.url }}">{{ p.label }}</a></li>
+      {% endfor %}
+      <li class="breadcrumbs__item" aria-hidden="true"><span class="breadcrumbs__sep">|</span></li>
+      {# The page's `title` value is composed at front-matter time via
+         Nunjucks (e.g. library-detail.njk builds it from `book.title`),
+         which already HTML-escapes apostrophes to `&#39;`. Re-escaping
+         here would emit `&amp;#39;` and the browser would show literal
+         `&#39;`. Mark safe to keep the single-escape result. #}
+      <li class="breadcrumbs__item breadcrumbs__item--current" aria-current="page">{{ (title or slug) | safe }}</li>
+    </ol>
+  </nav>
+{% endif %}

@@ -1,0 +1,110 @@
+<header class="site-header" role="banner">
+  <div class="site-header__inner">
+    <a class="site-brand" href="/" aria-label="{{ site.title }} home">
+      <img class="site-brand__mark" src="/assets/img/icon-192.png" alt="" width="50" height="50" loading="eager" decoding="async" data-brand-mark data-brand-emoji>
+      <span class="site-brand__name" data-brand-greeting>Guerilla<em>Type</em></span>
+    </a>
+
+    <nav class="site-nav" aria-label="Primary">
+      <ul class="site-nav__list">
+        {% for item in megamenu %}
+        <li class="site-nav__item" data-mega="{{ item.label | slugify }}">
+          {% if item.groups %}
+          <button type="button" class="site-nav__link" aria-haspopup="true" aria-expanded="false"
+                  data-mega-trigger="{{ item.label | slugify }}"
+                  {% if page.url | startsWith(item.url) %}aria-current="page"{% endif %}>
+            {{ item.label }}
+            <span class="site-nav__chev" aria-hidden="true">▾</span>
+          </button>
+          <div class="mega" role="menu" aria-label="{{ item.label }}">
+            <div class="mega__inner">
+              {% for group in item.groups %}
+              <div class="mega__group">
+                <h3>{{ group.title }}</h3>
+                <div class="mega__list">
+                  {% for sub in group.items %}
+                  <a class="mega__item" href="{{ sub.url }}" role="menuitem">
+                    {% if sub.chip %}<span class="mega__chip" aria-hidden="true">{{ sub.chip }}</span>{% endif %}
+                    <span class="mega__item-body">
+                      <span class="mega__label">{{ sub.label }}</span>
+                      <span class="mega__desc">{{ sub.desc }}</span>
+                    </span>
+                  </a>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endfor %}
+              {% if item.featured %}
+              <aside class="mega__featured" data-featured="{{ item.featured.kind }}">
+                <span class="mega__featured-eyebrow">Featured</span>
+                <h3 class="mega__featured-title">{{ item.featured.title }}</h3>
+                <div class="mega__featured-body" data-featured-body></div>
+                <a class="mega__featured-cta" href="{{ item.featured.cta.url }}">{{ item.featured.cta.label }} →</a>
+              </aside>
+              {% endif %}
+            </div>
+          </div>
+          {% else %}
+          <a href="{{ item.url }}" class="site-nav__link"
+             {% if page.url == item.url or (item.url != "/" and page.url | startsWith(item.url)) %}aria-current="page"{% endif %}>
+            {{ item.label }}
+          </a>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    </nav>
+
+    <div class="site-header__actions">
+      <a href="/stats/" id="streak-chip" class="streak-chip" hidden title="Daily streak — keep it alive by typing every day">
+        <span class="streak-chip__icon" aria-hidden="true">▲</span>
+        <span class="streak-chip__num" data-streak="num">0</span>
+        <span class="streak-chip__lbl">day</span>
+      </a>
+      <a href="/settings/" id="header-settings" class="header-icon-btn" aria-label="Settings"
+              title="Settings — profile, layout, theme, preferences"
+              onclick="return window.openSettingsModal && window.openSettingsModal(event)">
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </a>
+      <button type="button" id="header-fullscreen" class="header-icon-btn" aria-label="Toggle fullscreen"
+              title="Fullscreen (F11 also works)"
+              onclick="window.toggleFullscreen && window.toggleFullscreen()">
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 3 21 3 21 9"/>
+          <polyline points="9 21 3 21 3 15"/>
+          <line x1="21" y1="3" x2="14" y2="10"/>
+          <line x1="3" y1="21" x2="10" y2="14"/>
+        </svg>
+      </button>
+      <button type="button" id="header-search" class="header-icon-btn" aria-label="Search the site (Ctrl+K)"
+              title="Search (Ctrl+K)"
+              onclick="window.openSearch && window.openSearch()">
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="7"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+      </button>
+      <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Toggle day / night"
+              title="Toggle day / night"
+              onclick="window.toggleTheme && window.toggleTheme()">
+        <svg class="theme-toggle__sun" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+        </svg>
+        <svg class="theme-toggle__moon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      </button>
+      <button type="button" id="hamburger-btn" class="hamburger" aria-label="Open menu"
+              aria-controls="hamburger-panel" aria-expanded="false"
+              onclick="window.openNavPanel && window.openNavPanel()">
+        <span class="hamburger__bar"></span>
+        <span class="hamburger__bar"></span>
+        <span class="hamburger__bar"></span>
+      </button>
+    </div>
+  </div>
+</header>

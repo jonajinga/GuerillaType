@@ -1,0 +1,186 @@
+.stats-grid{display:grid;grid-template-columns:1fr;gap:var(--space-4)}
+@media (min-width:768px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:1024px){.stats-grid{grid-template-columns:repeat(4,1fr)}}
+.stats-tile{padding:var(--space-4);background:var(--bg-1);border:1px solid var(--rule)}
+.stats-tile__label{font-size:var(--fs-200);color:var(--fg-2);text-transform:uppercase;letter-spacing:.06em}
+.stats-tile__value{font-size:var(--fs-700);font-family:var(--font-mono);color:var(--accent);font-variant-numeric:tabular-nums}
+.stats-tile__sub{color:var(--fg-2);font-size:var(--fs-200);font-family:var(--font-mono)}
+
+/* Print button slot in the page header. Hides during print so the
+   button doesn't render on the saved PDF. */
+.page__head-actions{margin-top:var(--space-3)}
+
+/* Print-only elements -- normally hidden, revealed by print.css. */
+.print-only{display:none}
+
+/* Stats print cover page. Renders centered + full-page in print
+   only; page-break-after forces stats sections onto page 2. */
+.stats-print-cover{
+  text-align:center;
+  padding:1in 0.5in;
+  break-after:page;
+  page-break-after:always;
+}
+.stats-print-cover__mark{
+  display:block;margin:0 auto var(--space-5);
+  width:120px;height:120px;
+}
+.stats-print-cover__brand{
+  font-family:var(--font-display);font-size:48pt;font-weight:600;
+  margin:0 0 var(--space-2);line-height:1.05;
+}
+.stats-print-cover__tagline{
+  font-family:var(--font-display);font-style:italic;
+  font-size:14pt;color:#444;
+  max-width:38em;margin:0 auto var(--space-6);line-height:1.45;
+}
+.stats-print-cover__rule{
+  width:6em;border:0;border-top:2px solid #000;
+  margin:var(--space-6) auto;
+}
+.stats-print-cover__report-eyebrow{
+  font-family:var(--font-mono);font-size:10pt;letter-spacing:.3em;
+  text-transform:uppercase;color:#666;margin:0 0 .6em;
+}
+.stats-print-cover__report-title{
+  font-family:var(--font-display);font-size:32pt;font-weight:500;
+  margin:0 0 var(--space-5);line-height:1.1;
+}
+.stats-print-cover__date{
+  font-family:var(--font-display);font-size:14pt;color:#000;
+  margin:var(--space-4) 0 .35em;
+}
+.stats-print-cover__profile{
+  font-family:var(--font-mono);font-size:11pt;color:#444;
+  margin:0 0 var(--space-7);
+}
+.stats-print-cover__url{
+  font-family:var(--font-mono);font-size:10pt;color:#888;
+  letter-spacing:.06em;margin:var(--space-7) 0 0;
+}
+
+.stats-section{margin-top:var(--space-6)}
+.stats-section__title{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:.6rem;margin-bottom:var(--space-3)}
+.stats-section__actions{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+/* Buttons inside section action rows share a min-width AND a fixed
+   flex basis so a long primary label and a short secondary one render
+   at exactly the same metric instead of looking lopsided. The 9.5rem
+   floor leaves room for "Practice these" without truncation; flex:0 0
+   auto blocks the row from squashing one button when the row wraps. */
+.stats-section__actions .btn{
+  min-width:9.5rem;
+  flex:0 0 auto;
+  justify-content:center;
+  text-align:center;
+}
+
+/* Missed-words list -- horizontal bar viz with miss-count weight. */
+.missed-words{
+  list-style:none;margin:0;padding:0;
+  display:flex;flex-direction:column;gap:.4rem;
+}
+.missed-word{
+  display:grid;
+  grid-template-columns:minmax(8rem, 14rem) 1fr auto auto;
+  gap:.6rem;align-items:center;
+  padding:.45rem .65rem;
+  background:var(--bg-1);border:1px solid var(--rule);
+  border-radius:var(--radius);
+}
+.missed-word__text{
+  font-family:var(--font-mono);font-size:var(--fs-300);
+  color:var(--fg-0);font-weight:500;
+}
+.missed-word__bar{
+  position:relative;height:8px;
+  background:var(--bg-2);border-radius:var(--radius-pill);
+  overflow:hidden;min-width:60px;
+}
+.missed-word__bar-fill{
+  position:absolute;left:0;top:0;bottom:0;
+  background:linear-gradient(90deg, var(--warn), var(--bad));
+  border-radius:var(--radius-pill);
+}
+.missed-word__count{
+  font-family:var(--font-mono);font-size:.78rem;color:var(--fg-2);
+  letter-spacing:.04em;white-space:nowrap;
+}
+.missed-word__count strong{color:var(--accent);font-weight:600}
+.missed-word__age{
+  font-family:var(--font-mono);font-size:.72rem;color:var(--fg-3);
+  letter-spacing:.04em;white-space:nowrap;
+}
+@media (max-width:640px){
+  .missed-word{grid-template-columns:1fr auto;gap:.3rem .55rem}
+  .missed-word__bar{grid-column:1 / -1;order:99}
+  .missed-word__age{font-size:.68rem}
+}
+
+.stats-empty{padding:var(--space-6);text-align:center;color:var(--fg-2);background:var(--bg-1);border:1px dashed var(--rule);border-radius:var(--radius)}
+
+/* Empty-state CTA inline in the lede */
+.stats-cta{
+  display:inline-block;margin-left:.5rem;
+  color:var(--accent);font-weight:600;text-decoration:none;
+  border-bottom:1px solid var(--accent);padding-bottom:.05em;
+}
+.stats-cta:hover{color:var(--accent-deep);border-color:var(--accent-deep)}
+
+/* Dim heavy viz when there's no data yet — keeps the page feeling alive
+   without giving the false impression that empty heatmaps are real. */
+.stats-empty-mode .stats-section:not(:nth-of-type(-n+2)) .chart,
+.stats-empty-mode .stats-section:not(:nth-of-type(-n+2)) .kb__svg,
+.stats-empty-mode .stats-section:not(:nth-of-type(-n+2)) .contrib__svg{opacity:.45}
+
+/* Achievements grid */
+.achievements-grid{
+  display:grid;grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
+  gap:var(--space-3);margin-top:var(--space-3);
+}
+.ach{
+  display:flex;gap:.75rem;align-items:flex-start;
+  padding:var(--space-3);
+  background:var(--bg-1);border:1px solid var(--rule);
+  border-radius:var(--radius);
+  transition:border-color var(--t-fast), background var(--t-fast);
+}
+.ach--earned{border-color:var(--accent);background:color-mix(in oklab, var(--accent) 7%, var(--bg-1))}
+.ach--locked{opacity:.55}
+.ach__icon{
+  font-size:1.4rem;line-height:1;flex-shrink:0;
+  width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+  background:var(--bg-2);border-radius:var(--radius);color:var(--fg-3);
+}
+.ach--earned .ach__icon{background:var(--accent);color:#fff}
+.ach__body{display:flex;flex-direction:column;gap:.1rem;min-width:0}
+.ach__name{font-weight:600;color:var(--fg-0);line-height:1.2}
+.ach__desc{color:var(--fg-2);font-size:var(--fs-200);line-height:1.4}
+.ach__group{font-family:var(--font-mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.12em;color:var(--fg-3);margin-top:.2rem}
+
+/* Mode bests grid. Cards size to fit the wpm + accuracy + date stack;
+   220px min keeps the big numerals from overflowing on narrow viewports.
+   min-width:0 on the card itself + flex-wrap on the values row means
+   accuracy can drop to a second line at small widths instead of clipping. */
+.mode-bests{
+  display:grid;grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
+  gap:var(--space-3);margin-top:var(--space-3);
+}
+.mode-best{
+  display:flex;flex-direction:column;gap:.4rem;min-width:0;
+  padding:var(--space-3);background:var(--bg-1);border:1px solid var(--rule);
+  border-radius:var(--radius);overflow:hidden;
+}
+.mode-best__label{font-family:var(--font-mono);font-size:var(--fs-200);text-transform:uppercase;letter-spacing:.1em;color:var(--fg-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mode-best__values{display:flex;align-items:baseline;gap:.8rem;flex-wrap:wrap;color:var(--fg-0);font-family:var(--font-display);font-feature-settings:"tnum"}
+.mode-best__wpm{font-size:var(--fs-700);color:var(--accent);font-weight:500;line-height:1}
+.mode-best__wpm small{font-family:var(--font-mono);font-size:.36em;color:var(--fg-2);margin-left:.2em;letter-spacing:.06em;text-transform:uppercase}
+.mode-best__acc{font-size:var(--fs-500);color:var(--fg-1);font-weight:500;line-height:1}
+.mode-best__acc small{font-family:var(--font-mono);font-size:.42em;color:var(--fg-2);margin-left:.15em}
+.mode-best__date{font-family:var(--font-mono);font-size:var(--fs-200);color:var(--fg-3)}
+
+/* Sessions table */
+.sessions-table{width:100%;border-collapse:collapse;font-family:var(--font-mono);font-size:var(--fs-200)}
+.sessions-table thead th{padding:.5em .7em;color:var(--fg-2);text-align:left;text-transform:uppercase;letter-spacing:.06em;font-weight:500;border-bottom:1px solid var(--rule)}
+.sessions-table tbody td{padding:.55em .7em;border-bottom:1px solid var(--rule);vertical-align:top}
+.sessions-table tbody tr:last-child td{border-bottom:0}
+.sessions-table .r{text-align:right}

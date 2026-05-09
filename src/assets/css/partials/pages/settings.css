@@ -1,0 +1,159 @@
+.settings{max-width:720px;margin-inline:auto}
+.settings__group{margin-bottom:var(--space-6);padding-bottom:var(--space-5);border-bottom:1px solid var(--rule)}
+.settings__group:last-child{border-bottom:0}
+.settings__group h2{margin-bottom:var(--space-3);font-size:var(--fs-500)}
+.settings__row{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--space-3);padding:var(--space-2) 0}
+.settings__row > label{flex:1;margin:0}
+.settings__row > .field{flex:1;margin:0}
+.settings__row .toggle{margin-left:auto}
+.settings__row .field__hint{display:block;font-size:var(--fs-200);color:var(--fg-2);margin-top:.2rem}
+
+/* Phone-portrait: hint text wraps into a tight column on the left
+   and the toggle pin on the right. Keep the toggle locked to the
+   right of the label so labels can wrap freely without colliding
+   with the control. */
+@media (max-width:480px){
+  .settings__row{gap:var(--space-2);padding-block:.55rem}
+  .settings__row > label{font-size:var(--fs-300)}
+  .settings__row .field__hint{font-size:.78rem;line-height:1.4}
+  .settings-card{padding:var(--space-3)}
+  .settings-card__actions{gap:.4rem}
+  .settings-card__actions .btn{flex:1 1 auto;min-width:0}
+}
+
+/* ── Theme builder ───────────────────────────────────────────── */
+.theme-builder{display:flex;flex-direction:column;gap:var(--space-4)}
+.theme-builder__grid{
+  display:grid;grid-template-columns:repeat(auto-fill, minmax(140px, 1fr));
+  gap:.6rem;
+}
+.theme-builder__swatch{
+  display:flex;align-items:center;gap:.6rem;
+  padding:.5rem .6rem;background:var(--bg-1);
+  border:1px solid var(--rule);border-radius:var(--radius);
+  font-size:var(--fs-200);color:var(--fg-1);cursor:pointer;
+}
+.theme-builder__swatch span{flex:1;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.04em;font-size:.7rem;color:var(--fg-2)}
+.theme-builder__swatch input[type="color"]{
+  width:32px;height:32px;border:0;padding:0;background:transparent;cursor:pointer;
+  border-radius:var(--radius-sm);
+}
+.theme-builder__warn{
+  margin:0;padding:.6rem .8rem;
+  background:color-mix(in oklab, var(--bad, #c0392b) 12%, var(--bg-1));
+  border:1px solid var(--bad, #c0392b);border-radius:var(--radius);
+  color:var(--bad, #c0392b);font-size:var(--fs-200);line-height:1.5;
+}
+.theme-builder__preview{
+  padding:var(--space-3) var(--space-4);
+  background:var(--bg-1);border:1px solid var(--rule);border-radius:var(--radius);
+  color:var(--fg-0);
+}
+.theme-builder__preview p{margin:0 0 .6rem;line-height:1.55}
+.theme-builder__preview-row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.theme-builder__pill{
+  display:inline-flex;align-items:center;
+  padding:.2rem .6rem;border-radius:var(--radius);
+  font-family:var(--font-mono);font-size:var(--fs-200);
+}
+.theme-builder__pill--good{background:color-mix(in oklab, var(--good, #5fb878) 18%, transparent);color:var(--good, #5fb878)}
+.theme-builder__pill--bad {background:color-mix(in oklab, var(--bad, #c0392b) 18%, transparent);color:var(--bad, #c0392b)}
+.theme-builder__actions{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+.theme-builder__name{
+  flex:1;min-width:160px;padding:.55rem .7rem;
+  background:var(--bg-2);border:1px solid var(--rule);border-radius:var(--radius);
+  color:var(--fg-0);font-size:var(--fs-300);
+}
+.theme-builder__import{display:flex;flex-direction:column;gap:.4rem;padding-top:var(--space-3);border-top:1px dashed var(--rule)}
+.theme-builder__import label{font-size:var(--fs-200);color:var(--fg-2)}
+.theme-builder__import textarea{
+  padding:.55rem .7rem;background:var(--bg-2);
+  border:1px solid var(--rule);border-radius:var(--radius);
+  color:var(--fg-0);font-family:var(--font-mono);font-size:.82rem;
+  resize:vertical;
+}
+.theme-builder__import button{align-self:flex-start}
+.theme-builder__saved h3{margin:0 0 .6rem;font-size:var(--fs-400)}
+.theme-builder__saved ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.4rem}
+.theme-builder__saved-row{
+  display:flex;align-items:center;gap:.6rem;
+  padding:.5rem .7rem;background:var(--bg-1);
+  border:1px solid var(--rule);border-radius:var(--radius);
+}
+.theme-builder__saved-swatches{display:inline-flex;gap:.15rem;flex-shrink:0}
+.theme-builder__saved-swatches span{
+  width:14px;height:14px;border-radius:3px;border:1px solid var(--rule);
+}
+.theme-builder__saved-name{flex:1;font-weight:500;color:var(--fg-0)}
+
+/* ── Settings card (Profile section) ───────────────────────────── */
+.settings-card{
+  background:var(--bg-1);border:1px solid var(--rule);
+  border-radius:var(--radius);padding:var(--space-5);
+  margin-bottom:var(--space-6);
+}
+.settings-card__head{margin-bottom:var(--space-4)}
+.settings-card__head h2{margin-bottom:.3rem}
+.settings-card__sub{color:var(--fg-2);max-width:62ch;margin:0;font-size:var(--fs-200)}
+
+.settings-card__field{
+  display:flex;align-items:center;gap:var(--space-3);
+  padding-bottom:var(--space-4);margin-bottom:var(--space-4);
+  border-bottom:1px solid var(--rule);
+}
+.settings-card__label{
+  font-family:var(--font-mono);font-size:var(--fs-200);
+  text-transform:uppercase;letter-spacing:.12em;
+  color:var(--fg-2);font-weight:500;min-width:8rem;margin:0;
+}
+.settings-card__select{
+  flex:1;max-width:320px;padding:.55rem .8rem;
+  background:var(--bg-2);color:var(--fg-0);
+  border:1px solid var(--rule);border-radius:var(--radius);
+  font-family:var(--font-sans);font-size:var(--fs-300);
+}
+.settings-card__select:focus{border-color:var(--accent);outline:none}
+
+.settings-card__actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:0}
+.settings-card__actions .btn{flex:0 0 auto}
+
+.settings-card__rule{margin:var(--space-5) 0;border:0;border-top:1px solid var(--rule)}
+
+.settings-card__backup{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:var(--space-4);flex-wrap:wrap;margin-bottom:var(--space-4);
+}
+.settings-card__backup-text{flex:1;min-width:240px}
+.settings-card__backup-text h3{margin:0 0 .3rem 0;font-size:var(--fs-400)}
+.settings-card__backup-actions{display:flex;gap:.5rem;flex-shrink:0;align-items:stretch}
+/* Force <button> and <label class="btn"> to render at the EXACT same
+   size — same width (1fr each), same height, same padding, same font.
+   <button> and <label> resolve box sizing differently by default. */
+.settings-card__backup-actions .btn{
+  flex:1 1 11rem;min-width:11rem;width:11rem;
+  height:44px;min-height:44px;max-height:44px;
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:0 1rem;margin:0;
+  font-size:var(--fs-300);line-height:1;font-weight:500;
+  font-family:var(--font-sans);
+  box-sizing:border-box;cursor:pointer;
+  border-width:1px;border-style:solid;
+  text-align:center;
+}
+
+.settings-card__quota{
+  margin-top:var(--space-3);padding-top:var(--space-3);
+  border-top:1px solid var(--rule);
+}
+.settings-card__quota-bar{
+  height:6px;background:var(--bg-2);border-radius:var(--radius-pill);
+  overflow:hidden;margin-bottom:.4rem;
+}
+.settings-card__quota-fill{
+  height:100%;background:var(--accent);
+  transition:width var(--t-med) var(--ease);width:0%;
+}
+.settings-card__quota-text{
+  font-family:var(--font-mono);font-size:var(--fs-200);
+  color:var(--fg-2);margin:0;letter-spacing:.04em;
+}

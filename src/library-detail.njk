@@ -1,0 +1,236 @@
+---
+pagination:
+  data: books
+  size: 1
+  alias: book
+  addAllPagesToCollections: true
+permalink: "/library/{{ book.slug }}/"
+layout: layouts/base.njk
+eleventyComputed:
+  title: "{{ book.title }} — {{ book.author }}"
+  description: "Type your way through {{ book.title }} by {{ book.author }}. Public-domain text, paragraph-by-paragraph progress tracking, your local profile."
+---
+<header class="book-header">
+  <p class="eyebrow">Public-domain library</p>
+  <h1 class="book-header__title">{{ book.title }}</h1>
+  <p class="book-header__byline">by {{ book.author }}{% if book.year %} · {{ book.year }}{% endif %}</p>
+  <div class="book-header__meta">
+    <span><strong>{{ book.chapterCount }}</strong> chapter{% if book.chapterCount != 1 %}s{% endif %}</span>
+    <span><strong>{{ book.paragraphCount }}</strong> paragraphs</span>
+    <span><strong>{{ (book.charCount / 1000) | round }}k</strong> chars</span>
+    <span class="book-header__progress" id="book-progress">0% read</span>
+  </div>
+  <div class="book-header__actions">
+    <a class="btn" href="/library/">← All books</a>
+    <button type="button" class="btn btn--primary" id="book-resume">Continue typing</button>
+    <button type="button" class="btn btn--ghost" id="book-reset">Reset progress</button>
+  </div>
+</header>
+
+<div class="book-reader" data-book="{{ book.slug }}">
+  <nav class="book-reader__nav" aria-label="Book navigation">
+    <div class="book-reader__nav-row book-reader__nav-row--chapter">
+      <label class="book-reader__chapter-label" for="book-chapter-select">Chapter</label>
+      <select id="book-chapter-select" class="book-reader__chapter-select">
+        {% for ch in book.chapters %}
+        <option value="{{ loop.index0 }}">{{ loop.index }}{% if ch.title %}. {{ ch.title }}{% endif %}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="book-reader__nav-row book-reader__nav-row--page">
+      <span class="book-reader__page" id="book-page-label">Page 1 of 1</span>
+      <div class="book-reader__page-nav">
+        <button type="button" class="btn btn--small" id="book-prev-page" aria-label="Previous page">← Prev</button>
+        <button type="button" class="btn btn--small" id="book-next-page" aria-label="Next page">Next →</button>
+      </div>
+    </div>
+  </nav>
+
+  <article class="book-reader__page-content" id="book-page-content" aria-live="polite"></article>
+
+  <footer class="book-reader__footer">
+    <button type="button" class="btn btn--primary" id="book-type-page">Type this page</button>
+    <span class="muted book-reader__hint">Or click any paragraph above to type just that one.</span>
+  </footer>
+</div>
+
+<script type="module">
+  import { getActive, updateActive } from "/assets/js/profiles.js?v={{ cssVersion }}";
+  import { confirmModal } from "/assets/js/util/modal.js?v={{ cssVersion }}";
+
+  /* Render a public-domain book like TypeLit: chapter dropdown,
+     paginated paragraph view, click-to-type per paragraph, "type this
+     page" sequential CTA. State syncs to URL hash for shareable
+     deep-links and resume. Per-paragraph progress lives on the
+     active profile under bookProgress[slug].typed["ch:pid"]. */
+
+  const BOOK = {{ book | dump | safe }};
+  const slug = BOOK.slug;
+  const PARAS_PER_PAGE = 6;
+
+  const profile = getActive();
+  const prog = (profile.bookProgress || {})[slug] || { typed: {}, lastChapter: 0, lastParagraphId: null };
+
+  const chSel = document.getElementById("book-chapter-select");
+  const pageLabel = document.getElementById("book-page-label");
+  const content = document.getElementById("book-page-content");
+  const prevBtn = document.getElementById("book-prev-page");
+  const nextBtn = document.getElementById("book-next-page");
+  const typeBtn = document.getElementById("book-type-page");
+  const resumeBtn = document.getElementById("book-resume");
+  const resetBtn = document.getElementById("book-reset");
+  const progressEl = document.getElementById("book-progress");
+
+  let chapterIx = 0;
+  let pageIx = 0;
+
+  function pagesIn(ch) {
+    return Math.max(1, Math.ceil(ch.paragraphs.length / PARAS_PER_PAGE));
+  }
+  function paragraphsForPage(chIx, pIx) {
+    const ch = BOOK.chapters[chIx];
+    if (!ch) return [];
+    return ch.paragraphs.slice(pIx * PARAS_PER_PAGE, (pIx + 1) * PARAS_PER_PAGE);
+  }
+  function isTyped(chIx, pid) {
+    return !!(prog.typed && prog.typed[`${chIx}:${pid}`]);
+  }
+  function totalProgress() {
+    const total = BOOK.chapters.reduce((n, c) => n + c.paragraphs.length, 0);
+    const done = Object.keys(prog.typed || {}).length;
+    return total > 0 ? Math.round((done / total) * 100) : 0;
+  }
+
+  function escape(s){return String(s).replace(/[<>&"]/g,(c)=>({"<":"&lt;",">":"&gt;","&":"&amp;","\"":"&quot;"}[c]));}
+
+  function paint() {
+    const ch = BOOK.chapters[chapterIx];
+    if (!ch) return;
+    const pages = pagesIn(ch);
+    if (pageIx >= pages) pageIx = pages - 1;
+    if (pageIx < 0) pageIx = 0;
+    pageLabel.textContent = `Page ${pageIx + 1} of ${pages}`;
+    prevBtn.disabled = (chapterIx === 0 && pageIx === 0);
+    nextBtn.disabled = (chapterIx === BOOK.chapters.length - 1 && pageIx === pages - 1);
+
+    const paras = paragraphsForPage(chapterIx, pageIx);
+    content.innerHTML = `
+      <h2 class="book-reader__chapter-title">${escape(ch.title)}</h2>
+      ${paras.map((p) => `
+        <p class="book-reader__para${isTyped(chapterIx, p.id) ? " is-typed" : ""}"
+           data-pid="${escape(p.id)}"
+           tabindex="0">${escape(p.text)}</p>
+      `).join("")}
+    `;
+    content.querySelectorAll(".book-reader__para").forEach((el) => {
+      el.addEventListener("click", () => goType(el.dataset.pid));
+      el.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); goType(el.dataset.pid); }
+      });
+    });
+    progressEl.textContent = `${totalProgress()}% read`;
+    location.hash = `ch=${chapterIx}&page=${pageIx}`;
+  }
+
+  function goType(pid) {
+    // Single-paragraph navigation (used when a user clicks one
+    // paragraph specifically).
+    window.location.href = `/practice/?book=${encodeURIComponent(slug)}&ch=${chapterIx}&p=${encodeURIComponent(pid)}`;
+  }
+
+  function typePage() {
+    // Whole-page mode: concatenate all paragraphs on the current page
+    // into one typing target. Practice-boot reads ?page=N and joins.
+    window.location.href = `/practice/?book=${encodeURIComponent(slug)}&ch=${chapterIx}&page=${pageIx}`;
+  }
+
+  function nextPage() {
+    const ch = BOOK.chapters[chapterIx];
+    if (pageIx < pagesIn(ch) - 1) { pageIx++; paint(); window.scrollTo({ top: 0, behavior: "smooth" }); return; }
+    if (chapterIx < BOOK.chapters.length - 1) {
+      chapterIx++; pageIx = 0; chSel.value = String(chapterIx);
+      paint(); window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }
+  function prevPage() {
+    if (pageIx > 0) { pageIx--; paint(); window.scrollTo({ top: 0, behavior: "smooth" }); return; }
+    if (chapterIx > 0) {
+      chapterIx--;
+      pageIx = pagesIn(BOOK.chapters[chapterIx]) - 1;
+      chSel.value = String(chapterIx);
+      paint(); window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }
+
+  chSel.addEventListener("change", () => {
+    chapterIx = parseInt(chSel.value, 10) || 0;
+    pageIx = 0;
+    paint();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+  nextBtn.addEventListener("click", nextPage);
+  prevBtn.addEventListener("click", prevPage);
+  typeBtn.addEventListener("click", typePage);
+  resumeBtn.addEventListener("click", () => {
+    // Find the first un-typed paragraph and drop the user straight
+    // into a typing session for that page. If the book is finished,
+    // start a fresh pass from chapter 0 page 0.
+    let targetCh = 0, targetPage = 0;
+    let found = false;
+    for (let c = 0; c < BOOK.chapters.length && !found; c++) {
+      const paras = BOOK.chapters[c].paragraphs;
+      for (let i = 0; i < paras.length; i++) {
+        if (!isTyped(c, paras[i].id)) {
+          targetCh = c;
+          targetPage = Math.floor(i / PARAS_PER_PAGE);
+          found = true;
+          break;
+        }
+      }
+    }
+    window.location.href = `/practice/?book=${encodeURIComponent(slug)}&ch=${targetCh}&page=${targetPage}`;
+  });
+
+  if (resetBtn) {
+    resetBtn.addEventListener("click", async () => {
+      const ok = await confirmModal({
+        title: "Reset book progress?",
+        message: `All typing progress for "${BOOK.title}" will be cleared. This cannot be undone.`,
+        confirmLabel: "Reset progress",
+        danger: true,
+      });
+      if (!ok) return;
+      updateActive((p) => {
+        if (p.bookProgress && p.bookProgress[slug]) {
+          p.bookProgress[slug] = { typed: {}, lastChapter: 0, lastParagraphId: null };
+        }
+        return p;
+      });
+      // Wipe the in-memory copy so the next paint reflects the cleared state.
+      prog.typed = {};
+      prog.lastChapter = 0;
+      prog.lastParagraphId = null;
+      paint();
+    });
+  }
+
+  // Keyboard nav: ← / → flip pages.
+  document.addEventListener("keydown", (e) => {
+    const tag = (e.target && e.target.tagName) || "";
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+    if (e.key === "ArrowLeft") prevPage();
+    if (e.key === "ArrowRight") nextPage();
+  });
+
+  // Initial state from URL hash.
+  function readHash() {
+    const m = location.hash.match(/ch=(\d+).*page=(\d+)/);
+    if (m) { chapterIx = parseInt(m[1], 10) || 0; pageIx = parseInt(m[2], 10) || 0; }
+    else if (prog.lastChapter != null) {
+      chapterIx = prog.lastChapter;
+    }
+    chSel.value = String(chapterIx);
+  }
+  readHash();
+  paint();
+</script>

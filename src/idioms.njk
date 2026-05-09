@@ -1,0 +1,26 @@
+---
+layout: layouts/base.njk
+title: "Idioms"
+description: "Common English idioms — pick one, learn its meaning, type it."
+---
+<header class="page__head">
+  <h1>Idioms</h1>
+  <p class="page__subtitle">Common English idioms with their meanings. Type one to drill the phrase, or save several to your custom texts and type them in sequence.</p>
+</header>
+
+<div class="quotes-toolbar">
+  <input type="search" id="corpus-search" class="quotes-search" placeholder="Search idioms or meanings…" aria-label="Search idioms">
+  <button type="button" id="corpus-random" class="btn btn--small btn--primary">Random idiom →</button>
+</div>
+
+<section class="corpus-list" data-corpus-url="/data/idioms.json" data-corpus-kind="idiom" id="corpus-root">
+  <div id="corpus-list" aria-live="polite"></div>
+</section>
+
+<aside class="corpus-suggest-cta">
+  <div class="corpus-suggest-cta__copy">
+    <h3>Know an idiom we should add?</h3>
+    <p>Send the phrase, its meaning, and the region where it's used.</p>
+  </div>
+  <a class="btn btn--primary" href="/contribute/idiom/?from=idioms">Suggest an idiom →</a>
+</aside>

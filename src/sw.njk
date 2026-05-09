@@ -1,0 +1,101 @@
+---
+permalink: /sw.js
+eleventyExcludeFromCollections: true
+---
+/* Service worker for Guerilla Type. Goals:
+   - Make the practice surface and stats page work offline once
+     visited. localStorage already holds all session data, so the
+     SW just needs to cache the shell (HTML, CSS, JS, fonts) plus
+     a few key JSON files.
+   - Network-first for HTML so users get the latest content when
+     online; falls back to the cache when offline.
+   - Cache-first for static assets (CSS/JS/fonts/images) since they
+     are versioned via ?v=<buildHash> on every link tag.
+   - Never cache form POSTs (Web3Forms submissions). */
+
+const CACHE_VERSION = "{{ cssVersion }}";
+const SHELL_CACHE = "gt-shell-" + CACHE_VERSION;
+const RUNTIME_CACHE = "gt-runtime-" + CACHE_VERSION;
+
+// Pre-cache the bare-minimum offline shell. Everything else is
+// fetched lazily and added to RUNTIME_CACHE on first hit.
+const SHELL_URLS = [
+  "/",
+  "/practice/",
+  "/stats/",
+  "/settings/",
+  "/offline/",
+  "/assets/css/global.css?v=" + CACHE_VERSION,
+  "/assets/js/main.js?v=" + CACHE_VERSION,
+  "/assets/js/tooltips.js?v=" + CACHE_VERSION,
+  "/assets/js/profiles.js?v=" + CACHE_VERSION,
+  "/assets/js/storage.js?v=" + CACHE_VERSION,
+  "/site.webmanifest",
+  "/assets/img/favicon-32.png",
+  "/assets/img/apple-touch-icon.png",
+];
+
+self.addEventListener("install", (event) => {
+  event.waitUntil((async () => {
+    const cache = await caches.open(SHELL_CACHE);
+    // addAll fails if any single URL 404s; use Promise.allSettled
+    // so one missing file doesn't block install.
+    await Promise.allSettled(SHELL_URLS.map((u) => cache.add(u).catch(() => null)));
+    self.skipWaiting();
+  })());
+});
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(
+      keys.filter((k) => k !== SHELL_CACHE && k !== RUNTIME_CACHE).map((k) => caches.delete(k))
+    );
+    await self.clients.claim();
+  })());
+});
+
+self.addEventListener("fetch", (event) => {
+  const req = event.request;
+  // Only handle GET. Anything else (POST to Web3Forms, etc.) goes
+  // straight to the network.
+  if (req.method !== "GET") return;
+  const url = new URL(req.url);
+  // Skip cross-origin (Bunny Fonts, Web3Forms, esm.sh, Tippy CDN, instant.page).
+  if (url.origin !== self.location.origin) return;
+
+  // Network-first for HTML so live content stays fresh online.
+  if (req.mode === "navigate" || (req.headers.get("accept") || "").includes("text/html")) {
+    event.respondWith((async () => {
+      try {
+        const fresh = await fetch(req);
+        const cache = await caches.open(RUNTIME_CACHE);
+        cache.put(req, fresh.clone());
+        return fresh;
+      } catch (err) {
+        const cached = await caches.match(req);
+        if (cached) return cached;
+        // Last resort: the offline placeholder.
+        return caches.match("/offline/") || new Response("Offline", { status: 503 });
+      }
+    })());
+    return;
+  }
+
+  // Cache-first for static assets. The cache-busting query string on
+  // every link means a new build invalidates these naturally.
+  event.respondWith((async () => {
+    const cached = await caches.match(req);
+    if (cached) return cached;
+    try {
+      const fresh = await fetch(req);
+      if (fresh.ok) {
+        const cache = await caches.open(RUNTIME_CACHE);
+        cache.put(req, fresh.clone());
+      }
+      return fresh;
+    } catch {
+      return cached || new Response("", { status: 504 });
+    }
+  })());
+});

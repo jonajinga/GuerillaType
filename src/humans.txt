@@ -1,0 +1,8 @@
+/* TEAM */
+Built by: Pikes Peak Web Designs
+Site: https://pikespeakwebdesigns.com
+
+/* SITE */
+License: MIT
+Standards: HTML5, CSS3, ES2018+, WCAG 2.2 AA
+Stack: Eleventy v3, Nunjucks, vanilla CSS, vanilla JS, Cloudflare Pages

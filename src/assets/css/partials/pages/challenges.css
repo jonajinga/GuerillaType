@@ -1,0 +1,10 @@
+.challenges-grid{display:grid;grid-template-columns:1fr;gap:var(--space-3);margin-top:var(--space-4)}
+@media (min-width:640px){.challenges-grid{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:1024px){.challenges-grid{grid-template-columns:repeat(3,1fr)}}
+.challenge-card{display:flex;flex-direction:column;padding:var(--space-4);background:var(--bg-1);border:1px solid var(--rule);text-decoration:none;color:inherit;gap:var(--space-2)}
+.challenge-card:hover{border-color:var(--accent)}
+.challenge-card__title{font-size:var(--fs-500);font-weight:600}
+.challenge-card__blurb{color:var(--fg-1);flex:1;max-width:none}
+.challenge-card__goal{display:flex;gap:.4rem;flex-wrap:wrap;font-family:var(--font-mono);font-size:var(--fs-200);color:var(--fg-2)}
+.challenge-card__goal span{padding:.1em .4em;border:1px solid var(--rule);background:var(--bg-2)}
+.challenge-card__best{margin-top:auto;padding-top:var(--space-2);border-top:1px solid var(--rule);color:var(--fg-2);font-size:var(--fs-200);font-family:var(--font-mono)}

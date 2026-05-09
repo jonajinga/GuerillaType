@@ -1,0 +1,250 @@
+---
+layout: layouts/article.njk
+title: "Sitemap"
+permalink: /sitemap/
+eyebrow: "Every page on the site"
+lede: "Every public URL, organized by section. Click any heading to collapse or expand. The XML sitemap for crawlers lives at /sitemap.xml. The Atom feed for the blog is at /feed.xml."
+description: "Comprehensive human-readable sitemap of every page on Guerilla Type."
+---
+
+<div class="sitemap-page">
+  <div class="sitemap-page__controls">
+    <button type="button" class="btn btn--small" id="sitemap-expand-all">Expand all</button>
+    <button type="button" class="btn btn--small btn--ghost" id="sitemap-collapse-all">Collapse all</button>
+  </div>
+
+  <details class="sitemap-section" open>
+    <summary><h2>Top of site</h2></summary>
+    <ul>
+      <li><a href="/">Home</a> -- hero, daily quote, what's inside.</li>
+      <li><a href="/practice/">Practice</a> -- the typing surface itself.</li>
+    </ul>
+  </details>
+
+  <details class="sitemap-section" open>
+    <summary><h2>Practice (deep links)</h2></summary>
+    <h3>Time mode</h3>
+    <ul>
+      <li><a href="/practice/?mode=time&duration=15">15-second sprint</a></li>
+      <li><a href="/practice/?mode=time&duration=30">30-second test</a></li>
+      <li><a href="/practice/?mode=time&duration=60">60-second test</a></li>
+      <li><a href="/practice/?mode=time&duration=120">2-minute test</a></li>
+      <li><a href="/practice/?mode=time&duration=300">5-minute test</a></li>
+    </ul>
+    <h3>Words mode</h3>
+    <ul>
+      <li><a href="/practice/?mode=words&words=10">Words: 10</a></li>
+      <li><a href="/practice/?mode=words&words=25">Words: 25</a></li>
+      <li><a href="/practice/?mode=words&words=50">Words: 50</a></li>
+      <li><a href="/practice/?mode=words&words=100">Words: 100</a></li>
+    </ul>
+    <h3>Other modes</h3>
+    <ul>
+      <li><a href="/practice/?mode=quote">Quote mode</a> -- four length buckets.</li>
+      <li><a href="/practice/?mode=quote&quote=daily">Daily quote</a> -- one curated line per day.</li>
+      <li><a href="/practice/?mode=zen">Zen mode</a> -- untimed, endless.</li>
+      <li><a href="/practice/?mode=adaptive">Adaptive mode</a> -- words biased toward your weak keys.</li>
+      <li><a href="/custom/">Custom text</a> -- upload, paste, or save text to type.</li>
+    </ul>
+  </details>
+
+  <details class="sitemap-section" open>
+    <summary><h2>Lessons (full curriculum)</h2></summary>
+    <p><a href="/lessons/">Lessons index</a> -- the full progressive curriculum.</p>
+    <ul>
+      {% for lesson in lessons %}
+      <li><a href="/practice/?lesson={{ lesson.id }}">Lesson {{ lesson.id }}: {{ lesson.title }}</a></li>
+      {% endfor %}
+    </ul>
+  </details>
+
+  <details class="sitemap-section" open>
+    <summary><h2>Drills</h2></summary>
+    <p><a href="/drills/">All drills</a> -- finger-row, key-cluster, and pattern drills.</p>
+    <ul>
+      {% for drill in drills %}
+      <li><a href="/practice/?drill={{ drill.id }}">{{ drill.name }}</a>{% if drill.desc %} -- {{ drill.desc }}{% endif %}</li>
+      {% endfor %}
+    </ul>
+  </details>
+
+  <details class="sitemap-section" open>
+    <summary><h2>Challenges</h2></summary>
+    <p><a href="/challenges/">All challenges</a> -- bests tracked locally.</p>
+    <ul>
+      {% for c in challenges %}
+      <li><a href="/practice/?{% if c.mode == 'time' %}mode=time&duration={{ c.durationSec or 60 }}{% elif c.mode == 'words' %}mode=words&words={{ c.words or 25 }}{% else %}mode={{ c.mode or 'quote' }}{% endif %}&challenge={{ c.id }}">{{ c.name }}</a>{% if c.blurb %} -- {{ c.blurb }}{% endif %}</li>
+      {% endfor %}
+    </ul>
+  </details>
+
+  <details class="sitemap-section" open>
+    <summary><h2>Library</h2></summary>
+    <h3>Corpora</h3>
+    <ul>
+      <li><a href="/quotes/">Quotes</a> -- curated literary quotes, searchable, collection-able.</li>
+      <li><a href="/idioms/">Idioms</a> -- common English idioms with their meanings.</li>
+      <li><a href="/parables/">Parables</a> -- Aesop and short moral stories, public domain.</li>
+      <li><a href="/poetry/">Poetry</a> -- public-domain poems, pre-1929.</li>
+      <li><a href="/library/">Library (books)</a> -- full Project Gutenberg books split by paragraph.</li>
+    </ul>
+    <h3>Books in the library</h3>
+    <ul>
+      {% for book in books %}
+      <li><a href="/library/{{ book.slug }}/">{{ book.title }}</a> by {{ book.author }}{% if book.year %} ({{ book.year }}){% endif %}</li>
+      {% endfor %}
+    </ul>
+    <h3>Word lists</h3>
+    <ul>
+      <li><a href="/wordlists/">All word lists</a> -- browse every list and its size.</li>
+      <li><a href="/wordlists/en-1k/">English 1k</a> -- most common 1,000 words.</li>
+      <li><a href="/wordlists/en-5k/">English 5k</a> -- broader vocabulary.</li>
+      <li><a href="/wordlists/en-10k/">English 10k</a> -- long-tail vocabulary.</li>
+      <li><a href="/wordlists/code-js/">Code: JavaScript</a></li>
+      <li><a href="/wordlists/code-py/">Code: Python</a></li>
+      <li><a href="/wordlists/code-html/">Code: HTML</a></li>
+      <li><a href="/wordlists/punctuation/">Punctuation</a></li>
+      <li><a href="/wordlists/numbers/">Numbers</a></li>
+      <li><a href="/wordlists/scrabble/">Scrabble</a></li>
+    </ul>
+  </details>
+
+  <details class="sitemap-section" open>
+    <summary><h2>Insights</h2></summary>
+    <ul>
+      <li><a href="/stats/">Stats dashboard</a> -- heatmap, trend, daily activity, lifetime totals.</li>
+      <li><a href="/stats/#achievements-grid">Achievements</a> -- every unlockable badge.</li>
+      <li><a href="/stats/#heatmap">Keyboard heatmap</a> -- speed and accuracy by key.</li>
+      <li><a href="/stats/#trend">WPM trend</a> -- last 30 sessions, plotted.</li>
+      <li><a href="/stats/#contribution">Daily activity</a> -- contribution-style grid.</li>
+      <li><a href="/custom/">Custom texts</a> -- manage your saved practice texts.</li>
+      <li><a href="/settings/">Settings</a> -- profiles, theme, layout, JSON export.</li>
+      <li><a href="/guide/">User guide</a> -- complete walkthrough of every feature.</li>
+    </ul>
+  </details>
+
+  <details class="sitemap-section" open>
+    <summary><h2>Contribute</h2></summary>
+    <h3>Suggest content</h3>
+    <ul>
+      <li><a href="/contribute/">Contribute hub</a> -- all eight forms in one place.</li>
+      <li><a href="/contribute/quote/">Suggest a quote</a></li>
+      <li><a href="/contribute/book/">Suggest a book</a></li>
+      <li><a href="/contribute/parable/">Suggest a parable</a></li>
+      <li><a href="/contribute/idiom/">Suggest an idiom</a></li>
+      <li><a href="/contribute/poem/">Suggest a poem</a></li>
+      <li><a href="/contribute/drill/">Suggest a drill</a></li>
+    </ul>
+    <h3>Share feedback</h3>
+    <ul>
+      <li><a href="/contribute/testimonial/">Leave a testimonial</a></li>
+      <li><a href="/contribute/thanks-note/">Send a thanks note</a></li>
+      <li><a href="/reviews/">All reviews</a> -- published testimonials.</li>
+      <li><a href="/thanks-wall/">Thanks wall</a> -- published thanks notes.</li>
+    </ul>
+  </details>
+
+  <details class="sitemap-section" open>
+    <summary><h2>Blog</h2></summary>
+    <p><a href="/blog/">All posts</a> -- index, newest first. <a href="/feed.xml">Atom RSS feed</a>.</p>
+    {% if collections.post and collections.post.length %}
+    <h3>Posts</h3>
+    <ul>
+      {% for post in collections.post | reverse %}
+      <li><a href="{{ post.url }}">{{ post.data.title }}</a> -- {{ post.data.date | readableDate }}</li>
+      {% endfor %}
+    </ul>
+    {% set allTags = [] %}
+    {%- for p in collections.post -%}
+      {%- for t in p.data.tags -%}
+        {%- if t != "post" and allTags.indexOf(t) === -1 -%}
+          {%- set _ = allTags.push(t) -%}
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endfor -%}
+    {% if allTags.length %}
+    <h3>Tags</h3>
+    <ul>
+      {% for t in allTags %}
+      <li><a href="/blog/tag/{{ t | slugify }}/">{{ t }}</a></li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% endif %}
+  </details>
+
+  <details class="sitemap-section" open>
+    <summary><h2>Project</h2></summary>
+    <ul>
+      <li><a href="/about/">About</a> -- what this is and why it exists.</li>
+      <li><a href="/features/">Features</a> -- every feature that ships.</li>
+      <li><a href="/tech-stack/">Tech stack</a> -- how the site is built.</li>
+      <li><a href="/style-guide/">Style guide</a> -- typography, color tokens, components.</li>
+      <li><a href="/changelog/">Changelog</a> -- every shipped change, newest first.</li>
+      <li><a href="/faq/">FAQ</a> -- common questions, answered.</li>
+      <li><a href="/contact/">Contact</a> -- bug reports, feature requests, hello.</li>
+      <li><a href="/cost/">Cost</a> -- what it costs to run.</li>
+      <li><a href="/analytics/">Analytics</a> -- what gets tracked (almost nothing).</li>
+      <li><a href="{{ site.repo }}" target="_blank" rel="noopener">GitHub repo</a> -- source code, MIT licensed.</li>
+    </ul>
+  </details>
+
+  <details class="sitemap-section" open>
+    <summary><h2>Legal</h2></summary>
+    <ul>
+      <li><a href="/privacy/">Privacy</a></li>
+      <li><a href="/terms/">Terms</a></li>
+      <li><a href="/license/">License</a> -- full MIT license text.</li>
+    </ul>
+  </details>
+
+  <details class="sitemap-section" open>
+    <summary><h2>Utility</h2></summary>
+    <ul>
+      <li><a href="/search/">Search</a> -- search every page on the site.</li>
+      <li><a href="/thank-you/">Thank you</a> -- post-form confirmation page.</li>
+      <li><a href="/offline/">Offline page</a> -- shown when the network is down.</li>
+      <li><a href="/sitemap/">Sitemap (this page)</a></li>
+    </ul>
+  </details>
+
+  <details class="sitemap-section">
+    <summary><h2>For machines</h2></summary>
+    <ul>
+      <li><a href="/sitemap.xml">/sitemap.xml</a> -- XML sitemap for search-engine crawlers.</li>
+      <li><a href="/feed.xml">/feed.xml</a> -- Atom RSS feed for the blog.</li>
+      <li><a href="/robots.txt">/robots.txt</a> -- crawler instructions.</li>
+      <li><a href="/site.webmanifest">/site.webmanifest</a> -- PWA manifest.</li>
+      <li><a href="/sw.js">/sw.js</a> -- service worker.</li>
+    </ul>
+    <h3>Data files (JSON, public)</h3>
+    <ul>
+      <li><a href="/data/quotes.json">/data/quotes.json</a> -- quotes catalog.</li>
+      <li><a href="/data/library.json">/data/library.json</a> -- library book index.</li>
+      <li><a href="/data/lessons.json">/data/lessons.json</a> -- lessons curriculum.</li>
+      <li><a href="/data/drills.json">/data/drills.json</a> -- drill definitions.</li>
+      <li><a href="/data/challenges.json">/data/challenges.json</a> -- challenge definitions.</li>
+      <li><a href="/data/idioms.json">/data/idioms.json</a> -- idioms catalog.</li>
+      <li><a href="/data/parables.json">/data/parables.json</a> -- parables catalog.</li>
+      <li><a href="/data/poetry.json">/data/poetry.json</a> -- poetry catalog.</li>
+      <li><a href="/data/words/en-1k.json">/data/words/en-1k.json</a></li>
+      <li><a href="/data/words/en-5k.json">/data/words/en-5k.json</a></li>
+      <li><a href="/data/words/en-10k.json">/data/words/en-10k.json</a></li>
+      <li><a href="/data/words/code-js.json">/data/words/code-js.json</a></li>
+      <li><a href="/data/words/code-py.json">/data/words/code-py.json</a></li>
+      <li><a href="/data/words/code-html.json">/data/words/code-html.json</a></li>
+      <li><a href="/data/words/punctuation.json">/data/words/punctuation.json</a></li>
+      <li><a href="/data/words/numbers.json">/data/words/numbers.json</a></li>
+      <li><a href="/data/words/scrabble.json">/data/words/scrabble.json</a></li>
+    </ul>
+  </details>
+</div>
+
+<script type="module">
+  document.getElementById("sitemap-expand-all").addEventListener("click", () => {
+    document.querySelectorAll(".sitemap-section").forEach((d) => d.open = true);
+  });
+  document.getElementById("sitemap-collapse-all").addEventListener("click", () => {
+    document.querySelectorAll(".sitemap-section").forEach((d) => d.open = false);
+  });
+</script>

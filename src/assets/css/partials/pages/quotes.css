@@ -1,0 +1,444 @@
+/* Quotes browser + collections */
+
+.quotes-toolbar{
+  display:flex;flex-wrap:wrap;gap:var(--space-3);align-items:center;
+  margin-bottom:var(--space-5);
+}
+.quotes-search{
+  flex:1;min-width:240px;
+}
+.quotes-filter{display:inline-flex;background:var(--bg-1);border:1px solid var(--rule);border-radius:var(--radius);padding:.2rem}
+.quotes-filter__btn{
+  padding:.45rem .85rem;font-size:var(--fs-200);color:var(--fg-2);
+  background:transparent;border:0;font-family:var(--font-mono);font-weight:500;
+  text-transform:uppercase;letter-spacing:.06em;cursor:pointer;border-radius:var(--radius-sm);
+}
+.quotes-filter__btn:hover{color:var(--fg-0)}
+.quotes-filter__btn[aria-pressed="true"]{background:var(--bg-3);color:var(--accent)}
+
+.quotes-collections{
+  display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;
+  padding:var(--space-3) var(--space-4);
+  background:color-mix(in oklab, var(--accent) 10%, var(--bg-1));
+  border:1px solid var(--accent);
+  border-radius:var(--radius);
+  margin-bottom:var(--space-5);
+}
+
+.quotes-list{
+  display:grid;grid-template-columns:1fr;gap:var(--space-3);
+}
+@media (min-width:768px){.quotes-list{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:1180px){.quotes-list{grid-template-columns:repeat(3,1fr)}}
+
+.quote-card{
+  display:flex;flex-direction:column;gap:var(--space-3);
+  padding:var(--space-4);background:var(--bg-1);border:1px solid var(--rule);
+  border-radius:var(--radius);
+}
+.quote-card__title{
+  display:block;
+  font-family:var(--font-display);font-weight:600;font-style:italic;
+  font-size:var(--fs-500);color:var(--fg-0);line-height:1.2;
+  margin-bottom:var(--space-2);padding-bottom:var(--space-2);
+  border-bottom:1px solid var(--rule);letter-spacing:-.005em;
+}
+.quote-card__text{
+  font-family:var(--font-display);font-size:var(--fs-400);
+  color:var(--fg-0);line-height:1.5;margin:0;flex:1;font-style:italic;
+  /* Full text always visible — no clamp, no max-height. */
+  display:block;overflow:visible;white-space:pre-wrap;word-break:normal;
+  -webkit-line-clamp:unset;
+}
+
+/* Single-column variant for long-form corpus pages (parables, poetry)
+   where the 3-column grid is too narrow to read full passages. */
+.quotes-list--longform{display:flex;flex-direction:column;gap:var(--space-4);max-width:880px;margin-inline:auto}
+.quotes-list--longform .quote-card{padding:var(--space-5)}
+.quotes-list--longform .quote-card__text{font-size:var(--fs-400);line-height:1.7}
+
+/* ── Quote list (always-full-text, no expansion needed) ──────── */
+.quote-list{
+  list-style:none;padding:0;margin:0;
+  display:flex;flex-direction:column;gap:var(--space-3);
+  max-width:880px;margin-inline:auto;
+}
+.quote-item{
+  display:flex;flex-direction:column;gap:var(--space-3);
+  padding:var(--space-4) var(--space-5);
+  background:var(--bg-1);border:1px solid var(--rule);border-radius:var(--radius);
+  transition:border-color var(--t-fast), background var(--t-fast);
+}
+.quote-item:hover{border-color:var(--accent);background:color-mix(in oklab, var(--accent) 4%, var(--bg-1))}
+.quote-item__text{
+  font-family:var(--font-display);font-style:italic;font-size:var(--fs-500);
+  color:var(--fg-0);line-height:1.5;margin:0;
+  border-left:3px solid var(--accent);padding-left:var(--space-4);
+}
+.quote-item__foot{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:var(--space-3);flex-wrap:wrap;margin:0;
+  padding-top:var(--space-2);border-top:1px solid var(--rule);
+}
+.quote-item__cite{
+  margin:0;font-family:var(--font-display);font-style:italic;
+  color:var(--fg-1);font-size:var(--fs-300);
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:.6em;
+}
+.quote-item__meta{
+  font-family:var(--font-mono);font-size:.7rem;letter-spacing:.06em;
+  color:var(--fg-3);text-transform:uppercase;font-style:normal;
+}
+.quote-item__actions{display:flex;gap:.4rem;flex-shrink:0}
+.quote-item__actions .btn{
+  height:34px;min-height:34px;padding:0 .9rem;
+  font-size:var(--fs-200);min-width:6em;
+}
+
+/* ── Book-page corpus view ──────────────────────────────────────
+   Default view for /quotes/, /idioms/, /parables/, /poetry/. Each
+   item renders in full like a passage on a printed page: serif
+   display, generous line-height, attribution beneath. The Type/Save
+   action row sits at the end of each passage in a small unobtrusive
+   strip. */
+.corpus-book{
+  max-width:62ch;margin:0 auto;
+  font-family:var(--font-display);
+  color:var(--fg-0);font-size:var(--fs-400);line-height:1.65;
+}
+.corpus-book__summary{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:var(--space-3);flex-wrap:wrap;
+  max-width:62ch;margin:0 auto var(--space-4);
+  font-family:var(--font-mono);
+}
+.corpus-book__count{margin:0;font-size:var(--fs-200);letter-spacing:.04em;color:var(--fg-2)}
+.corpus-book__entry{
+  position:relative;
+  padding:var(--space-5) 0;
+  border-bottom:1px solid var(--rule);
+}
+.corpus-book__entry:last-child{border-bottom:0}
+.corpus-book__entry.is-done .corpus-book__title,
+.corpus-book__entry.is-done .corpus-book__phrase,
+.corpus-book__entry.is-done .corpus-book__quote{color:var(--fg-2)}
+.corpus-book__check{
+  position:absolute;top:var(--space-5);right:0;
+  color:var(--good, #5fb878);font-weight:700;font-size:1.1rem;
+}
+
+/* Quote entries -- pull-quote style, centered with attribution. */
+.corpus-book__entry--quote{text-align:center}
+.corpus-book__quote{
+  margin:0 0 .8rem;font-style:italic;
+  font-size:var(--fs-500);line-height:1.55;color:var(--fg-0);
+  quotes:"\201C" "\201D";
+  position:relative;padding:0 .4em;
+}
+.corpus-book__quote::before{content:open-quote;color:var(--accent);margin-right:.1em}
+.corpus-book__quote::after{content:close-quote;color:var(--accent);margin-left:.1em}
+.corpus-book__cite{
+  margin:0 0 var(--space-3);
+  font-family:var(--font-mono);font-size:var(--fs-200);
+  letter-spacing:.06em;color:var(--fg-2);
+  text-transform:uppercase;
+}
+
+/* Idiom entries -- glossary-style: phrase as h3, meaning beneath. */
+.corpus-book__entry--idiom{text-align:left}
+.corpus-book__phrase{
+  margin:0 0 .4rem;font-size:var(--fs-500);font-weight:600;
+  color:var(--fg-0);font-style:italic;
+}
+.corpus-book__meaning{margin:0 0 .4rem;color:var(--fg-1)}
+.corpus-book__origin,
+.corpus-book__example{margin:0 0 .4rem;color:var(--fg-2);font-size:var(--fs-300)}
+.corpus-book__origin em,
+.corpus-book__example em{color:var(--accent);font-style:normal;font-family:var(--font-mono);font-size:.75em;letter-spacing:.06em;text-transform:uppercase;margin-right:.4em}
+
+/* Parable / poem entries -- title + body + optional moral. */
+.corpus-book__entry--parable,
+.corpus-book__entry--poem{text-align:left}
+.corpus-book__title{
+  margin:0 0 .3rem;font-size:var(--fs-500);font-weight:600;
+  color:var(--fg-0);
+}
+.corpus-book__entry--parable .corpus-book__cite,
+.corpus-book__entry--poem .corpus-book__cite{
+  text-align:left;margin-bottom:var(--space-3);
+}
+.corpus-book__body p{margin:0 0 var(--space-3)}
+.corpus-book__body p:last-child{margin-bottom:0}
+.corpus-book__moral{
+  margin:var(--space-3) 0 0;color:var(--fg-2);font-size:var(--fs-300);
+  border-left:2px solid var(--accent);padding-left:.8rem;
+}
+.corpus-book__moral em{color:var(--accent);font-style:normal;font-family:var(--font-mono);font-size:.75em;letter-spacing:.06em;text-transform:uppercase;margin-right:.4em}
+
+.corpus-book__actions{
+  display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;
+  margin-top:var(--space-4);
+}
+.corpus-book__entry--idiom .corpus-book__actions,
+.corpus-book__entry--parable .corpus-book__actions,
+.corpus-book__entry--poem .corpus-book__actions{justify-content:flex-start}
+
+/* The /quotes/ page hosts the book view via .quotes-list--book. */
+.quotes-list--book{display:block;max-width:none}
+.quotes-list--book .corpus-book{margin:0 auto}
+
+/* ── Legacy expandable-table corpus view (data-corpus-view="table") ─
+   Used by /idioms/, /parables/, /poetry/, and /quotes/ via
+   corpus-boot.js. Each row is clickable; expanding reveals the full
+   text inline. */
+.corpus-table__count{
+  margin:0 0 var(--space-3);font-family:var(--font-mono);
+  font-size:var(--fs-200);color:var(--fg-2);letter-spacing:.04em;
+}
+.corpus-table__summary{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:var(--space-3);flex-wrap:wrap;margin:0 0 var(--space-3);
+}
+.corpus-table__summary .corpus-table__count{margin:0}
+.corpus-table__check{
+  display:inline-block;color:var(--good, #2a8); font-weight:700;
+  margin-right:.25em;
+}
+.corpus-table__row.is-done .corpus-table__title{color:var(--fg-2)}
+.quote-card.is-done{position:relative}
+.quote-card__check{
+  position:absolute;top:.6rem;right:.7rem;
+  color:var(--good, #2a8);font-weight:700;font-size:1rem;
+}
+.corpus-table__wrap{
+  border:1px solid var(--rule);border-radius:var(--radius);
+  background:var(--bg-1);overflow:hidden;
+}
+.corpus-table{width:100%;border-collapse:collapse;font-size:var(--fs-300)}
+.corpus-table thead th{
+  padding:.65rem .9rem;text-align:left;
+  font-family:var(--font-mono);font-size:.66rem;
+  text-transform:uppercase;letter-spacing:.12em;
+  color:var(--fg-3);font-weight:500;
+  background:var(--bg-2);border-bottom:1px solid var(--rule);
+}
+.corpus-table th.num, .corpus-table td.num{text-align:right}
+.corpus-table .corpus-table__chevcol{width:2rem;text-align:center}
+.corpus-table .corpus-table__actcol{width:18rem;text-align:right;white-space:nowrap}
+/* Override the legacy `.quotes-list` 3-column grid that was forcing
+   the corpus-table to render in 1/3 of the page. Full-width mode
+   restores normal block flow so the table spans the content area. */
+.quotes-list--full{display:block}
+@media (min-width:768px){.quotes-list--full{grid-template-columns:1fr}}
+@media (min-width:1180px){.quotes-list--full{grid-template-columns:1fr}}
+.quotes-list--full .corpus-table__wrap{max-width:none;width:100%}
+.quotes-list--full .corpus-table{width:100%}
+.quotes-list--full .corpus-table .corpus-table__title{max-width:none;width:auto}
+.quotes-list--full .corpus-table .corpus-table__actcol{width:20rem}
+.quotes-list--full .corpus-table .corpus-table__actcol .btn{
+  height:34px;min-height:34px;padding:0 .85rem;
+  font-size:var(--fs-200);font-weight:500;
+}
+.corpus-table__row{cursor:pointer;transition:background var(--t-fast)}
+.corpus-table__row:hover, .corpus-table__row:focus-visible{background:var(--bg-2);outline:none}
+.corpus-table__row.is-open{background:color-mix(in oklab, var(--accent) 8%, var(--bg-1))}
+.corpus-table__row > td{
+  padding:.7rem .9rem;border-bottom:1px solid var(--rule);
+  vertical-align:middle;
+}
+.corpus-table__chev{
+  display:inline-block;color:var(--fg-3);font-size:.85em;
+  transition:transform var(--t-fast), color var(--t-fast);
+}
+.corpus-table__row.is-open .corpus-table__chev{color:var(--accent)}
+.corpus-table__title{
+  font-family:var(--font-display);font-style:italic;font-weight:500;
+  color:var(--fg-0);font-size:var(--fs-300);
+  max-width:46em;line-height:1.4;
+}
+.corpus-table__second{
+  color:var(--fg-2);font-family:var(--font-mono);font-size:.78rem;
+  letter-spacing:.02em;
+  /* Author/meaning column never truncates — wraps onto a second line
+     for long names rather than hiding them with ellipsis. */
+  word-break:normal;overflow-wrap:break-word;
+}
+.corpus-table__len{font-family:var(--font-mono);font-size:.78rem;color:var(--fg-3)}
+.corpus-table__actcol .btn{
+  /* Equal-size action buttons within the row. */
+  height:32px;min-height:32px;padding:0 .8rem;
+  font-size:var(--fs-200);min-width:5.5em;
+}
+.corpus-table__detail > td{
+  padding:0 var(--space-4) var(--space-4);
+  background:color-mix(in oklab, var(--accent) 5%, var(--bg-1));
+  border-bottom:1px solid var(--rule);
+}
+.corpus-detail{padding:var(--space-3) 0}
+.corpus-detail__title{
+  font-family:var(--font-display);font-size:var(--fs-500);
+  margin:0 0 var(--space-2);font-weight:500;
+}
+.corpus-detail__text{
+  font-family:var(--font-display);font-size:var(--fs-400);
+  color:var(--fg-0);line-height:1.7;margin:0;
+  white-space:pre-wrap;word-break:normal;
+}
+.corpus-detail__meta{
+  font-family:var(--font-mono);font-size:.78rem;
+  color:var(--fg-2);margin:var(--space-3) 0 0;letter-spacing:.04em;
+}
+.corpus-detail__meta strong{color:var(--accent);font-weight:600}
+
+/* On phones / small tablets the corpus-table reflows into a vertical
+   stack of CARDS. Each row is a self-contained card with title on
+   top, byline + length next, and action buttons at the bottom. The
+   underlying markup is still <table>/<tr>/<td> -- we just rebind
+   their display so the grid renders as a column of cards. */
+@media (max-width:768px){
+  .corpus-table,
+  .corpus-table tbody,
+  .corpus-table__row,
+  .corpus-table__detail{display:block;width:100%}
+  .corpus-table thead{display:none}
+
+  .corpus-table__row{
+    background:var(--bg-1);
+    border:1px solid var(--rule);
+    border-radius:var(--radius);
+    padding:.85rem .9rem;
+    margin-bottom:.6rem;
+    box-shadow:0 1px 0 rgba(0,0,0,.04);
+    cursor:pointer;
+  }
+  .corpus-table__row.is-open{
+    border-color:var(--accent);
+    background:color-mix(in oklab, var(--accent) 5%, var(--bg-1));
+  }
+  .corpus-table__row > td{
+    display:block;border:0;padding:0;margin:0;text-align:left;
+  }
+
+  /* Chevron sits in the top-right corner of the card, away from the
+     title content. Absolute positioning relative to the row. */
+  .corpus-table__row{position:relative}
+  .corpus-table__row > td.corpus-table__chevcol{
+    position:absolute;top:.85rem;right:.9rem;
+    width:auto;font-size:.95rem;color:var(--fg-3);
+  }
+
+  .corpus-table__row > td.corpus-table__title{
+    padding-right:1.5rem;
+    font-size:var(--fs-400);line-height:1.4;
+    margin-bottom:.4rem;
+  }
+  .corpus-table__row > td.corpus-table__second{
+    color:var(--fg-2);font-size:.82rem;
+    margin-bottom:.35rem;
+  }
+  .corpus-table__row > td.corpus-table__len{
+    display:inline-block;
+    font-family:var(--font-mono);font-size:.72rem;
+    color:var(--fg-3);letter-spacing:.04em;
+    margin-bottom:.55rem;
+    text-align:left;
+  }
+
+  /* Action area: buttons stay inline at natural width, wrapping to
+     a 2nd line if they don't fit. Aligns with the card's left edge
+     so the visual rhythm reads top-down (title -> meta -> actions). */
+  .corpus-table__row > td.corpus-table__actcol{
+    display:flex;flex-wrap:wrap;justify-content:flex-start;
+    align-items:center;gap:.4rem;
+    padding-top:.35rem;
+    border-top:1px solid var(--rule);
+    margin-top:.2rem;
+  }
+  .corpus-table__row > td.corpus-table__actcol .btn{
+    flex:0 0 auto;width:auto;margin:0;
+    min-height:34px;padding:.3rem .7rem;font-size:.78rem;
+    white-space:nowrap;
+  }
+
+  /* Detail row -- expanded panel sits flush with the card it belongs
+     to. Strip its inherited table padding/background. */
+  .corpus-table__detail{
+    margin-top:-.6rem;margin-bottom:.6rem;
+    border:1px solid var(--accent);border-top:0;
+    border-bottom-left-radius:var(--radius);
+    border-bottom-right-radius:var(--radius);
+    background:color-mix(in oklab, var(--accent) 5%, var(--bg-1));
+  }
+  .corpus-table__detail > td{
+    display:block;padding:.8rem .9rem;border:0;background:transparent;
+  }
+}
+@media (max-width:480px){
+  .corpus-table__wrap{
+    /* Bleed the cards to the page edges on phones to recover the
+       gutter space the wrapper used to absorb. */
+    margin-inline:calc(-1 * var(--gutter));
+    padding-inline:var(--gutter);
+    border-radius:0;
+  }
+  .corpus-table__row{padding:.7rem .8rem;margin-bottom:.5rem}
+  .corpus-table__row > td.corpus-table__title{font-size:var(--fs-300)}
+}
+
+.quote-card__extra{
+  font-size:var(--fs-300);color:var(--fg-1);line-height:1.5;
+  padding:var(--space-3) 0;
+  margin:var(--space-2) 0;
+  border-top:1px solid var(--rule);
+  border-bottom:1px solid var(--rule);
+}
+.quote-card__meaning em{color:var(--accent);font-style:italic;font-weight:600;margin-right:.3em}
+.quote-card__meta{
+  display:flex;justify-content:space-between;gap:var(--space-2);
+  font-family:var(--font-mono);font-size:var(--fs-200);color:var(--fg-2);
+}
+.quote-card__bucket{text-transform:uppercase;letter-spacing:.08em}
+/* Action buttons — equal-width pair so "Type this" and "Save" render
+   at identical dimensions regardless of label length. */
+.quote-card__actions{
+  display:flex;gap:.5rem;margin-top:var(--space-3);
+}
+.quote-card__actions .btn{
+  flex:1 1 0;
+  min-height:38px;height:38px;
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:0 1rem;line-height:1;
+  font-size:var(--fs-200);font-weight:500;
+  box-sizing:border-box;
+}
+
+/* Collections grid */
+.collections-grid{
+  display:grid;grid-template-columns:1fr;gap:var(--space-4);margin-top:var(--space-4);
+}
+@media (min-width:1024px){.collections-grid{grid-template-columns:repeat(2,1fr)}}
+
+.collection{
+  display:flex;flex-direction:column;
+  padding:var(--space-4);background:var(--bg-1);border:1px solid var(--rule);
+  border-radius:var(--radius);
+}
+.collection__head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:var(--space-3);padding-bottom:var(--space-3);border-bottom:1px solid var(--rule)}
+.collection__name{margin:0;font-size:var(--fs-500)}
+.collection__count{font-family:var(--font-mono);font-size:var(--fs-200);color:var(--fg-2)}
+.collection__list{display:flex;flex-direction:column;gap:.2rem;margin:0;padding:0;list-style:none;flex:1}
+.collection__list li{
+  display:flex;align-items:center;gap:.6rem;
+  padding:.5rem .6rem;background:var(--bg-2);border-radius:var(--radius-sm);
+}
+.collection__rank{font-family:var(--font-mono);color:var(--fg-3);font-size:var(--fs-200);min-width:1.4em}
+.collection__text{flex:1;color:var(--fg-1);font-size:var(--fs-200);line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.collection__row-actions{display:flex;gap:.2rem}
+.collection__row-actions button{
+  width:28px;height:28px;border:1px solid var(--rule);background:var(--bg-1);
+  color:var(--fg-2);font-size:.85em;border-radius:var(--radius-sm);
+}
+.collection__row-actions button:hover{color:var(--accent);border-color:var(--accent)}
+.collection__empty{color:var(--fg-3);text-align:center;padding:var(--space-4) 0;background:transparent}
+.collection__actions{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:var(--space-3);padding-top:var(--space-3);border-top:1px solid var(--rule)}
+.btn--disabled{opacity:.4;pointer-events:none;cursor:not-allowed}

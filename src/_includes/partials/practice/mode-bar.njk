@@ -1,0 +1,37 @@
+<div class="mode-bar" role="tablist" aria-label="Practice settings">
+  <fieldset class="mode-bar__field" data-group="mode">
+    <legend class="mode-bar__legend">Mode</legend>
+    <button type="button" class="mode-bar__btn" data-mode="time" aria-pressed="true" data-tip="<strong>Time mode</strong><br>Type as much as you can before the clock runs out. Best for raw wpm benchmarks.">time</button>
+    <button type="button" class="mode-bar__btn" data-mode="words" data-tip="<strong>Words mode</strong><br>Type a fixed count of words. Compare runs side-by-side with no clock pressure.">words</button>
+    <button type="button" class="mode-bar__btn" data-mode="quote" data-tip="<strong>Quote mode</strong><br>Curated literary quotes in four length buckets. Punctuation, capitalization, the works.">quote</button>
+    <button type="button" class="mode-bar__btn" data-mode="zen" data-tip="<strong>Zen mode</strong><br>Untimed, endless. Useful for long warm-ups or just typing for the rhythm. <kbd>Esc</kbd> to stop.">zen</button>
+    <button type="button" class="mode-bar__btn" data-mode="custom" data-tip="<strong>Custom text</strong><br>Type from a file you uploaded or pasted yourself. Manage saved texts on the custom page.">custom</button>
+    <button type="button" class="mode-bar__btn" data-mode="adaptive" data-tip="<strong>Adaptive mode</strong><br>Word picker biased toward your weakest keys and bigrams. Targets where you actually slow down.">adaptive</button>
+  </fieldset>
+
+  <fieldset class="mode-bar__field" data-group="duration" data-show-when-mode="time">
+    <legend class="mode-bar__legend">Duration <span class="mode-bar__unit">sec</span></legend>
+    <button type="button" class="mode-bar__btn" data-duration="15" data-tip="15-second sprint. Good for warm-ups.">15</button>
+    <button type="button" class="mode-bar__btn" data-duration="30" aria-pressed="true" data-tip="30-second test. The classic typing benchmark.">30</button>
+    <button type="button" class="mode-bar__btn" data-duration="60" data-tip="One-minute test. A common benchmark length.">60</button>
+    <button type="button" class="mode-bar__btn" data-duration="120" data-tip="2-minute test. Tests sustained pace.">120</button>
+    <button type="button" class="mode-bar__btn" data-duration="300" data-tip="5-minute test. Endurance.">300</button>
+    <input type="number" class="mode-bar__custom" data-custom="duration" min="5" max="3600" step="5" placeholder="…" aria-label="Custom duration in seconds" data-tip="<strong>Custom duration</strong><br>Type any number of seconds (5-3600). Press Enter to apply.">
+  </fieldset>
+
+  <fieldset class="mode-bar__field" data-group="words" data-show-when-mode="words" hidden>
+    <legend class="mode-bar__legend">Word count</legend>
+    <button type="button" class="mode-bar__btn" data-words="10" data-tip="10 words — quick warm-up.">10</button>
+    <button type="button" class="mode-bar__btn" data-words="25" aria-pressed="true" data-tip="25 words — most common length.">25</button>
+    <button type="button" class="mode-bar__btn" data-words="50" data-tip="50 words — middle distance.">50</button>
+    <button type="button" class="mode-bar__btn" data-words="100" data-tip="100 words — sustained focus.">100</button>
+    <input type="number" class="mode-bar__custom" data-custom="words" min="1" max="2000" step="1" placeholder="…" aria-label="Custom word count" data-tip="<strong>Custom word count</strong><br>Type any number of words (1-2000). Press Enter to apply.">
+  </fieldset>
+
+  <fieldset class="mode-bar__field" data-group="quote" data-show-when-mode="quote" hidden>
+    <legend class="mode-bar__legend">Quote length</legend>
+    <button type="button" class="mode-bar__btn" data-quote="short" data-tip="<strong>Short</strong> — under 80 characters. Aphorisms.">short</button>
+    <button type="button" class="mode-bar__btn" data-quote="medium" aria-pressed="true" data-tip="<strong>Medium</strong> — under 200 characters. The default.">medium</button>
+    <button type="button" class="mode-bar__btn" data-quote="long" data-tip="<strong>Long</strong> — 200+ characters. Paragraph-length quotes.">long</button>
+  </fieldset>
+</div>

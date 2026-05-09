@@ -1,0 +1,29 @@
+---
+layout: layouts/base.njk
+title: "Drills"
+description: "Finger-row drills. Home row, top row, bottom row, vowels — drill the fundamentals."
+---
+<header class="page__head">
+  <h1>Drills</h1>
+  <p class="page__subtitle">Short, repetitive practice on a focused key cluster — home row, top row, bottom row, vowels, individual hands. Pick a drill, type 30–60 seconds, build the muscle memory, move on.</p>
+  <p class="page__hint">Drills are best as warm-ups before a real practice session, or to recover muscle memory in a slump. Each one runs in <a href="/practice/?mode=words&amp;words=20">words mode</a> with the drill's word set.</p>
+</header>
+
+<div class="drills-grid">
+  {% for d in drills %}
+  <a class="drill-card" href="/practice/?mode=words&words=20&drill={{ d.id }}">
+    <span class="drill-card__title">{{ d.name }}</span>
+    <span class="drill-card__keys">{{ d.keys }}</span>
+    {% if d.desc %}<span class="drill-card__desc">{{ d.desc }}</span>{% endif %}
+    <span class="drill-card__count muted">{{ d.words.length }} word set</span>
+  </a>
+  {% endfor %}
+</div>
+
+<aside class="corpus-suggest-cta">
+  <div class="corpus-suggest-cta__copy">
+    <h3>Got a drill idea?</h3>
+    <p>Key clusters, bigrams, finger isolation, symbol packs -- send the words and the rationale.</p>
+  </div>
+  <a class="btn btn--primary" href="/contribute/drill/?from=drills">Suggest a drill →</a>
+</aside>

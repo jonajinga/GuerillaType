@@ -1,0 +1,5 @@
+dialog{padding:0;border:1px solid var(--rule);background:var(--bg-1);color:var(--fg-0);max-width:min(640px,92vw);width:100%}
+dialog::backdrop{background:rgba(0,0,0,.7)}
+.dialog__head{display:flex;align-items:center;justify-content:space-between;padding:var(--space-4);border-bottom:1px solid var(--rule)}
+.dialog__body{padding:var(--space-4)}
+.dialog__close{width:36px;height:36px;font-size:1.4rem;line-height:1}

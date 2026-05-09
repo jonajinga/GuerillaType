@@ -1,0 +1,163 @@
+.site-footer{border-top:1px solid var(--rule);background:var(--bg-1);color:var(--fg-1);margin-top:var(--space-10)}
+.site-footer__masthead{max-width:var(--max-width);margin-inline:auto;padding:var(--space-7) var(--gutter) var(--space-4);border-bottom:1px solid var(--rule);text-align:center}
+/* Footer brand stacks: mark above name. The mark is 50% bigger than
+   the header mark to anchor the foot of the page; on its own line so
+   the wordmark beneath reads as the brand title. */
+.site-footer__brand{
+  display:inline-flex;flex-direction:column;align-items:center;
+  gap:var(--space-2);margin-bottom:var(--space-3);
+}
+.site-footer__brand-mark{
+  display:inline-block;width:75px;height:75px;
+  object-fit:contain;
+}
+.site-footer__brand-name{font-family:var(--font-display);font-weight:600;font-size:var(--fs-500);color:var(--fg-0)}
+.site-footer__brand-name em{font-style:italic;color:var(--accent);font-weight:500;margin-left:.1em}
+.site-footer__tagline{font-family:var(--font-display);font-style:italic;font-size:var(--fs-400);color:var(--fg-1);max-width:38ch;margin-inline:auto;margin-bottom:var(--space-4)}
+
+/* Social pill row -- GitHub, RSS, Email, Contribute. Sits beneath the
+   tagline as a small inline cluster; pills get an icon + label,
+   styled like compact chips. */
+.site-footer__social{
+  display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem;
+  margin:0 auto;
+}
+.site-footer__social-pill{
+  display:inline-flex;align-items:center;gap:.45rem;
+  padding:.45rem .85rem;
+  font-family:var(--font-mono);font-size:.78rem;letter-spacing:.04em;
+  color:var(--fg-1);text-decoration:none;
+  background:var(--bg-2);
+  border:1px solid var(--rule);border-radius:var(--radius-pill);
+  transition:color var(--t-fast), border-color var(--t-fast), background var(--t-fast), transform var(--t-fast);
+}
+.site-footer__social-pill:hover{
+  color:var(--accent);border-color:var(--accent);
+  background:color-mix(in oklab, var(--accent) 8%, var(--bg-2));
+  transform:translateY(-1px);
+}
+.site-footer__social-pill svg{flex:0 0 auto;display:block}
+
+/* Footer columns. Mobile stacks; tablet shows 2-up; small desktop
+   4-up; wide desktop fits all 7 columns on a single row (5 megamenu
+   sections + Contribute + Project). Container widens past --max-width
+   on the largest band so seven columns fit without crowding. */
+.site-footer__inner{max-width:var(--max-width);margin-inline:auto;padding:var(--space-6) var(--gutter);display:grid;gap:var(--space-4);grid-template-columns:1fr}
+@media (min-width:640px){.site-footer__inner{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:1024px){.site-footer__inner{grid-template-columns:repeat(4,1fr)}}
+/* 8 columns at wide desktop -- 6 megamenu sections + Project +
+   Resources. Container widens past --max-width on the largest band
+   so eight columns fit without crowding each label. */
+@media (min-width:1180px){.site-footer__inner{max-width:min(96vw, 1640px);grid-template-columns:repeat(8,1fr);gap:var(--space-3)}}
+.site-footer__col h2{font-family:var(--font-mono);font-size:var(--fs-200);margin-bottom:var(--space-3);color:var(--fg-2);text-transform:uppercase;letter-spacing:.16em;font-weight:500;padding-bottom:.4rem;border-bottom:1px solid var(--rule)}
+.site-footer__col ul{display:flex;flex-direction:column;gap:.4rem}
+.site-footer__col a{color:var(--fg-1);text-decoration:none;font-size:var(--fs-300)}
+.site-footer__col a:hover{color:var(--accent)}
+@media (min-width:1180px){.site-footer__col h2{font-size:.6rem;letter-spacing:.12em}.site-footer__col a{font-size:.85rem}}
+
+/* (Pull-quote moved into the .site-footer__shelf block below.) */
+
+/* Bottom bar -- minimal credit line + contact pill. The repetitive
+   meta-link strip (Sitemap, RSS, Changelog, etc.) was removed in
+   favor of those links living once in the Resources column above
+   plus the social pills in the masthead. */
+.site-footer__bottom{
+  max-width:var(--max-width);margin-inline:auto;
+  padding:var(--space-4) var(--gutter);border-top:1px solid var(--rule);
+  color:var(--fg-2);font-size:var(--fs-200);
+  display:flex;justify-content:space-between;align-items:center;
+  gap:var(--space-3);flex-wrap:wrap;
+}
+.site-footer__bottom a{color:var(--fg-1)}
+.site-footer__bottom a:hover{color:var(--accent)}
+.site-footer__copy{flex:1;min-width:0;line-height:1.6}
+.site-footer__copy a{color:var(--accent);text-decoration:none;border-bottom:1px dotted color-mix(in oklab, var(--accent) 40%, transparent)}
+.site-footer__copy a:hover{border-bottom-color:var(--accent)}
+
+.site-footer__contact{
+  display:inline-flex;align-items:center;gap:.4rem;
+  padding:.35rem .7rem;
+  font-family:var(--font-mono);font-size:.78rem;letter-spacing:.04em;
+  color:var(--fg-1) !important;text-decoration:none;
+  background:var(--bg-2);
+  border:1px solid var(--rule);border-radius:var(--radius-pill);
+  transition:color var(--t-fast), border-color var(--t-fast);
+}
+.site-footer__contact:hover{
+  color:var(--accent) !important;border-color:var(--accent);
+}
+
+/* "Shelf" -- a horizontal band between the columns and the bottom
+   bar. Holds the Ingersoll quote on the left + a row of project
+   "badges" on the right (license, source, hosting, last update,
+   privacy stance, cost). Stacks below 1024px. */
+.site-footer__shelf{
+  max-width:min(96vw, 1640px);margin-inline:auto;
+  padding:var(--space-5) var(--gutter) var(--space-4);
+  border-top:1px solid var(--rule);
+  display:grid;grid-template-columns:1fr;gap:var(--space-4) var(--space-6);
+  align-items:center;
+}
+@media (min-width:1024px){
+  .site-footer__shelf{grid-template-columns:1.4fr 1fr;gap:var(--space-5)}
+}
+
+/* Pull-quote inside the shelf -- centered on phones, left-aligned on
+   desktop. Reuses --quote tokens so theme presets carry through. */
+.site-footer__quote{
+  margin:0;padding:0;border:0;
+  display:flex;flex-direction:column;align-items:center;
+  text-align:center;
+  max-width:62ch;
+}
+@media (min-width:1024px){
+  .site-footer__quote{align-items:flex-start;text-align:left}
+}
+.site-footer__quote-text{
+  margin:0 0 var(--space-2);
+  font-family:var(--font-display);font-style:italic;
+  font-size:var(--fs-400);line-height:1.5;color:var(--fg-1);
+}
+.site-footer__quote-cite{
+  margin:0;font-family:var(--font-mono);font-style:normal;
+  font-size:var(--fs-200);letter-spacing:.06em;color:var(--fg-3);
+}
+.site-footer__quote-cite a{color:var(--accent);text-decoration:none;border-bottom:1px dotted color-mix(in oklab, var(--accent) 40%, transparent)}
+.site-footer__quote-cite a:hover{border-bottom-color:var(--accent)}
+
+/* Project badges -- compact 2-column grid on phones, 3-column on
+   wider; each badge is a chip with a uppercase mono label + an
+   accent-colored value. Reads as a project status board. */
+.site-footer__badges{
+  list-style:none;margin:0;padding:0;
+  display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:.4rem .6rem;
+}
+@media (min-width:480px){
+  .site-footer__badges{grid-template-columns:repeat(3, minmax(0, 1fr))}
+}
+@media (min-width:1024px){
+  .site-footer__badges{grid-template-columns:repeat(3, minmax(0, 1fr));max-width:30rem}
+}
+.site-footer__badge{
+  display:flex;flex-direction:column;align-items:flex-start;
+  padding:.5rem .65rem;
+  background:var(--bg-2);
+  border:1px solid var(--rule);border-radius:var(--radius);
+  font-size:var(--fs-200);
+}
+.site-footer__badge-label{
+  font-family:var(--font-mono);font-size:.62rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--fg-3);font-weight:500;
+  margin-bottom:.15rem;
+}
+.site-footer__badge-value{
+  font-family:var(--font-mono);font-size:.78rem;letter-spacing:.04em;
+  color:var(--accent);text-decoration:none;font-weight:500;
+}
+a.site-footer__badge-value:hover{
+  text-decoration:underline;text-underline-offset:2px;
+}
+
+.back-to-top{position:fixed;right:var(--space-4);bottom:var(--space-4);width:44px;height:44px;background:var(--bg-2);border:1px solid var(--rule);color:var(--fg-0);z-index:60;font-size:1.2rem;border-radius:var(--radius)}
+.back-to-top:hover{border-color:var(--accent);color:var(--accent)}

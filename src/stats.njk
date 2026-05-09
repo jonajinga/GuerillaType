@@ -1,0 +1,156 @@
+---
+layout: layouts/base.njk
+title: "Stats"
+description: "Lifetime totals, WPM trend, daily contribution grid, keyboard heatmap, per-key timing."
+---
+<div class="toc-host" data-toc-root>
+{% include "partials/page-toc.njk" %}
+<header class="page__head">
+  <h1>Stats</h1>
+  <p class="page__subtitle" id="stats-summary">Loading your data…</p>
+  <div class="page__head-actions">
+    <button type="button" class="btn btn--small" id="stats-print" onclick="window.print()" data-tip="Print or save as PDF — full report with cover page and page numbers.">
+      <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:.4em">
+        <polyline points="6 9 6 2 18 2 18 9"/>
+        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+        <rect x="6" y="14" width="12" height="8"/>
+      </svg>
+      Print stats
+    </button>
+  </div>
+</header>
+
+{# Print-only cover page. Hidden in normal layout via .print-only;
+   shown by the @media print rule in print.css. The cover renders
+   first, with a forced page-break-after so subsequent stats sections
+   start on page 2. #}
+<section class="stats-print-cover print-only" aria-hidden="true">
+  <img class="stats-print-cover__mark" src="/assets/img/icon-192.png" alt="" width="120" height="120">
+  <h1 class="stats-print-cover__brand">{{ site.title }}</h1>
+  <p class="stats-print-cover__tagline">{{ site.description }}</p>
+  <hr class="stats-print-cover__rule">
+  <p class="stats-print-cover__report-eyebrow">Report</p>
+  <h2 class="stats-print-cover__report-title">Typing statistics</h2>
+  <p class="stats-print-cover__date" id="stats-print-date"></p>
+  <p class="stats-print-cover__profile" id="stats-print-profile"></p>
+  <p class="stats-print-cover__url">{{ site.url }}</p>
+</section>
+
+<div class="stats-grid" id="stats-tiles">
+  <div class="stats-tile"><span class="stats-tile__label">Sessions</span><span class="stats-tile__value" data-tile="sessions">0</span></div>
+  <div class="stats-tile"><span class="stats-tile__label">Best wpm</span><span class="stats-tile__value" data-tile="bestWpm">0</span></div>
+  <div class="stats-tile"><span class="stats-tile__label">Best acc</span><span class="stats-tile__value" data-tile="bestAcc">0%</span></div>
+  <div class="stats-tile"><span class="stats-tile__label">Streak</span><span class="stats-tile__value" data-tile="streak">0d</span></div>
+</div>
+
+<section class="stats-section">
+  <div class="stats-section__title">
+    <h2>Daily activity</h2>
+    <span class="contrib-toggle" role="tablist" aria-label="View">
+      <button type="button" class="contrib-toggle__btn" data-view="year" aria-pressed="true">Year</button>
+      <button type="button" class="contrib-toggle__btn" data-view="month" aria-pressed="false">Month</button>
+      <button type="button" class="contrib-toggle__btn" data-view="week" aria-pressed="false">Week</button>
+    </span>
+  </div>
+  <div class="contrib"><svg id="contrib-svg" class="contrib__svg" aria-label="Daily activity grid"></svg></div>
+  <p class="muted" id="contrib-summary" style="margin-top:.5rem"></p>
+  <div id="contrib-detail" class="contrib-detail" hidden>
+    <div class="contrib-detail__head">
+      <h3 class="contrib-detail__title" id="contrib-detail-title"></h3>
+      <button type="button" class="btn btn--small" id="contrib-detail-close">Close</button>
+    </div>
+    <svg id="contrib-day-svg" class="contrib__svg" aria-label="Hourly breakdown"></svg>
+    <ul class="contrib-detail__sessions" id="contrib-detail-sessions"></ul>
+  </div>
+</section>
+
+<section class="stats-section">
+  <div class="stats-section__title"><h2>WPM trend (last 30 sessions)</h2></div>
+  <div class="chart"><svg id="trend-svg" class="chart__svg" aria-label="WPM trend over recent sessions"></svg></div>
+</section>
+
+<section class="stats-section">
+  <div class="stats-section__title">
+    <h2>Keyboard heatmap</h2>
+    <span class="kb-toggle" role="tablist" aria-label="Heatmap metric">
+      <button class="kb-toggle__btn" data-metric="errorRate" aria-pressed="true" title="Color by error rate">errors</button>
+      <button class="kb-toggle__btn" data-metric="avgMs" aria-pressed="false" title="Color by avg key-down time">speed</button>
+    </span>
+  </div>
+  <p class="kb-help muted">Green keys are clean. Red keys are slow or error-prone. Gray keys don't have enough samples yet — type more sessions to fill the map.</p>
+  <div class="kb"><svg id="kb-svg" aria-label="Keyboard heatmap"></svg></div>
+  <div class="kb-footer">
+    <div class="kb-legend"><span class="kb-legend__lbl">good</span><span class="kb-legend__bar"></span><span class="kb-legend__lbl">poor</span></div>
+    <p class="kb-summary muted" id="kb-summary"></p>
+  </div>
+</section>
+
+<section class="stats-section">
+  <div class="stats-section__title"><h2>Slowest keys</h2></div>
+  <div class="chart"><svg id="perkey-svg" class="chart__svg" aria-label="Per-key average time"></svg></div>
+</section>
+
+<section class="stats-section">
+  <div class="stats-section__title">
+    <h2>Keys at a glance</h2>
+    <span class="muted">Hover any letter for last speed, top speed, samples, and learning status.</span>
+  </div>
+  <div id="key-strip-host"></div>
+</section>
+
+<section class="stats-section">
+  <div class="stats-section__title">
+    <h2>Per-finger errors</h2>
+    <span class="muted">Error rate vs. average key time, per finger.</span>
+  </div>
+  <p class="stats-section__lede" id="perfinger-summary"></p>
+  <div class="chart"><svg id="perfinger-svg" class="chart__svg" aria-label="Per-finger error rate and average key time"></svg></div>
+</section>
+
+<section class="stats-section">
+  <div class="stats-section__title">
+    <h2>Character report</h2>
+    <span class="muted">Sortable per-character breakdown. Click a column header to sort.</span>
+  </div>
+  <div id="char-table-host"></div>
+</section>
+
+<section class="stats-section">
+  <div class="stats-section__title">
+    <h2>Lesson trends</h2>
+    <span class="muted">WPM across attempts, one line per lesson you've practiced.</span>
+  </div>
+  <div class="chart"><svg id="lesson-trends-svg" class="chart__svg" aria-label="WPM trend per lesson"></svg></div>
+</section>
+
+<section class="stats-section" id="missed-words-section">
+  <div class="stats-section__title">
+    <h2>Missed words</h2>
+    <div class="stats-section__actions">
+      <span class="muted" id="missed-words-summary"></span>
+      <a class="btn btn--small btn--primary" href="/practice/?mode=words&words=25&lang=missed" data-tip="Practice the words you mistype most -- weighted toward your worst offenders.">Practice these</a>
+      <button type="button" class="btn btn--small btn--ghost" id="missed-words-reset" data-tip="Clear your missed-words history. Starts fresh on the next session.">Reset</button>
+    </div>
+  </div>
+  <p class="muted" style="max-width:62ch">Words you've typed wrong in recent sessions, weighted by miss count and recency. The "My missed words" wordlist samples from this.</p>
+  <ol class="missed-words" id="missed-words-list"></ol>
+</section>
+
+<section class="stats-section">
+  <div class="stats-section__title">
+    <h2>Achievements</h2>
+    <span id="achievements-count" class="muted"></span>
+  </div>
+  <div id="achievements-grid" class="achievements-grid"></div>
+</section>
+
+<section class="stats-section">
+  <div class="stats-section__title"><h2>Personal bests by mode</h2></div>
+  <div id="mode-bests" class="mode-bests"></div>
+</section>
+
+<section class="stats-section">
+  <div class="stats-section__title"><h2>Recent sessions</h2></div>
+  <div id="sessions-list" class="stats-empty">No sessions yet — go type something.</div>
+</section>
+</div>

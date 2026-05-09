@@ -1,0 +1,137 @@
+{# World-class footer composition:
+   1. MASTHEAD     -- brand mark, name, tagline, social pills
+   2. NAV COLUMNS  -- 6 megamenu sections + Project + Resources
+   3. SHELF        -- pull-quote + a small "made with" badge row
+   4. BOTTOM BAR   -- copyright + meta utility links
+
+   Project + Resources columns intentionally bypass the cross-column
+   URL dedupe so they always have rich content even when the megamenu
+   already surfaces some of those pages. #}
+<footer class="site-footer" role="contentinfo">
+  <div class="site-footer__masthead">
+    <div class="site-footer__brand">
+      <img class="site-footer__brand-mark" src="/assets/img/icon-192.png" alt="" width="75" height="75" loading="lazy" decoding="async" data-brand-mark data-brand-emoji>
+      <span class="site-footer__brand-name" data-brand-greeting>Guerilla<em>Type</em></span>
+    </div>
+    <p class="site-footer__tagline">A free, open-source typing tutor for everyone. No accounts. No tracking. Type better, every day.</p>
+    <div class="site-footer__social" role="group" aria-label="Follow + connect">
+      <a class="site-footer__social-pill" href="{{ site.repo }}" target="_blank" rel="noopener" data-tip="Source code, MIT licensed">
+        <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.7-1.4-1.7-1.1-.7.1-.7.1-.7 1.2 0 1.9 1.2 1.9 1.2 1.1 1.9 2.9 1.4 3.6 1 .1-.8.4-1.4.8-1.7-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.3 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.7.2 2.9.1 3.2.8.9 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+        <span>GitHub</span>
+      </a>
+      <a class="site-footer__social-pill" href="/feed.xml" data-tip="Subscribe to the blog via RSS">
+        <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M5 21a3 3 0 1 1 0-6 3 3 0 0 1 0 6Zm-1.5-13a13.5 13.5 0 0 1 13.5 13.5h-3A10.5 10.5 0 0 0 3.5 11Zm0-6A19.5 19.5 0 0 1 23 24.5h-3A16.5 16.5 0 0 0 3.5 8Z"/></svg>
+        <span>RSS</span>
+      </a>
+      <a class="site-footer__social-pill" href="mailto:{{ site.email }}" data-tip="Bug, suggestion, or hello">
+        <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 6 10 8 10-8"/></svg>
+        <span>Email</span>
+      </a>
+      <a class="site-footer__social-pill" href="/contribute/" data-tip="Suggest a quote, book, drill, idiom, parable, poem">
+        <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10Z"/></svg>
+        <span>Contribute</span>
+      </a>
+    </div>
+  </div>
+
+  {# Track URLs across megamenu columns so each link appears once
+     within the megamenu set. Project and Resources columns at the
+     end intentionally skip the dedupe -- their job is to be a
+     comprehensive index of project-meta pages. #}
+  {% set seenUrls = [] %}
+  <div class="site-footer__inner">
+    {% for item in megamenu %}
+    <div class="site-footer__col">
+      <h2>{{ item.label }}</h2>
+      <ul>
+        {% for group in item.groups %}{% for sub in group.items %}
+        {%- if seenUrls.indexOf(sub.url) === -1 -%}
+        <li><a href="{{ sub.url }}"{% if sub.url and sub.url.startsWith and sub.url.startsWith("http") %} target="_blank" rel="noopener"{% endif %}>{{ sub.label }}</a></li>
+        {%- set _ = seenUrls.push(sub.url) -%}
+        {%- endif -%}
+        {% endfor %}{% endfor %}
+      </ul>
+    </div>
+    {% endfor %}
+
+    {# Project column -- everything ABOUT the site itself: who built
+       it, what's inside, how to plug into it. Doesn't dedupe so the
+       column always reads as a full directory of meta pages. #}
+    <div class="site-footer__col">
+      <h2>Project</h2>
+      <ul>
+        <li><a href="/about/">About</a></li>
+        <li><a href="/features/">Features</a></li>
+        <li><a href="/changelog/">Changelog</a></li>
+        <li><a href="/blog/">Blog</a></li>
+        <li><a href="/faq/">FAQ</a></li>
+        <li><a href="/contact/">Contact</a></li>
+        <li><a href="/cost/">Cost to run</a></li>
+        <li><a href="/analytics/">Analytics</a></li>
+        <li><a href="/tech-stack/">Tech stack</a></li>
+        <li><a href="/style-guide/">Style guide</a></li>
+      </ul>
+    </div>
+
+    {# Resources column -- everything OUTSIDE the site that supports
+       it: source code, support channels, legal. #}
+    <div class="site-footer__col">
+      <h2>Resources</h2>
+      <ul>
+        <li><a href="{{ site.repo }}" target="_blank" rel="noopener">GitHub repo</a></li>
+        <li><a href="{{ site.repo }}/issues" target="_blank" rel="noopener">Report a bug</a></li>
+        <li><a href="{{ site.repo }}/discussions" target="_blank" rel="noopener">Discussions</a></li>
+        <li><a href="/feed.xml">RSS feed</a></li>
+        <li><a href="/sitemap.xml">XML sitemap</a></li>
+        <li><a href="/sitemap/">Site index</a></li>
+        <li><a href="/license/">MIT License</a></li>
+        <li><a href="/privacy/">Privacy policy</a></li>
+        <li><a href="/terms/">Terms of use</a></li>
+        <li><a href="/search/">Search the site</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="site-footer__shelf">
+    <blockquote class="site-footer__quote">
+      <p class="site-footer__quote-text">"Happiness is the only good. The time to be happy is now. The place to be happy is here. The way to be happy is to make others so."</p>
+      <footer class="site-footer__quote-cite">— <a href="https://thegreatagnostic.com" target="_blank" rel="noopener">Robert G. Ingersoll</a></footer>
+    </blockquote>
+    <ul class="site-footer__badges" aria-label="Project status">
+      <li class="site-footer__badge">
+        <span class="site-footer__badge-label">License</span>
+        <a class="site-footer__badge-value" href="/license/">MIT</a>
+      </li>
+      <li class="site-footer__badge">
+        <span class="site-footer__badge-label">Source</span>
+        <a class="site-footer__badge-value" href="{{ site.repo }}" target="_blank" rel="noopener">github</a>
+      </li>
+      <li class="site-footer__badge">
+        <span class="site-footer__badge-label">Hosting</span>
+        <span class="site-footer__badge-value">cloudflare</span>
+      </li>
+      <li class="site-footer__badge">
+        <span class="site-footer__badge-label">Last update</span>
+        <time class="site-footer__badge-value" datetime="{{ buildDate }}">{{ buildDate }}</time>
+      </li>
+      <li class="site-footer__badge">
+        <span class="site-footer__badge-label">Privacy</span>
+        <span class="site-footer__badge-value">no tracking</span>
+      </li>
+      <li class="site-footer__badge">
+        <span class="site-footer__badge-label">Cost</span>
+        <span class="site-footer__badge-value">$0 / month</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="site-footer__bottom">
+    <small class="site-footer__copy">
+      © {% currentYear %} {{ site.title }} · Built by <a href="https://jonajinga.com" target="_blank" rel="noopener">Jon Ajinga</a> · Design by <a href="https://pikespeakwebdesigns.com" target="_blank" rel="noopener">Pikes Peak Web Designs</a>
+    </small>
+    <a class="site-footer__contact" href="mailto:{{ site.email }}" data-tip="Bug, suggestion, or hello">
+      <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 6 10 8 10-8"/></svg>
+      {{ site.email }}
+    </a>
+  </div>
+</footer>

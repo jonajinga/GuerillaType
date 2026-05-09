@@ -1,0 +1,39 @@
+/* Breadcrumbs bar — a thin full-bleed band sitting flush under the
+   site header. Mono small caps, pipe separators, low visual weight. */
+
+.breadcrumbs{
+  width:100%;
+  background:color-mix(in oklab, var(--bg-1) 70%, transparent);
+  backdrop-filter:saturate(140%) blur(8px);
+  -webkit-backdrop-filter:saturate(140%) blur(8px);
+  border-bottom:1px solid var(--rule);
+  margin:0;
+}
+.breadcrumbs__list{
+  max-width:var(--max-width);margin-inline:auto;
+  padding:.55rem var(--gutter);
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:center;
+  gap:.55rem;list-style:none;
+  font-family:var(--font-mono);
+  font-size:.72rem;
+  letter-spacing:.14em;line-height:1;
+  color:var(--fg-2);
+  text-transform:uppercase;
+}
+.breadcrumbs__item{display:inline-flex;align-items:center;line-height:1}
+.breadcrumbs__link{
+  color:var(--fg-2);text-decoration:none;
+  border-bottom:1px solid transparent;line-height:1;
+  transition:color var(--t-fast), border-color var(--t-fast);
+}
+.breadcrumbs__link:hover{color:var(--fg-0);border-bottom-color:var(--accent)}
+.breadcrumbs__sep{
+  color:var(--fg-3);user-select:none;
+  font-family:var(--font-mono);font-size:1em;line-height:1;
+  font-weight:300;
+}
+.breadcrumbs__item--current{color:var(--fg-0);font-weight:600;line-height:1}
+
+@media (max-width:480px){
+  .breadcrumbs__list{font-size:.66rem;padding:.5rem var(--gutter);gap:.4rem}
+}

@@ -1,0 +1,33 @@
+---
+layout: layouts/base.njk
+title: "Thanks wall"
+description: "A small wall of kindness from typists who took the time to send a thanks note."
+permalink: /thanks-wall/
+---
+
+<div class="article-body" style="max-width:920px;margin:var(--space-5) auto;padding:0 var(--space-4)">
+  <header class="page__head">
+    <p class="eyebrow">Community</p>
+    <h1>Thanks wall</h1>
+    <p class="article-lede">Short notes of appreciation from people who took the time to send one. Each one made the project a little brighter. <a href="/contribute/thanks-note/">Add yours →</a></p>
+  </header>
+
+  {% if thanks_notes.length > 0 %}
+  <div class="thanks-wall">
+    {% for n in thanks_notes %}
+    <article class="thanks-card">
+      <p>{{ n.body }}</p>
+      <p class="thanks-card__byline">
+        -- <strong>{{ n.name or "Anonymous" }}</strong>
+        {% if n.date %} · <span>{{ n.date | readableDate }}</span>{% endif %}
+      </p>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="stats-empty" style="padding:var(--space-6);text-align:center">
+    <p>No notes on the wall yet -- but the first one could be yours.</p>
+    <p style="margin-top:var(--space-3)"><a class="btn btn--primary" href="/contribute/thanks-note/">Send a thanks note →</a></p>
+  </div>
+  {% endif %}
+</div>

@@ -1,0 +1,31 @@
+---
+permalink: /site.webmanifest
+eleventyExcludeFromCollections: true
+---
+{
+  "name": "{{ site.title }}",
+  "short_name": "{{ site.shortTitle }}",
+  "description": "{{ site.description }}",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "lang": "{{ site.language }}",
+  "categories": ["education", "productivity", "utilities"],
+  "background_color": "{{ site.themeColor }}",
+  "theme_color": "{{ site.themeColor }}",
+  "icons": [
+    { "src": "/assets/img/favicon-32.png",       "sizes": "32x32",   "type": "image/png" },
+    { "src": "/assets/img/favicon-48.png",       "sizes": "48x48",   "type": "image/png" },
+    { "src": "/assets/img/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/assets/img/icon-192.png",         "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/assets/img/icon-256.png",         "sizes": "256x256", "type": "image/png" },
+    { "src": "/assets/img/icon-512.png",         "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Today's quote", "short_name": "Quote", "url": "/practice/?mode=quote&quote=daily" },
+    { "name": "30-second test", "short_name": "30s", "url": "/practice/?mode=time&duration=30" },
+    { "name": "Adaptive practice", "short_name": "Adaptive", "url": "/practice/?mode=adaptive" },
+    { "name": "Stats", "short_name": "Stats", "url": "/stats/" }
+  ]
+}

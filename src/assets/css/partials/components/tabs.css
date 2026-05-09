@@ -1,0 +1,46 @@
+.tabs{display:flex;flex-wrap:wrap;gap:.25rem;background:var(--bg-1);border:1px solid var(--rule);padding:.25rem;width:max-content;max-width:100%}
+.tabs__btn{display:inline-flex;align-items:center;justify-content:center;padding:.45rem .85rem;font-size:var(--fs-200);color:var(--fg-2);background:transparent;border:0;cursor:pointer;min-height:36px;font-weight:500}
+.tabs__btn:hover{color:var(--fg-0)}
+.tabs__btn[aria-pressed="true"],.tabs__btn[aria-current="true"]{background:var(--bg-3);color:var(--accent)}
+.tabs--inline{display:inline-flex}
+
+/* ── Mode bar ─────────────────────────────────────────────────
+   Each group is a fieldset with a legend label so the purpose is
+   visible without hover. Buttons render as a connected segmented
+   control. */
+.mode-bar{display:flex;flex-wrap:wrap;gap:var(--space-4);align-items:flex-start;justify-content:center;color:var(--fg-2)}
+
+.mode-bar__field{
+  display:flex;flex-wrap:wrap;
+  border:0;padding:0;margin:0;
+  min-width:0;
+  align-items:center;
+}
+.mode-bar__field[hidden]{display:none}
+
+.mode-bar__legend{
+  flex-basis:100%;
+  font-family:var(--font-mono);font-size:var(--fs-200);
+  text-transform:uppercase;letter-spacing:.14em;
+  color:var(--fg-2);font-weight:500;padding:0;
+  margin-bottom:.85rem;text-align:center;
+}
+.mode-bar__legend .mode-bar__unit{
+  margin-left:.35em;color:var(--fg-3);text-transform:none;letter-spacing:.04em;
+  font-size:.9em;font-style:italic;
+}
+
+.mode-bar__btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  height:34px;padding:0 .85rem;
+  color:var(--fg-2);background:var(--bg-1);
+  border:1px solid var(--rule);
+  margin-right:-1px;
+  font-size:var(--fs-200);font-weight:500;cursor:pointer;
+  font-family:var(--font-mono);
+  transition:color var(--t-fast), background var(--t-fast), border-color var(--t-fast);
+}
+.mode-bar__btn:hover{color:var(--fg-0);background:var(--bg-2)}
+.mode-bar__btn[aria-pressed="true"]{color:var(--accent);border-color:var(--accent);background:color-mix(in oklab, var(--accent) 10%, var(--bg-1));z-index:1;position:relative}
+.mode-bar__field .mode-bar__btn:first-of-type{border-top-left-radius:var(--radius);border-bottom-left-radius:var(--radius)}
+.mode-bar__field .mode-bar__btn:last-of-type{border-top-right-radius:var(--radius);border-bottom-right-radius:var(--radius);margin-right:0}

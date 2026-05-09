@@ -1,0 +1,7 @@
+.drills-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));gap:var(--space-3);margin-top:var(--space-4)}
+.drill-card{display:flex;flex-direction:column;gap:.4rem;padding:var(--space-3);background:var(--bg-1);border:1px solid var(--rule);text-decoration:none;color:inherit;min-height:120px}
+.drill-card:hover{border-color:var(--accent)}
+.drill-card__title{font-weight:600}
+.drill-card__keys{font-family:var(--font-mono);color:var(--fg-2);font-size:var(--fs-200);letter-spacing:.18em;word-break:break-all;line-height:1.5}
+.drill-card__desc{color:var(--fg-2);font-size:var(--fs-200);line-height:1.5;margin-top:.2rem}
+.drill-card__count{margin-top:auto;padding-top:.4rem;font-size:.7rem;font-family:var(--font-mono);letter-spacing:.04em}

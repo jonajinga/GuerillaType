@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#14161e"/>
+
+  <!-- Brand mark — large square frame -->
+  <g transform="translate(80,150)">
+    <rect width="80" height="80" fill="#e58060"/>
+    <rect x="14" y="14" width="52" height="52" fill="#14161e"/>
+    <text x="40" y="64" text-anchor="middle"
+      font-family="Iowan Old Style, Palatino, Georgia, serif"
+      font-size="62" font-weight="700" font-style="italic" fill="#e58060">G</text>
+  </g>
+
+  <text x="180" y="210" font-family="ui-monospace,Menlo,monospace" font-size="22" fill="#8a8678" letter-spacing="3">ISSUE NO. 01 · OPEN SOURCE</text>
+
+  <text x="80" y="370" font-family="Iowan Old Style,Georgia,serif" font-size="108" fill="#ece6d6" font-weight="500" font-style="italic">Guerilla <tspan fill="#e58060">Type</tspan>.</text>
+  <text x="80" y="470" font-family="Iowan Old Style,Georgia,serif" font-size="58" fill="#c9c2b1" font-weight="400">A free typing tutor for everyone.</text>
+
+  <text x="80" y="560" font-family="ui-monospace,Menlo,monospace" font-size="22" fill="#8a8678" letter-spacing="2">guerillatype.com · localStorage only · No accounts</text>
+</svg>

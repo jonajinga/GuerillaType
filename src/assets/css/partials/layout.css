@@ -1,0 +1,12 @@
+.site-main{flex:1;width:100%;max-width:var(--max-width);margin-inline:auto;padding:var(--space-5) var(--gutter) var(--space-10)}
+.page--narrow{max-width:var(--content-width);margin-inline:auto}
+.page__head{margin-bottom:var(--space-7);padding-bottom:var(--space-5);border-bottom:1px solid var(--rule)}
+.page__head h1{margin-bottom:var(--space-3)}
+.page__title{margin-bottom:var(--space-3)}
+.page__subtitle{font-family:var(--font-display);color:var(--fg-1);font-size:var(--fs-500);margin-bottom:var(--space-3);max-width:62ch;line-height:1.45;font-weight:400}
+.page__hint{color:var(--fg-2);font-size:var(--fs-300);max-width:62ch;margin:0}
+.practice-shell{width:100%;max-width:var(--max-width);margin-inline:auto;padding:var(--space-3) var(--gutter)}
+.section{padding-block:var(--space-6)}
+.section--tight{padding-block:var(--space-4)}
+.section__head{display:flex;justify-content:space-between;align-items:baseline;gap:var(--space-3);margin-bottom:var(--space-4)}
+.section__title{margin:0}

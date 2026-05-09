@@ -1,0 +1,11 @@
+{# Floating page TOC — sits to the left of the main content on wide
+   viewports, auto-built from h2/h3 inside the wrapping [data-toc-root].
+   Pages opt in by:
+     1. Wrapping their content in a `.toc-host` element with `data-toc-root`
+     2. Including this partial inside that wrapper at the top
+   The auto-toc.js script reads the headings and populates the list. #}
+<aside class="article-toc page-toc" aria-label="On this page">
+  <div class="article-toc__title">On this page</div>
+  <nav class="article-toc__list"></nav>
+</aside>
+<script type="module" src="/assets/js/auto-toc.js?v={{ cssVersion }}"></script>

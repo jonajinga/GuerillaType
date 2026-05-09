@@ -1,0 +1,47 @@
+---
+layout: layouts/base.njk
+title: "Suggest a poem"
+description: "Suggest a public-domain poem for the Guerilla Type poetry collection."
+permalink: /contribute/poem/
+---
+
+{% import "partials/contribute/form-shell.njk" as cf %}
+
+{{ cf.head("Suggest a poem", "Public-domain poetry -- short lyrics, sonnets, narrative poems, all welcome.", "poem") }}
+
+<aside class="contribute-page__guidelines">
+  <h2>Guidelines</h2>
+  <ul>
+    <li>Pre-1929 in the US (so we're safely public domain) or explicitly CC0.</li>
+    <li>Submit the full poem -- don't excerpt unless the original is itself a self-contained excerpt.</li>
+    <li>Preserve line breaks. The corpus respects them when rendering.</li>
+    <li>Translations need to be public-domain themselves.</li>
+  </ul>
+</aside>
+
+<form class="contribute-form" method="POST" action="{{ web3forms.endpoint }}" data-contribute-kind="poem">
+  {{ cf.hidden("poem", "GT contribution: poem", web3forms) }}
+
+  {{ cf.text("poem_title", "Title", required=true, maxlength=200, placeholder="e.g. The Road Not Taken") }}
+  {{ cf.text("poem_author", "Poet", required=true, maxlength=160, placeholder="e.g. Robert Frost") }}
+  {{ cf.text("poem_year", "Year", required=true, maxlength=4, pattern="[0-9]{4}", placeholder="e.g. 1916", hint="Must be 1928 or earlier.") }}
+  {{ cf.textarea("poem_text", "Full text", required=true, minlength=40, maxlength=8000, rows=12, hint="Preserve line breaks.") }}
+  {{ cf.text("source_url", "Source URL", maxlength=400, type="url", placeholder="https://www.gutenberg.org/...") }}
+  {{ cf.select("form", "Poetic form", [
+    { value: "sonnet", label: "Sonnet" },
+    { value: "lyric", label: "Short lyric" },
+    { value: "narrative", label: "Narrative poem" },
+    { value: "ballad", label: "Ballad" },
+    { value: "haiku", label: "Haiku / short Japanese form" },
+    { value: "free", label: "Free verse" },
+    { value: "other", label: "Other" }
+  ]) }}
+  {{ cf.checkbox("public_domain", "I confirm this poem is in the public domain (pre-1929 US or CC0).", required=true) }}
+  {{ cf.text("submitter_name", "Your name", maxlength=120, placeholder="Optional") }}
+
+  {{ cf.submit("Send poem suggestion") }}
+</form>
+
+{{ cf.byline() }}
+
+<script type="module" src="/assets/js/pages/contribute-boot.js?v={{ cssVersion }}"></script>

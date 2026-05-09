@@ -1,0 +1,4 @@
+.notfound{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding-block:var(--space-10);min-height:50vh}
+.notfound__code{font-family:var(--font-mono);font-size:clamp(4rem,3rem+5vw,7rem);color:var(--accent);line-height:1}
+.notfound__title{margin-top:var(--space-3)}
+.notfound__cta{margin-top:var(--space-4)}

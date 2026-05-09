@@ -1,0 +1,45 @@
+{# Sticky practice toolbar — anchored below the site header.
+   Three regions: mode/variant selectors on the left, a center spacer
+   that grows the toolbar to full width, and live stats on the right. #}
+<div class="practice-bar" data-practice-bar>
+  <div class="practice-bar__inner">
+    <div class="practice-bar__modes">
+      {% include "partials/practice/mode-bar.njk" %}
+    </div>
+    <div class="practice-bar__challenge" id="tt-challenge-pill" hidden></div>
+    <div class="practice-bar__stats">
+      {% include "partials/practice/live-stats.njk" %}
+    </div>
+  </div>
+  <div class="practice-bar__progress" id="tt-progress-fill" aria-hidden="true"></div>
+</div>
+
+<div class="practice-page">
+  {# Contextual back link — populated by practice-boot based on the
+     mode/source of the current session (book, quote, idiom, parable,
+     poem, custom). Hidden by default. #}
+  <a id="tt-back-link" class="tt-back-link" hidden></a>
+
+  <div id="tt-stage" class="tt-stage" data-mode="time" data-state="idle" data-focused="true">
+    <input id="tt-input" class="tt-input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="text" aria-label="Typing input">
+    <div id="tt-text" class="tt-text" aria-live="off"></div>
+    <p id="tt-hint" class="tt-stage__hint" aria-live="polite">Loading…</p>
+  </div>
+
+  {% include "partials/practice/live-keyboard.njk" %}
+
+  <div class="practice-page__bottom">
+    <div class="tt-actions">
+      <button type="button" class="btn btn--small" id="tt-restart" onclick="window.ttRestart && window.ttRestart()" data-tip="<strong>Restart this session</strong><br>Or press <kbd>Tab</kbd> then <kbd>Enter</kbd> on the typing surface.">Restart</button>
+      <button type="button" class="btn btn--small btn--ghost" onclick="window.openInfoModal && window.openInfoModal('practice')" data-tip="<strong>How the practice surface works</strong><br>Modes, scoring, and what the live stats mean.">How it works ↗</button>
+      <button type="button" class="btn btn--small btn--ghost" onclick="window.openFeedbackModal && window.openFeedbackModal()" data-tip="<strong>Send a quick note</strong><br>Topic + message. Doesn't leave this page or interrupt your session.">Send feedback ↗</button>
+      <span class="tt-actions__hint">
+        <span class="tt-actions__hint-group" data-tip="<strong>Restart the test</strong><br>Press <kbd>Tab</kbd> to arm the prompt, then <kbd>Enter</kbd> within 2 seconds to confirm. Any other key cancels."><kbd>Tab</kbd> <kbd>Enter</kbd> <em>restart</em></span>
+        <span class="tt-actions__hint-group" data-tip="<strong>End the session</strong><br>Saves whatever you typed and returns to the toolbar."><kbd>Esc</kbd> <em>end session</em></span>
+        <span class="tt-actions__hint-group" data-tip="<strong>Open site search</strong><br>Find any page or quote across the site."><kbd>Ctrl</kbd>+<kbd>K</kbd> <em>search</em></span>
+      </span>
+    </div>
+  </div>
+
+  <div id="tt-results" class="results" hidden></div>
+</div>

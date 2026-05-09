@@ -1,0 +1,51 @@
+/* Tippy.js — "guerilla" theme. Matches the editorial paper-and-ink
+   aesthetic; tokens follow the active light/dark theme automatically.
+   Tippy injects `<div class="tippy-box" data-theme="guerilla">…</div>`
+   when the JS calls tippy(el, { theme: "guerilla" }). */
+
+.tippy-box[data-theme~="guerilla"]{
+  background:var(--bg-1);color:var(--fg-0);
+  border:1px solid var(--rule);border-radius:var(--radius);
+  box-shadow:0 6px 24px -8px color-mix(in oklab, var(--ink, #000) 40%, transparent),
+             0 1px 0 0 color-mix(in oklab, var(--rule) 60%, transparent);
+  font-family:var(--font-sans);font-size:.78rem;line-height:1.4;
+  letter-spacing:.005em;
+}
+.tippy-box[data-theme~="guerilla"] .tippy-content{
+  padding:.55rem .75rem;color:var(--fg-0);
+}
+.tippy-box[data-theme~="guerilla"] strong,
+.tippy-box[data-theme~="guerilla"] b{color:var(--fg-0);font-weight:600}
+.tippy-box[data-theme~="guerilla"] code{
+  font-family:var(--font-mono);font-size:.92em;
+  background:var(--bg-2);padding:.05em .3em;border-radius:var(--radius-sm);
+}
+.tippy-box[data-theme~="guerilla"] kbd{
+  font-family:var(--font-mono);font-size:.85em;
+  background:var(--bg-2);border:1px solid var(--rule);
+  padding:.05em .3em;border-radius:var(--radius-sm);
+  margin:0 .15em;
+}
+/* Arrow — same fill as the box; Tippy positions it via Popper. */
+.tippy-box[data-theme~="guerilla"] > .tippy-arrow{color:var(--bg-1)}
+.tippy-box[data-theme~="guerilla"][data-placement^="top"] > .tippy-arrow::before{border-top-color:var(--bg-1)}
+.tippy-box[data-theme~="guerilla"][data-placement^="bottom"] > .tippy-arrow::before{border-bottom-color:var(--bg-1)}
+.tippy-box[data-theme~="guerilla"][data-placement^="left"] > .tippy-arrow::before{border-left-color:var(--bg-1)}
+.tippy-box[data-theme~="guerilla"][data-placement^="right"] > .tippy-arrow::before{border-right-color:var(--bg-1)}
+
+/* ── Tippy core CSS — minimal subset, since we lazy-load only the JS
+   from the CDN. Without these rules the box has no positioning /
+   transforms / arrow shape. */
+.tippy-box{position:relative;background-color:#333;color:#fff;border-radius:4px;font-size:14px;line-height:1.4;outline:0;transition-property:transform,visibility,opacity}
+.tippy-box[data-placement^="top"]>.tippy-arrow{bottom:0}
+.tippy-box[data-placement^="top"]>.tippy-arrow:before{bottom:-7px;left:0;border-width:8px 8px 0;border-top-color:initial;transform-origin:center top}
+.tippy-box[data-placement^="bottom"]>.tippy-arrow{top:0}
+.tippy-box[data-placement^="bottom"]>.tippy-arrow:before{top:-7px;left:0;border-width:0 8px 8px;border-bottom-color:initial;transform-origin:center bottom}
+.tippy-box[data-placement^="left"]>.tippy-arrow{right:0}
+.tippy-box[data-placement^="left"]>.tippy-arrow:before{border-width:8px 0 8px 8px;border-left-color:initial;right:-7px;transform-origin:center left}
+.tippy-box[data-placement^="right"]>.tippy-arrow{left:0}
+.tippy-box[data-placement^="right"]>.tippy-arrow:before{left:-7px;border-width:8px 8px 8px 0;border-right-color:initial;transform-origin:center right}
+.tippy-box[data-inertia][data-state="visible"]{transition-timing-function:cubic-bezier(.54,1.5,.38,1.11)}
+.tippy-arrow{width:16px;height:16px;color:#333}
+.tippy-arrow:before{content:"";position:absolute;border-color:transparent;border-style:solid}
+.tippy-content{position:relative;padding:5px 9px;z-index:1}

@@ -1,0 +1,88 @@
+/* Word-list index + detail pages. */
+
+.wordlist-grid{
+  display:grid;grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));
+  gap:var(--space-4);margin-top:var(--space-4);
+}
+.wordlist-card{
+  display:flex;flex-direction:column;gap:var(--space-3);
+  padding:var(--space-4);
+  background:var(--bg-1);border:1px solid var(--rule);border-radius:var(--radius);
+  transition:border-color var(--t-fast), transform var(--t-fast);
+}
+.wordlist-card:hover{border-color:var(--accent)}
+.wordlist-card__head{display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-3)}
+.wordlist-card__title{
+  font-family:var(--font-display);font-size:var(--fs-500);
+  margin:0;line-height:1.1;
+}
+.wordlist-card__title a{color:var(--fg-0);text-decoration:none}
+.wordlist-card__title a:hover{color:var(--accent)}
+.wordlist-card__count{
+  font-family:var(--font-mono);font-size:.72rem;letter-spacing:.06em;
+  color:var(--fg-2);white-space:nowrap;
+}
+/* Accent badge styling when the count reflects a runtime-tracked
+   value (e.g., "12 tracked" missed words) rather than a static list
+   length. Visually nudges the user toward the personal data. */
+.wordlist-card__count--accent{
+  color:var(--accent);
+  border:1px solid color-mix(in oklab, var(--accent) 50%, transparent);
+  border-radius:var(--radius-pill);
+  padding:.15rem .55rem;
+  background:color-mix(in oklab, var(--accent) 8%, transparent);
+}
+.wordlist-card[data-empty="true"]{opacity:.78}
+.wordlist-card[data-empty="true"] .wordlist-card__count{
+  color:var(--fg-3);font-style:italic;
+}
+.wordlist-card__summary{color:var(--fg-1);margin:0;line-height:1.5;font-size:var(--fs-300)}
+.wordlist-card__meta{
+  display:grid;grid-template-columns:1fr;gap:.4rem;margin:0;
+  font-size:var(--fs-200);
+}
+.wordlist-card__meta > div{display:flex;gap:.5em;align-items:baseline}
+.wordlist-card__meta dt{
+  font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.1em;
+  color:var(--fg-3);font-size:.65rem;min-width:6em;
+}
+.wordlist-card__meta dd{margin:0;color:var(--fg-1)}
+.wordlist-card__actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:auto}
+
+/* ── Detail page ───────────────────────────────────────────────── */
+.wordlist-detail__meta{
+  display:flex;flex-wrap:wrap;gap:var(--space-3);margin-top:var(--space-3);
+  color:var(--fg-2);font-size:var(--fs-200);font-family:var(--font-mono);
+}
+.wordlist-detail__meta strong{color:var(--accent);font-family:var(--font-display);font-size:var(--fs-400);font-weight:500}
+.wordlist-detail__actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:var(--space-4)}
+
+.wordlist-detail{margin-top:var(--space-5)}
+.wordlist-detail__bar{
+  display:flex;align-items:center;gap:.6rem;
+  padding:.55rem .85rem;
+  background:var(--bg-1);border:1px solid var(--rule);border-radius:var(--radius);
+  position:sticky;top:calc(var(--header-h, 58px) + 8px);z-index:5;
+  margin-bottom:var(--space-3);
+}
+.wordlist-detail__icon{font-size:1.1rem;color:var(--fg-2)}
+.wordlist-detail__search{
+  flex:1;border:0;background:transparent;color:var(--fg-0);
+  font-family:var(--font-mono);font-size:var(--fs-300);
+  padding:.25rem 0;min-width:0;
+}
+.wordlist-detail__search:focus{outline:none}
+.wordlist-detail__count{
+  color:var(--fg-2);font-family:var(--font-mono);font-size:.7rem;letter-spacing:.04em;
+  white-space:nowrap;
+}
+.wordlist-detail__list{
+  list-style:none;padding:0;margin:0;
+  display:flex;flex-wrap:wrap;gap:.4rem;
+}
+.wordlist-detail__word{
+  font-family:var(--font-mono);font-size:.78rem;letter-spacing:.02em;
+  padding:.25rem .55rem;background:var(--bg-1);
+  border:1px solid var(--rule);border-radius:var(--radius-sm);
+  color:var(--fg-1);
+}

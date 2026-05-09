@@ -1,0 +1,67 @@
+---
+pagination:
+  data: wordlists
+  size: 1
+  alias: list
+  addAllPagesToCollections: true
+permalink: "/wordlists/{{ list.id }}/"
+layout: layouts/base.njk
+eleventyComputed:
+  title: "{{ list.name }} word list"
+  description: "Browse the full {{ list.name }} word list — {{ list.count }} words used in Guerilla Type's typing practice modes."
+---
+<header class="page__head">
+  <p class="eyebrow">Word list</p>
+  <h1>{{ list.name }}</h1>
+  <p class="page__subtitle">{{ list.summary }}</p>
+  <div class="wordlist-detail__meta">
+    <span><strong>{{ list.count }}</strong> words</span>
+    <span>{{ list.flavor }}</span>
+    <span>Best for: {{ list.bestFor }}</span>
+  </div>
+  <div class="wordlist-detail__actions">
+    <a class="btn btn--primary" href="{{ list.practiceUrl }}">Start practice with this list</a>
+    <a class="btn" href="/wordlists/">All word lists</a>
+  </div>
+</header>
+
+<section class="wordlist-detail">
+  <div class="wordlist-detail__bar">
+    <span class="wordlist-detail__icon" aria-hidden="true">⌕</span>
+    <input
+      type="search"
+      class="wordlist-detail__search"
+      id="wordlist-filter"
+      placeholder="Filter the list…"
+      aria-label="Filter words"
+      autocomplete="off"
+      autocapitalize="off"
+      spellcheck="false"
+    >
+    <span class="wordlist-detail__count" id="wordlist-count">{{ list.count }} words</span>
+  </div>
+  <ul class="wordlist-detail__list" id="wordlist-words">
+    {% for w in list.words %}<li class="wordlist-detail__word">{{ w }}</li>{% endfor %}
+  </ul>
+</section>
+
+<script type="module">
+  const input = document.getElementById("wordlist-filter");
+  const list = document.getElementById("wordlist-words");
+  const count = document.getElementById("wordlist-count");
+  const total = list.children.length;
+  let timer = null;
+  input.addEventListener("input", () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      const q = input.value.trim().toLowerCase();
+      let visible = 0;
+      Array.from(list.children).forEach((li) => {
+        const match = !q || li.textContent.toLowerCase().includes(q);
+        li.style.display = match ? "" : "none";
+        if (match) visible++;
+      });
+      count.textContent = q ? `${visible} of ${total} match` : `${total} words`;
+    }, 60);
+  });
+</script>

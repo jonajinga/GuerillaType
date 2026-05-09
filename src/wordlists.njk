@@ -1,0 +1,59 @@
+---
+layout: layouts/base.njk
+title: "Word lists"
+description: "Every word list available in Guerilla Type — English 1k / 5k / 10k, code (JS / Python / HTML), punctuation, numbers. Browse the full lists or jump straight into practice."
+---
+<header class="page__head">
+  <h1>Word lists</h1>
+  <p class="page__subtitle">The pools the engine pulls from in <a href="/practice/?mode=time">time</a>, <a href="/practice/?mode=words">words</a>, and <a href="/practice/?mode=adaptive">adaptive</a> modes. Pick a list to browse the full vocabulary, or start a session straight from a card.</p>
+</header>
+
+<div class="wordlist-grid">
+  {% for list in wordlists %}
+  <article class="wordlist-card" data-list-id="{{ list.id }}">
+    <header class="wordlist-card__head">
+      <h2 class="wordlist-card__title"><a href="{{ list.permalink }}">{{ list.name }}</a></h2>
+      <span class="wordlist-card__count" data-count-for="{{ list.id }}">{{ list.count }} words</span>
+    </header>
+    <p class="wordlist-card__summary">{{ list.summary }}</p>
+    <dl class="wordlist-card__meta">
+      <div><dt>Flavor</dt><dd>{{ list.flavor }}</dd></div>
+      <div><dt>Best for</dt><dd>{{ list.bestFor }}</dd></div>
+    </dl>
+    <div class="wordlist-card__actions">
+      <a class="btn btn--small btn--primary" href="{{ list.practiceUrl }}">Start practice</a>
+      <a class="btn btn--small" href="{{ list.permalink }}">Browse the list</a>
+    </div>
+  </article>
+  {% endfor %}
+</div>
+
+<script type="module">
+  /* Live-update the "My missed words" card with the actual tracked
+     count from the active profile. The static word count comes from
+     the bootstrap JSON which is meaningless for a runtime list -- we
+     replace it with "N words you've struggled with" so users know
+     whether opening the list is worth their time. */
+  import { getActive } from "/assets/js/profiles.js?v={{ cssVersion }}";
+  const profile = getActive();
+  const map = (profile && profile.missedWords) || {};
+  const card = document.querySelector('.wordlist-card[data-list-id="missed"]');
+  if (card) {
+    const count = Object.keys(map).length;
+    const countEl = card.querySelector('[data-count-for="missed"]');
+    if (countEl) {
+      countEl.textContent = count > 0 ? `${count} tracked` : "—";
+      countEl.classList.toggle("wordlist-card__count--accent", count > 0);
+    }
+    if (count === 0) {
+      card.dataset.empty = "true";
+      const start = card.querySelector('.wordlist-card__actions .btn--primary');
+      if (start) {
+        start.textContent = "Start tracking";
+        start.setAttribute("data-tip", "Type a session in any mode -- words you flub will start appearing here.");
+      }
+    } else {
+      card.dataset.empty = "false";
+    }
+  }
+</script>

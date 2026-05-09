@@ -1,0 +1,38 @@
+---
+layout: layouts/base.njk
+title: "Suggest a book"
+description: "Suggest a public-domain book for the Guerilla Type library."
+permalink: /contribute/book/
+---
+
+{% import "partials/contribute/form-shell.njk" as cf %}
+
+{{ cf.head("Suggest a book", "Public-domain books from Project Gutenberg or similar archives become full-text typing surfaces.", "book") }}
+
+<aside class="contribute-page__guidelines">
+  <h2>Guidelines</h2>
+  <ul>
+    <li>Public-domain only -- typically pre-1929 in the US.</li>
+    <li>Project Gutenberg URL is ideal, since the ingest pipeline reads its TXT format.</li>
+    <li>Pick books with strong prose density and a clear chapter structure.</li>
+    <li>Books over ~500k characters get manually split during ingest.</li>
+  </ul>
+</aside>
+
+<form class="contribute-form" method="POST" action="{{ web3forms.endpoint }}" data-contribute-kind="book">
+  {{ cf.hidden("book", "GT contribution: book", web3forms) }}
+
+  {{ cf.text("book_title", "Title", required=true, maxlength=200, placeholder="e.g. Pride and Prejudice") }}
+  {{ cf.text("book_author", "Author", required=true, maxlength=160, placeholder="e.g. Jane Austen") }}
+  {{ cf.text("book_year", "Year published", required=true, maxlength=4, pattern="[0-9]{4}", placeholder="e.g. 1813") }}
+  {{ cf.text("book_url", "Project Gutenberg URL", maxlength=400, type="url", placeholder="https://www.gutenberg.org/ebooks/1342", hint="Or any public-domain source URL.") }}
+  {{ cf.textarea("why_it_belongs", "Why this book belongs", maxlength=600, rows=4, hint="One paragraph -- what makes it good to type through?") }}
+  {{ cf.checkbox("public_domain", "I confirm this book is in the public domain.", required=true) }}
+  {{ cf.text("submitter_name", "Your name", maxlength=120, placeholder="Optional") }}
+
+  {{ cf.submit("Send book suggestion") }}
+</form>
+
+{{ cf.byline() }}
+
+<script type="module" src="/assets/js/pages/contribute-boot.js?v={{ cssVersion }}"></script>

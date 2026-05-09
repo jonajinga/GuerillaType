@@ -1,0 +1,176 @@
+/* Info modal — small contextual popup. Triggered by an i-icon button. */
+
+.hero__info-link{
+  display:inline-flex;align-items:center;
+  background:transparent;border:0;padding:.4rem 0;
+  color:var(--fg-2);font-family:var(--font-display);font-style:italic;
+  font-size:var(--fs-300);cursor:pointer;
+  text-decoration:underline;text-decoration-color:var(--rule);
+  text-underline-offset:4px;text-decoration-thickness:1px;
+  transition:color var(--t-fast), text-decoration-color var(--t-fast);
+  margin-top:var(--space-3);
+}
+.hero__info-link:hover{color:var(--accent);text-decoration-color:var(--accent)}
+.hero__info-link::after{content:" ↗";font-style:normal;margin-left:.2em;font-size:.85em}
+
+.info-modal{
+  width:min(540px, 92vw);
+  background:var(--bg-1);color:var(--fg-0);
+  border:1px solid var(--rule);border-radius:var(--radius-lg);
+  padding:0;box-shadow:var(--shadow-2);
+}
+.info-modal::backdrop{background:rgba(0,0,0,.6);backdrop-filter:blur(2px)}
+.info-modal__head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--rule);
+}
+.info-modal__title{margin:0;font-size:var(--fs-500)}
+.info-modal__close{width:32px;height:32px;font-size:1.3rem;line-height:1;border-radius:var(--radius);color:var(--fg-0);background:transparent;border:1px solid transparent}
+.info-modal__close:hover{color:var(--fg-0);background:var(--bg-2);border-color:var(--rule)}
+.info-modal__body{padding:var(--space-4);color:var(--fg-1)}
+.info-modal__list{list-style:disc;padding-left:1.4em;margin:0 0 var(--space-3) 0}
+.info-modal__list li{margin-bottom:.5em;line-height:1.5}
+.info-modal__shortcut-row{
+  margin-top:var(--space-3);padding-top:var(--space-3);
+  border-top:1px solid var(--rule);
+  font-family:var(--font-mono);font-size:var(--fs-200);color:var(--fg-2);
+  display:flex;flex-wrap:wrap;gap:.4rem;
+}
+.info-modal__shortcut-row kbd{margin-right:.2rem}
+
+/* Confirm + prompt modals (built by util/modal.js) ─────────────── */
+.info-modal__message{
+  margin:0 0 var(--space-4);color:var(--fg-1);
+  font-size:var(--fs-300);line-height:1.55;
+}
+.info-modal__actions{
+  display:flex;justify-content:flex-end;gap:.6rem;
+  padding-top:var(--space-3);border-top:1px solid var(--rule);
+}
+.info-modal__label{
+  display:block;margin-bottom:.4rem;
+  font-family:var(--font-mono);font-size:.7rem;
+  text-transform:uppercase;letter-spacing:.1em;color:var(--fg-3);
+}
+.info-modal__input{
+  width:100%;padding:.55rem .7rem;
+  background:var(--bg-2);border:1px solid var(--rule);
+  border-radius:var(--radius);color:var(--fg-0);
+  font-size:var(--fs-300);font-family:var(--font-sans);
+}
+.info-modal__input:focus{outline:none;border-color:var(--accent)}
+.info-modal--confirm .info-modal__body,
+.info-modal--prompt  .info-modal__body{padding-top:var(--space-4)}
+
+/* Practice-page feedback modal. Inherits .info-modal chrome; the
+   form inside posts to Web3Forms via fetch() so the user never
+   leaves their session. */
+.info-modal--feedback{width:min(540px, 92vw)}
+.info-modal--feedback select.info-modal__input{appearance:auto}
+.info-modal--feedback textarea.info-modal__input{
+  font-family:var(--font-mono);line-height:1.5;resize:vertical;min-height:5em;
+}
+.info-modal--feedback .field{margin-bottom:var(--space-3)}
+.info-modal--feedback .field__row{
+  display:flex;justify-content:space-between;align-items:center;gap:.6rem;margin-top:.3rem;
+}
+.info-modal__optional{
+  margin-left:.3rem;color:var(--fg-3);font-weight:400;
+  font-family:var(--font-sans);font-size:.85em;
+}
+.feedback-modal__status{
+  margin:.4rem 0 0;font-family:var(--font-mono);
+  font-size:var(--fs-200);min-height:1.4em;
+}
+.feedback-modal__status[data-tone="good"]{color:var(--good, #2a8)}
+.feedback-modal__status[data-tone="bad"]{color:var(--bad, #c0392b)}
+
+/* ── Settings modal ─────────────────────────────────────────────
+   Header settings cog opens this dialog instead of navigating away.
+   The dialog frames an iframe pointing at /settings/?embed=1 so the
+   real settings page renders inside, with site chrome hidden via
+   .is-embedded body class. */
+/* Plain-div implementation: scrim covers the viewport, panel sits
+   on top. data-open toggles visibility. No <dialog> quirks. */
+.settings-modal{
+  position:fixed;inset:0;z-index:90;
+  display:none;align-items:center;justify-content:center;
+  padding:var(--space-4);
+}
+.settings-modal[data-open="true"]{display:flex}
+.settings-modal__scrim{
+  position:absolute;inset:0;
+  background:rgba(0,0,0,.6);backdrop-filter:blur(2px);
+  cursor:pointer;
+}
+.settings-modal__panel{
+  position:relative;z-index:1;
+  width:min(960px, 96vw);height:min(820px, 90vh);
+  background:var(--bg-1);color:var(--fg-0);
+  border:1px solid var(--rule);border-radius:var(--radius-lg);
+  padding:0;box-shadow:var(--shadow-2);overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.settings-modal__head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--rule);
+  flex-shrink:0;
+}
+.settings-modal__title{margin:0;font-size:var(--fs-500)}
+.settings-modal__actions{display:flex;align-items:center;gap:.4rem}
+.settings-modal__open,
+.settings-modal__close{
+  width:36px;height:36px;min-height:36px;
+  display:inline-flex;align-items:center;justify-content:center;
+  border:1px solid var(--rule);border-radius:var(--radius);
+  background:transparent;color:var(--fg-1);text-decoration:none;
+  cursor:pointer;padding:0;line-height:1;
+}
+.settings-modal__open{font-size:1rem}
+.settings-modal__close{font-size:1.4rem;color:var(--fg-0)}
+.settings-modal__open:hover{border-color:var(--accent);color:var(--accent)}
+.settings-modal__close:hover{color:var(--accent);background:var(--bg-2);border-color:var(--accent)}
+.settings-modal__frame{
+  flex:1;width:100%;border:0;background:var(--bg-0);
+}
+
+/* Phone-portrait modal: drop padding so the panel hits the edges,
+   make it 100% tall (less wasted vertical space), and bump the close
+   button to a comfortable thumb size. */
+@media (max-width:640px){
+  .settings-modal{padding:0}
+  .settings-modal__panel{
+    width:100vw;height:100vh;height:100svh;
+    border-radius:0;border:0;
+  }
+  .settings-modal__head{padding:.6rem var(--space-3)}
+  .settings-modal__close{width:44px;height:44px}
+  .settings-modal__open{width:40px;height:40px}
+}
+
+/* Hide site chrome for any page rendered with ?embed=1. The body
+   gets .is-embedded set synchronously by the inline script in
+   base.njk, so this applies before first paint. */
+body.is-embedded .site-header,
+body.is-embedded .site-footer,
+body.is-embedded .breadcrumbs,
+body.is-embedded #back-to-top,
+body.is-embedded .skip-link,
+body.is-embedded .article-toc,
+body.is-embedded .toc-host > .article-toc{display:none !important}
+body.is-embedded .site-main{margin:0 !important;padding:var(--space-4) !important}
+body.is-embedded .page__head{margin-top:0}
+
+/* Add-to-collection picker */
+.add-coll-list{display:flex;flex-direction:column;gap:.3rem;margin-bottom:var(--space-4);max-height:240px;overflow-y:auto}
+.add-coll-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:.6rem .8rem;border:1px solid var(--rule);background:var(--bg-2);
+  color:var(--fg-0);border-radius:var(--radius);cursor:pointer;
+  font-family:var(--font-sans);font-size:var(--fs-300);
+  transition:border-color var(--t-fast), background var(--t-fast);
+}
+.add-coll-row:hover{border-color:var(--accent);background:color-mix(in oklab, var(--accent) 10%, var(--bg-2))}
+.add-coll-row__name{font-weight:500}
+.add-coll-row__count{font-family:var(--font-mono);font-size:var(--fs-200);color:var(--fg-2)}
+.add-coll-new{border-top:1px solid var(--rule);padding-top:var(--space-3)}

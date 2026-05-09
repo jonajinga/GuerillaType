@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="{{ site.language }}" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="{{ site.themeColor }}">
+<meta name="color-scheme" content="dark light">
+<title>{{ title }}{% if title %} | {% endif %}{{ site.shortTitle }}</title>
+<meta name="description" content="{{ description or site.description }}">
+{% if canonicalUrl %}<link rel="canonical" href="{{ canonicalUrl }}">{% else %}<link rel="canonical" href="{{ site.url }}{{ page.url }}">{% endif %}
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="{{ title or site.title }}">
+<meta property="og:description" content="{{ description or site.description }}">
+<meta property="og:url" content="{{ site.url }}{{ page.url }}">
+<meta property="og:image" content="{{ site.url }}{{ ogImage or site.ogImage }}">
+<meta name="twitter:card" content="summary_large_image">
+
+{# Light-mode favicons (default). #}
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png" media="(prefers-color-scheme: light)">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16.png" media="(prefers-color-scheme: light)">
+<link rel="icon" type="image/png" sizes="48x48" href="/assets/img/favicon-48.png" media="(prefers-color-scheme: light)">
+{# Dark-mode favicons. Browsers pick whichever matches the OS color
+   scheme. Without `media`, they fall back to a light-icon default. #}
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32-light.png" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16-light.png" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/png" sizes="48x48" href="/assets/img/favicon-48-light.png" media="(prefers-color-scheme: dark)">
+{# Default fallback for browsers that ignore media on icon links. #}
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/img/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+
+{# No-flash theme — runs synchronously before paint. #}
+<script>
+(function(){try{
+var saved = localStorage.getItem("tt:theme");
+var sys = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+var t = saved && saved !== "system" ? saved : sys;
+document.documentElement.setAttribute("data-theme", t);
+}catch(e){}})();
+</script>
+
+{# Bunny Fonts — privacy-friendly, no cookies. #}
+<link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
+<link rel="stylesheet" href="https://fonts.bunny.net/css?family=lora:400,500,600,700|inter:400,500,600,700|jetbrains-mono:400,500|fira-code:400,500|ibm-plex-mono:400,500|roboto-mono:400,500|source-code-pro:400,500|ubuntu-mono:400|space-mono:400,700|inconsolata:400,500,700|cousine:400,700&display=swap">
+
+<link rel="stylesheet" href="/assets/css/global.css?v={{ cssVersion }}">
+
+{# JSON-LD: site-wide WebSite + Organization + SoftwareApplication +
+   per-page WebPage, BreadcrumbList, Book or BlogPosting as relevant.
+   See partials/head/jsonld.njk for the @graph composition. #}
+{% include "partials/head/jsonld.njk" %}
+
+{# Analytics #}
+{% include "partials/analytics/umami.njk" %}
+{% include "partials/analytics/cf-web-analytics.njk" %}
+</head>
+<body data-page="{{ pageSlug or page.fileSlug or 'page' }}">
+<script>
+/* Mark the body as embedded when the URL has ?embed=1 so iframe
+   hosts (settings modal) can hide site chrome via CSS. Inline +
+   synchronous so there is no flash of header/footer before paint. */
+(function(){try{
+if (location.search.indexOf("embed=1") !== -1) document.body.classList.add("is-embedded");
+}catch(e){}})();
+</script>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+{% include "partials/nav/header.njk" %}
+{% include "partials/nav/hamburger-panel.njk" %}
+
+{% include "partials/nav/breadcrumbs.njk" %}
+<main id="main" class="site-main">
+  {{ content | safe }}
+</main>
+
+{% include "partials/footer/site-footer.njk" %}
+
+<button type="button" id="back-to-top" class="back-to-top" aria-label="Back to top" hidden onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<script type="module" src="/assets/js/main.js?v={{ cssVersion }}"></script>
+<script type="module" src="/assets/js/tooltips.js?v={{ cssVersion }}"></script>
+<script type="module" src="/assets/js/brand-flair.js?v={{ cssVersion }}"></script>
+
+{# instant.page -- preloads internal links on hover/touchstart so
+   in-site navigation feels instant. ~1 KB, no config required.
+   Skip prefetching the practice surface so we never preload its
+   heavy bundle on a casual hover. #}
+<link rel="preconnect" href="https://instant.page" crossorigin>
+<script src="//instant.page/5.2.0" type="module" integrity="sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMbh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z"></script>
+</body>
+</html>

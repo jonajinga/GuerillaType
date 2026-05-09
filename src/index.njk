@@ -1,0 +1,100 @@
+---
+layout: layouts/base.njk
+title: ""
+description: "A free, open-source typing tutor for everyone — beginners learning home row, pros chasing 100 wpm, and writers warming up. Lessons, drills, challenges, adaptive practice, custom text. No accounts."
+pageSlug: "home"
+---
+<section class="hero hero--split">
+  <div>
+    <h1 class="hero__title" data-hero-title>Type <em data-hero-rotor aria-live="polite"><span data-rotor-word>better</span></em>, every day.</h1>
+    <p class="hero__subtitle">Lessons for beginners, drills for the careful, challenges for the ambitious, adaptive practice for the impatient. All free, all in your browser, no accounts. Start with today's quote — or jump straight in.</p>
+    <div class="hero__cta">
+      <a class="btn btn--primary btn--big" href="/practice/?mode=quote&amp;quote=daily">Start with today's quote</a>
+      <a class="btn btn--big" href="/practice/?mode=time&duration=30">Quick 30-second test</a>
+    </div>
+    <button type="button" class="hero__info-link" onclick="window.openInfoModal && window.openInfoModal('home')">
+      How does this work?
+    </button>
+  </div>
+
+  <aside class="hero__sidecard hero__sidecard--typing" id="home-typing-card">
+    <div class="hero__sidecard__eyebrow">
+      <span>Today's quote</span>
+      <span class="hero__sidecard__live" id="home-typing-live" aria-live="polite"></span>
+    </div>
+
+    <div id="tt-stage" class="tt-stage tt-stage--embed" data-mode="quote" data-state="idle" data-focused="true">
+      <input id="tt-input" class="tt-input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="text" aria-label="Type today's quote">
+      <div id="tt-text" class="tt-text tt-text--full" aria-live="off"></div>
+      <p id="tt-hint" class="tt-stage__hint" aria-live="polite">Click here, then start typing.</p>
+    </div>
+    <div class="hero__sidecard__cite" id="daily-cite"></div>
+    <div id="tt-progress-fill" class="hero__sidecard__progress" aria-hidden="true"></div>
+
+    <div id="tt-results" hidden></div>
+    <div class="hero__sidecard__actions">
+      <a class="btn btn--small btn--primary" href="/practice/?mode=quote&amp;quote=daily">Open in full practice</a>
+      <a class="btn btn--small" href="/practice/?mode=quote&amp;quote=long">Longer quote</a>
+    </div>
+  </aside>
+</section>
+
+<section class="rule"><span class="rule__mark">Choose your start</span></section>
+
+<section class="start-grid" aria-label="Three ways to begin">
+  <a class="start-card" href="/lessons/">
+    <span class="start-card__eyebrow">For beginners</span>
+    <h3 class="start-card__title">Take the lessons</h3>
+    <p class="start-card__desc">Twenty-four progressive lessons that introduce the keyboard one cluster at a time. Start with two keys. End with a fluent typist.</p>
+    <span class="start-card__cta">Open lessons →</span>
+  </a>
+  <a class="start-card" href="/drills/">
+    <span class="start-card__eyebrow">For the curious</span>
+    <h3 class="start-card__title">Run the drills</h3>
+    <p class="start-card__desc">Finger-row, vowels, alpha-mix. Quick targeted exercises in 30 seconds. The fastest way to feel where your weak spots are.</p>
+    <span class="start-card__cta">Open drills →</span>
+  </a>
+  <a class="start-card" href="/challenges/">
+    <span class="start-card__eyebrow">For the ambitious</span>
+    <h3 class="start-card__title">Take a challenge</h3>
+    <p class="start-card__desc">Sprint, marathon, mountain climb, code mode, pangram run. Hit the goal — wpm and accuracy both — or start over.</p>
+    <span class="start-card__cta">Open challenges →</span>
+  </a>
+</section>
+
+<section class="inside-section">
+  <div class="rule"><span class="rule__mark">What's inside</span></div>
+  <div class="inside-grid" aria-label="What's inside">
+    <article class="inside-card">
+      <h3 class="inside-card__title">Adaptive practice</h3>
+      <p class="inside-card__desc">The engine watches every keystroke and generates targeted word streams from the keys and bigrams you struggle with most.</p>
+      <a class="inside-card__cta" href="/practice/?mode=adaptive">Try adaptive →</a>
+    </article>
+    <article class="inside-card">
+      <h3 class="inside-card__title">Custom text</h3>
+      <p class="inside-card__desc">Drag a <code>.txt</code> or <code>.md</code>, paste a chapter, or save a URL. Type your way through anything you actually want to read.</p>
+      <a class="inside-card__cta" href="/custom/">Upload text →</a>
+    </article>
+    <article class="inside-card">
+      <h3 class="inside-card__title">World-class stats</h3>
+      <p class="inside-card__desc">Keyboard heatmap, daily contribution grid, last-30 trend, lifetime totals. All on-device. Export to JSON anytime.</p>
+      <a class="inside-card__cta" href="/stats/">View stats →</a>
+    </article>
+    <article class="inside-card">
+      <h3 class="inside-card__title">{{ challenges.length }} challenges</h3>
+      <p class="inside-card__desc">Sprint, marathon, code mode, numbers gauntlet, pangram run. Concrete goals, local bests, no leaderboards.</p>
+      <a class="inside-card__cta" href="/challenges/">See all →</a>
+    </article>
+    <article class="inside-card">
+      <h3 class="inside-card__title">Privacy first</h3>
+      <p class="inside-card__desc">No accounts. No cookies. localStorage only. The keys you press never leave your device.</p>
+      <a class="inside-card__cta" href="/analytics/">What I track →</a>
+    </article>
+    <article class="inside-card">
+      <h3 class="inside-card__title">Open source &amp; free</h3>
+      <p class="inside-card__desc">MIT licensed on GitHub. No premium tier, no ads, no upsell. The bill for running the site is the price of a domain.</p>
+      <a class="inside-card__cta" href="/cost/">Read the costs →</a>
+    </article>
+  </div>
+</section>
+

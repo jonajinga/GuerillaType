@@ -1,0 +1,14 @@
+/* Article page styles — used for /features/, /tech-stack/, /analytics/,
+   /cost/, and other long-form informational pages. */
+
+.article-cta{
+  background:var(--bg-1);border:1px solid var(--rule);
+  padding:var(--space-4);border-radius:var(--radius);
+}
+@media (min-width:1024px){
+  .article-cta{position:sticky;top:84px;align-self:start}
+}
+.article-cta h3{font-size:var(--fs-400);margin-bottom:.6rem}
+.article-cta p{color:var(--fg-1);font-size:var(--fs-300);margin-bottom:var(--space-3)}
+.article-cta .btn{display:flex;width:100%;margin-bottom:.5rem}
+.article-cta .btn:last-child{margin-bottom:0}

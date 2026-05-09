@@ -1,0 +1,102 @@
+/* Third pass at quotes -- 80 more secular entries. */
+
+import fs from "node:fs";
+
+const path = "src/data/quotes.json";
+const cur = JSON.parse(fs.readFileSync(path, "utf8"));
+const have = new Set(cur.map(q => q.text.toLowerCase().trim().slice(0, 60)));
+const idHave = new Set(cur.map(q => q.id));
+
+const NEW = [
+  { id: "q-aristotle-habit", text: "We are what we repeatedly do.", author: "Aristotle", tags: ["habits"] },
+  { id: "q-confucius-language", text: "Wheresoever you go, go with all your heart.", author: "Confucius", tags: ["wholeheartedness"] },
+  { id: "q-lao-tzu-knowing", text: "Knowing others is intelligence; knowing yourself is true wisdom.", author: "Lao Tzu", tags: ["self"] },
+  { id: "q-aurelius-action", text: "Waste no more time arguing what a good man should be. Be one.", author: "Marcus Aurelius", tags: ["action"] },
+  { id: "q-aurelius-power", text: "When you arise in the morning, think of what a precious privilege it is to be alive.", author: "Marcus Aurelius", tags: ["gratitude"] },
+  { id: "q-seneca-difficult", text: "It is not because things are difficult that we do not dare; it is because we do not dare that they are difficult.", author: "Seneca", tags: ["courage"] },
+  { id: "q-epictetus-events", text: "It's not what happens to you, but how you react to it that matters.", author: "Epictetus", tags: ["stoicism"] },
+  { id: "q-plato-music", text: "Music gives a soul to the universe, wings to the mind, flight to the imagination, and life to everything.", author: "Plato", tags: ["music"] },
+  { id: "q-dickens-best", text: "It was the best of times, it was the worst of times.", author: "Charles Dickens", tags: ["literature"] },
+  { id: "q-dickens-pleasure", text: "There is nothing in the world so irresistibly contagious as laughter and good humor.", author: "Charles Dickens", tags: ["humor"] },
+  { id: "q-austen-prejudice", text: "It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife.", author: "Jane Austen", tags: ["literature"] },
+  { id: "q-austen-confess", text: "I declare after all there is no enjoyment like reading!", author: "Jane Austen", tags: ["reading"] },
+  { id: "q-bronte-charlotte", text: "I am no bird; and no net ensnares me: I am a free human being with an independent will.", author: "Charlotte Brontë", tags: ["independence"] },
+  { id: "q-bronte-emily", text: "Whatever our souls are made of, his and mine are the same.", author: "Emily Brontë", tags: ["love"] },
+  { id: "q-melville-call", text: "Call me Ishmael.", author: "Herman Melville", tags: ["literature"] },
+  { id: "q-melville-better", text: "It is better to fail in originality than to succeed in imitation.", author: "Herman Melville", tags: ["originality"] },
+  { id: "q-twain-mark", text: "Whenever you find yourself on the side of the majority, it is time to pause and reflect.", author: "Mark Twain", tags: ["thought"] },
+  { id: "q-twain-traveling", text: "Travel is fatal to prejudice, bigotry, and narrow-mindedness.", author: "Mark Twain", tags: ["travel"] },
+  { id: "q-twain-think", text: "It ain't what you don't know that gets you into trouble. It's what you know for sure that just ain't so.", author: "Mark Twain", tags: ["knowledge"] },
+  { id: "q-tolstoy-war", text: "The strongest of all warriors are these two -- Time and Patience.", author: "Leo Tolstoy", tags: ["patience"] },
+  { id: "q-tolstoy-art", text: "Art is not a handicraft, it is the transmission of feeling the artist has experienced.", author: "Leo Tolstoy", tags: ["art"] },
+  { id: "q-dostoevsky-future", text: "Pain and suffering are always inevitable for a large intelligence and a deep heart.", author: "Fyodor Dostoevsky", tags: ["suffering"] },
+  { id: "q-chekhov-knowledge", text: "Knowledge is of no value unless you put it into practice.", author: "Anton Chekhov", tags: ["knowledge"] },
+  { id: "q-pasternak-spring", text: "It is no longer possible to keep one's voice down. We have to scream.", author: "Boris Pasternak", tags: ["expression"] },
+  { id: "q-borges-time", text: "Time is the substance from which I am made.", author: "Jorge Luis Borges", tags: ["time"] },
+  { id: "q-marquez-solitude", text: "There is always something left to love.", author: "Gabriel García Márquez", tags: ["love"] },
+  { id: "q-calvino-cities", text: "The inferno of the living is not something that will be; if there is one, it is what is already here.", author: "Italo Calvino", tags: ["existence"] },
+  { id: "q-eco-rose", text: "I have come to believe that the whole world is an enigma, a harmless enigma that is made terrible by our own mad attempt to interpret it as though it had an underlying truth.", author: "Umberto Eco", tags: ["meaning"] },
+  { id: "q-camus-judge", text: "Don't walk in front of me; I may not follow. Don't walk behind me; I may not lead. Just walk beside me and be my friend.", author: "Albert Camus", tags: ["friendship"] },
+  { id: "q-sartre-other", text: "We are our choices.", author: "Jean-Paul Sartre", tags: ["choice"] },
+  { id: "q-arendt-political", text: "Forgiveness is the key to action and freedom.", author: "Hannah Arendt", tags: ["forgiveness"] },
+  { id: "q-rilke-loneliness", text: "The only journey is the one within.", author: "Rainer Maria Rilke", tags: ["self"] },
+  { id: "q-rilke-difficult", text: "The point of marriage is not to create a quick commonality by tearing down all boundaries; on the contrary, a good marriage is one in which each partner appoints the other to be the guardian of his solitude.", author: "Rainer Maria Rilke", tags: ["relationships"] },
+  { id: "q-hemingway-iceberg", text: "The dignity of movement of an iceberg is due to only one-eighth of it being above water.", author: "Ernest Hemingway", tags: ["writing"] },
+  { id: "q-hemingway-bell", text: "But man is not made for defeat. A man can be destroyed but not defeated.", author: "Ernest Hemingway", tags: ["resilience"] },
+  { id: "q-fitzgerald-beat", text: "So we beat on, boats against the current, borne back ceaselessly into the past.", author: "F. Scott Fitzgerald", tags: ["literature"] },
+  { id: "q-fitzgerald-action", text: "Action is character.", author: "F. Scott Fitzgerald", tags: ["character"] },
+  { id: "q-faulkner-past", text: "The past is never dead. It's not even past.", author: "William Faulkner", tags: ["history"] },
+  { id: "q-vonnegut-everyone", text: "Be kind. Be useful. Be cheerful. Be honest.", author: "Kurt Vonnegut", tags: ["virtue"] },
+  { id: "q-vonnegut-tiger", text: "I am a humanist, which means, in part, that I have tried to behave decently without expectations of rewards or punishments after I'm dead.", author: "Kurt Vonnegut", tags: ["humanism"] },
+  { id: "q-baldwin-moment", text: "The moment we cease to hold each other, the moment we break faith with one another, the sea engulfs us and the light goes out.", author: "James Baldwin", tags: ["solidarity"] },
+  { id: "q-morrison-write", text: "Make a difference about something other than yourselves.", author: "Toni Morrison", tags: ["altruism"] },
+  { id: "q-walker-sometimes", text: "The most common way people give up their power is by thinking they don't have any.", author: "Alice Walker", tags: ["empowerment"] },
+  { id: "q-atwood-context", text: "Context is all.", author: "Margaret Atwood", tags: ["perspective"] },
+  { id: "q-leguin-dragons", text: "We read books to find out who we are.", author: "Ursula K. Le Guin", tags: ["reading"] },
+  { id: "q-leguin-revolution", text: "We are the universe trying to understand itself.", author: "Ursula K. Le Guin", tags: ["science"] },
+  { id: "q-bradbury-fahrenheit", text: "You don't have to burn books to destroy a culture. Just get people to stop reading them.", author: "Ray Bradbury", tags: ["books"] },
+  { id: "q-asimov-history", text: "The saddest aspect of life right now is that science gathers knowledge faster than society gathers wisdom.", author: "Isaac Asimov", tags: ["science"] },
+  { id: "q-clarke-imagination", text: "The only way of discovering the limits of the possible is to venture a little way past them into the impossible.", author: "Arthur C. Clarke", tags: ["limits"] },
+  { id: "q-thoreau-genius", text: "Things do not change; we change.", author: "Henry David Thoreau", tags: ["change"] },
+  { id: "q-emerson-greatness", text: "Do not go where the path may lead, go instead where there is no path and leave a trail.", author: "Ralph Waldo Emerson", tags: ["originality"] },
+  { id: "q-feynman-honest", text: "It doesn't matter how beautiful your theory is, it doesn't matter how smart you are. If it doesn't agree with experiment, it's wrong.", author: "Richard Feynman", tags: ["science"] },
+  { id: "q-sagan-cosmos", text: "We are made of star-stuff. We are a way for the universe to know itself.", author: "Carl Sagan", tags: ["science"] },
+  { id: "q-sagan-pale", text: "For small creatures such as we, the vastness is bearable only through love.", author: "Carl Sagan", tags: ["love","cosmos"] },
+  { id: "q-tyson-cosmic", text: "The good thing about science is that it's true whether or not you believe in it.", author: "Neil deGrasse Tyson", tags: ["science"] },
+  { id: "q-hawking-quiet", text: "Look up at the stars and not down at your feet.", author: "Stephen Hawking", tags: ["wonder"] },
+  { id: "q-feynman-pleasure", text: "I'd rather have questions that can't be answered than answers that can't be questioned.", author: "Richard Feynman", tags: ["doubt"] },
+  { id: "q-darwin-mystery", text: "There is grandeur in this view of life.", author: "Charles Darwin", tags: ["nature"] },
+  { id: "q-pascal-letter", text: "I have made this longer than usual because I have not had time to make it shorter.", author: "Blaise Pascal", tags: ["writing"] },
+  { id: "q-voltaire-garden", text: "We must cultivate our garden.", author: "Voltaire", tags: ["work"] },
+  { id: "q-voltaire-disagree", text: "I disapprove of what you say, but I will defend to the death your right to say it.", author: "Voltaire (paraphrase)", tags: ["liberty"] },
+  { id: "q-paine-times", text: "These are the times that try men's souls.", author: "Thomas Paine", tags: ["history"] },
+  { id: "q-jefferson-truth", text: "Truth is the proper and sufficient antagonist to error.", author: "Thomas Jefferson", tags: ["truth"] },
+  { id: "q-jefferson-tree", text: "The tree of liberty must be refreshed from time to time with the blood of patriots and tyrants.", author: "Thomas Jefferson", tags: ["liberty"] },
+  { id: "q-franklin-coffee", text: "Tell me and I forget. Teach me and I remember. Involve me and I learn.", author: "Benjamin Franklin", tags: ["education"] },
+  { id: "q-franklin-empty", text: "An empty bag cannot stand upright.", author: "Benjamin Franklin", tags: ["wisdom"] },
+  { id: "q-lincoln-liberty", text: "Those who deny freedom to others deserve it not for themselves.", author: "Abraham Lincoln", tags: ["liberty"] },
+  { id: "q-lincoln-better", text: "Better to remain silent and be thought a fool than to speak and remove all doubt.", author: "Abraham Lincoln", tags: ["humor"] },
+  { id: "q-roosevelt-tr", text: "Speak softly and carry a big stick; you will go far.", author: "Theodore Roosevelt", tags: ["politics"] },
+  { id: "q-roosevelt-believe", text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt", tags: ["confidence"] },
+  { id: "q-keller-character", text: "Character cannot be developed in ease and quiet. Only through experience of trial and suffering can the soul be strengthened.", author: "Helen Keller", tags: ["character"] },
+  { id: "q-keller-vision", text: "The only thing worse than being blind is having sight but no vision.", author: "Helen Keller", tags: ["vision"] },
+  { id: "q-jobs-die", text: "Remembering that I'll be dead soon is the most important tool I've ever encountered to help me make the big choices in life.", author: "Steve Jobs", tags: ["life"] },
+  { id: "q-jobs-think", text: "Innovation distinguishes between a leader and a follower.", author: "Steve Jobs", tags: ["innovation"] },
+  { id: "q-edison-busy", text: "Being busy does not always mean real work.", author: "Thomas Edison", tags: ["work"] },
+  { id: "q-edison-idea", text: "Just because something doesn't do what you planned it to do doesn't mean it's useless.", author: "Thomas Edison", tags: ["innovation"] },
+  { id: "q-disney-impossible", text: "It's kind of fun to do the impossible.", author: "Walt Disney", tags: ["dreams"] },
+  { id: "q-disney-believe", text: "All our dreams can come true, if we have the courage to pursue them.", author: "Walt Disney", tags: ["dreams"] },
+  { id: "q-buffett-reputation", text: "It takes 20 years to build a reputation and five minutes to ruin it.", author: "Warren Buffett", tags: ["reputation"] },
+  { id: "q-buffett-rule1", text: "Rule No. 1: Never lose money. Rule No. 2: Never forget Rule No. 1.", author: "Warren Buffett", tags: ["money"] },
+  { id: "q-bezos-customers", text: "We see our customers as invited guests to a party, and we are the hosts.", author: "Jeff Bezos", tags: ["business"] },
+  { id: "q-musk-fail", text: "Failure is an option here. If things are not failing, you are not innovating enough.", author: "Elon Musk", tags: ["innovation"] },
+  { id: "q-thatcher-victory", text: "I am extraordinarily patient, provided I get my own way in the end.", author: "Margaret Thatcher", tags: ["patience"] },
+];
+
+const added = NEW.filter(q =>
+  !idHave.has(q.id) &&
+  !have.has(q.text.toLowerCase().trim().slice(0, 60))
+);
+const out = [...cur, ...added];
+fs.writeFileSync(path, JSON.stringify(out, null, 2));
+console.log(`Added ${added.length} quotes. Total: ${out.length}.`);
