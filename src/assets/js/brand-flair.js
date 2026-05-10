@@ -104,11 +104,12 @@ function pick(arr) {
     console.warn("[brand-flair] Tippy load failed; skipping flair.", err);
     return;
   }
-  // Mobile: place tooltip above the icon (not to the right -- the
-   // footer mark sits at the left edge of the viewport, so a right-
-   // placed tooltip overflows the screen and gets clipped). Cap the
-   // max-width tighter on small screens so longer greetings wrap
-   // sooner rather than scrolling off-screen.
+  // Mobile: place tooltip above the icon (footer mark sits at the
+   // left edge of a phone column, so a right-placed tooltip overflows
+   // and gets clipped). Tighter maxWidth + viewport-overflow padding
+   // ensures the bubble always wraps inside the visible width. Touch:
+   // true so a regular tap pops the greeting (the previous "hold 400ms"
+   // setting felt broken to users who just tapped the icon).
   const isMobile =
     typeof window.matchMedia === "function" &&
     (window.matchMedia("(max-width: 640px)").matches ||
@@ -125,8 +126,15 @@ function pick(arr) {
       interactive: false,
       appendTo: () => document.body,
       trigger: "mouseenter focus",
-      maxWidth: isMobile ? 220 : 320,
-      touch: ["hold", 400],
+      maxWidth: isMobile ? Math.min(220, Math.floor(window.innerWidth - 24)) : 320,
+      touch: true,
+      hideOnClick: true,
+      popperOptions: {
+        modifiers: [
+          { name: "preventOverflow", options: { padding: 12, boundary: "clippingParents" } },
+          { name: "flip", options: { padding: 12 } },
+        ],
+      },
       content: pick(GREETINGS),
       onShow(instance) {
         instance.setContent(pick(GREETINGS));

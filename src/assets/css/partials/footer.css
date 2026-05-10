@@ -99,13 +99,17 @@
 /* Mobile bottom bar: stack copy line + contact pill onto separate
    rows. The contact pill has the full email address inside, which
    gets clipped at the right edge of a phone viewport when sharing
-   a row with the copy line. Stack vertically + center each row. */
+   a row with the copy line. Stack vertically + center each row.
+   Within the copy line, also break "Built by..." and "Design by..."
+   onto separate lines so neither attribution wraps awkwardly. */
 @media (max-width:640px){
   .site-footer__bottom{
     flex-direction:column;align-items:center;text-align:center;
     gap:.6rem;
   }
-  .site-footer__copy{flex:0 0 auto;text-align:center}
+  .site-footer__copy{flex:0 0 auto;text-align:center;line-height:1.5}
+  .site-footer__copy-line{display:block}
+  .site-footer__copy-sep{display:none}
   .site-footer__contact{align-self:center;max-width:100%}
 }
 

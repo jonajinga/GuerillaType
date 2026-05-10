@@ -45,6 +45,12 @@ body.is-hide-ui:not(.is-corpus-mode) .tt-stage{
   margin-right:calc(-1 * var(--gutter));
   margin-bottom:var(--space-2);
 }
+/* Kill .site-main's top padding on the practice page so the toolbar
+   actually touches the bottom of the header. Without this, the
+   toolbar sits below the header by var(--space-5) (~1.5 rem) at
+   page load -- sticky only kicks in once the user scrolls past that
+   threshold, so the gap is visible until the page is scrolled. */
+body[data-page="practice"] .site-main{padding-top:0}
 @media (max-width:768px){
   .practice-bar{margin-bottom:0}
   .practice-page{padding-top:var(--space-3)}
