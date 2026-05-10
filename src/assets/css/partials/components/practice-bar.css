@@ -51,7 +51,16 @@ body.is-hide-ui:not(.is-corpus-mode) .tt-stage{
    threshold, so the gap is visible until the page is scrolled. */
 body[data-page="practice"] .site-main{padding-top:0}
 @media (max-width:768px){
-  .practice-bar{margin-bottom:0}
+  .practice-bar{
+    margin-bottom:0;
+    /* Pull the toolbar up by 20 px so it sits flush against the
+       header on mobile. The user reported the bar was sitting 20 px
+       low; the header's measured offsetHeight (used by --header-h)
+       was apparently a touch taller than the visible header. The
+       direct offset is the simplest correction. */
+    margin-top:-20px;
+    top:calc(var(--header-h, 56px) - 20px);
+  }
   .practice-page{padding-top:var(--space-3)}
 }
 .practice-bar__inner{
@@ -171,7 +180,7 @@ body[data-page="practice"] .site-main{padding-top:0}
   .practice-bar .mode-bar__field{flex-wrap:wrap}
 }
 .practice-bar .mode-bar__btn{
-  height:32px;padding:0 .65rem;min-height:0;
+  height:26px;padding:0 .55rem;min-height:0;
   font-family:var(--font-mono);font-size:.74rem;letter-spacing:.02em;
   color:var(--fg-1);background:transparent;
   border:1px solid var(--rule);
@@ -193,7 +202,7 @@ body[data-page="practice"] .site-main{padding-top:0}
    same padding, same width-to-content ratio -- so the input visually
    reads as just another preset chip. */
 .practice-bar .mode-bar__custom{
-  height:32px;width:3.6rem;padding:0 .65rem;
+  height:26px;width:3.6rem;padding:0 .55rem;
   font-family:var(--font-mono);font-size:.74rem;letter-spacing:.02em;
   color:var(--fg-1);background:transparent;
   border:1px solid var(--rule);
@@ -231,7 +240,7 @@ body[data-page="practice"] .site-main{padding-top:0}
 }
 .practice-bar .live-stats__metric + .live-stats__metric::before{display:none}
 .practice-bar .live-stats__value{
-  font-family:var(--font-display);font-size:var(--fs-500);
+  font-family:var(--font-display);font-size:var(--fs-400);
   line-height:1;letter-spacing:-.01em;color:var(--accent);
   font-variant-numeric:tabular-nums;font-weight:500;
 }
