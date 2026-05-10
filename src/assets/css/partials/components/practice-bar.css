@@ -76,14 +76,23 @@ body[data-page="practice"] .site-main{padding-top:0}
   .practice-page{padding-top:var(--space-3)}
 }
 .practice-bar__inner{
-  /* No max-width: the inner row spreads edge-to-edge so mode chips
-     hug the left edge and live-stats hug the right. Zero block
-     padding -- the chip-button height alone (22 px) drives the
-     bar. */
+  /* Hard-pin the bar's interior to a known height. Without this,
+     stray descendants (live-stats baseline alignment, custom-input
+     box at 24 px, an old min-height that's resurfaced from the
+     base partial after a dev-server reload) can keep the bar
+     taller than the chip row implies. 32 px = chip 22 px + 5 px
+     breathing on either side. */
   margin-inline:auto;
   padding:0 var(--gutter);
   display:flex;align-items:center;justify-content:space-between;
-  gap:var(--space-4);min-height:0;
+  gap:var(--space-4);
+  height:32px;min-height:32px;max-height:32px;
+}
+/* Belt + suspenders: the bar wrapper itself shouldn't ever exceed
+   the inner. Border-bottom is its own pixel. */
+.practice-bar{max-height:33px}
+@media (max-width:768px){
+  .practice-bar{max-height:none}
 }
 /* Live-stats stack reduces to a single inline row so the bar's
    height matches the chip row. The number + label sit side-by-side
