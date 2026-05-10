@@ -53,13 +53,13 @@ body[data-page="practice"] .site-main{padding-top:0}
 @media (max-width:768px){
   .practice-bar{
     margin-bottom:0;
-    /* Pull the toolbar up by 30 px on mobile so it sits truly flush
+    /* Pull the toolbar up by 35 px on mobile so it sits truly flush
        against the header. The header's measured offsetHeight via
        --header-h was running larger than the visible outline (likely
        safe-area inset on iPhone notch / dynamic island), so a direct
-       30 px offset compensates. */
-    margin-top:-30px;
-    top:calc(var(--header-h, 56px) - 30px);
+       35 px offset compensates. */
+    margin-top:-35px;
+    top:calc(var(--header-h, 56px) - 35px);
   }
   .practice-page{padding-top:var(--space-3)}
 }
@@ -77,9 +77,24 @@ body[data-page="practice"] .site-main{padding-top:0}
    height matches the chip row. The number + label sit side-by-side
    instead of stacked vertically; the toolbar collapses to a single
    compact strip of buttons + stats. */
-.practice-bar .live-stats{display:flex;align-items:center;gap:1rem}
-.practice-bar .live-stats__metric{display:inline-flex;align-items:baseline;gap:.3rem}
-.practice-bar .live-stats__label{font-size:.6rem;line-height:1}
+/* Toolbar live-stats: collapse to a single inline row. The base
+   .live-stats rule forces min-height: 3.4em + flex-direction: column
+   on each metric (number stacked above label) -- that's right for
+   the standalone results card but wrong for the toolbar where the
+   bar's height should track the chip row. Override aggressively. */
+.practice-bar .live-stats{
+  display:flex !important;align-items:center !important;
+  gap:1rem !important;min-height:0 !important;
+}
+.practice-bar .live-stats__metric{
+  display:inline-flex !important;flex-direction:row !important;
+  align-items:baseline !important;gap:.3rem !important;
+  padding-inline:0 !important;
+}
+.practice-bar .live-stats__metric + .live-stats__metric::before{display:none !important}
+.practice-bar .live-stats__label{
+  font-size:.6rem !important;margin-top:0 !important;line-height:1 !important;
+}
 .practice-bar__modes{
   order:0;
   flex:1;display:flex;align-items:center;
