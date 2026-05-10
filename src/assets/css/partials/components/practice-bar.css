@@ -393,8 +393,7 @@ body[data-page="practice"] .site-main{padding-top:0}
    Firefox 121+) all support it; older clients just always see the
    Stop button which is fine. */
 .tt-actions__btn--stop{display:none}
-body:has(#tt-stage[data-state="running"]) .tt-actions__btn--stop,
-body:has(#tt-stage[data-state="ready"]) .tt-actions__btn--stop{
+body:has(#tt-stage[data-state="running"]) .tt-actions__btn--stop{
   display:inline-flex;
 }
 /* Slight visual weight so Stop reads as the primary in-flight

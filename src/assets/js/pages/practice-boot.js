@@ -985,14 +985,15 @@ async function boot() {
 /* End the current session and commit a partial result. Same path as
    pressing Esc on desktop -- but exposed as window.ttFinish so a UI
    button (used on mobile, where there's no physical Esc key) can
-   trigger it. The engine's finish() method runs handleFinish which
-   shows the results card with whatever metrics the user reached. */
+   trigger it. Only fires once running (i.e. user has typed at least
+   one character) so engine.finish() has a real startTs to subtract
+   from -- otherwise it would compute ms = performance.now() - 0 and
+   produce garbage stats. The Stop button's CSS hides it until state
+   is "running" so this guard mirrors the visible affordance. */
 window.ttFinish = () => {
-  if (engine && engine.running) {
-    engine.finish();
-    return true;
-  }
-  return false;
+  if (!engine || !engine.running) return false;
+  engine.finish();
+  return true;
 };
 
 window.ttRestart = () => {
