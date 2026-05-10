@@ -463,9 +463,14 @@ function startEngine(target) {
   renderBackLink();
   renderAttributionHeader();
 
-  // Live aids — driven by per-profile preferences. Mounted on every
-  // start so they pick up layout changes between sessions.
-  const prefs = profile.preferences || {};
+  // Live aids — driven by per-profile preferences. Re-read profile
+  // fresh each start so toggles made in Settings (potentially in a
+  // different tab) apply on next session boot. URL param ?vkbd=1
+  // forces the mobile keyboard on even if the preference is off,
+  // useful for quick testing without going through Settings.
+  const freshProfile = getActive();
+  const prefs = (freshProfile && freshProfile.preferences) || profile.preferences || {};
+  const forceVkbd = params.get("vkbd") === "1";
   if (prefs.showVirtualKeyboard) {
     mountLiveKeyboard(state.layout || "qwerty");
     showLiveKeyboard(true);
@@ -494,14 +499,12 @@ function startEngine(target) {
     } catch {}
     return false;
   })();
-  if (prefs.mobileKeyboard && isTouchLike) {
+  if ((prefs.mobileKeyboard || forceVkbd) && isTouchLike) {
     mountVirtualKeyboard();
-    document.body.classList.add("has-vkbd");
     const firstCh2 = Array.isArray(target) ? (target[0] && target[0][0]) : (target && target[0]);
     if (firstCh2) vkbdNext(firstCh2);
   } else {
     unmountVirtualKeyboard();
-    document.body.classList.remove("has-vkbd");
   }
 }
 

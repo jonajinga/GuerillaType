@@ -100,6 +100,15 @@ body[data-page="practice"] .site-main{padding-top:0}
   .practice-bar .mode-bar__custom{
     width:44px;line-height:1;
   }
+  /* Chevrons get a full 44 px height + wider hit zone so they're
+     tappable on phones. Without this they stay at 22 px x 18 px from
+     the desktop rules -- too small to hit reliably. */
+  .practice-bar .mode-bar__chev{
+    height:44px;min-height:44px;width:36px;
+  }
+  .practice-bar .mode-bar__chev svg{
+    width:16px;height:16px;
+  }
   /* Restore practice-page's natural top padding so the typing
      surface doesn't sit flush against the bar, but don't add any
      extra margin on top of that. The desktop "tight" override
@@ -450,16 +459,21 @@ body[data-page="practice"] .site-main{padding-top:0}
   .practice-bar__inner{
     flex-direction:row;flex-wrap:nowrap;align-items:center;
     gap:var(--space-3);
-    padding:var(--space-2) calc(var(--gutter) + 1.4rem);
+    /* Zero vertical padding so the 44 px chip height drives the bar's
+       height exactly -- matches the 44 px scroll-arrow height. The
+       horizontal padding reserves room for the arrows so chips don't
+       sit under them at scroll-extremes. Extra trailing padding so
+       the user can swipe the last chip fully past the right arrow. */
+    padding:0 calc(var(--gutter) + 2.8rem) 0 calc(var(--gutter) + 2.8rem);
+    height:44px!important;min-height:44px!important;max-height:44px!important;
     overflow-x:auto;overflow-y:hidden;
     -webkit-overflow-scrolling:touch;
     scroll-snap-type:x proximity;
     scrollbar-width:none;
-    /* Fade the leftmost + rightmost 24 px of the strip so chips sliding
-       under the scroll arrows look like they tuck behind glass instead
-       of getting visually clipped. */
-    mask-image:linear-gradient(90deg, transparent 0, #000 1.2rem, #000 calc(100% - 1.2rem), transparent);
-    -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 1.2rem, #000 calc(100% - 1.2rem), transparent);
+    /* Gentler fade so chips at scroll-extreme aren't ghosted off the
+       screen. */
+    mask-image:linear-gradient(90deg, transparent 0, #000 .8rem, #000 calc(100% - .8rem), transparent);
+    -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 .8rem, #000 calc(100% - .8rem), transparent);
   }
   .practice-bar__inner::-webkit-scrollbar{display:none}
   .practice-bar__stats{

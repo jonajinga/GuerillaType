@@ -44,9 +44,13 @@
   next.addEventListener("click", function(){ nudge(1); });
   bar.addEventListener("scroll", update, { passive: true });
   window.addEventListener("resize", update);
+  // Always start fully scrolled to the left so the user sees the
+  // mode chips first; the duration/source variants and stats follow
+  // after a swipe right.
+  bar.scrollLeft = 0;
   // Initial paint after fonts/layout settle.
-  setTimeout(update, 50);
-  setTimeout(update, 300);
+  setTimeout(function(){ bar.scrollLeft = 0; update(); }, 50);
+  setTimeout(function(){ bar.scrollLeft = 0; update(); }, 300);
 })();
 </script>
 

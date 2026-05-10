@@ -29,7 +29,11 @@ let nextKey = null;       // current expected char for accent highlight
 let mounted = false;
 
 export function mountVirtualKeyboard() {
-  if (mounted) return;
+  if (mounted && host && document.body.contains(host)) return;
+  // Defensive: if a stale host is in the DOM from a previous mount
+  // attempt, clean it up before re-mounting.
+  const stale = document.getElementById("tt-vkbd");
+  if (stale && stale.parentNode) stale.parentNode.removeChild(stale);
   host = document.createElement("aside");
   host.className = "vkbd";
   host.id = "tt-vkbd";
@@ -39,6 +43,7 @@ export function mountVirtualKeyboard() {
   render();
   bindEvents();
   mounted = true;
+  document.body.classList.add("has-vkbd");
   // Suppress the OS soft keyboard on the input.
   const input = document.getElementById("tt-input");
   if (input) {
@@ -48,10 +53,10 @@ export function mountVirtualKeyboard() {
 }
 
 export function unmountVirtualKeyboard() {
-  if (!mounted) return;
   if (host && host.parentNode) host.parentNode.removeChild(host);
   host = null;
   mounted = false;
+  document.body.classList.remove("has-vkbd");
   const input = document.getElementById("tt-input");
   if (input) {
     input.setAttribute("inputmode", "text");
