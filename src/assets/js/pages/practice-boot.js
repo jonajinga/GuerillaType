@@ -447,33 +447,9 @@ function startEngine(target) {
   hintEl.dataset.state = "ready";
   renderChallengeHud();
 
-  // Stop chip wiring.
-  //
-  // Desktop: mousedown.preventDefault keeps the input focused so the
-  // engine doesn't pause on click. Mobile: touchstart.preventDefault
-  // would suppress the synthetic click event, breaking the chip on
-  // touch -- so we DON'T preventDefault any pointer/touch events.
-  //
-  // _stopped flag tells handleFinish that the user opted out of the
-  // session manually. handleFinish reads this to suppress
-  // auto-advance: a stopped session shouldn't keep auto-rolling.
-  const stopBtn = document.getElementById("tt-stop");
-  if (stopBtn) {
-    stopBtn.onmousedown = (e) => { e.preventDefault(); };
-    const doFinish = (e) => {
-      if (e) { e.preventDefault(); e.stopPropagation(); }
-      const st = stage.dataset.state;
-      if (st !== "running" && st !== "ready") return;
-      if (engine.startTs === 0) engine.startTs = performance.now();
-      if (engine._pauseAt) engine.resumeTimer();
-      engine._stopped = true;
-      engine.finish();
-    };
-    stopBtn.onclick = doFinish;
-    stopBtn.addEventListener("touchend", doFinish, { passive: false });
-  }
-  // Expose for console debugging + as a last-resort fallback for the
-  // inline onclick on the Stop button markup.
+  // Each startEngine() reassigns this so the global Stop listener
+  // (bound once below at module load) always finds the current
+  // engine. Direct closure references would go stale on restart.
   window.__tt = engine;
 
   // Reader header for book mode (chapter title + page counter).
@@ -1087,6 +1063,65 @@ window.ttRestart = () => {
 };
 
 bindModeBar();
+
+/* Stop chip wiring — bound ONCE at module load. Each startEngine()
+   updates window.__tt with the live engine reference, so the
+   handlers below always finish the current session even after
+   restarts. Three event types in case one of them gets eaten on a
+   given platform: click (desktop + most mobile), touchend (iOS
+   sometimes prefers it), pointerup (Android Chrome edge cases). */
+(function wireStopButton() {
+  const stopBtn = document.getElementById("tt-stop");
+  if (!stopBtn) return;
+  // Desktop: prevent input blur on mousedown so the engine doesn't
+  // pause when clicking the chip. Don't preventDefault on
+  // touch/pointer down -- that suppresses the click on mobile.
+  stopBtn.addEventListener("mousedown", (e) => { e.preventDefault(); });
+  let lastFire = 0;
+  const doFinish = (e) => {
+    // Debounce double-fires (touchend + click on the same tap).
+    const now = Date.now();
+    if (now - lastFire < 300) { if (e) e.preventDefault(); return; }
+    lastFire = now;
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+    const eng = window.__tt;
+    if (!eng) return;
+    const st = stage.dataset.state;
+    if (st !== "running" && st !== "ready") return;
+    if (eng.startTs === 0) eng.startTs = performance.now();
+    if (eng._pauseAt) eng.resumeTimer();
+    eng._stopped = true;
+    eng.finish();
+  };
+  stopBtn.addEventListener("click", doFinish);
+  stopBtn.addEventListener("touchend", doFinish, { passive: false });
+  stopBtn.addEventListener("pointerup", doFinish);
+})();
+
+/* Random Mode button -- presents the user with a random mode +
+   variant combo to keep practice fresh. Hooked to the toolbar. */
+window.ttRandomMode = () => {
+  const modes = [
+    { mode: "time", duration: 30 },
+    { mode: "time", duration: 60 },
+    { mode: "time", duration: 120 },
+    { mode: "words", words: 25 },
+    { mode: "words", words: 50 },
+    { mode: "words", words: 100 },
+    { mode: "quote", quote: "short" },
+    { mode: "quote", quote: "medium" },
+    { mode: "quote", quote: "long" },
+    { mode: "zen" },
+    { mode: "adaptive" },
+  ];
+  const pick = modes[Math.floor(Math.random() * modes.length)];
+  const params = new URLSearchParams();
+  params.set("mode", pick.mode);
+  if (pick.duration) params.set("duration", String(pick.duration));
+  if (pick.words) params.set("words", String(pick.words));
+  if (pick.quote) params.set("quote", pick.quote);
+  window.location.href = "/practice/?" + params.toString();
+};
 
 /* Document-level Escape fallback. The engine's input-capture
    listens for Escape on the inputEl only, so once focus moves away

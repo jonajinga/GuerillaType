@@ -70,17 +70,17 @@ body[data-page="practice"] .site-main{padding-top:0}
     /* Mobile uses position:fixed to sidestep an issue where
        sticky positioning was leaving the bar parked far below
        the header on some devices (likely an ancestor's overflow
-       interfering with the sticky context). Fixed pins the bar
-       to the viewport directly under the header, no ifs/buts. */
-    position:fixed;
-    top:var(--header-h, 56px);
-    left:0;right:0;
-    width:100%;
-    margin:0;
+       interfering with the sticky context). The desktop block's
+       100 vw + negative-margin trick must be reset explicitly --
+       inherited margin-left:calc(50% - 50vw) on a fixed element
+       shifts it off-screen, which is what was making the bar
+       look "lower" / mispositioned. */
+    position:fixed!important;
+    top:var(--header-h, 56px)!important;
+    left:0!important;right:0!important;
+    width:100%!important;
+    margin:0!important;
     max-height:none;
-    /* The bar is now out of document flow; its 100vw + negative-
-       margin trick from the desktop block is unneeded and would
-       fight position:fixed. */
   }
   /* Reserve space below the header for the now-fixed bar so the
      typing surface doesn't render underneath it. 44 px chip +
@@ -110,15 +110,10 @@ body[data-page="practice"] .site-main{padding-top:0}
   }
 }
 .practice-bar__inner{
-  /* Hard-pin the bar's interior to a known height. Without this,
-     stray descendants (live-stats baseline alignment, custom-input
-     box at 24 px, an old min-height that's resurfaced from the
-     base partial after a dev-server reload) can keep the bar
-     taller than the chip row implies. 32 px = chip 22 px + 5 px
-     breathing on either side. */
+  /* Hard-pin the bar's interior to a known height. */
   margin-inline:auto;
   padding:0 var(--gutter);
-  display:flex;align-items:center;justify-content:space-between;
+  display:flex;align-items:center;justify-content:center;
   gap:var(--space-4);
   height:32px;min-height:32px;max-height:32px;
 }
@@ -156,13 +151,18 @@ body[data-page="practice"] .site-main{padding-top:0}
 .practice-bar .live-stats__label{
   font-size:.6rem !important;margin-top:0 !important;line-height:1 !important;
 }
-.practice-bar__modes{
+.practice-bar__stats{
   order:0;
-  flex:1;display:flex;align-items:center;
-  justify-content:flex-start;min-width:0;gap:.6rem;flex-wrap:nowrap;
+  flex-shrink:0;padding-right:var(--space-4);
+  border-right:1px solid var(--rule);
+}
+.practice-bar__challenge{order:1}
+.practice-bar__modes{
+  order:2;
+  display:flex;align-items:center;
+  justify-content:center;min-width:0;gap:.6rem;flex-wrap:nowrap;
   /* Narrow desktops: never wrap. The bar slides horizontally if there
-     is more content than fits. -webkit-overflow-scrolling momentum
-     keeps it feeling native; scroll-snap-type lands chips cleanly. */
+     is more content than fits. */
   overflow-x:auto;overflow-y:hidden;
   scroll-snap-type:x proximity;
   -webkit-overflow-scrolling:touch;
@@ -170,12 +170,6 @@ body[data-page="practice"] .site-main{padding-top:0}
 }
 .practice-bar__modes::-webkit-scrollbar{display:none}
 .practice-bar__modes > *{flex-shrink:0;scroll-snap-align:start}
-.practice-bar__challenge{order:1}
-.practice-bar__stats{
-  order:2;
-  flex-shrink:0;padding-left:var(--space-4);
-  border-left:1px solid var(--rule);
-}
 
 /* Active-challenge pill — sits in the toolbar's center between
    __modes and __stats. Hidden via [hidden] when no challenge active. */
