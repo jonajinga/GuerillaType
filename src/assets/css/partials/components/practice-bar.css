@@ -50,6 +50,19 @@ body.is-hide-ui:not(.is-corpus-mode) .tt-stage{
    page load -- sticky only kicks in once the user scrolls past that
    threshold, so the gap is visible until the page is scrolled. */
 body[data-page="practice"] .site-main{padding-top:0}
+/* Practice surface chrome -- compress the gap between toolbar and
+   typing area. Default .tt-stage carries margin:var(--space-5)
+   auto + padding:var(--space-4) which combined add ~75 px of
+   vertical chrome above the first line of text. On the practice
+   page we want the bar -> text distance to feel tight, almost
+   touching. The hint row + restart banner still get visible
+   breathing room from their own margins. */
+body[data-page="practice"] .tt-stage{
+  margin-top:0;padding-top:0;
+}
+body[data-page="practice"] .tt-stage__hint{
+  margin-bottom:.5rem;
+}
 @media (max-width:768px){
   .practice-bar{
     margin-bottom:0;
