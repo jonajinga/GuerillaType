@@ -255,6 +255,17 @@ const megamenu = [
           { chip: "♥", label: "Send a thanks note", url: "/contribute/thanks-note/", desc: "Quick message of appreciation for the wall." },
           { chip: "📋", label: "All reviews", url: "/reviews/", desc: "Read what other typists are saying." },
           { chip: "💌", label: "Thanks wall", url: "/thanks-wall/", desc: "A small wall of kindness from the community." },
+          { chip: "💬", label: "Send feedback", url: "/contribute/", desc: "Bugs, typos, ideas, complaints -- comes straight to me." },
+        ],
+      },
+      {
+        title: "Open the source",
+        items: [
+          { chip: "G", label: "GitHub repo", url: "https://github.com/jonajinga/GuerillaType", desc: "Browse the code, file an issue, open a PR. MIT licensed." },
+          { chip: "📜", label: "Changelog", url: "/changelog/", desc: "Every notable change, in chronological order." },
+          { chip: "📚", label: "Guide", url: "/guide/", desc: "How the engine, modes, and stats work under the hood." },
+          { chip: "🔭", label: "Roadmap", url: "/about/#roadmap", desc: "What's coming next and what's been deferred." },
+          { chip: "🙏", label: "Why contribute", url: "/about/#why-contribute", desc: "The case for adding to a free, no-tracking practice surface." },
         ],
       },
     ],

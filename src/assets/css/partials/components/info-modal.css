@@ -98,6 +98,22 @@
 .feedback-modal__status[data-tone="good"]{color:var(--good, #2a8)}
 .feedback-modal__status[data-tone="bad"]{color:var(--bad, #c0392b)}
 
+/* Byline at the top of the feedback modal -- photo + a short note
+   so users see who their message is going to. */
+.feedback-modal__byline{
+  display:flex;align-items:flex-start;gap:var(--space-3);
+  margin-bottom:var(--space-3);padding-bottom:var(--space-3);
+  border-bottom:1px solid var(--rule);
+}
+.feedback-modal__photo{
+  width:56px;height:56px;border-radius:50%;
+  object-fit:cover;flex-shrink:0;
+  border:2px solid var(--rule);
+}
+.feedback-modal__byline-text{
+  margin:0;color:var(--fg-1);font-size:var(--fs-300);line-height:1.45;
+}
+
 /* ── Settings modal ─────────────────────────────────────────────
    Header settings cog opens this dialog instead of navigating away.
    The dialog frames an iframe pointing at /settings/?embed=1 so the

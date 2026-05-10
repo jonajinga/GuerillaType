@@ -922,7 +922,14 @@ function renderResults(r) {
 function getAutoAdvanceAction() {
   if (state.bookSlug) return { url: nextBookUrl() };
   if (state.lessonId != null) return { url: `/practice/?lesson=${state.lessonId + 1}` };
-  if (state.mode === "quote") return { url: `/practice/?mode=quote&quote=random` };
+  if (state.mode === "quote") {
+    // Preserve the user's chosen length bucket (medium/long/etc.)
+    // when auto-advancing; only daily mode forces "random". The
+    // timestamp param defeats any browser/SW caching of the page.
+    const bucket = state.quote && state.quote !== "daily" ? state.quote : "random";
+    const tag = state.quoteTag ? `&tag=${encodeURIComponent(state.quoteTag)}` : "";
+    return { url: `/practice/?mode=quote&quote=${bucket}${tag}&t=${Date.now()}` };
+  }
   if (state.mode === "zen" || state.mode === "adaptive") return null;
   return { restart: true };
 }
@@ -1044,24 +1051,23 @@ function bindModeDropdowns() {
     if (!trigger || !panel) return;
     trigger.setAttribute("aria-expanded", "true");
     panel.hidden = false;
-    // Position the panel under the trigger on desktop. Mobile uses
-    // a fixed bottom-sheet via CSS so we leave it alone.
+    // Position via getBoundingClientRect since the panel is
+    // position:fixed (escapes the toolbar's overflow clipping).
     if (window.matchMedia && !window.matchMedia("(max-width: 768px)").matches) {
       const r = trigger.getBoundingClientRect();
-      const modeBar = document.querySelector(".mode-bar");
-      if (modeBar) {
-        const barR = modeBar.getBoundingClientRect();
-        // Anchor the panel's left edge under the chevron's left,
-        // clamped so it doesn't overflow the toolbar's right edge.
-        const panelW = Math.min(420, window.innerWidth * 0.92);
-        const desired = r.left - barR.left;
-        const max = barR.width - panelW;
-        panel.style.left = Math.max(0, Math.min(desired, max)) + "px";
-        panel.style.right = "auto";
-      }
+      const panelW = Math.min(420, window.innerWidth * 0.92);
+      const desired = r.left;
+      const max = window.innerWidth - panelW - 8;
+      panel.style.top = (r.bottom + 6) + "px";
+      panel.style.left = Math.max(8, Math.min(desired, max)) + "px";
+      panel.style.right = "auto";
+      panel.style.bottom = "auto";
     } else {
+      // Mobile bottom-sheet: clear top/left so the CSS rules win.
+      panel.style.top = "";
       panel.style.left = "";
       panel.style.right = "";
+      panel.style.bottom = "";
     }
   }
   triggers.forEach((trigger) => {

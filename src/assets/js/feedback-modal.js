@@ -23,7 +23,10 @@ function build() {
       <button type="button" class="info-modal__close" aria-label="Close" data-close>×</button>
     </div>
     <div class="info-modal__body">
-      <p class="info-modal__message">A quick note from the practice surface. Comes straight to my inbox -- no account needed. Email is optional and only used if I want to reply.</p>
+      <div class="feedback-modal__byline">
+        <img class="feedback-modal__photo" src="/assets/img/jon-ajinga.webp" alt="Jon Ajinga" width="56" height="56" loading="lazy" decoding="async">
+        <p class="feedback-modal__byline-text">Your message comes straight to me -- Jon, the developer. I appreciate every note and I read them all. Be candid; bug reports, typos, ideas, complaints all welcome.</p>
+      </div>
       <form data-form>
         <input type="hidden" name="access_key" value="${ACCESS_KEY}">
         <input type="hidden" name="subject" value="GT feedback (practice)">

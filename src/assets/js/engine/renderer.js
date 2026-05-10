@@ -112,16 +112,29 @@ export class Renderer {
     const c = this.chars[i]; if (!c) return;
     c.el.classList.remove("tt-char--incorrect", "tt-char--extra");
     c.el.classList.add("tt-char--correct");
+    // Restore the original target char in case it was swapped to the
+    // user's typed char by a prior setIncorrect.
+    if (!c.isSpace && c.el.textContent !== c.ch) c.el.textContent = c.ch;
   }
   setIncorrect(i, typedCh) {
     const c = this.chars[i]; if (!c) return;
     c.el.classList.remove("tt-char--correct", "tt-char--extra");
     c.el.classList.add("tt-char--incorrect");
-    if (c.isSpace) c.el.dataset.typed = typedCh || "";
+    if (c.isSpace) {
+      c.el.dataset.typed = typedCh || "";
+    } else if (typedCh) {
+      // Show the user's actual keystroke instead of the target char
+      // so they see what they hit. The target char is still in c.ch
+      // and gets restored via setCorrect / setUntyped.
+      c.el.textContent = typedCh;
+      c.el.dataset.typed = typedCh;
+      c.el.dataset.target = c.ch;
+    }
   }
   setUntyped(i) {
     const c = this.chars[i]; if (!c) return;
     c.el.classList.remove("tt-char--correct", "tt-char--incorrect", "tt-char--extra");
+    if (!c.isSpace && c.el.textContent !== c.ch) c.el.textContent = c.ch;
   }
   insertExtra(i, ch) {
     // Render an extra (typed but not in target) char inline.

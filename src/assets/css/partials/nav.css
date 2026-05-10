@@ -10,7 +10,7 @@
    loading hiccup (page-nav transitions, stale SW cache, etc.).
    Theme-aware src swap is driven by main.js watching data-theme. */
 .site-brand__mark{
-  display:inline-block;width:50px;height:50px;
+  display:inline-block;width:62px;height:62px;
   transition:transform var(--t-fast);
   object-fit:contain;
 }
@@ -61,7 +61,7 @@
   .site-header__inner{padding-block:.5rem;gap:.4rem}
   .site-header__inner > .site-brand{min-width:0}
   .site-brand__name{display:none}
-  .site-brand__mark{width:36px;height:36px}
+  .site-brand__mark{width:45px;height:45px}
   .site-header__actions{gap:.3rem}
   .site-header__actions #header-fullscreen,
   .site-header__actions #header-search{display:none}

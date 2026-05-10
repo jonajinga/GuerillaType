@@ -8,7 +8,7 @@
   gap:var(--space-2);margin-bottom:var(--space-3);
 }
 .site-footer__brand-mark{
-  display:inline-block;width:75px;height:75px;
+  display:inline-block;width:94px;height:94px;
   object-fit:contain;
 }
 .site-footer__brand-name{font-family:var(--font-display);font-weight:600;font-size:var(--fs-500);color:var(--fg-0)}

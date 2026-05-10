@@ -24,12 +24,40 @@
   font-size:.78rem;
 }
 @media (max-width:640px){
-  /* Mobile: drop to a 2-column grid so labels + values aren't
-     squashed into 80 px columns. Card padding tightens too. */
-  .library-card{padding:var(--space-3);gap:var(--space-2)}
-  .library-card__title{font-size:var(--fs-400)}
-  .library-card__meta{grid-template-columns:1fr 1fr;gap:.4rem}
-  .library-card__meta dd{font-size:.72rem;overflow-wrap:anywhere}
+  /* Mobile: completely redesigned card -- title prominent, author
+     below, meta as inline pills with separators rather than a grid.
+     Card padding tightens, body content reflows aggressively. */
+  .library-grid{
+    grid-template-columns:1fr;
+    gap:var(--space-2);
+  }
+  .library-card{
+    padding:var(--space-3);
+    gap:.4rem;
+  }
+  .library-card__title{
+    font-size:var(--fs-400);line-height:1.25;
+  }
+  .library-card__author{font-size:.72rem}
+  /* Meta becomes a single horizontal row of inline-block pills with
+     mid-dot separators. Much denser, no labels, just the numbers. */
+  .library-card__meta{
+    display:flex;flex-direction:row;flex-wrap:wrap;
+    grid-template-columns:none;
+    gap:.3rem .6rem;
+    font-size:.7rem;
+  }
+  .library-card__meta > div{
+    flex-direction:row;align-items:baseline;gap:.25rem;
+  }
+  .library-card__meta dt{
+    font-size:.55rem;letter-spacing:.06em;
+  }
+  .library-card__meta dd{font-size:.72rem}
+  /* Action button gets visible breathing room and full-width feel. */
+  .library-card__actions .btn{
+    width:100%;justify-content:center;
+  }
 }
 .library-card__meta > div{display:flex;flex-direction:column;gap:.15rem}
 .library-card__meta dt{font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.08em;color:var(--fg-3);font-size:.62rem}
