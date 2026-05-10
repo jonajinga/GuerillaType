@@ -257,6 +257,21 @@
    for a tap-friendlier line. */
 html[data-touch="true"] .tt-stage[data-state="idle"] .tt-text{filter:blur(2px)}
 html[data-touch="true"] .tt-stage[data-state="idle"] .tt-caret{display:none}
+/* The engine flips state to "ready" the moment a session arms (which
+   happens automatically on every page boot / restart). On mobile we
+   don't want a blinking caret in that pre-tap window -- the user
+   hasn't agreed to start typing yet. data-mobile-waiting is the
+   engine's signal that it's holding for a real tap; while it's
+   set, suppress the caret AND keep the surface visually blurred so
+   the "Tap here to start typing" prompt reads as the only call. */
+.tt-stage[data-mobile-waiting="true"] .tt-caret{display:none!important}
+.tt-stage[data-mobile-waiting="true"] .tt-text{filter:blur(2px)}
+html[data-touch="true"] .tt-stage[data-mobile-waiting="true"]::after{
+  content:"Tap here to start typing";
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  background:var(--bg-2);border:1px solid var(--rule);padding:.45rem .85rem;color:var(--fg-1);font-size:var(--fs-200);
+  pointer-events:none;border-radius:var(--radius);
+}
 html[data-touch="true"] .tt-stage[data-state="idle"]::after{
   content:"Tap here to start typing";
   position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);

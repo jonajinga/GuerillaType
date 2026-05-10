@@ -77,7 +77,11 @@
       }catch(e){}
     })();
   </script>
-  <div id="tt-stage" class="tt-stage" data-mode="time" data-state="idle" data-focused="true">
+  {# Default to data-focused="false". On desktop the engine focuses
+     the input on boot, the focus event flips it to true. On touch
+     devices it stays false until the user taps -- which is exactly
+     what we want, no flash of focused state with a blinking caret. #}
+  <div id="tt-stage" class="tt-stage" data-mode="time" data-state="idle" data-focused="false">
     {# Aggressive autofill suppression. iOS Safari ignores plain
        autocomplete="off" on text inputs; pile on every known signal
        so password managers (1Password, LastPass, Bitwarden, Dashlane)
@@ -102,7 +106,7 @@
         <svg class="tt-actions__icon" viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
         <span class="tt-actions__label">Restart</span>
       </button>
-      <button type="button" class="btn btn--small tt-actions__btn tt-actions__btn--stop" id="tt-stop" aria-label="End this session and see your results" data-tip="<strong>End this session</strong><br>Stops the timer, saves whatever you typed, and shows your results. (Same as pressing <kbd>Esc</kbd> on desktop.)">
+      <button type="button" class="btn btn--small tt-actions__btn tt-actions__btn--stop" id="tt-stop" onclick="window.ttFinish && window.ttFinish()" aria-label="End this session and see your results" data-tip="<strong>End this session</strong><br>Stops the timer, saves whatever you typed, and shows your results. (Same as pressing <kbd>Esc</kbd> on desktop.)">
         <svg class="tt-actions__icon" viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="14" height="14" rx="1.5"/></svg>
         <span class="tt-actions__label">Stop</span>
       </button>

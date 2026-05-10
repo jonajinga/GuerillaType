@@ -985,13 +985,14 @@ async function boot() {
 /* End the current session and commit a partial result. Same path as
    pressing Esc on desktop -- but exposed as window.ttFinish so a UI
    button (used on mobile, where there's no physical Esc key) can
-   trigger it. Only fires once running (i.e. user has typed at least
-   one character) so engine.finish() has a real startTs to subtract
-   from -- otherwise it would compute ms = performance.now() - 0 and
-   produce garbage stats. The Stop button's CSS hides it until state
-   is "running" so this guard mirrors the visible affordance. */
+   trigger it. Permissive: fires from "ready" or "running" states.
+   In "ready" we stamp startTs to now so finish() doesn't compute a
+   nonsense ms duration. In "idle" / "done" we no-op. */
 window.ttFinish = () => {
-  if (!engine || !engine.running) return false;
+  if (!engine) return false;
+  const st = stage.dataset.state;
+  if (st !== "running" && st !== "ready") return false;
+  if (engine.startTs === 0) engine.startTs = performance.now();
   engine.finish();
   return true;
 };
@@ -1014,28 +1015,30 @@ window.ttRestart = () => {
 
 bindModeBar();
 
-/* Real click listener on the Stop button. The inline onclick on the
-   markup also calls window.ttFinish, but we bind a listener here as
-   the primary path -- the HTML minifier has been known to strip /
-   collapse onclicks under aggressive whitespace settings, and a
-   programmatic listener guarantees the click fires.
-   Reads `engine` at click time so reassignments through boot()/
-   restart() are always picked up. */
+/* Real click listener on the Stop button as a backup to the inline
+   onclick (HTML minifiers occasionally mangle attributes under
+   aggressive whitespace collapse). Reads `engine` at click time. */
 const stopBtn = document.getElementById("tt-stop");
 if (stopBtn) {
   stopBtn.addEventListener("click", (e) => {
     e.preventDefault();
-    e.stopPropagation();
-    if (!engine) return;
-    const st = stage.dataset.state;
-    if (st === "done" || st === "idle") return;
-    // "ready" -> user hit Stop before typing a single char. startTs
-    // is still 0, which would produce nonsense duration. Stamp it
-    // now so finish() computes ms = 0 and the results card shows a
-    // clean zero-progress session.
-    if (engine.startTs === 0) engine.startTs = performance.now();
-    engine.finish();
+    window.ttFinish();
   });
 }
+
+/* Document-level Escape fallback. The engine's input-capture
+   listens for Escape on the inputEl only, so once focus moves away
+   (e.g. user clicked Stop, then clicked outside, then tried Esc),
+   the engine's handler stops firing. Catch Esc on document so the
+   keystroke always gets a chance to end the session. */
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (!engine) return;
+  const st = stage.dataset.state;
+  if (st !== "running" && st !== "ready") return;
+  e.preventDefault();
+  window.ttFinish();
+});
 
 boot();
