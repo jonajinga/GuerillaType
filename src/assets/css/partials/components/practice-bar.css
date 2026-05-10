@@ -161,6 +161,17 @@ body[data-page="practice"] .site-main{padding-top:0}
   align-items:center;gap:.55rem;
   padding:0;border:0;margin:0;min-width:0;
 }
+/* Legends are visually hidden -- the button labels themselves
+   (time/words/quote, 15/30/60) read clearly enough that an eyebrow
+   above each group is redundant. Hiding them in CSS keeps the
+   semantic <legend> element for screen readers. The default
+   browser-rendered <legend> position would stack the toolbar to
+   nearly double height; this rule keeps a single low row. */
+.practice-bar .mode-bar__legend{
+  position:absolute!important;width:1px;height:1px;
+  padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0,0,0,0);white-space:nowrap;border:0;
+}
 /* Add a clear horizontal margin on the highlighted button so its
    tinted background never touches the bordered neighbours. The
    complaint was Words active-state running into Quote / Zen. */
