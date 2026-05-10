@@ -25,10 +25,10 @@ body.is-hide-ui:not(.is-corpus-mode) .tt-stage{
 
 .practice-bar{
   position:sticky;
-  /* Small gap between header bottom and toolbar top -- pure visual
-     breathing room. */
-  top:calc(var(--header-h, 58px) + 6px);
-  margin-top:6px;
+  /* Small breathing line between header and toolbar on desktop;
+     mobile pulls back to flush below. */
+  top:calc(var(--header-h, 58px) + 4px);
+  margin-top:4px;
   z-index:40;
   background:color-mix(in oklab, var(--bg-1) 92%, transparent);
   backdrop-filter:saturate(160%) blur(14px);
@@ -67,20 +67,16 @@ body[data-page="practice"] .site-main{padding-top:0}
 @media (max-width:768px){
   .practice-bar{
     margin-bottom:0;
-    /* Sit just below the header with the same 6 px gap as desktop. */
-    margin-top:6px;
-    top:calc(var(--header-h, 56px) + 6px);
-    /* Allow the bar to grow to fit 44 px touch chips. */
+    /* Mobile: flush below the header. The desktop 4 px gap reads
+       as wasted real estate on a small screen. */
+    margin-top:0;
+    top:var(--header-h, 56px);
     max-height:none;
   }
-  /* Unpin the desktop 32 px height on mobile -- chips need 44 x 44
-     for accessible touch targets. */
   .practice-bar__inner{
-    height:auto;min-height:48px;max-height:none;
+    height:auto;min-height:44px;max-height:none;
   }
-  /* Touch chips: WCAG-compliant 44 px square. Custom input matches
-     button metrics exactly -- same height, padding, line-height,
-     min-width. */
+  /* Touch chips: 44 x 44 minimum -- WCAG touch target. */
   .practice-bar .mode-bar__btn,
   .practice-bar .mode-bar__custom{
     box-sizing:border-box;
@@ -91,11 +87,14 @@ body[data-page="practice"] .site-main{padding-top:0}
   .practice-bar .mode-bar__custom{
     width:44px;line-height:1;
   }
-  .practice-page{padding-top:var(--space-3)}
-  /* Breathing room between the toolbar and the typing surface on
-     mobile -- the previous tight stacking made the first line of
-     text feel like it was hanging off the bar. */
-  .practice-page .tt-stage{margin-top:var(--space-4)!important}
+  /* Restore practice-page's natural top padding so the typing
+     surface doesn't sit flush against the bar, but don't add any
+     extra margin on top of that. The desktop "tight" override
+     was zeroing both, which made mobile look broken. */
+  .practice-page{padding-top:var(--space-4)}
+  .practice-page .tt-stage{
+    margin-top:0!important;padding-top:var(--space-4)!important;
+  }
 }
 .practice-bar__inner{
   /* Hard-pin the bar's interior to a known height. Without this,

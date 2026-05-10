@@ -443,37 +443,30 @@ function startEngine(target) {
   hintEl.dataset.state = "ready";
   renderChallengeHud();
 
-  // Stop chip wiring. Two listeners do the work:
+  // Stop chip wiring.
   //
-  // 1. mousedown / pointerdown / touchstart -> preventDefault.
-  //    Prevents the browser from shifting focus to the button, which
-  //    would blur the input, fire onBlur -> pauseTimer, and (per
-  //    user report) make the engine feel like "Stop didn't do
-  //    anything" because the live stats freeze. With focus pinned
-  //    on the input, no pause / focus thrash happens.
+  // Desktop: mousedown.preventDefault keeps the input focused so the
+  // engine doesn't pause on click. Mobile: touchstart.preventDefault
+  // would suppress the synthetic click event, breaking the chip on
+  // touch -- so we DON'T preventDefault any pointer/touch events.
+  // The mobile blur is harmless; finish() runs regardless.
   //
-  // 2. click -> finish the session. Reads `engine` directly via the
-  //    closure (this entire block runs inside startEngine, so the
-  //    engine is guaranteed to exist) and calls finish() with a
-  //    sane startTs guard for the "ready but no keystroke yet"
-  //    edge case.
+  // doFinish is shared between click and touchend so we get fired
+  // either way. The first call wins; engine.finish() short-circuits
+  // on this.finished == true.
   const stopBtn = document.getElementById("tt-stop");
   if (stopBtn) {
-    const swallow = (e) => { e.preventDefault(); };
-    stopBtn.onmousedown = swallow;
-    stopBtn.ontouchstart = swallow;
-    stopBtn.onpointerdown = swallow;
-    stopBtn.onclick = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
+    stopBtn.onmousedown = (e) => { e.preventDefault(); };
+    const doFinish = (e) => {
+      if (e) { e.preventDefault(); e.stopPropagation(); }
       const st = stage.dataset.state;
       if (st !== "running" && st !== "ready") return;
       if (engine.startTs === 0) engine.startTs = performance.now();
-      // Resume any paused timer first so finish()'s ms calc is
-      // accurate even if a stray blur/pause snuck through.
       if (engine._pauseAt) engine.resumeTimer();
       engine.finish();
     };
+    stopBtn.onclick = doFinish;
+    stopBtn.addEventListener("touchend", doFinish, { passive: false });
   }
   // Expose for console debugging + as a last-resort fallback for the
   // inline onclick on the Stop button markup.
