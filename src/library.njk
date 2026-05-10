@@ -76,8 +76,8 @@ description: "Public-domain literature from Project Gutenberg, ready to type. Pe
         <td class="corpus-table__title"><a href="{{ book.permalink }}">{{ book.title }}</a></td>
         <td class="corpus-table__second">{{ book.author }}</td>
         <td><span class="library-row__genre">{{ genre }}</span></td>
-        <td class="num corpus-table__len">{% if pubYear %}{% if pubYear > 0 %}{{ pubYear }}{% else %}{{ -pubYear }} BC{% endif %}{% else %}—{% endif %}</td>
-        <td class="num corpus-table__len">{{ (book.charCount / 1000) | round }}k</td>
+        <td class="num corpus-table__len" data-label="Year">{% if pubYear %}{% if pubYear > 0 %}{{ pubYear }}{% else %}{{ -pubYear }} BC{% endif %}{% else %}—{% endif %}</td>
+        <td class="num corpus-table__len" data-label="Length">{{ (book.charCount / 1000) | round }}k chars</td>
         <td class="num library-row__progress" data-slug="{{ book.slug }}" data-total="{{ book.paragraphCount }}">0 / {{ book.paragraphCount }}</td>
         <td class="corpus-table__actcol">
           <a class="btn btn--small btn--primary" href="{{ book.permalink }}">Open</a>

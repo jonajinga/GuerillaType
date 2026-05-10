@@ -70,6 +70,23 @@
 .game-actions .btn{
   white-space:nowrap;flex-shrink:0;
 }
+.game-speed{
+  display:flex;align-items:center;gap:var(--space-2);
+  max-width:520px;margin:0 auto;
+  padding:.6rem .9rem;background:var(--bg-1);
+  border:1px solid var(--rule);border-radius:var(--radius);
+}
+.game-speed__label{
+  font-family:var(--font-mono);font-size:.62rem;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--fg-3);
+}
+.game-speed__range{
+  flex:1 1 0;min-width:0;accent-color:var(--accent);
+}
+.game-speed__val{
+  font-family:var(--font-mono);font-size:.85rem;color:var(--accent);
+  min-width:3em;text-align:right;font-variant-numeric:tabular-nums;
+}
 
 .game-howto{
   margin-top:var(--space-3);padding:var(--space-3);

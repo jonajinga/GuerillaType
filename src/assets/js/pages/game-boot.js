@@ -30,8 +30,18 @@ let lastFrameTs = 0;
 let d3 = null;
 let svgSel = null;
 let stageW = 800, stageH = 500;
+let speedMult = 1.0;       // multiplier from the speed slider
 
 const input = document.getElementById("game-input");
+const speedSlider = document.getElementById("game-speed");
+const speedVal = document.querySelector("[data-speed-val]");
+if (speedSlider) {
+  speedMult = parseFloat(speedSlider.value) || 1.0;
+  speedSlider.addEventListener("input", () => {
+    speedMult = parseFloat(speedSlider.value) || 1.0;
+    if (speedVal) speedVal.textContent = speedMult.toFixed(1) + "×";
+  });
+}
 const startBtn = document.getElementById("game-start");
 const pauseBtn = document.getElementById("game-pause");
 const resetBtn = document.getElementById("game-reset");
@@ -83,7 +93,9 @@ function spawn() {
   const w = pickWord();
   if (!w) return;
   const x = 60 + Math.random() * (stageW - 120);
-  const speed = 50 + Math.random() * 30 + stats.caught * 0.6;  // px/sec, ramps up
+  // Base fall speed + per-catch ramp, all scaled by the slider.
+  const baseSpeed = 50 + Math.random() * 30 + stats.caught * 0.6;
+  const speed = baseSpeed * speedMult;
   falling.push({ id: Math.random().toString(36).slice(2), word: w, x, y: -20, speed });
 }
 
@@ -169,8 +181,11 @@ function paintFalling() {
 
 function tryCatch(typed) {
   if (!typed) return;
-  // Match the first falling word whose text equals typed.
-  const i = falling.findIndex((f) => f.word === typed);
+  // Match the first falling word whose text equals typed AND is
+  // visibly on the stage. Without the y guard the user could
+  // earn credit for a word that just slid past the bottom edge
+  // (the frame's bottom-filter races with this handler).
+  const i = falling.findIndex((f) => f.word === typed && f.y > 0 && f.y < stageH - 10);
   if (i === -1) return false;
   const f = falling[i];
   // Remove from the active array immediately so the frame loop

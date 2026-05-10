@@ -259,12 +259,14 @@
   }
 }
 
-/* Tablet portrait + small phone (<=767px) -- ensure the books table
-   reads as cards (the rule in quotes.css is the source of truth, but
-   library.njk's inline rules previously fought it). Reset any column-
-   hiding so every row collapses cleanly to a single card. */
+/* Tablet portrait + small phone (<=767px) -- each table row turns
+   into a self-contained card. Title up top, author below, a single
+   compact meta row with labeled stats, and a full-width Open
+   button along the bottom edge of the card. The earlier layout
+   crammed unlabeled numbers inline ("1850 25k 0/100") which was
+   the source of the "doesn't look good" feedback. */
 @media (max-width:767px){
-  .corpus-table__wrap{border:0;overflow:visible}
+  .corpus-table__wrap{border:0;overflow:visible;padding:0}
   #library-table thead{display:none}
   #library-table,
   #library-table tbody,
@@ -272,37 +274,82 @@
   #library-table .library-row{
     background:var(--bg-1);
     border:1px solid var(--rule);border-radius:var(--radius);
-    padding:.85rem .9rem;margin-bottom:.6rem;
+    padding:var(--space-3) var(--space-3) var(--space-3);
+    margin-bottom:var(--space-2);
+    display:grid;grid-template-columns:1fr;gap:.45rem;
     position:relative;
   }
   #library-table .library-row > td{
     display:block;border:0;padding:0;margin:0;text-align:left;
     background:transparent;
   }
+  /* Title -- big, prominent, room to wrap onto two lines. */
   #library-table .library-row > td.corpus-table__title{
-    font-size:var(--fs-400);line-height:1.35;margin-bottom:.3rem;
-    padding-right:5rem; /* leave room for the absolute Open button */
+    order:1;
+    font-family:var(--font-display);font-size:var(--fs-500);
+    line-height:1.2;color:var(--fg-0);
   }
+  #library-table .library-row > td.corpus-table__title a{
+    color:inherit;text-decoration:none;
+  }
+  /* Author -- mono caps, muted, sits just below the title. */
   #library-table .library-row > td.corpus-table__second{
-    color:var(--fg-2);font-size:.85rem;margin-bottom:.35rem;
+    order:2;
+    color:var(--fg-2);font-family:var(--font-mono);
+    font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
   }
-  #library-table .library-row > td.corpus-table__len,
-  #library-table .library-row > td.library-row__progress{
+  /* Meta row -- inline pills with explicit labels. Genre / year /
+     length / progress laid out as a single flex row with mid-dot
+     separators. */
+  #library-table .library-row > td:nth-of-type(3){
+    /* Genre (3rd <td> -- between author and year). */
+    order:3;
     display:inline-block;
-    font-family:var(--font-mono);font-size:.72rem;
-    color:var(--fg-3);letter-spacing:.04em;
-    margin-right:.7rem;text-align:left;
+    font-family:var(--font-mono);font-size:.62rem;
+    letter-spacing:.08em;text-transform:uppercase;
+    color:var(--accent);
+    padding:.18rem .5rem;border:1px solid var(--rule);
+    border-radius:var(--radius);
+    background:color-mix(in oklab, var(--accent) 8%, transparent);
+    align-self:flex-start;
+    width:fit-content;
   }
+  #library-table .library-row > td.corpus-table__len{
+    order:4;
+    display:inline-block;
+    font-family:var(--font-mono);font-size:.78rem;
+    color:var(--fg-1);
+  }
+  #library-table .library-row > td.corpus-table__len::before{
+    content:attr(data-label) "";
+    color:var(--fg-3);font-size:.6rem;
+    letter-spacing:.08em;text-transform:uppercase;
+    margin-right:.4rem;
+  }
+  /* Wrap the two len cells side-by-side via flex on the parent.
+     The grid already sets one column; switch year + length to
+     inline-flex chips that sit in a wrapped row. */
+  #library-table .library-row{align-items:start}
+  #library-table .library-row > td.library-row__progress{
+    order:5;
+    font-family:var(--font-mono);font-size:.78rem;
+    color:var(--fg-1);
+  }
+  #library-table .library-row > td.library-row__progress::before{
+    content:"Progress: ";
+    color:var(--fg-3);font-size:.6rem;
+    letter-spacing:.08em;text-transform:uppercase;
+    margin-right:.4rem;
+  }
+  /* Open button spans the full card width along the bottom. */
   #library-table .library-row > td.corpus-table__actcol{
-    position:absolute;top:.7rem;right:.8rem;
-    padding:0;margin:0;
+    order:99;
+    margin-top:.3rem;
   }
   #library-table .library-row > td.corpus-table__actcol .btn{
-    min-width:0;padding:.3rem .7rem;font-size:.78rem;
+    width:100%;justify-content:center;
+    padding:.55rem .8rem;font-size:.85rem;
   }
-  /* Genre column shows as inline pill if rendered (it was hidden by
-     the page's inline rule; we keep that hiding so the card stays
-     compact on phones). */
 }
 
 /* Book-header on phones: the meta row was wrapping into two lines
