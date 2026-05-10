@@ -97,7 +97,10 @@ export class TypingEngine {
       // The session pauses without ending so users can step away briefly.
       onBlur: () => { if (this.running) this.pauseTimer(); },
       onFocus: () => {
-        this.resumeTimer();
+        // Don't auto-resume when the user explicitly hit Pause.
+        // Without this, the virtual-keyboard refocus cycle (or
+        // any incidental refocus) immediately undoes the pause.
+        if (!this._userPaused) this.resumeTimer();
         // Clear the mobile "tap to start" hint once the surface gets
         // its first real focus -- whether from a tap or otherwise.
         if (this.host.dataset.mobileWaiting === "true") {

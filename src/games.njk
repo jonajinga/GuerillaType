@@ -30,7 +30,7 @@ pageSlug: games
     <a class="btn btn--primary" href="/practice/game/">Play Catch the Word →</a>
   </article>
 
-  <article class="game-card game-card--coming">
+  <article class="game-card">
     <div class="game-card__icon" aria-hidden="true">
       <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="9"/>
@@ -41,35 +41,32 @@ pageSlug: games
         <line x1="18" y1="12" x2="22" y2="12"/>
       </svg>
     </div>
-    <h2 class="game-card__title">Shooter <span class="game-card__tag">Coming soon</span></h2>
-    <p class="game-card__desc">Words float across the screen at varying speeds. Type the one your cursor is pointing at. Tests reaction time + target acquisition alongside typing speed.</p>
-    <ul class="game-card__meta">
-      <li><strong>Source</strong> Mixed corpus</li>
-      <li><strong>Length</strong> 60 seconds per round</li>
-      <li><strong>Status</strong> In flight</li>
-    </ul>
-    <button class="btn" disabled>Coming soon</button>
-  </article>
-
-  <article class="game-card game-card--coming">
-    <div class="game-card__icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M3 12h18"/>
-        <path d="M3 6h18"/>
-        <path d="M3 18h18"/>
-        <circle cx="20" cy="6" r="1.5"/>
-        <circle cx="20" cy="12" r="1.5"/>
-        <circle cx="20" cy="18" r="1.5"/>
-      </svg>
-    </div>
-    <h2 class="game-card__title">Endless <span class="game-card__tag">Coming soon</span></h2>
-    <p class="game-card__desc">Words spawn forever, faster each minute. Three misses ends the run. Persistent high score per profile.</p>
+    <h2 class="game-card__title">Word Shooter</h2>
+    <p class="game-card__desc">Words drift across the screen from left to right. Type each one to shoot it before it leaves the frame. Tests target acquisition alongside typing speed.</p>
     <ul class="game-card__meta">
       <li><strong>Source</strong> Your missed-words list</li>
       <li><strong>Length</strong> Until 3 misses</li>
-      <li><strong>Status</strong> In flight</li>
+      <li><strong>Direction</strong> Horizontal drift</li>
     </ul>
-    <button class="btn" disabled>Coming soon</button>
+    <a class="btn btn--primary" href="/practice/game/?mode=shooter">Play Shooter →</a>
+  </article>
+
+  <article class="game-card">
+    <div class="game-card__icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 4v16"/>
+        <path d="m8 8 4-4 4 4"/>
+        <path d="m8 16 4 4 4-4"/>
+      </svg>
+    </div>
+    <h2 class="game-card__title">Endless</h2>
+    <p class="game-card__desc">Words spawn forever, faster each catch. No three-miss cap — keep typing as long as you can stand it. Persistent high score per profile.</p>
+    <ul class="game-card__meta">
+      <li><strong>Source</strong> Your missed-words list</li>
+      <li><strong>Length</strong> Until you stop</li>
+      <li><strong>Difficulty</strong> Ramps faster than Classic</li>
+    </ul>
+    <a class="btn btn--primary" href="/practice/game/?mode=endless">Play Endless →</a>
   </article>
 </div>
 

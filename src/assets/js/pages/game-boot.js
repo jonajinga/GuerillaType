@@ -32,11 +32,10 @@ let d3 = null;
 let svgSel = null;
 let stageW = 800, stageH = 500;
 let speedMult = 1.0;
-// Mode flags driven by URL params. /practice/game/?mode=endless
-// spawns words forever (until 3 misses) with a steeper speed
-// ramp. ?speed=N sets the initial speed multiplier.
+// Mode flags. URL ?mode=endless | shooter sets the initial mode;
+// the user can switch via the in-page mode switch buttons too.
 const _gameParams = new URLSearchParams(location.search);
-const gameMode = _gameParams.get("mode") === "endless" ? "endless" : "classic";
+let gameMode = ({ endless: "endless", shooter: "shooter", classic: "classic" })[_gameParams.get("mode")] || "classic";
 const initialSpeed = parseFloat(_gameParams.get("speed")) || 1.0;
 speedMult = initialSpeed;
 
@@ -101,13 +100,26 @@ function paintStats() {
 function spawn() {
   const w = pickWord();
   if (!w) return;
+  if (gameMode === "shooter") {
+    // Shooter: word enters from the left at a random vertical
+    // band, drifts right. Off-stage to the right counts as a
+    // miss. vx = horizontal speed; vy = 0.
+    const y = 40 + Math.random() * (stageH - 80);
+    const vx = 40 + Math.random() * 30 + stats.caught * 0.8;
+    falling.push({
+      id: Math.random().toString(36).slice(2),
+      word: w, x: -40, y, vx: vx * speedMult, vy: 0, mode: "shooter",
+    });
+    return;
+  }
+  // Classic / endless: word falls from the top.
   const x = 60 + Math.random() * (stageW - 120);
-  // Base fall speed + per-catch ramp. Endless mode ramps faster
-  // (1.5 px/caught vs 0.6) so the round actually escalates.
   const rampPerCatch = gameMode === "endless" ? 1.5 : 0.6;
   const baseSpeed = 50 + Math.random() * 30 + stats.caught * rampPerCatch;
-  const speed = baseSpeed * speedMult;
-  falling.push({ id: Math.random().toString(36).slice(2), word: w, x, y: -20, speed });
+  falling.push({
+    id: Math.random().toString(36).slice(2),
+    word: w, x, y: -20, vx: 0, vy: baseSpeed * speedMult, mode: "fall",
+  });
 }
 
 function frame(elapsed) {
@@ -124,21 +136,36 @@ function frame(elapsed) {
     spawn();
     lastSpawnTs = now;
   }
-  // Advance each word.
+  // Advance each word along its axis. Older entries use f.speed
+  // (vertical only); newer entries carry vx + vy so shooter mode
+  // can drift horizontally.
   for (const f of falling) {
-    f.y += f.speed * dt;
+    if (f.vx == null && f.vy == null) {
+      // Legacy fall path -- always vertical.
+      f.y += (f.speed || 0) * dt;
+    } else {
+      f.x += (f.vx || 0) * dt;
+      f.y += (f.vy || 0) * dt;
+    }
   }
-  // Words past the bottom = missed.
+  // Miss check: falling words past bottom, shooter words past
+  // the right edge.
   const before = falling.length;
   falling = falling.filter((f) => {
-    if (f.y < stageH - 10) return true;
+    if (f.mode === "shooter") {
+      if (f.x < stageW + 80) return true;
+    } else {
+      if (f.y < stageH - 10) return true;
+    }
     stats.missed++;
     stats.streak = 0;
     return false;
   });
   if (falling.length !== before) {
     paintStats();
-    if (stats.missed >= 3) {
+    // Endless never ends on missed count; only caught -> stale
+    // never triggers endRound. Classic + shooter end at 3.
+    if (gameMode !== "endless" && stats.missed >= 3) {
       endRound();
       return;
     }
@@ -424,6 +451,54 @@ resetBtn.addEventListener("click", () => {
 
 // Pre-warm D3 in the background so the first click is instant.
 loadD3().then((m) => { if (m) { d3 = m; svgSel = d3.select("#game-svg"); }});
+
+/* Game-mode switch buttons. Tabs across the top let the user
+   flip between classic / endless / shooter without reloading.
+   Updates the page title + subtitle to match the active mode
+   and resets the round so the new physics take effect cleanly. */
+const MODE_COPY = {
+  classic: {
+    title: "Catch the Word",
+    subtitle: "Type the falling words before they hit the bottom. Three misses ends the round.",
+  },
+  endless: {
+    title: "Catch the Word — Endless",
+    subtitle: "No three-miss cap. Spawns forever, faster each catch. Score persists to your profile.",
+  },
+  shooter: {
+    title: "Word Shooter",
+    subtitle: "Words drift across the screen left to right. Type each one to shoot it before it leaves the frame.",
+  },
+};
+function applyModeCopy() {
+  const c = MODE_COPY[gameMode] || MODE_COPY.classic;
+  const t = document.getElementById("game-title");
+  const s = document.getElementById("game-subtitle");
+  if (t) t.textContent = c.title;
+  if (s) s.textContent = c.subtitle;
+  document.querySelectorAll(".game-mode-switch__btn").forEach((btn) => {
+    btn.classList.toggle("is-active", btn.dataset.gameMode === gameMode);
+  });
+}
+applyModeCopy();
+document.querySelectorAll(".game-mode-switch__btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    gameMode = btn.dataset.gameMode || "classic";
+    applyModeCopy();
+    // Reset the round so the new mode takes effect cleanly. The
+    // user starts a fresh round via the Start button.
+    if (running) {
+      running = false;
+      falling = [];
+      reset();
+      startBtn.textContent = "Start";
+      startBtn.hidden = false;
+      pauseBtn.hidden = true;
+      resetBtn.hidden = true;
+      if (svgSel) svgSel.selectAll("g.fall, g.fall--dying, g.fall-popup").remove();
+    }
+  });
+});
 
 // Virtual on-screen keyboard for the game -- mobile only.
 // Desktop users have a physical keyboard and don't need a tap

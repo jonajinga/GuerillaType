@@ -11,8 +11,8 @@ pageSlug: practice-game
 <div class="game-page" data-game-root>
   <header class="game-header">
     <div class="game-header__brand">
-      <h1>Catch the Word</h1>
-      <p class="muted">Type the falling words before they hit the bottom. Weighted toward letters and words you've struggled with.</p>
+      <h1 id="game-title">Catch the Word</h1>
+      <p class="muted" id="game-subtitle">Type the falling words before they hit the bottom. Weighted toward letters and words you've struggled with.</p>
     </div>
     <div class="game-header__stats" id="game-stats">
       <div class="game-stat"><span class="game-stat__label">Score</span><span class="game-stat__value" data-score>0</span></div>
@@ -21,6 +21,12 @@ pageSlug: practice-game
       <div class="game-stat"><span class="game-stat__label">Streak</span><span class="game-stat__value" data-streak>0</span></div>
     </div>
   </header>
+
+  <nav class="game-mode-switch" aria-label="Game mode">
+    <button type="button" class="game-mode-switch__btn is-active" data-game-mode="classic" data-tip="Catch the Word -- words fall, you type them. Three misses ends the round.">Classic</button>
+    <button type="button" class="game-mode-switch__btn" data-game-mode="endless" data-tip="No three-miss cap. Spawns forever, faster each catch. Personal high score saved.">Endless</button>
+    <button type="button" class="game-mode-switch__btn" data-game-mode="shooter" data-tip="Words drift across the screen. Type the next one to shoot it before it leaves the frame.">Shooter</button>
+  </nav>
 
   <section class="game-stage">
     <svg id="game-svg" class="game-svg" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" aria-label="Falling words"></svg>

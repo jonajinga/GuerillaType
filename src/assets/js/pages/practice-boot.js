@@ -1208,24 +1208,29 @@ async function boot() {
    trigger it. Permissive: fires from "ready" or "running" states.
    In "ready" we stamp startTs to now so finish() doesn't compute a
    nonsense ms duration. In "idle" / "done" we no-op. */
-/* Toggle pause state. Freezes the engine clock + live stats
-   until the user resumes (clicking again, pressing any key, or
-   focusing the input). On mobile, this is the primary pause
-   path since blur-pause is disabled there. */
+/* Toggle pause state. Freezes the engine clock + live stats.
+   Sets engine._userPaused so the auto-resume on input-focus
+   (which fires constantly during virtual-keyboard refocus
+   cycles) can't immediately unpause the session. The user
+   stays paused until they explicitly hit Resume. */
 window.ttPause = () => {
   const eng = window.__tt || engine;
   if (!eng) return;
-  if (eng._pauseAt) {
+  if (eng._pauseAt && eng._userPaused) {
+    // Currently user-paused -- resume.
+    eng._userPaused = false;
     eng.resumeTimer();
   } else {
+    // Pause + mark as user-driven so onFocus can't auto-resume.
+    eng._userPaused = true;
     eng.pauseTimer();
   }
-  // Toggle button visual state.
   const btn = document.getElementById("tt-pause");
   if (btn) {
-    btn.setAttribute("aria-pressed", eng._pauseAt ? "true" : "false");
+    btn.setAttribute("aria-pressed", eng._userPaused ? "true" : "false");
     const label = btn.querySelector(".tt-actions__label");
-    if (label) label.textContent = eng._pauseAt ? "Resume" : "Pause";
+    if (label) label.textContent = eng._userPaused ? "Resume" : "Pause";
+    btn.classList.toggle("is-paused", !!eng._userPaused);
   }
 };
 
