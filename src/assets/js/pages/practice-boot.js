@@ -787,20 +787,39 @@ function renderResults(r) {
     ` : ''}
     <div class="results__actions">
       ${(() => {
+        // Each button gets an icon (rendered via inline SVG inside the
+        // btn) AND a wrapping span.results__btn-label for the text.
+        // CSS hides the label on mobile to leave just the icon. Icons
+        // are stroke-based feather-style for visual consistency.
+        const ICONS = {
+          next:    `<svg class="results__btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`,
+          retry:   `<svg class="results__btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>`,
+          list:    `<svg class="results__btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/></svg>`,
+          adaptive:`<svg class="results__btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 4 6v6c0 5 3.4 9.5 8 10 4.6-.5 8-5 8-10V6l-8-4z"/></svg>`,
+          stats:   `<svg class="results__btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-7"/></svg>`,
+          book:    `<svg class="results__btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
+          lesson:  `<svg class="results__btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
+        };
+        const wrap = (icon, label, attrs, tip, primary) => `
+          <${attrs.tag || "button"} class="btn results__btn ${primary ? "btn--primary" : ""}" ${attrs.attrs || ""} data-tip="${tip}" aria-label="${label}">
+            ${icon}<span class="results__btn-label">${label}</span>
+          </${attrs.tag || "button"}>`;
         // Book mode: Next page / Type page again / back to chapter list.
         if (state.bookSlug) {
-          return `<a class="btn btn--primary" id="tt-next-page" href="${nextBookUrl()}" data-tip="Move on to the next paragraph in this book.">Next page →</a><button type="button" class="btn" onclick="window.ttRestart && window.ttRestart()" data-tip="Retype this same page from the start.">Type page again</button><a class="btn" href="/library/${encodeURIComponent(state.bookSlug)}/" data-tip="Return to the book's chapter index.">Back to chapter list</a>`;
+          return wrap(ICONS.next, "Next page →", { tag: "a", attrs: `id="tt-next-page" href="${nextBookUrl()}"` }, "Move on to the next paragraph in this book.", true)
+            + wrap(ICONS.retry, "Type page again", { attrs: `type="button" onclick="window.ttRestart && window.ttRestart()"` }, "Retype this same page from the start.")
+            + wrap(ICONS.book, "Back to chapter list", { tag: "a", attrs: `href="/library/${encodeURIComponent(state.bookSlug)}/"` }, "Return to the book's chapter index.");
         }
-        // Daily-quote mode: "Next test" should serve a fresh random quote
-        // rather than the same daily quote again. The daily quote is the
-        // *opening* of a session; subsequent ones are random by design.
+        // Daily-quote mode: "Next test" -> fresh random quote.
         const isDaily = state.mode === "quote" && state.quote === "daily";
         const nextBtn = isDaily
-          ? `<a class="btn btn--primary" href="/practice/?mode=quote&quote=random" data-tip="Pull a fresh random quote from the public-domain corpus.">Next quote →</a>`
-          : `<button type="button" class="btn btn--primary" onclick="window.ttRestart && window.ttRestart()" data-tip="Restart with the same mode, duration, and language.">Next test</button>`;
+          ? wrap(ICONS.next, "Next quote →", { tag: "a", attrs: `href="/practice/?mode=quote&quote=random"` }, "Pull a fresh random quote from the public-domain corpus.", true)
+          : wrap(ICONS.retry, "Next test", { attrs: `type="button" onclick="window.ttRestart && window.ttRestart()"` }, "Restart with the same mode, duration, and language.", true);
         const tail = state.lessonId
-          ? `<a class="btn" href="/practice/?lesson=${state.lessonId + 1}" data-tip="Move on to the next lesson in the curriculum.">Next lesson</a><a class="btn" href="/lessons/" data-tip="See every lesson available.">All lessons</a>`
-          : `<a class="btn" href="/practice/?mode=adaptive" data-tip="Switch to adaptive mode -- the picker weights your weakest keys more heavily.">Practice weak keys</a><a class="btn" href="/stats/" data-tip="Open your full performance dashboard with charts, heatmaps, and history.">View stats</a>`;
+          ? wrap(ICONS.lesson, "Next lesson", { tag: "a", attrs: `href="/practice/?lesson=${state.lessonId + 1}"` }, "Move on to the next lesson in the curriculum.")
+            + wrap(ICONS.list, "All lessons", { tag: "a", attrs: `href="/lessons/"` }, "See every lesson available.")
+          : wrap(ICONS.adaptive, "Practice weak keys", { tag: "a", attrs: `href="/practice/?mode=adaptive"` }, "Switch to adaptive mode -- the picker weights your weakest keys more heavily.")
+            + wrap(ICONS.stats, "View stats", { tag: "a", attrs: `href="/stats/"` }, "Open your full performance dashboard with charts, heatmaps, and history.");
         return nextBtn + tail;
       })()}
     </div>

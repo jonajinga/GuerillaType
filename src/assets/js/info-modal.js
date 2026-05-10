@@ -1,7 +1,17 @@
 /* Info modal — context-aware popups for hint text that we don't want
    cluttering the surface. window.openInfoModal('home' | 'practice' | …) */
 
-const TOPICS = {
+/* Touch-device detection. Mobile users can't press Tab / Esc / Shift,
+   so the keyboard-shortcut row is meaningless. Swap it for tap-based
+   guidance. Same predicate as the rest of the site -- coarse pointer
+   OR <=767px viewport. */
+function isTouchDevice() {
+  if (typeof window.matchMedia !== "function") return false;
+  return window.matchMedia("(max-width: 767px)").matches ||
+         window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+}
+
+const TOPICS_DESKTOP = {
   home: {
     title: "How to start typing",
     body: `
@@ -32,6 +42,37 @@ const TOPICS = {
       </p>`,
   },
 };
+
+const TOPICS_MOBILE = {
+  home: {
+    title: "How to start typing",
+    body: `
+      <ul class="info-modal__list">
+        <li>The card on this page has <strong>today's quote</strong> waiting. Tap into the typing area; your keyboard slides up and the clock starts on the first keystroke.</li>
+        <li>Or tap <strong>Start with today's quote</strong> to open it in the full practice surface with stats and a restart button.</li>
+        <li>Want a fast warm-up instead? <strong>Quick 30-second test</strong> drops you into the common-word list.</li>
+        <li>Finish the quote and you'll see the full results -- wpm, accuracy, weak keys, and achievement progress.</li>
+      </ul>
+      <p class="info-modal__shortcut-row">
+        Tap the surface to focus · tap <strong>Restart</strong> to retry · the toolbar slides left/right.
+      </p>`,
+  },
+  practice: {
+    title: "Practice surface",
+    body: `
+      <ul class="info-modal__list">
+        <li>Pick a mode + variant from the toolbar above. The bar slides left and right -- or use the arrows on each side.</li>
+        <li>Tap the typing area to focus and bring up your keyboard. Type the words shown; correct keystrokes light up, mistakes underline in red.</li>
+        <li>Stats update live -- wpm, accuracy %, and time or progress remaining. They sit at the start of the toolbar so you can glance at them.</li>
+        <li>Tap <strong>Restart</strong> (the circular-arrow icon) to start over.</li>
+      </ul>
+      <p class="info-modal__shortcut-row">
+        Tap the surface to focus · tap the <strong>arrow icon</strong> to restart · the toolbar slides horizontally.
+      </p>`,
+  },
+};
+
+const TOPICS = isTouchDevice() ? TOPICS_MOBILE : TOPICS_DESKTOP;
 
 function build() {
   let el = document.getElementById("info-modal");

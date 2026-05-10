@@ -124,6 +124,27 @@
 .results__chart svg{width:100%;height:100%}
 
 .results__actions{display:flex;flex-wrap:wrap;gap:var(--space-2);justify-content:center;margin-top:var(--space-4)}
+/* Result-card buttons (Next quote / Practice weak keys / View stats /
+   Type page again / etc.) share metrics so the post-completion row
+   reads as a balanced trio. */
+.results__btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:.45rem;
+  min-width:11rem;
+}
+.results__btn-icon{display:none}
+@media (max-width:640px){
+  /* Mobile: icon-only square buttons. The labels collapse to screen-
+     reader-only spans so the row stays compact and trio-aligned. */
+  .results__actions{gap:.5rem}
+  .results__btn{
+    min-width:0;width:48px;height:48px;padding:0;
+  }
+  .results__btn-icon{display:block;width:18px;height:18px}
+  .results__btn-label{
+    position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;
+    overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+  }
+}
 
 .results__weakkeys{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:var(--space-3)}
 .results__weakkey{display:inline-flex;align-items:center;padding:.2em .6em;font-family:var(--font-mono);background:color-mix(in oklab, var(--bad) 15%, transparent);border:1px solid var(--bad);color:var(--bad);font-size:var(--fs-200);border-radius:var(--radius-sm)}

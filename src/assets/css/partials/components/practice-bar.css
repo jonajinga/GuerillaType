@@ -25,23 +25,28 @@ body.is-hide-ui:not(.is-corpus-mode) .tt-stage{
 
 .practice-bar{
   position:sticky;
+  /* var(--header-h) is set by JS on load + resize from the actual
+     header.offsetHeight, so the toolbar sticks exactly underneath the
+     header at every viewport. Pulling up by 1 px merges the toolbar's
+     top edge into the header's bottom border so there is no visible
+     hairline gap between the two sticky strips. */
   top:var(--header-h, 58px);
+  margin-top:-1px;
   z-index:40;
   background:color-mix(in oklab, var(--bg-1) 92%, transparent);
   backdrop-filter:saturate(160%) blur(14px);
   -webkit-backdrop-filter:saturate(160%) blur(14px);
   border-bottom:1px solid var(--rule);
-  margin:0 calc(-1 * var(--gutter)) var(--space-4);
+  /* Side margins extend to the gutter so the toolbar reads full-width.
+     Bottom margin tightened to var(--space-2) -- previously --space-4
+     left a noticeable empty band below the toolbar before the typing
+     surface began. */
+  margin-left:calc(-1 * var(--gutter));
+  margin-right:calc(-1 * var(--gutter));
+  margin-bottom:var(--space-2);
 }
-/* Mobile: glue the toolbar to the header. Pin top to 0 so it sits
-   directly below the also-sticky header (which itself is top:0 +
-   --header-h tall). Drop the bottom margin so the typing surface
-   begins right under the toolbar with no awkward gap. */
 @media (max-width:768px){
-  .practice-bar{
-    top:0;
-    margin-bottom:0;
-  }
+  .practice-bar{margin-bottom:0}
   .practice-page{padding-top:var(--space-3)}
 }
 .practice-bar__inner{
