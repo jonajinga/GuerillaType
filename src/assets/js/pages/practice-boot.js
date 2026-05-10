@@ -238,7 +238,9 @@ async function buildText() {
         state._customMeta = {
           kind: "idiom",
           sourceId: item.id || null,
-          source: item.meaning || null,
+          // No "source" field for idioms -- the renderer would
+          // print "from <source>" which doesn't make sense for an
+          // idiom. The meaning shows below via the meaning slot.
           meaning: item.meaning || null,
         };
         state._customTitle = item.text;
