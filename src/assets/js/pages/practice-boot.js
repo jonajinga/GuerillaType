@@ -487,19 +487,24 @@ function startEngine(target) {
     showLiveTicker(false);
   }
 
-  // Mobile tap-to-type keyboard. Only mounts on touch devices and
-  // only when the preference is on. Suppresses the OS soft
-  // keyboard by setting inputmode="none" on the typing input.
+  // Mobile tap-to-type keyboard. Defaults ON for small viewports
+  // (<= 768 px); the user can disable it in Settings -> Visual
+  // aids -> Tap-to-type keyboard (mobile). The ?vkbd=1 URL param
+  // force-enables it on any viewport for testing.
+  const isMobileViewport = window.matchMedia && window.matchMedia("(max-width: 768px)").matches;
   const isTouchLike = (() => {
     try {
-      if (window.matchMedia && window.matchMedia("(max-width: 768px)").matches) return true;
+      if (isMobileViewport) return true;
       if (window.matchMedia && window.matchMedia("(hover: none) and (pointer: coarse)").matches) return true;
       if ("ontouchstart" in window) return true;
       if (navigator.maxTouchPoints > 0) return true;
     } catch {}
     return false;
   })();
-  if ((prefs.mobileKeyboard || forceVkbd) && isTouchLike) {
+  // Default ON if user hasn't explicitly set it to false. Treat
+  // undefined as "use the default".
+  const mobileKbdEnabled = prefs.mobileKeyboard !== false;
+  if ((mobileKbdEnabled || forceVkbd) && isMobileViewport) {
     mountVirtualKeyboard();
     const firstCh2 = Array.isArray(target) ? (target[0] && target[0][0]) : (target && target[0]);
     if (firstCh2) vkbdNext(firstCh2);
@@ -1060,67 +1065,59 @@ function bindModeBar() {
   bindModeDropdowns();
 }
 
-/* Dropdown open/close. Each .mode-bar__chev with
-   data-dropdown-trigger="<mode>" toggles the panel with the matching
-   data-dropdown attribute. Click outside or Esc closes any open
-   panel. Only one panel open at a time. */
+/* Dropdown open/close. Exposed as window.ttToggleDropdown so the
+   inline onclick on each chevron can call it directly -- bypasses
+   any addEventListener timing/scope quirks that were preventing the
+   panel from opening on mobile. */
+function closeAllDropdowns() {
+  document.querySelectorAll('.mode-bar__chev[data-dropdown-trigger]').forEach((t) => t.setAttribute("aria-expanded", "false"));
+  document.querySelectorAll('.mode-bar__dropdown[data-dropdown]').forEach((p) => { p.hidden = true; });
+}
+window.ttToggleDropdown = function(mode, event) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  const trigger = document.querySelector(`.mode-bar__chev[data-dropdown-trigger="${mode}"]`);
+  const panel = document.querySelector(`.mode-bar__dropdown[data-dropdown="${mode}"]`);
+  if (!trigger || !panel) return;
+  const isOpen = trigger.getAttribute("aria-expanded") === "true";
+  closeAllDropdowns();
+  if (isOpen) return;
+  trigger.setAttribute("aria-expanded", "true");
+  panel.hidden = false;
+  // Mobile: bottom-sheet -- clear inline coords so the CSS wins.
+  // Desktop: position under the chevron via getBoundingClientRect.
+  const isMobile = window.matchMedia && window.matchMedia("(max-width: 768px)").matches;
+  if (!isMobile) {
+    const r = trigger.getBoundingClientRect();
+    const panelW = Math.min(420, window.innerWidth * 0.92);
+    panel.style.top = (r.bottom + 6) + "px";
+    panel.style.left = Math.max(8, Math.min(r.left, window.innerWidth - panelW - 8)) + "px";
+    panel.style.right = "auto";
+    panel.style.bottom = "auto";
+  } else {
+    panel.style.top = "";
+    panel.style.left = "";
+    panel.style.right = "";
+    panel.style.bottom = "";
+  }
+};
+
 function bindModeDropdowns() {
-  const triggers = document.querySelectorAll('.mode-bar__chev[data-dropdown-trigger]');
-  const panels = document.querySelectorAll('.mode-bar__dropdown[data-dropdown]');
-  if (!triggers.length) return;
-  function closeAll() {
-    triggers.forEach((t) => t.setAttribute("aria-expanded", "false"));
-    panels.forEach((p) => { p.hidden = true; });
-  }
-  function openPanel(mode) {
-    closeAll();
-    const trigger = Array.from(triggers).find((t) => t.dataset.dropdownTrigger === mode);
-    const panel = Array.from(panels).find((p) => p.dataset.dropdown === mode);
-    if (!trigger || !panel) return;
-    trigger.setAttribute("aria-expanded", "true");
-    panel.hidden = false;
-    // Position via getBoundingClientRect since the panel is
-    // position:fixed (escapes the toolbar's overflow clipping).
-    if (window.matchMedia && !window.matchMedia("(max-width: 768px)").matches) {
-      const r = trigger.getBoundingClientRect();
-      const panelW = Math.min(420, window.innerWidth * 0.92);
-      const desired = r.left;
-      const max = window.innerWidth - panelW - 8;
-      panel.style.top = (r.bottom + 6) + "px";
-      panel.style.left = Math.max(8, Math.min(desired, max)) + "px";
-      panel.style.right = "auto";
-      panel.style.bottom = "auto";
-    } else {
-      // Mobile bottom-sheet: clear top/left so the CSS rules win.
-      panel.style.top = "";
-      panel.style.left = "";
-      panel.style.right = "";
-      panel.style.bottom = "";
-    }
-  }
-  triggers.forEach((trigger) => {
-    trigger.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const isOpen = trigger.getAttribute("aria-expanded") === "true";
-      if (isOpen) closeAll();
-      else openPanel(trigger.dataset.dropdownTrigger);
-    });
-  });
   // Click outside any panel closes all.
   document.addEventListener("click", (e) => {
     if (e.target.closest(".mode-bar__dropdown")) return;
     if (e.target.closest(".mode-bar__chev")) return;
-    closeAll();
+    closeAllDropdowns();
   });
   // Esc closes.
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      const anyOpen = Array.from(triggers).some((t) => t.getAttribute("aria-expanded") === "true");
-      if (anyOpen) {
-        e.stopPropagation();
-        closeAll();
-      }
+    if (e.key !== "Escape") return;
+    const anyOpen = document.querySelector('.mode-bar__chev[data-dropdown-trigger][aria-expanded="true"]');
+    if (anyOpen) {
+      e.stopPropagation();
+      closeAllDropdowns();
     }
   });
 }

@@ -6,19 +6,19 @@
        don't get a chevron. #}
     <span class="mode-bar__split">
       <button type="button" class="mode-bar__btn" data-mode="time" aria-pressed="true" data-tip="<strong>Time mode</strong><br>Type as much as you can before the clock runs out.">time</button>
-      <button type="button" class="mode-bar__chev" data-dropdown-trigger="time" aria-haspopup="true" aria-expanded="false" aria-label="Time options" data-tip="Configure duration + source.">
+      <button type="button" class="mode-bar__chev" data-dropdown-trigger="time" aria-haspopup="true" aria-expanded="false" aria-label="Time options" data-tip="Configure duration + source." onclick="window.ttToggleDropdown && window.ttToggleDropdown('time', event)">
         <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
       </button>
     </span>
     <span class="mode-bar__split">
       <button type="button" class="mode-bar__btn" data-mode="words" data-tip="<strong>Words mode</strong><br>Type a fixed count of words.">words</button>
-      <button type="button" class="mode-bar__chev" data-dropdown-trigger="words" aria-haspopup="true" aria-expanded="false" aria-label="Words options" data-tip="Configure count + source.">
+      <button type="button" class="mode-bar__chev" data-dropdown-trigger="words" aria-haspopup="true" aria-expanded="false" aria-label="Words options" data-tip="Configure count + source." onclick="window.ttToggleDropdown && window.ttToggleDropdown('words', event)">
         <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
       </button>
     </span>
     <span class="mode-bar__split">
       <button type="button" class="mode-bar__btn" data-mode="quote" data-tip="<strong>Quote mode</strong><br>Curated literary quotes.">quote</button>
-      <button type="button" class="mode-bar__chev" data-dropdown-trigger="quote" aria-haspopup="true" aria-expanded="false" aria-label="Quote options" data-tip="Configure length + source.">
+      <button type="button" class="mode-bar__chev" data-dropdown-trigger="quote" aria-haspopup="true" aria-expanded="false" aria-label="Quote options" data-tip="Configure length + source." onclick="window.ttToggleDropdown && window.ttToggleDropdown('quote', event)">
         <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
       </button>
     </span>

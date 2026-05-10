@@ -100,9 +100,17 @@ const PREF_SELECTS = ["whitespaceMark", "reportFrequency", "soundTheme", "typing
 function syncPreferences() {
   const p = getActive();
   const prefs = p.preferences || {};
+  // Preferences that default to ON instead of OFF when undefined.
+  // Each is true unless explicitly set to false in the profile.
+  const DEFAULT_ON = new Set(["mobileKeyboard", "autoScroll"]);
   PREF_BOOLS.forEach((k) => {
     const el = document.getElementById(`pref-${k}`);
-    if (el) el.checked = !!prefs[k];
+    if (!el) return;
+    if (DEFAULT_ON.has(k)) {
+      el.checked = prefs[k] !== false;
+    } else {
+      el.checked = !!prefs[k];
+    }
   });
   PREF_SELECTS.forEach((k) => {
     const el = document.getElementById(`pref-${k}`);

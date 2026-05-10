@@ -122,13 +122,18 @@ export class Renderer {
     c.el.classList.add("tt-char--incorrect");
     if (c.isSpace) {
       c.el.dataset.typed = typedCh || "";
-    } else if (typedCh) {
-      // Show the user's actual keystroke instead of the target char
-      // so they see what they hit. The target char is still in c.ch
-      // and gets restored via setCorrect / setUntyped.
+    } else if (typedCh && /\S/.test(typedCh)) {
+      // Only swap visible content for printable, non-whitespace
+      // chars. Whitespace typed against a letter target would
+      // visually erase the character ("hello" -> "h ello"), so we
+      // keep the target char visible and just mark as incorrect.
       c.el.textContent = typedCh;
       c.el.dataset.typed = typedCh;
       c.el.dataset.target = c.ch;
+    } else if (typedCh) {
+      // Whitespace-typed error: target char stays visible, just
+      // the incorrect class applies its red strikethrough/tint.
+      c.el.dataset.typed = typedCh;
     }
   }
   setUntyped(i) {
