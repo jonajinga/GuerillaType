@@ -87,11 +87,24 @@
   text-align:center;
 }
 
-/* Missed-words list -- horizontal bar viz with miss-count weight. */
+/* Missed-words list -- horizontal bar viz with miss-count weight.
+   Scrollable so the user can see every tracked word (the list can
+   reach hundreds of entries after a few months of practice).
+   Subtle inner border + slightly recessed background so the
+   scrollable region reads as its own surface. */
 .missed-words{
-  list-style:none;margin:0;padding:0;
+  list-style:none;margin:0;padding:.6rem .8rem;
   display:flex;flex-direction:column;gap:.4rem;
+  max-height:60vh;overflow-y:auto;
+  background:var(--bg-1);
+  border:1px solid var(--rule);
+  border-radius:var(--radius);
+  scrollbar-width:thin;
+  scrollbar-color:var(--fg-3) var(--bg-1);
 }
+.missed-words::-webkit-scrollbar{width:8px}
+.missed-words::-webkit-scrollbar-track{background:var(--bg-1)}
+.missed-words::-webkit-scrollbar-thumb{background:var(--fg-3);border-radius:4px}
 .missed-word{
   display:grid;
   grid-template-columns:minmax(8rem, 14rem) 1fr auto auto;

@@ -6,22 +6,26 @@
 
 import { loadD3 } from "./d3-loader.js";
 
-export async function renderContributionD3(svg, daily, panel) {
+export async function renderContributionD3(svg, daily, panel, opts = {}) {
   const d3 = await loadD3();
   if (!d3) {
     const fallback = await import("./viz-contribution.js");
-    fallback.renderContribution(svg, daily);
+    fallback.renderContribution(svg, daily, opts);
     return;
   }
 
-  // Walk the last 365 days, building one cell per day.
+  // Pick the time window. "year" = 365 days, "month" = ~12 weeks
+  // (84 days), "week" = 14 days for a wider visual on phones.
+  const view = opts.view || "year";
+  const span = view === "week" ? 14 : (view === "month" ? 84 : 364);
+
   const cells = [];
   const now = new Date();
   now.setHours(0, 0, 0, 0);
-  const oneYearAgo = new Date(now); oneYearAgo.setDate(now.getDate() - 364);
-  // Align start to Sunday.
-  while (oneYearAgo.getDay() !== 0) oneYearAgo.setDate(oneYearAgo.getDate() - 1);
-  for (let d = new Date(oneYearAgo); d <= now; d.setDate(d.getDate() + 1)) {
+  const start = new Date(now); start.setDate(now.getDate() - span);
+  // Align start to Sunday so all 7-day rows line up.
+  while (start.getDay() !== 0) start.setDate(start.getDate() - 1);
+  for (let d = new Date(start); d <= now; d.setDate(d.getDate() + 1)) {
     const iso = d.toISOString().slice(0, 10);
     const entry = (daily || {})[iso] || { sessions: 0, chars: 0, timeMs: 0 };
     cells.push({
@@ -32,10 +36,16 @@ export async function renderContributionD3(svg, daily, panel) {
     });
   }
 
-  const CELL = 12, GAP = 2, ROWS = 7;
+  // Bigger cells + more gap when there's less data (week/month
+  // views) so the grid still reads well.
+  const CELL = view === "week" ? 32 : (view === "month" ? 18 : 12);
+  const GAP = view === "week" ? 6 : (view === "month" ? 3 : 2);
+  const ROWS = 7;
   const cols = Math.ceil(cells.length / ROWS);
   const W = cols * (CELL + GAP) + 8;
-  const H = ROWS * (CELL + GAP) + 30;
+  // Extra header room for month labels, extra footer room for the
+  // legend strip so it never overlaps the labels above it.
+  const H = ROWS * (CELL + GAP) + 50;
   svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
   svg.innerHTML = "";
   const sel = d3.select(svg);
@@ -78,41 +88,67 @@ export async function renderContributionD3(svg, daily, panel) {
     });
   }
 
-  // Month labels along the top.
-  let lastMonth = -1;
-  cells.forEach((c, i) => {
-    if (i % ROWS !== 0) return;
-    const m = c.date.getMonth();
-    if (m !== lastMonth) {
-      lastMonth = m;
-      sel.append("text")
-        .attr("x", Math.floor(i / ROWS) * (CELL + GAP) + 4)
-        .attr("y", H - 14)
-        .attr("class", "chart__tick")
-        .attr("style", "font-size:9px")
-        .text(c.date.toLocaleDateString(undefined, { month: "short" }));
-    }
-  });
+  // Month labels along the bottom of the grid (Year/Month views
+  // only -- Week is too narrow to need them, and the labels would
+  // overlap the legend below). Skip in Week view.
+  const gridBottom = 4 + ROWS * (CELL + GAP);
+  const monthLabelY = gridBottom + 14;
+  if (view !== "week") {
+    let lastMonth = -1;
+    cells.forEach((c, i) => {
+      if (i % ROWS !== 0) return;
+      const m = c.date.getMonth();
+      if (m !== lastMonth) {
+        lastMonth = m;
+        sel.append("text")
+          .attr("x", Math.floor(i / ROWS) * (CELL + GAP) + 4)
+          .attr("y", monthLabelY)
+          .attr("class", "chart__tick")
+          .attr("style", "font-size:10px;fill:var(--fg-3)")
+          .text(c.date.toLocaleDateString(undefined, { month: "short" }));
+      }
+    });
+  }
 
-  // Legend.
-  const legend = sel.append("g").attr("transform", `translate(${W - 96}, ${H - 14})`);
+  // Week view shows date labels above each cell column instead.
+  if (view === "week") {
+    cells.forEach((c, i) => {
+      if (i % ROWS !== 0) return;
+      sel.append("text")
+        .attr("x", Math.floor(i / ROWS) * (CELL + GAP) + 4 + CELL / 2)
+        .attr("y", monthLabelY)
+        .attr("text-anchor", "middle")
+        .attr("class", "chart__tick")
+        .attr("style", "font-size:10px;fill:var(--fg-3)")
+        .text(c.date.toLocaleDateString(undefined, { month: "short", day: "numeric" }));
+    });
+  }
+
+  // Legend strip on its own row, right-aligned, BELOW the month
+  // labels so the two never overlap. Smaller squares so it
+  // doesn't dominate at any view size.
+  const legendCell = 10, legendGap = 3;
+  const legendW = 5 * (legendCell + legendGap) + 64;
+  const legendY = monthLabelY + 8;
+  const legend = sel.append("g")
+    .attr("transform", `translate(${Math.max(0, W - legendW - 4)}, ${legendY})`);
   legend.append("text")
-    .attr("x", -4).attr("y", 8)
+    .attr("x", -4).attr("y", legendCell - 1)
     .attr("text-anchor", "end")
     .attr("class", "chart__tick")
-    .attr("style", "font-size:9px")
+    .attr("style", "font-size:9px;fill:var(--fg-3)")
     .text("Less");
   [0, 0.25, 0.5, 0.75, 1].forEach((t, idx) => {
     legend.append("rect")
-      .attr("x", idx * (CELL + GAP)).attr("y", 0)
-      .attr("width", CELL).attr("height", CELL)
+      .attr("x", idx * (legendCell + legendGap)).attr("y", 0)
+      .attr("width", legendCell).attr("height", legendCell)
       .attr("rx", 2).attr("ry", 2)
       .attr("fill", t === 0 ? "var(--bg-2)" : color(t * maxChars));
   });
   legend.append("text")
-    .attr("x", 5 * (CELL + GAP) + 4).attr("y", 8)
+    .attr("x", 5 * (legendCell + legendGap) + 4).attr("y", legendCell - 1)
     .attr("class", "chart__tick")
-    .attr("style", "font-size:9px")
+    .attr("style", "font-size:9px;fill:var(--fg-3)")
     .text("More");
 }
 

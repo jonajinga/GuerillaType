@@ -66,7 +66,9 @@ function paintContrib() {
   // Expose sessions on window for the D3 day-panel click handler
   // to filter against without re-importing the profile.
   try { window.__profileSessions = profile.sessions || []; } catch {}
-  renderContributionD3(contribSvg, profile.daily || {}, detailPanel);
+  renderContributionD3(contribSvg, profile.daily || {}, detailPanel, {
+    view: contribView,
+  });
 }
 
 function openDay(iso) {
@@ -201,8 +203,11 @@ function renderMissedWords() {
     listEl.innerHTML = "";
     return;
   }
-  summary.textContent = `${total} word${total === 1 ? "" : "s"} tracked · top 20 shown below`;
-  const top = ranked.slice(0, 20);
+  summary.textContent = `${total} word${total === 1 ? "" : "s"} tracked · scroll to see all`;
+  // Show the full list -- the list-wrapper CSS provides a fixed
+  // max-height with overflow-y:auto so the user can scroll through
+  // every tracked word instead of being capped at 20.
+  const top = ranked.slice(0, 500);
   const maxN = top[0].n || 1;
   listEl.innerHTML = top.map((r) => {
     const pct = Math.max(8, Math.round((r.n / maxN) * 100));
