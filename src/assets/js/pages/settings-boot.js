@@ -92,6 +92,7 @@ const PREF_BOOLS = [
   "stopOnError", "forgiveErrors", "spaceSkipsWords",
   "ignoreCapitalization", "skipPunctuation",
   "showVirtualKeyboard", "keyboardFingerColors",
+  "mobileKeyboard",
   "showTicker", "hideUI", "hideToolbar", "autoScroll",
 ];
 const PREF_SELECTS = ["whitespaceMark", "reportFrequency", "soundTheme", "typingFont"];

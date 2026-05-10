@@ -13,6 +13,7 @@ import { getLesson, lessonText } from "../engine/lesson-text.js";
 import { buildSourceText, evaluateGoal } from "../engine/challenge-runner.js";
 import { mountLiveKeyboard, showLiveKeyboard, highlightChar } from "../viz/live-keyboard.js";
 import { mountLiveTicker, showLiveTicker, recordKeystroke, resetTicker, updateWpm as updateTickerWpm } from "../viz/live-ticker.js";
+import { mountVirtualKeyboard, unmountVirtualKeyboard, highlightNextKey as vkbdNext } from "../engine/virtual-keyboard.js";
 import { $, htmlEscape, toast } from "../util/dom.js";
 
 let _challengesCache = null;
@@ -397,7 +398,9 @@ function startEngine(target) {
     // engine has finished updating the cursor.
     requestAnimationFrame(() => {
       if (!engine || !engine.targetArr) return;
-      highlightChar(engine.targetArr[engine.cursor] || null);
+      const nextCh = engine.targetArr[engine.cursor] || null;
+      highlightChar(nextCh);
+      vkbdNext(nextCh);
     });
   };
 
@@ -477,6 +480,28 @@ function startEngine(target) {
     showLiveTicker(true);
   } else {
     showLiveTicker(false);
+  }
+
+  // Mobile tap-to-type keyboard. Only mounts on touch devices and
+  // only when the preference is on. Suppresses the OS soft
+  // keyboard by setting inputmode="none" on the typing input.
+  const isTouchLike = (() => {
+    try {
+      if (window.matchMedia && window.matchMedia("(max-width: 768px)").matches) return true;
+      if (window.matchMedia && window.matchMedia("(hover: none) and (pointer: coarse)").matches) return true;
+      if ("ontouchstart" in window) return true;
+      if (navigator.maxTouchPoints > 0) return true;
+    } catch {}
+    return false;
+  })();
+  if (prefs.mobileKeyboard && isTouchLike) {
+    mountVirtualKeyboard();
+    document.body.classList.add("has-vkbd");
+    const firstCh2 = Array.isArray(target) ? (target[0] && target[0][0]) : (target && target[0]);
+    if (firstCh2) vkbdNext(firstCh2);
+  } else {
+    unmountVirtualKeyboard();
+    document.body.classList.remove("has-vkbd");
   }
 }
 

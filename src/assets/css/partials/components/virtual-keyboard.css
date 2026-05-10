@@ -1,0 +1,111 @@
+/* Interactive on-screen keyboard for mobile users.
+   Phase 1: QWERTY only. Fixed at viewport bottom. Each key is a
+   button at >= 44 px touch target (WCAG). The currently-expected
+   character gets an accent-color highlight so the user can see
+   what to tap next. */
+
+.vkbd{
+  position:fixed;
+  left:0;right:0;bottom:0;
+  z-index:60;
+  display:flex;flex-direction:column;gap:.35rem;
+  padding:.45rem .35rem max(.45rem, env(safe-area-inset-bottom));
+  background:color-mix(in oklab, var(--bg-0) 96%, var(--accent));
+  border-top:1px solid var(--rule);
+  box-shadow:0 -4px 16px rgba(0,0,0,.18);
+  font-family:var(--font-mono);
+  /* Prevent the OS from interpreting taps on the keyboard as text
+     selection or context menus. */
+  user-select:none;
+  -webkit-user-select:none;
+  touch-action:manipulation;
+}
+.vkbd[hidden]{display:none}
+
+.vkbd__row{
+  display:flex;gap:.25rem;justify-content:center;
+}
+.vkbd__row--3{padding-inline:.25rem}
+.vkbd__row--util{margin-top:.1rem}
+
+.vkbd__key{
+  flex:1 1 0;
+  min-width:0;min-height:44px;
+  padding:0 .15rem;
+  font-family:inherit;font-size:1.05rem;font-weight:500;
+  color:var(--fg-0);background:var(--bg-1);
+  border:1px solid var(--rule);
+  border-radius:6px;
+  box-shadow:0 1px 0 rgba(0,0,0,.18);
+  display:inline-flex;align-items:center;justify-content:center;
+  transition:background var(--t-fast), color var(--t-fast),
+             border-color var(--t-fast), transform 60ms ease-out;
+  cursor:pointer;
+  /* Prevent iOS double-tap zoom on the keyboard area. */
+  touch-action:manipulation;
+}
+.vkbd__key:hover{background:var(--bg-2)}
+.vkbd__key--pressed,
+.vkbd__key:active{
+  background:var(--accent);color:var(--bg-0);
+  border-color:var(--accent);
+  transform:translateY(1px);
+  box-shadow:none;
+}
+/* The next-expected character glows softly. Doesn't dominate
+   visually -- just enough to help a fumbling new user find the
+   right tap zone. */
+.vkbd__key--next{
+  border-color:var(--accent);
+  color:var(--accent);
+  background:color-mix(in oklab, var(--accent) 12%, var(--bg-1));
+  box-shadow:0 0 0 1px var(--accent), 0 1px 0 rgba(0,0,0,.18);
+}
+
+/* Modifier keys (shift, backspace, layer toggle, enter) -- visually
+   distinct, slightly muted vs. letter keys. */
+.vkbd__key--mod{
+  flex:0 0 auto;min-width:44px;padding:0 .5rem;
+  background:color-mix(in oklab, var(--bg-2) 80%, var(--bg-1));
+  color:var(--fg-1);
+  font-size:1.1rem;
+}
+.vkbd__key--mod:hover{background:var(--bg-2)}
+.vkbd__key--mod.vkbd__key--armed{
+  /* One-shot shift armed. */
+  background:color-mix(in oklab, var(--accent) 22%, var(--bg-1));
+  color:var(--accent);
+  border-color:var(--accent);
+}
+.vkbd__key--mod.vkbd__key--locked{
+  /* Caps-lock. */
+  background:var(--accent);
+  color:var(--bg-0);
+  border-color:var(--accent);
+}
+
+/* Space bar spans wider than letter keys for the typical thumb
+   target. */
+.vkbd__key--space{
+  flex:4 1 0;
+  font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--fg-2);
+}
+
+/* When the keyboard is mounted, reserve viewport space at the bottom
+   so the typing surface + action row aren't covered. JS adds the
+   .has-vkbd class to body. */
+body.has-vkbd .practice-page{
+  padding-bottom:calc(220px + var(--space-3));
+}
+@media (min-height:700px){
+  body.has-vkbd .practice-page{padding-bottom:calc(240px + var(--space-3))}
+}
+
+/* Hide on desktop -- this keyboard only makes sense on touch. The
+   media query is generous on purpose: any device wider than the
+   tablet-portrait band gets the desktop experience. */
+@media (min-width:769px){
+  .vkbd{display:none!important}
+  body.has-vkbd .practice-page{padding-bottom:0}
+}
