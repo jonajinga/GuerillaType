@@ -5,8 +5,11 @@ import { renderKeyboard } from "../stats/viz-keyboard.js";
 import { renderTrend } from "../stats/viz-trend.js";
 import { renderTrendD3 } from "../stats/viz-trend-d3.js";
 import { renderContribution, renderDayStrip } from "../stats/viz-contribution.js";
+import { renderContributionD3 } from "../stats/viz-contribution-d3.js";
 import { renderPerKey } from "../stats/viz-per-key.js";
+import { renderPerKeyD3 } from "../stats/viz-per-key-d3.js";
 import { renderPerFinger, summarizePerFinger } from "../stats/viz-per-finger.js";
+import { renderPerFingerD3 } from "../stats/viz-per-finger-d3.js";
 import { renderCharacterTable } from "../stats/viz-character-table.js";
 import { renderLessonTrends } from "../stats/viz-lesson-trends.js";
 import { renderKeyStrip } from "../stats/viz-key-strip.js";
@@ -60,10 +63,10 @@ const daySvg = document.getElementById("contrib-day-svg");
 let contribView = "year";
 
 function paintContrib() {
-  renderContribution(contribSvg, profile.daily || {}, {
-    view: contribView,
-    onSelect: openDay,
-  });
+  // Expose sessions on window for the D3 day-panel click handler
+  // to filter against without re-importing the profile.
+  try { window.__profileSessions = profile.sessions || []; } catch {}
+  renderContributionD3(contribSvg, profile.daily || {}, detailPanel);
 }
 
 function openDay(iso) {
@@ -164,11 +167,11 @@ document.querySelectorAll(".kb-toggle__btn").forEach((b) => {
 });
 
 // Per-key bars
-renderPerKey(document.getElementById("perkey-svg"), profile.perKey || {});
+renderPerKeyD3(document.getElementById("perkey-svg"), profile.perKey || {}, profile.perCharDetail || {});
 
 // New v2 reports — per-finger errors, character table, lesson trends.
 renderKeyStrip(document.getElementById("key-strip-host"), profile.perCharDetail || {}, profile.perKey || {});
-renderPerFinger(document.getElementById("perfinger-svg"), profile.perFinger || {});
+renderPerFingerD3(document.getElementById("perfinger-svg"), profile.perFinger || {});
 {
   const sum = summarizePerFinger(profile.perFinger || {});
   const target = document.getElementById("perfinger-summary");

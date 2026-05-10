@@ -1,0 +1,96 @@
+/* Catch the Word — typing game styles. */
+
+.game-page{
+  display:flex;flex-direction:column;gap:var(--space-4);
+  max-width:1100px;margin:var(--space-4) auto var(--space-6);
+}
+.game-header{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  gap:var(--space-4);flex-wrap:wrap;
+  border-bottom:1px solid var(--rule);padding-bottom:var(--space-3);
+}
+.game-header__brand h1{
+  font-family:var(--font-display);font-weight:500;color:var(--accent);
+  font-size:var(--fs-700);line-height:1;margin:0 0 .4rem;
+}
+.game-header__brand p{margin:0;max-width:50ch;color:var(--fg-2)}
+.game-header__stats{
+  display:flex;gap:var(--space-3);font-family:var(--font-mono);
+  flex-wrap:wrap;
+}
+.game-stat{
+  display:flex;flex-direction:column;align-items:center;gap:.2rem;
+  padding:.4rem .8rem;border:1px solid var(--rule);
+  border-radius:var(--radius);background:var(--bg-1);
+  min-width:64px;
+}
+.game-stat__label{
+  font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--fg-3);
+}
+.game-stat__value{
+  font-family:var(--font-display);font-size:var(--fs-500);
+  color:var(--accent);font-variant-numeric:tabular-nums;
+  line-height:1;
+}
+
+.game-stage{
+  position:relative;
+  background:var(--bg-1);
+  border:1px solid var(--rule);
+  border-radius:var(--radius);
+  overflow:hidden;
+}
+.game-svg{
+  display:block;width:100%;height:500px;
+  background:linear-gradient(to bottom,
+    color-mix(in oklab, var(--bg-0) 70%, var(--accent)) 0%,
+    var(--bg-1) 100%);
+}
+.game-input-wrap{
+  position:absolute;left:0;right:0;bottom:0;
+  padding:var(--space-3) var(--space-4);
+  background:color-mix(in oklab, var(--bg-0) 88%, transparent);
+  border-top:1px solid var(--rule);
+}
+.game-input{
+  width:100%;font-family:var(--font-mono);font-size:1.2rem;
+  padding:.6rem .9rem;background:var(--bg-2);color:var(--fg-0);
+  border:1px solid var(--rule);border-radius:var(--radius);
+  text-align:center;
+}
+.game-input:focus{
+  outline:none;border-color:var(--accent);
+  box-shadow:0 0 0 3px color-mix(in oklab, var(--accent) 24%, transparent);
+}
+
+.game-actions{
+  display:flex;gap:var(--space-2);justify-content:center;flex-wrap:wrap;
+}
+
+.game-howto{
+  margin-top:var(--space-3);padding:var(--space-3);
+  border:1px solid var(--rule);border-radius:var(--radius);
+  background:var(--bg-1);
+}
+.game-howto h2{
+  font-family:var(--font-display);font-weight:500;
+  font-size:var(--fs-400);margin:0 0 .5rem;
+}
+.game-howto ul{
+  list-style:disc;padding-left:1.3rem;margin:0;color:var(--fg-1);
+  line-height:1.55;
+}
+.game-howto li + li{margin-top:.2rem}
+
+/* Falling-word group animation -- gentle fade-in at the top. */
+.game-svg g.fall text{
+  text-shadow:0 1px 2px rgba(0,0,0,.4);
+}
+
+@media (max-width:640px){
+  .game-header{flex-direction:column;align-items:flex-start}
+  .game-header__stats{width:100%;justify-content:space-between}
+  .game-stat{flex:1 1 0;min-width:0}
+  .game-svg{height:380px}
+}

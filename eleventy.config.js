@@ -48,6 +48,7 @@ const CSS_ORDER = [
   "components/tippy.css",
   "components/live-aids.css",
   "components/virtual-keyboard.css",
+  "pages/game.css",
   "pages/home.css",
   "pages/article.css",
   "pages/practice.css",

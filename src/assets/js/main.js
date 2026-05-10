@@ -399,6 +399,7 @@ const page = document.body.dataset.page;
 const _v = window.__cssVersion ? "?v=" + window.__cssVersion : "";
 const map = {
   practice: () => import("./pages/practice-boot.js" + _v),
+  "practice-game": () => import("./pages/game-boot.js" + _v),
   index: () => import("./pages/home-boot.js" + _v),
   home: () => import("./pages/home-boot.js" + _v),
   lessons: () => import("./pages/lessons-boot.js" + _v),

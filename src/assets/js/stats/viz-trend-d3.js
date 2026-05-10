@@ -9,17 +9,7 @@
    Falls back to the existing hand-rolled viz-trend if D3 fails to
    load (offline, network blocked, etc.). */
 
-let _d3 = null;
-async function loadD3() {
-  if (_d3) return _d3;
-  try {
-    _d3 = await import("https://esm.sh/d3@7");
-    return _d3;
-  } catch (e) {
-    console.warn("[stats] d3 load failed, falling back:", e);
-    return null;
-  }
-}
+import { loadD3 } from "./d3-loader.js";
 
 export async function renderTrendD3(svg, sessions, opts = {}) {
   const d3 = await loadD3();
