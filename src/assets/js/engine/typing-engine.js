@@ -12,6 +12,30 @@ import { Renderer } from "./renderer.js";
 import { netWpm, rawWpm, accuracy, consistency } from "./metrics.js";
 import { toast } from "../util/dom.js";
 
+/* Touch / mobile detection. Generous on purpose -- ANY positive signal
+   means we treat the device as touch + skip auto-focus. Tablets in
+   desktop-UA mode (iPadOS 13+) report hover:hover and pointer:fine,
+   so matchMedia alone misses them; touchstart support catches those.
+   Inverted: this is also true for laptops with touchscreens, which is
+   acceptable -- they have soft keyboards available too. */
+function isMobileLike() {
+  if (typeof window === "undefined") return false;
+  try {
+    if (window.matchMedia) {
+      if (window.matchMedia("(max-width: 767px)").matches) return true;
+      if (window.matchMedia("(hover: none) and (pointer: coarse)").matches) return true;
+      if (window.matchMedia("(pointer: coarse)").matches) return true;
+    }
+    if ("ontouchstart" in window) return true;
+    if (navigator.maxTouchPoints > 0) return true;
+    // iPadOS reports as Mac Safari -- catch via UA platform check.
+    const ua = (navigator.userAgent || "").toLowerCase();
+    if (/iphone|ipad|ipod|android/.test(ua)) return true;
+    if (/macintosh/.test(ua) && navigator.maxTouchPoints > 1) return true;
+  } catch {}
+  return false;
+}
+
 export class TypingEngine {
   constructor(opts) {
     this.opts = opts;
@@ -85,24 +109,18 @@ export class TypingEngine {
       onRestartDisarmed: () => delete this.host.dataset.restartArmed,
     });
     // Mobile: skip auto-focus. iOS Safari + Chrome Android won't raise
-    // the soft keyboard from a programmatic focus() call on page load --
-    // and even if they did, the keyboard sliding up the moment the
-    // page renders is a jarring experience. Show a "Tap to start
-    // typing" hint instead and wait for the user's first tap on the
-    // typing surface, which input-capture's touchend/click handlers
-    // will turn into a real focus that does raise the keyboard.
-    const isMobile =
-      typeof window.matchMedia === "function" &&
-      (window.matchMedia("(max-width: 767px)").matches ||
-       window.matchMedia("(hover: none) and (pointer: coarse)").matches);
-    if (isMobile) {
+    // the soft keyboard from a programmatic focus() call on page load
+    // anyway, and the keyboard sliding up the moment the page renders
+    // is a jarring experience. Show the unfocused state instead;
+    // input-capture's touchend/click handlers will turn the user's
+    // first tap on the typing surface into a real focus that raises
+    // the keyboard. The mobile predicate is intentionally generous --
+    // touchstart support, coarse pointer, no-hover media query,
+    // viewport width, AND iOS-specific UA detection -- because any
+    // single signal can flip false on tablets in desktop-mode UA
+    // spoofing. If ANY signal says "touch device", we treat it as one.
+    if (isMobileLike()) {
       this.host.dataset.mobileWaiting = "true";
-      // Force the unfocused visual state. The .tt-stage[data-focused
-      // ="false"] selector blurs the typing text and surfaces the
-      // existing "Click or press a key to focus" overlay, which is
-      // exactly what we want to tell the user to tap into the field.
-      // The default in the markup is data-focused="true", so we have
-      // to flip it explicitly here.
       this.host.dataset.focused = "false";
       this.setHint("");
     } else {
@@ -155,11 +173,7 @@ export class TypingEngine {
     // The surface stays blurred until they tap. We re-arm the waiting
     // flag on every start() (not just the constructor) so restart and
     // post-completion flows behave the same way.
-    const isMobile =
-      typeof window.matchMedia === "function" &&
-      (window.matchMedia("(max-width: 767px)").matches ||
-       window.matchMedia("(hover: none) and (pointer: coarse)").matches);
-    if (isMobile) {
+    if (isMobileLike()) {
       this.host.dataset.mobileWaiting = "true";
       this.host.dataset.focused = "false";
       try {

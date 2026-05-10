@@ -56,8 +56,40 @@
      poem, custom). Hidden by default. #}
   <a id="tt-back-link" class="tt-back-link" hidden></a>
 
+  {# Synchronous flip to data-focused="false" on touch devices. Runs
+     before paint so the user never sees the brief "focused with
+     cursor blinking" flash before the engine boots. The same
+     predicate as isMobileLike() in typing-engine.js. #}
+  <script>
+    (function(){
+      try{
+        var w = window;
+        var touch = false;
+        if (w.matchMedia){
+          if (w.matchMedia("(max-width: 767px)").matches) touch = true;
+          else if (w.matchMedia("(hover: none) and (pointer: coarse)").matches) touch = true;
+          else if (w.matchMedia("(pointer: coarse)").matches) touch = true;
+        }
+        if (!touch && "ontouchstart" in w) touch = true;
+        if (!touch && navigator.maxTouchPoints > 0) touch = true;
+        if (!touch && /iphone|ipad|ipod|android/i.test(navigator.userAgent || "")) touch = true;
+        if (touch) document.documentElement.setAttribute("data-touch", "true");
+      }catch(e){}
+    })();
+  </script>
   <div id="tt-stage" class="tt-stage" data-mode="time" data-state="idle" data-focused="true">
-    <input id="tt-input" class="tt-input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="text" aria-label="Typing input">
+    {# Aggressive autofill suppression. iOS Safari ignores plain
+       autocomplete="off" on text inputs; pile on every known signal
+       so password managers (1Password, LastPass, Bitwarden, Dashlane)
+       and the Safari QuickType bar all stay out of the way. The input
+       has no `name` attribute on purpose -- without a name, browsers
+       have nothing to autofill against. enterkeyhint="done" replaces
+       the "go" button on the soft keyboard with a softer cap. #}
+    <input id="tt-input" class="tt-input" type="text"
+           autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+           inputmode="text" enterkeyhint="done"
+           aria-label="Typing input" aria-autocomplete="none"
+           data-form-type="other" data-1p-ignore="" data-lpignore="true" data-bwignore="true">
     <div id="tt-text" class="tt-text" aria-live="off"></div>
     <p id="tt-hint" class="tt-stage__hint" aria-live="polite">Loading…</p>
   </div>

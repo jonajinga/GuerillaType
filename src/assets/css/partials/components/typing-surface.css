@@ -215,6 +215,10 @@
 
 /* Caret — appears at the leading edge of the current char. */
 .tt-caret{position:absolute;width:2px;background:var(--accent);top:.18em;height:1.1em;animation:tt-blink 1.05s steps(1) infinite;pointer-events:none}
+/* Hide the caret when the surface is unfocused. The text is already
+   blurred + the "Click or press a key to focus" overlay is showing,
+   and a blinking line in the middle of all that reads as broken. */
+.tt-stage[data-focused="false"] .tt-caret{display:none}
 .tt-caret--block{width:.55em;background:var(--accent);opacity:.35}
 /* Underline caret — JS sets `top` to the character's top edge (matching
    the line caret), so we use transform to push the underline down to
@@ -236,6 +240,25 @@
 .tt-stage[data-focused="false"][data-state="running"]::after{
   content:"Paused — click or press a key to resume";
   border-color:var(--accent);color:var(--accent);
+}
+/* Touch devices: force the unfocused state from the very first paint.
+   The inline script in typing-shell.njk flips
+   <html data-touch="true"> before the body renders, so this rule is
+   in effect before any JS module loads. Also swap the prompt copy
+   for a tap-friendlier line. */
+html[data-touch="true"] .tt-stage[data-state="idle"] .tt-text{filter:blur(2px)}
+html[data-touch="true"] .tt-stage[data-state="idle"] .tt-caret{display:none}
+html[data-touch="true"] .tt-stage[data-state="idle"]::after{
+  content:"Tap here to start typing";
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  background:var(--bg-2);border:1px solid var(--rule);padding:.45rem .85rem;color:var(--fg-1);font-size:var(--fs-200);
+  pointer-events:none;border-radius:var(--radius);
+}
+html[data-touch="true"] .tt-stage[data-focused="false"]::after{
+  content:"Tap here to start typing";
+}
+html[data-touch="true"] .tt-stage[data-focused="false"][data-state="running"]::after{
+  content:"Paused — tap here to resume";
 }
 
 /* Toolbar above the surface */
