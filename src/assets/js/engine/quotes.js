@@ -31,14 +31,19 @@ function normalize(q) {
   return t === q.text ? q : { ...q, text: t };
 }
 
-export function pickQuote(quotes, b) {
+export function pickQuote(quotes, b, tag) {
   // "random" is a non-bucket selector that means "any quote, picked
   // uniformly at random across the full corpus". Falls through to the
   // un-filtered branch below. Without this, "random" gets passed to
   // filterByBucket as if it were a length bucket and matches nothing,
   // returning null and breaking the daily-quote -> Next-quote flow.
   const isBucket = b && b !== "random";
-  const list = isBucket ? filterByBucket(quotes, b) : quotes;
+  let list = isBucket ? filterByBucket(quotes, b) : quotes;
+  if (tag) list = list.filter((q) => Array.isArray(q.tags) && q.tags.includes(tag));
+  if (!list.length) {
+    // Fall back to bucket-only if the tag filter wiped everything.
+    list = isBucket ? filterByBucket(quotes, b) : quotes;
+  }
   if (!list.length) return null;
   return normalize(list[Math.floor(Math.random() * list.length)]);
 }

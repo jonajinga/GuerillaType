@@ -59,6 +59,7 @@ const state = {
   duration: parseInt(params.get("duration") || "30", 10),
   words: parseInt(params.get("words") || "25", 10),
   quote: params.get("quote") || "medium",
+  quoteTag: params.get("tag") || "",
   language: params.get("lang") || settings.language || "en-1k",
   layout: settings.layout || "qwerty",
   // stopOnError preference overrides freedom: when on, freedom is false
@@ -202,7 +203,7 @@ async function buildText() {
         advanceActiveIndex();
       }
     } else {
-      q = state.quote === "daily" ? dailyQuote(all) : pickQuote(all, state.quote);
+      q = state.quote === "daily" ? dailyQuote(all) : pickQuote(all, state.quote, state.quoteTag || "");
     }
     if (q) {
       // Stash meta so the attribution header can render — author,
@@ -974,8 +975,11 @@ function syncModeBar() {
   document.querySelectorAll('.mode-bar__btn[data-quote]').forEach((b) => {
     b.setAttribute("aria-pressed", String(b.dataset.quote === state.quote));
   });
-  document.querySelectorAll('.mode-bar__field[data-show-when-mode]').forEach((g) => {
-    g.hidden = g.dataset.showWhenMode !== state.mode;
+  document.querySelectorAll('.mode-bar__btn[data-lang]').forEach((b) => {
+    b.setAttribute("aria-pressed", String(b.dataset.lang === state.language));
+  });
+  document.querySelectorAll('.mode-bar__btn[data-tag]').forEach((b) => {
+    b.setAttribute("aria-pressed", String((b.dataset.tag || "") === (state.quoteTag || "")));
   });
   // Reflect custom values in the inputs when the preset buttons don't
   // match -- so a user who set duration to 45s sees "45" in the input
@@ -993,6 +997,8 @@ function bindModeBar() {
       else if (b.dataset.duration) state.duration = parseInt(b.dataset.duration, 10);
       else if (b.dataset.words) state.words = parseInt(b.dataset.words, 10);
       else if (b.dataset.quote) state.quote = b.dataset.quote;
+      else if (b.dataset.lang !== undefined) state.language = b.dataset.lang;
+      else if (b.dataset.tag !== undefined) state.quoteTag = b.dataset.tag;
       syncModeBar();
       boot();
     });
@@ -1014,6 +1020,74 @@ function bindModeBar() {
       if (e.key === "Enter") { e.preventDefault(); apply(); inp.blur(); }
     });
     inp.addEventListener("blur", () => { if (inp.value) apply(); });
+  });
+  // Wire dropdown chevrons.
+  bindModeDropdowns();
+}
+
+/* Dropdown open/close. Each .mode-bar__chev with
+   data-dropdown-trigger="<mode>" toggles the panel with the matching
+   data-dropdown attribute. Click outside or Esc closes any open
+   panel. Only one panel open at a time. */
+function bindModeDropdowns() {
+  const triggers = document.querySelectorAll('.mode-bar__chev[data-dropdown-trigger]');
+  const panels = document.querySelectorAll('.mode-bar__dropdown[data-dropdown]');
+  if (!triggers.length) return;
+  function closeAll() {
+    triggers.forEach((t) => t.setAttribute("aria-expanded", "false"));
+    panels.forEach((p) => { p.hidden = true; });
+  }
+  function openPanel(mode) {
+    closeAll();
+    const trigger = Array.from(triggers).find((t) => t.dataset.dropdownTrigger === mode);
+    const panel = Array.from(panels).find((p) => p.dataset.dropdown === mode);
+    if (!trigger || !panel) return;
+    trigger.setAttribute("aria-expanded", "true");
+    panel.hidden = false;
+    // Position the panel under the trigger on desktop. Mobile uses
+    // a fixed bottom-sheet via CSS so we leave it alone.
+    if (window.matchMedia && !window.matchMedia("(max-width: 768px)").matches) {
+      const r = trigger.getBoundingClientRect();
+      const modeBar = document.querySelector(".mode-bar");
+      if (modeBar) {
+        const barR = modeBar.getBoundingClientRect();
+        // Anchor the panel's left edge under the chevron's left,
+        // clamped so it doesn't overflow the toolbar's right edge.
+        const panelW = Math.min(420, window.innerWidth * 0.92);
+        const desired = r.left - barR.left;
+        const max = barR.width - panelW;
+        panel.style.left = Math.max(0, Math.min(desired, max)) + "px";
+        panel.style.right = "auto";
+      }
+    } else {
+      panel.style.left = "";
+      panel.style.right = "";
+    }
+  }
+  triggers.forEach((trigger) => {
+    trigger.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const isOpen = trigger.getAttribute("aria-expanded") === "true";
+      if (isOpen) closeAll();
+      else openPanel(trigger.dataset.dropdownTrigger);
+    });
+  });
+  // Click outside any panel closes all.
+  document.addEventListener("click", (e) => {
+    if (e.target.closest(".mode-bar__dropdown")) return;
+    if (e.target.closest(".mode-bar__chev")) return;
+    closeAll();
+  });
+  // Esc closes.
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      const anyOpen = Array.from(triggers).some((t) => t.getAttribute("aria-expanded") === "true");
+      if (anyOpen) {
+        e.stopPropagation();
+        closeAll();
+      }
+    }
   });
 }
 

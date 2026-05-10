@@ -1,34 +1,106 @@
 <div class="mode-bar" role="tablist" aria-label="Practice settings">
   <div class="mode-bar__field" role="group" aria-label="Mode" data-group="mode">
-    <button type="button" class="mode-bar__btn" data-mode="time" aria-pressed="true" data-tip="<strong>Time mode</strong><br>Type as much as you can before the clock runs out. Best for raw wpm benchmarks.">time</button>
-    <button type="button" class="mode-bar__btn" data-mode="words" data-tip="<strong>Words mode</strong><br>Type a fixed count of words. Compare runs side-by-side with no clock pressure.">words</button>
-    <button type="button" class="mode-bar__btn" data-mode="quote" data-tip="<strong>Quote mode</strong><br>Curated literary quotes in four length buckets. Punctuation, capitalization, the works.">quote</button>
-    <button type="button" class="mode-bar__btn" data-mode="zen" data-tip="<strong>Zen mode</strong><br>Untimed, endless. Useful for long warm-ups or just typing for the rhythm. <kbd>Esc</kbd> to stop.">zen</button>
-    <button type="button" class="mode-bar__btn" data-mode="custom" data-tip="<strong>Custom text</strong><br>Type from a file you uploaded or pasted yourself. Manage saved texts on the custom page.">custom</button>
-    <button type="button" class="mode-bar__btn" data-mode="adaptive" data-tip="<strong>Adaptive mode</strong><br>Word picker biased toward your weakest keys and bigrams. Targets where you actually slow down.">adaptive</button>
-    <button type="button" class="mode-bar__btn mode-bar__btn--random" onclick="window.ttRandomMode && window.ttRandomMode()" data-tip="<strong>Random mode</strong><br>Surprise me with a random mode + variant. Keeps practice fresh.">random</button>
+    {# Each split-button = mode chip + chevron. The chip selects the
+       mode; the chevron opens a dropdown with that mode's specific
+       options. Modes without rich options (zen / adaptive / random)
+       don't get a chevron. #}
+    <span class="mode-bar__split">
+      <button type="button" class="mode-bar__btn" data-mode="time" aria-pressed="true" data-tip="<strong>Time mode</strong><br>Type as much as you can before the clock runs out.">time</button>
+      <button type="button" class="mode-bar__chev" data-dropdown-trigger="time" aria-haspopup="true" aria-expanded="false" aria-label="Time options" data-tip="Configure duration + source.">
+        <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+    </span>
+    <span class="mode-bar__split">
+      <button type="button" class="mode-bar__btn" data-mode="words" data-tip="<strong>Words mode</strong><br>Type a fixed count of words.">words</button>
+      <button type="button" class="mode-bar__chev" data-dropdown-trigger="words" aria-haspopup="true" aria-expanded="false" aria-label="Words options" data-tip="Configure count + source.">
+        <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+    </span>
+    <span class="mode-bar__split">
+      <button type="button" class="mode-bar__btn" data-mode="quote" data-tip="<strong>Quote mode</strong><br>Curated literary quotes.">quote</button>
+      <button type="button" class="mode-bar__chev" data-dropdown-trigger="quote" aria-haspopup="true" aria-expanded="false" aria-label="Quote options" data-tip="Configure length + source.">
+        <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+    </span>
+    <button type="button" class="mode-bar__btn" data-mode="zen" data-tip="<strong>Zen mode</strong><br>Untimed, endless. Press Esc to stop.">zen</button>
+    <button type="button" class="mode-bar__btn" data-mode="custom" data-tip="<strong>Custom text</strong><br>Type your own pasted text or saved snippets.">custom</button>
+    <button type="button" class="mode-bar__btn" data-mode="adaptive" data-tip="<strong>Adaptive mode</strong><br>Picker biased toward your weakest keys + bigrams.">adaptive</button>
+    <button type="button" class="mode-bar__btn mode-bar__btn--random" onclick="window.ttRandomMode && window.ttRandomMode()" data-tip="<strong>Random mode</strong><br>Surprise me with a random mode + variant.">random</button>
   </div>
 
-  <div class="mode-bar__field" role="group" aria-label="Duration in seconds" data-group="duration" data-show-when-mode="time">
-    <button type="button" class="mode-bar__btn" data-duration="15" data-tip="15-second sprint. Good for warm-ups.">15</button>
-    <button type="button" class="mode-bar__btn" data-duration="30" aria-pressed="true" data-tip="30-second test. The classic typing benchmark.">30</button>
-    <button type="button" class="mode-bar__btn" data-duration="60" data-tip="One-minute test. A common benchmark length.">60</button>
-    <button type="button" class="mode-bar__btn" data-duration="120" data-tip="2-minute test. Tests sustained pace.">120</button>
-    <button type="button" class="mode-bar__btn" data-duration="300" data-tip="5-minute test. Endurance.">300</button>
-    <input type="number" class="mode-bar__custom" data-custom="duration" min="5" max="3600" step="5" placeholder="…" aria-label="Custom duration in seconds" data-tip="<strong>Custom duration</strong><br>Type any number of seconds (5-3600). Press Enter to apply.">
+  {# Dropdown panels. One per mode that has rich options. Hidden by
+     default; the JS in practice-boot.js opens the matching panel
+     when its chevron is clicked. Each panel groups variant + source
+     + modifier controls. The variant rows reuse the existing
+     data-duration / data-words / data-quote attributes so the mode-
+     bar binding picks them up automatically. #}
+  <div class="mode-bar__dropdown" data-dropdown="time" hidden role="region" aria-label="Time mode settings">
+    <div class="mode-bar__dropdown-section">
+      <p class="mode-bar__dropdown-eyebrow">Duration · seconds</p>
+      <div class="mode-bar__dropdown-row">
+        <button type="button" class="mode-bar__btn" data-duration="15" data-tip="15-second sprint.">15</button>
+        <button type="button" class="mode-bar__btn" data-duration="30" aria-pressed="true" data-tip="The classic benchmark.">30</button>
+        <button type="button" class="mode-bar__btn" data-duration="60" data-tip="One-minute test.">60</button>
+        <button type="button" class="mode-bar__btn" data-duration="120" data-tip="Two-minute sustained pace.">120</button>
+        <button type="button" class="mode-bar__btn" data-duration="300" data-tip="Five-minute endurance.">300</button>
+        <input type="number" class="mode-bar__custom" data-custom="duration" min="5" max="3600" step="5" placeholder="…" aria-label="Custom duration in seconds" data-tip="Custom duration (5-3600 s).">
+      </div>
+    </div>
+    <div class="mode-bar__dropdown-section">
+      <p class="mode-bar__dropdown-eyebrow">Source</p>
+      <div class="mode-bar__dropdown-row">
+        <button type="button" class="mode-bar__btn" data-lang="en-1k" aria-pressed="true" data-tip="Top 1,000 English words.">en-1k</button>
+        <button type="button" class="mode-bar__btn" data-lang="en-5k" data-tip="Top 5,000 English words.">en-5k</button>
+        <button type="button" class="mode-bar__btn" data-lang="numbers" data-tip="Digits only.">numbers</button>
+        <button type="button" class="mode-bar__btn" data-lang="code-js" data-tip="JavaScript keywords + idioms.">code-js</button>
+        <button type="button" class="mode-bar__btn" data-lang="code-py" data-tip="Python keywords + idioms.">code-py</button>
+      </div>
+    </div>
   </div>
 
-  <div class="mode-bar__field" role="group" aria-label="Word count" data-group="words" data-show-when-mode="words" hidden>
-    <button type="button" class="mode-bar__btn" data-words="10" data-tip="10 words — quick warm-up.">10</button>
-    <button type="button" class="mode-bar__btn" data-words="25" aria-pressed="true" data-tip="25 words — most common length.">25</button>
-    <button type="button" class="mode-bar__btn" data-words="50" data-tip="50 words — middle distance.">50</button>
-    <button type="button" class="mode-bar__btn" data-words="100" data-tip="100 words — sustained focus.">100</button>
-    <input type="number" class="mode-bar__custom" data-custom="words" min="1" max="2000" step="1" placeholder="…" aria-label="Custom word count" data-tip="<strong>Custom word count</strong><br>Type any number of words (1-2000). Press Enter to apply.">
+  <div class="mode-bar__dropdown" data-dropdown="words" hidden role="region" aria-label="Words mode settings">
+    <div class="mode-bar__dropdown-section">
+      <p class="mode-bar__dropdown-eyebrow">Count</p>
+      <div class="mode-bar__dropdown-row">
+        <button type="button" class="mode-bar__btn" data-words="10" data-tip="Quick warm-up.">10</button>
+        <button type="button" class="mode-bar__btn" data-words="25" aria-pressed="true" data-tip="Most common length.">25</button>
+        <button type="button" class="mode-bar__btn" data-words="50" data-tip="Middle distance.">50</button>
+        <button type="button" class="mode-bar__btn" data-words="100" data-tip="Sustained focus.">100</button>
+        <input type="number" class="mode-bar__custom" data-custom="words" min="1" max="2000" step="1" placeholder="…" aria-label="Custom word count" data-tip="Custom word count (1-2000).">
+      </div>
+    </div>
+    <div class="mode-bar__dropdown-section">
+      <p class="mode-bar__dropdown-eyebrow">Source</p>
+      <div class="mode-bar__dropdown-row">
+        <button type="button" class="mode-bar__btn" data-lang="en-1k" aria-pressed="true" data-tip="Top 1,000 English words.">en-1k</button>
+        <button type="button" class="mode-bar__btn" data-lang="en-5k" data-tip="Top 5,000 English words.">en-5k</button>
+        <button type="button" class="mode-bar__btn" data-lang="numbers" data-tip="Digits only.">numbers</button>
+        <button type="button" class="mode-bar__btn" data-lang="code-js" data-tip="JavaScript keywords + idioms.">code-js</button>
+        <button type="button" class="mode-bar__btn" data-lang="code-py" data-tip="Python keywords + idioms.">code-py</button>
+      </div>
+    </div>
   </div>
 
-  <div class="mode-bar__field" role="group" aria-label="Quote length" data-group="quote" data-show-when-mode="quote" hidden>
-    <button type="button" class="mode-bar__btn" data-quote="short" data-tip="<strong>Short</strong> — under 80 characters. Aphorisms.">short</button>
-    <button type="button" class="mode-bar__btn" data-quote="medium" aria-pressed="true" data-tip="<strong>Medium</strong> — under 200 characters. The default.">medium</button>
-    <button type="button" class="mode-bar__btn" data-quote="long" data-tip="<strong>Long</strong> — 200+ characters. Paragraph-length quotes.">long</button>
+  <div class="mode-bar__dropdown" data-dropdown="quote" hidden role="region" aria-label="Quote mode settings">
+    <div class="mode-bar__dropdown-section">
+      <p class="mode-bar__dropdown-eyebrow">Length</p>
+      <div class="mode-bar__dropdown-row">
+        <button type="button" class="mode-bar__btn" data-quote="short" data-tip="Under 80 characters. Aphorisms.">short</button>
+        <button type="button" class="mode-bar__btn" data-quote="medium" aria-pressed="true" data-tip="Under 200 characters. The default.">medium</button>
+        <button type="button" class="mode-bar__btn" data-quote="long" data-tip="200+ characters. Paragraph-length.">long</button>
+        <button type="button" class="mode-bar__btn" data-quote="random" data-tip="Any length, random pick.">random</button>
+      </div>
+    </div>
+    <div class="mode-bar__dropdown-section">
+      <p class="mode-bar__dropdown-eyebrow">Tag</p>
+      <div class="mode-bar__dropdown-row">
+        <button type="button" class="mode-bar__btn" data-tag="" aria-pressed="true" data-tip="Any tag.">any</button>
+        <button type="button" class="mode-bar__btn" data-tag="philosophy" data-tip="Philosophy + stoicism.">philosophy</button>
+        <button type="button" class="mode-bar__btn" data-tag="literature" data-tip="From poets, novelists, playwrights.">literature</button>
+        <button type="button" class="mode-bar__btn" data-tag="science" data-tip="Scientists, mathematicians.">science</button>
+        <button type="button" class="mode-bar__btn" data-tag="humor" data-tip="Funny / irreverent.">humor</button>
+        <button type="button" class="mode-bar__btn" data-tag="motivation" data-tip="Motivational.">motivation</button>
+      </div>
+    </div>
   </div>
 </div>
