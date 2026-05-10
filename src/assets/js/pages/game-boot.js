@@ -180,7 +180,11 @@ function paintFalling() {
 }
 
 function tryCatch(typed) {
-  if (!typed) return;
+  if (!typed) return false;
+  // No scoring once the round has ended. Without this guard the
+  // user could keep typing after the Game-over overlay and rack
+  // up points on stale entries left in the falling array.
+  if (!running) return false;
   // Match the first falling word whose text equals typed AND is
   // visibly on the stage. Without the y guard the user could
   // earn credit for a word that just slid past the bottom edge
@@ -296,6 +300,10 @@ function pauseRound() {
 
 function endRound() {
   running = false;
+  // Clear the falling array so stale entries can't be caught
+  // by typing through the game-over overlay.
+  falling = [];
+  input.value = "";
   startBtn.textContent = "Play again";
   startBtn.hidden = false;
   pauseBtn.hidden = true;

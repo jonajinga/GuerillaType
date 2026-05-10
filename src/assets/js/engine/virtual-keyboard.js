@@ -114,28 +114,23 @@ function keyHTML(k) {
 
 function bindEvents() {
   if (!host) return;
-  // preventDefault on every pointer / touch / mouse start so the
-  // tap doesn't blur the typing input or shift focus to the key
-  // button (which would cause the engine to pause). stopPropagation
-  // keeps the event from bubbling to document handlers that close
-  // dropdowns / refocus on click.
-  const stopAll = (e) => {
+  // preventDefault on pointerdown + mousedown ONLY -- these stop
+  // the focus shift that would blur the typing input. Calling
+  // preventDefault on touchstart suppresses the browser's
+  // synthetic click event, which is what we rely on to fire
+  // handleKey -- so DON'T touch touchstart.
+  host.addEventListener("mousedown", (e) => {
+    if (!e.target.closest(".vkbd__key")) return;
     e.preventDefault();
-    e.stopPropagation();
-  };
-  host.addEventListener("mousedown", stopAll);
+  });
   host.addEventListener("pointerdown", (e) => {
     const btn = e.target.closest(".vkbd__key");
     if (!btn) return;
-    stopAll(e);
+    // preventDefault on pointerdown DOES NOT suppress the click
+    // (unlike touchstart). It just prevents focus shift.
+    e.preventDefault();
     btn.classList.add("vkbd__key--pressed");
   });
-  host.addEventListener("touchstart", (e) => {
-    const btn = e.target.closest(".vkbd__key");
-    if (!btn) return;
-    stopAll(e);
-    btn.classList.add("vkbd__key--pressed");
-  }, { passive: false });
   host.addEventListener("pointerup", (e) => {
     const btn = e.target.closest(".vkbd__key");
     if (btn) btn.classList.remove("vkbd__key--pressed");
@@ -147,7 +142,8 @@ function bindEvents() {
   host.addEventListener("click", (e) => {
     const btn = e.target.closest(".vkbd__key");
     if (!btn) return;
-    stopAll(e);
+    e.preventDefault();
+    e.stopPropagation();
     handleKey(btn);
   });
 }
