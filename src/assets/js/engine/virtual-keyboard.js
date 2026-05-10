@@ -114,22 +114,24 @@ function keyHTML(k) {
 
 function bindEvents() {
   if (!host) return;
-  // preventDefault on pointerdown + mousedown ONLY -- these stop
-  // the focus shift that would blur the typing input. Calling
-  // preventDefault on touchstart suppresses the browser's
-  // synthetic click event, which is what we rely on to fire
-  // handleKey -- so DON'T touch touchstart.
+  // Mobile path: pointerdown / pointerup just paint the pressed
+  // state. NO preventDefault on pointerdown -- some iOS / Chrome
+  // Android builds suppress the subsequent click when pointerdown
+  // is preventDefaulted, which was the source of "keyboard taps
+  // do nothing on mobile". The blur-handler in input-capture
+  // already ignores blurs that target .vkbd, so we no longer
+  // need pointerdown.preventDefault to keep the engine running.
+  //
+  // Desktop path: mousedown.preventDefault stops the focus shift
+  // synchronously on desktop browsers that don't emit
+  // pointerdown -> click bridge events correctly.
   host.addEventListener("mousedown", (e) => {
     if (!e.target.closest(".vkbd__key")) return;
     e.preventDefault();
   });
   host.addEventListener("pointerdown", (e) => {
     const btn = e.target.closest(".vkbd__key");
-    if (!btn) return;
-    // preventDefault on pointerdown DOES NOT suppress the click
-    // (unlike touchstart). It just prevents focus shift.
-    e.preventDefault();
-    btn.classList.add("vkbd__key--pressed");
+    if (btn) btn.classList.add("vkbd__key--pressed");
   });
   host.addEventListener("pointerup", (e) => {
     const btn = e.target.closest(".vkbd__key");
