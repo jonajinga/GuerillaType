@@ -114,16 +114,28 @@ function keyHTML(k) {
 
 function bindEvents() {
   if (!host) return;
-  // Touch start = visual press feedback; touchend = fire.
-  // pointerdown.preventDefault prevents the typing input from
-  // losing focus (which would dismiss our virtual keyboard's
-  // visual-active state in some browsers).
+  // preventDefault on every pointer / touch / mouse start so the
+  // tap doesn't blur the typing input or shift focus to the key
+  // button (which would cause the engine to pause). stopPropagation
+  // keeps the event from bubbling to document handlers that close
+  // dropdowns / refocus on click.
+  const stopAll = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+  host.addEventListener("mousedown", stopAll);
   host.addEventListener("pointerdown", (e) => {
     const btn = e.target.closest(".vkbd__key");
     if (!btn) return;
-    e.preventDefault();
+    stopAll(e);
     btn.classList.add("vkbd__key--pressed");
   });
+  host.addEventListener("touchstart", (e) => {
+    const btn = e.target.closest(".vkbd__key");
+    if (!btn) return;
+    stopAll(e);
+    btn.classList.add("vkbd__key--pressed");
+  }, { passive: false });
   host.addEventListener("pointerup", (e) => {
     const btn = e.target.closest(".vkbd__key");
     if (btn) btn.classList.remove("vkbd__key--pressed");
@@ -135,7 +147,7 @@ function bindEvents() {
   host.addEventListener("click", (e) => {
     const btn = e.target.closest(".vkbd__key");
     if (!btn) return;
-    e.preventDefault();
+    stopAll(e);
     handleKey(btn);
   });
 }
@@ -178,7 +190,20 @@ function handleKey(btn) {
   if (!eng || !eng.onChar) return;
   let ch = k;
   if ((shift || caps) && layer === "letters") ch = ch.toUpperCase();
+  // Resume any stray pause from a focus thrash before processing
+  // the char so the live stats don't show the pause artifact.
+  if (eng._pauseAt) eng.resumeTimer();
   eng.onChar(ch, performance.now());
+  // Re-assert focus on the input element so the engine stays in
+  // "running" state. Without this, occasional taps where the
+  // browser does decide to shift focus to the button leave the
+  // input blurred -> onBlur -> pauseTimer.
+  try {
+    const input = document.getElementById("tt-input");
+    if (input && document.activeElement !== input) {
+      input.focus({ preventScroll: true });
+    }
+  } catch {}
   // One-shot shift clears after a key. Caps-lock persists.
   if (shift && !caps) { shift = false; render(); }
 }

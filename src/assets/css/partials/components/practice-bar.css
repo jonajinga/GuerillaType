@@ -100,14 +100,13 @@ body[data-page="practice"] .site-main{padding-top:0}
   .practice-bar .mode-bar__custom{
     width:44px;line-height:1;
   }
-  /* Chevrons get a full 44 px height + wider hit zone so they're
-     tappable on phones. Without this they stay at 22 px x 18 px from
-     the desktop rules -- too small to hit reliably. */
+  /* Mobile chevrons: 44 x 44 square -- WCAG-AAA touch target.
+     SVG enlarged to match. */
   .practice-bar .mode-bar__chev{
-    height:44px;min-height:44px;width:36px;
+    height:44px;min-height:44px;width:44px;
   }
   .practice-bar .mode-bar__chev svg{
-    width:16px;height:16px;
+    width:18px;height:18px;
   }
   /* Restore practice-page's natural top padding so the typing
      surface doesn't sit flush against the bar, but don't add any
@@ -318,18 +317,22 @@ body[data-page="practice"] .site-main{padding-top:0}
 }
 .practice-bar .mode-bar__chev{
   display:inline-flex;align-items:center;justify-content:center;
-  height:22px;width:18px;min-height:0;padding:0;margin:0;
+  /* Desktop: chevron matches chip height (22 px); width bumped
+     to 28 px so the click target is bigger than the previous
+     18 px sliver. Mobile media-query overrides to 44 x 44. */
+  height:22px;width:28px;min-height:0;padding:0;margin:0;
   background:transparent;color:var(--fg-2);
   border:1px solid var(--rule);
   border-top-left-radius:0;border-bottom-left-radius:0;
   border-radius:var(--radius);border-top-left-radius:0;border-bottom-left-radius:0;
   cursor:pointer;
-  /* Make taps fire instantly on touch (no 300 ms wait, no double-
-     tap zoom). Without this the scroll container can swallow the
-     tap as a potential pan gesture. */
   touch-action:manipulation;
   transition:color var(--t-fast), background var(--t-fast),
              border-color var(--t-fast), transform var(--t-fast);
+}
+.practice-bar .mode-bar__chev svg{
+  display:block;width:13px;height:13px;
+  transition:transform var(--t-fast);
 }
 .practice-bar .mode-bar__chev:hover{
   color:var(--fg-0);background:var(--bg-2);border-color:var(--fg-3);
@@ -360,9 +363,12 @@ body[data-page="practice"] .site-main{padding-top:0}
 .practice-bar .mode-bar__dropdown{
   /* position:fixed so the dropdown escapes the toolbar's
      overflow-y:hidden clipping. JS sets top/left from the
-     chevron's getBoundingClientRect each open. */
+     chevron's getBoundingClientRect each open. z-index above
+     the site-header's 50 + the practice-bar's 40 + any sticky
+     ancestor so the panel sits visually on top of every other
+     surface. */
   position:fixed;
-  z-index:200;
+  z-index:1000;
   min-width:280px;max-width:min(420px, 92vw);
   padding:var(--space-3);
   background:var(--bg-1);
