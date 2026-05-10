@@ -47,10 +47,19 @@
   -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 75%,transparent 100%);
 }
 .tt-text--full{
-  height:auto;max-height:none;
+  height:auto !important;max-height:none !important;
+  overflow:visible !important;
   mask-image:none;-webkit-mask-image:none;
 }
 .tt-text--full .tt-text__inner{transform:none!important}
+/* Defensive belt-and-braces: any other rule (mobile media queries,
+   landscape clamps, container sizing) that tries to clamp .tt-text
+   on a long-form session gets overridden. Long-form text MUST flow
+   in full so the user can reach the end of the quote / book / poem. */
+.tt-text--reader, html .tt-text--reader{
+  height:auto !important;max-height:none !important;
+  overflow:visible !important;
+}
 
 /* Book-typing reader mode — styled to mirror the /library/{slug}/
    reader: cream-on-ink card with serif body, comfortable leading,
@@ -268,9 +277,13 @@ html[data-touch="true"] .tt-stage[data-focused="false"][data-state="running"]::a
 .tt-actions{display:flex;justify-content:center;align-items:center;gap:.6rem;margin-top:var(--space-4);color:var(--fg-2);font-size:var(--fs-200)}
 .tt-actions kbd{font-family:var(--font-mono);background:var(--bg-2);border:1px solid var(--rule);padding:.05em .35em;font-size:.85em}
 
-/* Mobile sizing */
+/* Mobile sizing. The 4-line clamp is scoped to short-text standard
+   mode -- long-form modes (.tt-text--full for quotes, books, custom,
+   long lessons; .tt-text--reader for literary content) MUST stay
+   full-height on mobile too or the cursor advances past visible text
+   and the user can never reach the end of the quote. */
 @media (max-width:640px){
-  .tt-text{height:calc(1.55em * 4)}
+  .tt-text:not(.tt-text--full):not(.tt-text--reader){height:calc(1.55em * 4)}
   .tt-caret{width:2px;height:1.05em}
 }
 /* Phone-portrait: tighter padding only. Don't touch line-height --

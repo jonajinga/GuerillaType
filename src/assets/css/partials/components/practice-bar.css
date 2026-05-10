@@ -57,10 +57,22 @@ body[data-page="practice"] .site-main{padding-top:0}
 }
 .practice-bar__inner{
   max-width:var(--max-width);margin-inline:auto;
-  padding:.55rem var(--gutter);
+  /* Snug top + bottom padding so the toolbar's height tracks the
+     chip row, not the multi-line live-stats block. The earlier .55
+     rem block padding combined with align-items:center left a
+     visible empty band below the chips when the live-stats column
+     (number + label below it) was the tallest item in the row. */
+  padding:.3rem var(--gutter);
   display:flex;align-items:center;justify-content:space-between;
   gap:var(--space-4);min-height:0;
 }
+/* Live-stats stack reduces to a single inline row so the bar's
+   height matches the chip row. The number + label sit side-by-side
+   instead of stacked vertically; the toolbar collapses to a single
+   compact strip of buttons + stats. */
+.practice-bar .live-stats{display:flex;align-items:center;gap:1rem}
+.practice-bar .live-stats__metric{display:inline-flex;align-items:baseline;gap:.3rem}
+.practice-bar .live-stats__label{font-size:.6rem;line-height:1}
 .practice-bar__modes{
   order:0;
   flex:1;display:flex;align-items:center;
