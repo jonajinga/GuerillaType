@@ -395,11 +395,13 @@ resetBtn.addEventListener("click", () => {
 // Pre-warm D3 in the background so the first click is instant.
 loadD3().then((m) => { if (m) { d3 = m; svgSel = d3.select("#game-svg"); }});
 
-// Virtual on-screen keyboard for the game. Always visible (the
-// game's CSS overrides the desktop hide rule). Dispatches each
-// tap into the game input as if the user had typed it, then
-// fires a synthetic input event so the catch logic runs.
+// Virtual on-screen keyboard for the game -- mobile only.
+// Desktop users have a physical keyboard and don't need a tap
+// surface (and the user explicitly asked not to show it on
+// desktop). Mounts only when viewport <= 768 px.
 function wireVirtualKeyboardForGame() {
+  const isMobile = window.matchMedia && window.matchMedia("(max-width: 768px)").matches;
+  if (!isMobile) return;
   window.__vkbdHandler = {
     onChar: (ch) => {
       input.value += ch;

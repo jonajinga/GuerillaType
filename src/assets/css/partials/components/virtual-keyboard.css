@@ -108,7 +108,7 @@ body.has-vkbd .practice-page{
 @media (min-width:769px){
   .vkbd{display:none!important}
   body.has-vkbd .practice-page{padding-bottom:0}
-  /* The game page always shows the keyboard, regardless of
-     viewport. The user wants it tap-driven on every screen. */
-  body[data-page="practice-game"] .vkbd{display:flex!important}
+  /* Desktop: no virtual keyboard anywhere, including the game.
+     Desktop users have a physical keyboard. */
+  body.has-vkbd .game-page{padding-bottom:0}
 }
