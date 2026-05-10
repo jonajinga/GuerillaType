@@ -65,15 +65,31 @@ body[data-page="practice"] .site-main{padding-top:0}
 @media (max-width:768px){
   .practice-bar{
     margin-bottom:0;
-    /* Pull the toolbar up by 35 px on mobile so it sits truly flush
-       against the header. The header's measured offsetHeight via
-       --header-h was running larger than the visible outline (likely
-       safe-area inset on iPhone notch / dynamic island), so a direct
-       35 px offset compensates. */
-    margin-top:-35px;
-    top:calc(var(--header-h, 56px) - 35px);
+    /* Sit directly below the header. Earlier we pulled it up by
+       -35 px to fight a perceived gap, but that caused the header
+       to overlap the chips. */
+    margin-top:0;
+    top:var(--header-h, 56px);
+    /* Allow the bar to grow to fit 44 px touch chips. */
+    max-height:none;
   }
+  /* Unpin the desktop 32 px height on mobile -- chips need 44 x 44
+     for accessible touch targets. */
+  .practice-bar__inner{
+    height:auto;min-height:48px;max-height:none;
+  }
+  /* Touch chips: WCAG-compliant 44 px square. */
+  .practice-bar .mode-bar__btn,
+  .practice-bar .mode-bar__custom{
+    height:44px;min-width:44px;padding:0 .85rem;
+    font-size:.85rem;
+  }
+  .practice-bar .mode-bar__custom{width:auto;min-width:54px}
   .practice-page{padding-top:var(--space-3)}
+  /* Breathing room between the toolbar and the typing surface on
+     mobile -- the previous tight stacking made the first line of
+     text feel like it was hanging off the bar. */
+  .practice-page .tt-stage{margin-top:var(--space-4)!important}
 }
 .practice-bar__inner{
   /* Hard-pin the bar's interior to a known height. Without this,
@@ -229,7 +245,13 @@ body[data-page="practice"] .site-main{padding-top:0}
    same padding, same width-to-content ratio -- so the input visually
    reads as just another preset chip. */
 .practice-bar .mode-bar__custom{
-  height:24px;width:3.6rem;padding:0 .55rem;
+  /* Match the chip metrics exactly -- same height, padding, type
+     scale, border. Only the box-sizing differs because <input> has
+     a default content-box; force border-box so the visible height
+     lands on 22 px the same as <button>. */
+  position:relative;
+  box-sizing:border-box;
+  height:22px;width:3.4rem;padding:0 .55rem;
   font-family:var(--font-mono);font-size:.74rem;letter-spacing:.02em;
   color:var(--fg-1);background:transparent;
   border:1px solid var(--rule);

@@ -443,35 +443,41 @@ function startEngine(target) {
   hintEl.dataset.state = "ready";
   renderChallengeHud();
 
-  // Stop chip: rebuilt from scratch. Every prior attempt (module-level
-  // bindings, window.ttFinish globals, .onclick assignment) failed to
-  // dispatch on the user's mobile in some way I couldn't reproduce
-  // locally. The simplest possible mechanism: when Stop is clicked,
-  // synthesize the same Escape keydown that desktop users already
-  // press successfully. The engine's input-capture listens for
-  // Escape on the inputEl and routes it through the same onEscape
-  // handler -- the call path that's been working for months.
+  // Stop chip wiring. Two listeners do the work:
+  //
+  // 1. mousedown / pointerdown / touchstart -> preventDefault.
+  //    Prevents the browser from shifting focus to the button, which
+  //    would blur the input, fire onBlur -> pauseTimer, and (per
+  //    user report) make the engine feel like "Stop didn't do
+  //    anything" because the live stats freeze. With focus pinned
+  //    on the input, no pause / focus thrash happens.
+  //
+  // 2. click -> finish the session. Reads `engine` directly via the
+  //    closure (this entire block runs inside startEngine, so the
+  //    engine is guaranteed to exist) and calls finish() with a
+  //    sane startTs guard for the "ready but no keystroke yet"
+  //    edge case.
   const stopBtn = document.getElementById("tt-stop");
   if (stopBtn) {
+    const swallow = (e) => { e.preventDefault(); };
+    stopBtn.onmousedown = swallow;
+    stopBtn.ontouchstart = swallow;
+    stopBtn.onpointerdown = swallow;
     stopBtn.onclick = (e) => {
       e.preventDefault();
       e.stopPropagation();
       const st = stage.dataset.state;
       if (st !== "running" && st !== "ready") return;
-      // Keep startTs sane in the rare "ready but no keystroke yet" case.
       if (engine.startTs === 0) engine.startTs = performance.now();
-      // Refocus the input, then synthesize Escape on it. Refocus is
-      // necessary because clicking the button blurs the input on most
-      // platforms; the keydown listener is attached to inputEl and
-      // would otherwise miss the synthetic event.
-      try { inputEl.focus({ preventScroll: true }); } catch {}
-      const esc = new KeyboardEvent("keydown", {
-        key: "Escape", code: "Escape", keyCode: 27, which: 27,
-        bubbles: true, cancelable: true,
-      });
-      inputEl.dispatchEvent(esc);
+      // Resume any paused timer first so finish()'s ms calc is
+      // accurate even if a stray blur/pause snuck through.
+      if (engine._pauseAt) engine.resumeTimer();
+      engine.finish();
     };
   }
+  // Expose for console debugging + as a last-resort fallback for the
+  // inline onclick on the Stop button markup.
+  window.__tt = engine;
 
   // Reader header for book mode (chapter title + page counter).
   // Layout classes were already applied before engine.start() so the
@@ -1034,11 +1040,13 @@ async function boot() {
    In "ready" we stamp startTs to now so finish() doesn't compute a
    nonsense ms duration. In "idle" / "done" we no-op. */
 window.ttFinish = () => {
-  if (!engine) return false;
+  const e = window.__tt || engine;
+  if (!e) return false;
   const st = stage.dataset.state;
   if (st !== "running" && st !== "ready") return false;
-  if (engine.startTs === 0) engine.startTs = performance.now();
-  engine.finish();
+  if (e.startTs === 0) e.startTs = performance.now();
+  if (e._pauseAt) e.resumeTimer();
+  e.finish();
   return true;
 };
 
