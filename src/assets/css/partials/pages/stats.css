@@ -174,8 +174,14 @@
 .chart-table tr:last-child td{border-bottom:0}
 .chart-table__char{font-size:1rem;color:var(--fg-0);min-width:2em}
 .chart-table__num{font-size:.78rem;color:var(--fg-1);font-variant-numeric:tabular-nums;text-align:right;min-width:3em}
-.chart-table__bar-col{min-width:140px}
-.chart-table__bar-cell{display:flex;align-items:center;gap:.5rem;min-width:140px}
+.chart-table__bar-col{min-width:160px;width:1%}
+/* The <td> stays display:table-cell so the table layout keeps
+   the two bar columns separated. A flex row INSIDE the cell lays
+   the bar + numeric value out horizontally. */
+.chart-table__bar-cell{padding:.4rem .6rem;min-width:160px;vertical-align:middle}
+.chart-table__bar-row{
+  display:flex;align-items:center;gap:.6rem;min-width:140px;
+}
 .chart-table__bar{
   display:inline-block;flex:1;height:6px;
   background:var(--bg-2);border-radius:3px;overflow:hidden;

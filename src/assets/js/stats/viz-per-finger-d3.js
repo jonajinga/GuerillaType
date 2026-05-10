@@ -37,7 +37,10 @@ export async function renderPerFingerD3(svg, perFinger) {
   });
 
   const W = 720, H = 320;
-  const M = { top: 12, right: 16, bottom: 28, left: 96 };
+  // Right margin is wide enough to fit the longest value label
+  // ("X.X% · 999ms · 99999") without the trailing chars getting
+  // clipped at the SVG's right edge.
+  const M = { top: 12, right: 170, bottom: 28, left: 96 };
   svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
   svg.innerHTML = "";
   const sel = d3.select(svg);

@@ -36,7 +36,9 @@ export async function renderPerKeyD3(svg, perKey, perCharDetail) {
   const top = rows.slice(0, 30);
 
   const W = 720, H = Math.max(280, 22 + top.length * 16);
-  const M = { top: 32, right: 60, bottom: 8, left: 36 };
+  // Right margin is wide enough to fit the longest value label
+  // ("100.0% · 9999 hits") without clipping the trailing chars.
+  const M = { top: 32, right: 150, bottom: 8, left: 36 };
   svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
   svg.innerHTML = "";
   const sel = d3.select(svg);

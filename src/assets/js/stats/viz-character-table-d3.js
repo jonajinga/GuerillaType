@@ -75,16 +75,20 @@ export async function renderCharacterTableD3(host, perCharDetail, perKey) {
                 <td class="chart-table__num">${r.n}</td>
                 <td class="chart-table__num" style="color:var(--bad)">${r.errors}</td>
                 <td class="chart-table__bar-cell">
-                  <span class="chart-table__bar">
-                    <span class="chart-table__bar-fill" style="width:${errPct}%;background:${errColor(r.errorRate)}"></span>
-                  </span>
-                  <span class="chart-table__bar-val">${r.errorRate.toFixed(1)}%</span>
+                  <div class="chart-table__bar-row">
+                    <span class="chart-table__bar">
+                      <span class="chart-table__bar-fill" style="width:${errPct}%;background:${errColor(r.errorRate)}"></span>
+                    </span>
+                    <span class="chart-table__bar-val">${r.errorRate.toFixed(1)}%</span>
+                  </div>
                 </td>
                 <td class="chart-table__bar-cell">
-                  <span class="chart-table__bar">
-                    <span class="chart-table__bar-fill" style="width:${msPct}%;background:${msColor(r.avgMs)}"></span>
-                  </span>
-                  <span class="chart-table__bar-val">${r.avgMs}ms</span>
+                  <div class="chart-table__bar-row">
+                    <span class="chart-table__bar">
+                      <span class="chart-table__bar-fill" style="width:${msPct}%;background:${msColor(r.avgMs)}"></span>
+                    </span>
+                    <span class="chart-table__bar-val">${r.avgMs}ms</span>
+                  </div>
                 </td>
               </tr>
             `;

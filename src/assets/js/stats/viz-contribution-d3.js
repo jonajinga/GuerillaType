@@ -46,6 +46,15 @@ export async function renderContributionD3(svg, daily, panel, opts = {}) {
   // Extra header room for month labels, extra footer room for the
   // legend strip so it never overlaps the labels above it.
   const H = ROWS * (CELL + GAP) + 50;
+  // Override the global .chart__svg { width: 100% } rule for the
+  // shorter views -- otherwise the SVG stretches to fill its
+  // container and cells balloon to >70 px each. Render at natural
+  // pixel size capped to container width.
+  svg.style.width = "auto";
+  svg.style.maxWidth = "100%";
+  svg.style.height = "auto";
+  svg.style.display = "block";
+  svg.style.marginInline = view !== "year" ? "auto" : "0";
   svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
   svg.innerHTML = "";
   const sel = d3.select(svg);
@@ -156,7 +165,13 @@ function renderDayPanel(panel, dayCell, sessions) {
   if (!panel) return;
   const fmt = dayCell.date.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" });
   if (!sessions.length) {
-    panel.innerHTML = `<p class="muted"><strong>${fmt}</strong> -- no sessions recorded.</p>`;
+    panel.innerHTML = `
+      <div class="day-panel">
+        <header class="day-panel__head">
+          <h3 class="day-panel__title">${fmt}</h3>
+          <p class="day-panel__sub muted">No sessions recorded that day.</p>
+        </header>
+      </div>`;
     panel.hidden = false;
     return;
   }
@@ -166,23 +181,43 @@ function renderDayPanel(panel, dayCell, sessions) {
     bestWpm: Math.max(...sessions.map((s) => s.wpm || 0)),
     avgAcc: sessions.reduce((s, x) => s + (x.acc || 0), 0) / sessions.length,
   };
-  const rows = sessions.map((s) => {
+  // Sort newest first within the day so the most recent session
+  // is at the top.
+  const ordered = [...sessions].sort((a, b) => new Date(b.at) - new Date(a.at));
+  const rows = ordered.map((s) => {
     const t = new Date(s.at).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
-    return `<tr><td>${t}</td><td>${s.mode || "?"}</td><td>${Math.round(s.wpm || 0)} wpm</td><td>${Math.round(s.acc || 0)}%</td><td>${Math.round((s.ms || 0) / 1000)}s</td></tr>`;
+    const dur = Math.round((s.ms || 0) / 1000);
+    const wpm = Math.round(s.wpm || 0);
+    const acc = Math.round(s.acc || 0);
+    // Color the accuracy chip by tier (cheap visual hierarchy).
+    const accClass = acc >= 95 ? "good" : (acc >= 80 ? "ok" : "bad");
+    return `
+      <li class="day-panel__row">
+        <span class="day-panel__time">${t}</span>
+        <span class="day-panel__mode">${escapeText(s.mode || "?")}</span>
+        <span class="day-panel__wpm tabular">${wpm}<span class="day-panel__unit">wpm</span></span>
+        <span class="day-panel__acc day-panel__acc--${accClass} tabular">${acc}%</span>
+        <span class="day-panel__dur tabular muted">${dur ? dur + "s" : "—"}</span>
+      </li>`;
   }).join("");
+  const summary = [
+    `${sessions.length} session${sessions.length === 1 ? "" : "s"}`,
+    `${total.chars.toLocaleString()} chars`,
+    total.ms ? `${Math.round(total.ms / 60000)} min` : null,
+    `best ${Math.round(total.bestWpm)} wpm`,
+    `avg ${Math.round(total.avgAcc)}% acc`,
+  ].filter(Boolean).join(" · ");
   panel.innerHTML = `
-    <h3 style="margin:0 0 .5rem">${fmt}</h3>
-    <p class="muted" style="margin:0 0 .8rem">
-      ${sessions.length} session${sessions.length === 1 ? "" : "s"} ·
-      ${total.chars.toLocaleString()} chars ·
-      ${Math.round(total.ms / 60000)} min ·
-      best ${Math.round(total.bestWpm)} wpm ·
-      avg ${Math.round(total.avgAcc)}% acc
-    </p>
-    <table class="data-table">
-      <thead><tr><th>Time</th><th>Mode</th><th>WPM</th><th>Acc</th><th>Length</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
-  `;
+    <div class="day-panel">
+      <header class="day-panel__head">
+        <h3 class="day-panel__title">${fmt}</h3>
+        <p class="day-panel__sub muted">${summary}</p>
+      </header>
+      <ul class="day-panel__list">${rows}</ul>
+    </div>`;
   panel.hidden = false;
+}
+
+function escapeText(s) {
+  return String(s == null ? "" : s).replace(/[<>&"]/g, (c) => ({"<":"&lt;",">":"&gt;","&":"&amp;","\"":"&quot;"}[c]));
 }
