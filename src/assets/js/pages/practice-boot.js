@@ -1013,4 +1013,29 @@ window.ttRestart = () => {
 };
 
 bindModeBar();
+
+/* Real click listener on the Stop button. The inline onclick on the
+   markup also calls window.ttFinish, but we bind a listener here as
+   the primary path -- the HTML minifier has been known to strip /
+   collapse onclicks under aggressive whitespace settings, and a
+   programmatic listener guarantees the click fires.
+   Reads `engine` at click time so reassignments through boot()/
+   restart() are always picked up. */
+const stopBtn = document.getElementById("tt-stop");
+if (stopBtn) {
+  stopBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!engine) return;
+    const st = stage.dataset.state;
+    if (st === "done" || st === "idle") return;
+    // "ready" -> user hit Stop before typing a single char. startTs
+    // is still 0, which would produce nonsense duration. Stamp it
+    // now so finish() computes ms = 0 and the results card shows a
+    // clean zero-progress session.
+    if (engine.startTs === 0) engine.startTs = performance.now();
+    engine.finish();
+  });
+}
+
 boot();
