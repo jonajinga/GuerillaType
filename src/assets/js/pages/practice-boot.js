@@ -14,6 +14,7 @@ import { buildSourceText, evaluateGoal } from "../engine/challenge-runner.js";
 import { mountLiveKeyboard, showLiveKeyboard, highlightChar } from "../viz/live-keyboard.js";
 import { mountLiveTicker, showLiveTicker, recordKeystroke, resetTicker, updateWpm as updateTickerWpm } from "../viz/live-ticker.js";
 import { mountVirtualKeyboard, unmountVirtualKeyboard, highlightNextKey as vkbdNext } from "../engine/virtual-keyboard.js";
+import { Analytics } from "../analytics.js";
 import { $, htmlEscape, toast } from "../util/dom.js";
 
 let _challengesCache = null;
@@ -581,6 +582,17 @@ function renderChallengeHud() {
 function handleFinish(result) {
   result.lang = state.language;
   result.layout = state.layout;
+  Analytics.sessionFinish({
+    mode: state.mode,
+    lang: state.language,
+    layout: state.layout,
+    wpm: Math.round(result.wpm || 0),
+    acc: Math.round(result.accuracy || 0),
+    duration: state.duration || null,
+    words: state.words || null,
+    chars: result.chars || 0,
+    stopped: !!(engine && engine._stopped),
+  });
   if (state.lessonId != null) result.lessonId = state.lessonId;
   if (state.drillId != null) result.drillId = state.drillId;
   if (state.bookSlug) {
@@ -1196,6 +1208,27 @@ async function boot() {
    trigger it. Permissive: fires from "ready" or "running" states.
    In "ready" we stamp startTs to now so finish() doesn't compute a
    nonsense ms duration. In "idle" / "done" we no-op. */
+/* Toggle pause state. Freezes the engine clock + live stats
+   until the user resumes (clicking again, pressing any key, or
+   focusing the input). On mobile, this is the primary pause
+   path since blur-pause is disabled there. */
+window.ttPause = () => {
+  const eng = window.__tt || engine;
+  if (!eng) return;
+  if (eng._pauseAt) {
+    eng.resumeTimer();
+  } else {
+    eng.pauseTimer();
+  }
+  // Toggle button visual state.
+  const btn = document.getElementById("tt-pause");
+  if (btn) {
+    btn.setAttribute("aria-pressed", eng._pauseAt ? "true" : "false");
+    const label = btn.querySelector(".tt-actions__label");
+    if (label) label.textContent = eng._pauseAt ? "Resume" : "Pause";
+  }
+};
+
 window.ttFinish = () => {
   const e = window.__tt || engine;
   if (!e) return false;

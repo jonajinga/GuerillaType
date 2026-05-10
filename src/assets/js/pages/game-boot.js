@@ -12,6 +12,7 @@
 import { getActive, updateActive } from "../profiles.js";
 import { loadD3 } from "../stats/d3-loader.js";
 import { mountVirtualKeyboard, unmountVirtualKeyboard, highlightNextKey as vkbdNext } from "../engine/virtual-keyboard.js";
+import { Analytics } from "../analytics.js";
 
 const COMMON_FALLBACK_WORDS = [
   "the", "and", "for", "you", "this", "with", "have", "from", "they",
@@ -30,13 +31,21 @@ let lastFrameTs = 0;
 let d3 = null;
 let svgSel = null;
 let stageW = 800, stageH = 500;
-let speedMult = 1.0;       // multiplier from the speed slider
+let speedMult = 1.0;
+// Mode flags driven by URL params. /practice/game/?mode=endless
+// spawns words forever (until 3 misses) with a steeper speed
+// ramp. ?speed=N sets the initial speed multiplier.
+const _gameParams = new URLSearchParams(location.search);
+const gameMode = _gameParams.get("mode") === "endless" ? "endless" : "classic";
+const initialSpeed = parseFloat(_gameParams.get("speed")) || 1.0;
+speedMult = initialSpeed;
 
 const input = document.getElementById("game-input");
 const speedSlider = document.getElementById("game-speed");
 const speedVal = document.querySelector("[data-speed-val]");
 if (speedSlider) {
-  speedMult = parseFloat(speedSlider.value) || 1.0;
+  speedSlider.value = String(initialSpeed);
+  if (speedVal) speedVal.textContent = initialSpeed.toFixed(1) + "×";
   speedSlider.addEventListener("input", () => {
     speedMult = parseFloat(speedSlider.value) || 1.0;
     if (speedVal) speedVal.textContent = speedMult.toFixed(1) + "×";
@@ -93,8 +102,10 @@ function spawn() {
   const w = pickWord();
   if (!w) return;
   const x = 60 + Math.random() * (stageW - 120);
-  // Base fall speed + per-catch ramp, all scaled by the slider.
-  const baseSpeed = 50 + Math.random() * 30 + stats.caught * 0.6;
+  // Base fall speed + per-catch ramp. Endless mode ramps faster
+  // (1.5 px/caught vs 0.6) so the round actually escalates.
+  const rampPerCatch = gameMode === "endless" ? 1.5 : 0.6;
+  const baseSpeed = 50 + Math.random() * 30 + stats.caught * rampPerCatch;
   const speed = baseSpeed * speedMult;
   falling.push({ id: Math.random().toString(36).slice(2), word: w, x, y: -20, speed });
 }
@@ -104,9 +115,11 @@ function frame(elapsed) {
   const now = performance.now();
   const dt = Math.min(0.05, (now - lastFrameTs) / 1000 || 0);
   lastFrameTs = now;
-  // Spawn pacing -- one word every 1.4 seconds initially, faster
-  // as the round progresses.
-  const spawnEvery = Math.max(700, 1400 - stats.caught * 40);
+  // Spawn pacing. Classic: floor at 700 ms. Endless: floor at
+  // 350 ms so the screen actually fills up at late stages.
+  const minSpawn = gameMode === "endless" ? 350 : 700;
+  const rampPerCatch = gameMode === "endless" ? 60 : 40;
+  const spawnEvery = Math.max(minSpawn, 1400 - stats.caught * rampPerCatch);
   if (now - lastSpawnTs > spawnEvery) {
     spawn();
     lastSpawnTs = now;
@@ -285,6 +298,7 @@ function startRound() {
   startBtn.hidden = true;
   pauseBtn.hidden = false;
   resetBtn.hidden = false;
+  Analytics.gameStart({ mode: gameMode, speed: speedMult });
   d3.timer(frame);
 }
 
@@ -307,6 +321,14 @@ function endRound() {
   startBtn.textContent = "Play again";
   startBtn.hidden = false;
   pauseBtn.hidden = true;
+  Analytics.gameOver({
+    mode: gameMode,
+    score: stats.score,
+    caught: stats.caught,
+    missed: stats.missed,
+    bestStreak: stats.bestStreak,
+    speed: speedMult,
+  });
   // Stash high score for future leaderboard work.
   try {
     updateActive((p) => {

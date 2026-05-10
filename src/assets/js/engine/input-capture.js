@@ -72,20 +72,26 @@ export function attachInput(inputEl, host, handlers) {
   });
   inputEl.addEventListener("blur", (e) => {
     host.dataset.focused = "false";
-    // Skip blurs that go INTO the on-screen virtual keyboard.
-    // Tapping a vkbd key shifts focus to the button for a frame
-    // before our handler refocuses the input. Without this guard
-    // every tap fires pauseTimer, freezing the live stats and
-    // making the user feel like the game / engine paused. The
-    // keyboard buttons live inside .vkbd; relatedTarget gives us
-    // the new focus target on most browsers, and document.
-    // activeElement is the iOS Safari fallback (relatedTarget can
-    // be null on touch-synthesised focus shifts).
+    // Mobile / touch devices: NEVER pause on blur. Mobile users
+    // routinely tap outside the typing area (to dismiss a
+    // keyboard, scroll, adjust settings) without intending to
+    // walk away from the session. Auto-pause makes the live stats
+    // feel like they're glitching. They can still pause via the
+    // explicit Pause button or Esc.
+    const isTouchLike = (() => {
+      try {
+        if (window.matchMedia && window.matchMedia("(max-width: 768px)").matches) return true;
+        if (window.matchMedia && window.matchMedia("(hover: none) and (pointer: coarse)").matches) return true;
+        if ("ontouchstart" in window) return true;
+        if (navigator.maxTouchPoints > 0) return true;
+      } catch {}
+      return false;
+    })();
+    if (isTouchLike) return;
+    // Desktop: skip blurs INTO the on-screen virtual keyboard
+    // so tapping a vkbd key doesn't pause.
     const goingTo = e.relatedTarget || document.activeElement;
     if (goingTo && goingTo.closest && goingTo.closest(".vkbd")) {
-      // Re-assert focus right away so the engine never sees the
-      // input as un-focused. Defer one tick so the current blur
-      // event finishes propagating first.
       setTimeout(() => {
         try { if (document.activeElement !== inputEl) inputEl.focus({ preventScroll: true }); } catch {}
       }, 0);

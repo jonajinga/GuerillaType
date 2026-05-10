@@ -194,6 +194,39 @@ const megamenu = [
     featured: { kind: "challenge-best", title: "Beat your best", cta: { label: "All challenges", url: "/challenges/" } },
   },
   {
+    label: "Games",
+    url: "/games/",
+    groups: [
+      {
+        title: "Play",
+        items: [
+          { chip: "🎮", label: "All games", url: "/games/", desc: "Every typing game in one place." },
+          { chip: "C", label: "Catch the Word", url: "/practice/game/", desc: "Falling-word arcade driven by your missed-words list." },
+          { chip: "C+", label: "Catch — speed 1.5x", url: "/practice/game/?speed=1.5", desc: "Same game, sped up. Quick warm-up." },
+          { chip: "C++", label: "Catch — speed 2x", url: "/practice/game/?speed=2", desc: "Hard mode. Pixels fly." },
+          { chip: "★", label: "High scores", url: "/stats/#mode-bests", desc: "Your best score + best streak per game." },
+        ],
+      },
+      {
+        title: "Coming soon",
+        items: [
+          { chip: "🎯", label: "Shooter mode", url: "/games/#shooter", desc: "Cursor-driven word targeting." },
+          { chip: "∞", label: "Endless mode", url: "/games/#endless", desc: "Spawns forever, faster each minute." },
+          { chip: "💡", label: "Suggest a game", url: "/contribute/", desc: "What would you play?" },
+        ],
+      },
+      {
+        title: "Why games?",
+        items: [
+          { chip: "📚", label: "The case for games", url: "/games/#why", desc: "Sustained engagement when you're tired or bored." },
+          { chip: "✗", label: "My missed words", url: "/practice/?mode=words&words=25&lang=missed", desc: "Practice the words you mistype most." },
+          { chip: "S", label: "Stats dashboard", url: "/stats/", desc: "Where game results land." },
+        ],
+      },
+    ],
+    featured: { kind: "game-pitch", title: "Play Catch the Word", cta: { label: "Open the game", url: "/practice/game/" } },
+  },
+  {
     label: "Insights",
     url: "/stats/",
     groups: [
