@@ -1,0 +1,65 @@
+---
+layout: layouts/base.njk
+title: "Roadmap"
+description: "What's coming next, what's in flight, and what's been deferred on GuerillaType."
+permalink: /roadmap/
+pageSlug: roadmap
+---
+
+<article class="page-text">
+  <header class="page-text__header">
+    <p class="page-text__eyebrow">Project status</p>
+    <h1>Roadmap</h1>
+    <p class="page-text__lede">What's coming next, what's in flight, and what's been deferred. Updated in batches as work lands.</p>
+  </header>
+
+  <section>
+    <h2>Recently shipped</h2>
+    <ul>
+      <li><strong>D3 across the stats page.</strong> WPM trend, per-finger viz, per-key sortable bars, calendar heatmap with day-detail drill-down, missed-words bar chart, recent-sessions list with sparklines, character report. All lazy-loaded; legacy fallback if D3 fails.</li>
+      <li><strong>Catch the Word game.</strong> Falling-word mini-game driven by your missed-words list. Per-char prefix coloring, streak multiplier, dissolve animation on catch.</li>
+      <li><strong>Mobile virtual keyboard.</strong> Optional tap-to-type keyboard that replaces the OS soft keyboard. QWERTY with shift, caps, numbers/symbols layer, next-expected-key highlight.</li>
+      <li><strong>Achievements expansion.</strong> 56 → ~120 unlocks across streaks, volume, speed, accuracy, time-of-day, endurance, variety, mastery, growth, and easter eggs.</li>
+      <li><strong>Content expansion.</strong> Quotes 452 → 874. Idioms 449 → 717. Poems 148 → 177. Books in library reached 290.</li>
+      <li><strong>Split-button mode chips.</strong> Time / Words / Quote / Idiom / Poem / Drills / Challenges all get chevron dropdowns for richer per-mode configuration.</li>
+      <li><strong>Universal auto-advance.</strong> 10-second countdown after any clean run; mode-aware navigation to the next quote/lesson/book page or in-place restart. Esc / Stop suppresses it.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>In flight</h2>
+    <ul>
+      <li>Phase 2 of the typing game: shooter mode (cursor-driven word targeting) and endless mode with persistent high score.</li>
+      <li>Umami analytics — privacy-respecting event tracking for session funnels, mode discovery, retention cohorts.</li>
+      <li>Numpad layout + drills for users who want to drill the number pad explicitly.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Planned</h2>
+    <ul>
+      <li>Adaptive lesson curriculum — weighted picker within each lesson's key set, not just Lesson 20.</li>
+      <li>Open lessons + "save as lesson" — turn any saved custom text into a replayable lesson with its own progress tracking.</li>
+      <li>Live ticker — keystroke-by-keystroke pulse strip + rolling-WPM ribbon under the typing surface.</li>
+      <li>Lesson trends — small-multiples grid showing WPM/accuracy improvement curves per lesson.</li>
+      <li>Bigram chord diagram — visualize which bigrams chain into which trigrams.</li>
+      <li>EPUB / PDF import on the custom page so users can type from their own ebooks.</li>
+      <li>Theme builder — pick your own background/text/accent tokens, save themes locally, export/import as JSON.</li>
+      <li>Additional typing fonts — Fira Code, IBM Plex Mono, Iosevka, Cascadia Code as opt-in choices.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Deferred</h2>
+    <ul>
+      <li>Cloud sync of profiles. Local-first is the model; sync introduces accounts, server cost, and privacy tradeoffs that don't fit the project's posture today.</li>
+      <li>Multiplayer / racing. Adds substantial network + matchmaking complexity for a feature plenty of other sites already do well.</li>
+      <li>Built-in voice or video coaching. The typing surface is the product; layered media expands surface area without expanding the core practice loop.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Suggest an addition</h2>
+    <p>Have something you want to see? <a href="/contribute/">Send a suggestion</a> or open an issue on <a href="https://github.com/jonajinga/GuerillaType">GitHub</a>. The roadmap moves with the people who use the project.</p>
+  </section>
+</article>

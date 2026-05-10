@@ -54,8 +54,18 @@ export async function renderMissedWordsD3(host, missedWordsMap) {
 
   // Build a single SVG sized to fit all rows; the parent host has
   // overflow:auto so the user scrolls through.
-  const ROW = 24, M = { top: 36, right: 80, bottom: 8, left: 110 };
+  // Layout columns:
+  //   word label  | bar (flexes)  | count number (50 px) | last-seen (70 px)
+  // The count + last-seen sit in their own fixed slots so the bar
+  // can never overlap them (and the count never collides with the
+  // "Last" column on long bars).
+  const ROW = 24;
+  const M = { top: 36, bottom: 8, left: 110 };
+  const COUNT_W = 50;
+  const LAST_W = 70;
   const W = 720;
+  const BAR_END = W - COUNT_W - LAST_W - 16;
+  const M_right = COUNT_W + LAST_W + 16;
   const H = M.top + top.length * ROW + M.bottom;
 
   host.innerHTML = `
@@ -87,7 +97,7 @@ export async function renderMissedWordsD3(host, missedWordsMap) {
     .padding(0.18);
   const x = d3.scaleLinear()
     .domain([0, maxN])
-    .range([M.left, W - M.right]);
+    .range([M.left, BAR_END]);
 
   // Header row.
   sel.append("text")
@@ -102,7 +112,14 @@ export async function renderMissedWordsD3(host, missedWordsMap) {
     .attr("style", "font-size:10px;fill:var(--fg-3);letter-spacing:.08em;text-transform:uppercase")
     .text("Miss count");
   sel.append("text")
-    .attr("x", W - M.right + 6).attr("y", M.top - 16)
+    .attr("x", W - LAST_W - 12).attr("y", M.top - 16)
+    .attr("text-anchor", "end")
+    .attr("class", "chart__tick")
+    .attr("style", "font-size:10px;fill:var(--fg-3);letter-spacing:.08em;text-transform:uppercase")
+    .text("Count");
+  sel.append("text")
+    .attr("x", W - 6).attr("y", M.top - 16)
+    .attr("text-anchor", "end")
     .attr("class", "chart__tick")
     .attr("style", "font-size:10px;fill:var(--fg-3);letter-spacing:.08em;text-transform:uppercase")
     .text("Last");
@@ -126,17 +143,23 @@ export async function renderMissedWordsD3(host, missedWordsMap) {
     .attr("width", (d) => Math.max(2, x(d.n) - M.left))
     .attr("fill", (d) => ageColor(d.ageMs))
     .attr("opacity", .85);
+  // Count value -- pinned to its own column slot, right-aligned,
+  // so it never overlaps the bar or the Last column. Bar width is
+  // already clamped to BAR_END.
   g.append("text")
-    .attr("x", (d) => Math.max(M.left + 6, x(d.n)) + 6)
+    .attr("x", W - LAST_W - 12)
     .attr("y", (d) => y(d.word) + y.bandwidth() / 2 + 4)
+    .attr("text-anchor", "end")
     .attr("class", "chart__tick")
-    .attr("style", "font-size:11px;fill:var(--fg-1)")
-    .text((d) => `${d.n}`);
+    .attr("style", "font-family:var(--font-mono);font-size:12px;fill:var(--fg-1)")
+    .text((d) => d.n);
+  // Last-seen column -- right-aligned at the SVG's right edge.
   g.append("text")
-    .attr("x", W - M.right + 6)
+    .attr("x", W - 6)
     .attr("y", (d) => y(d.word) + y.bandwidth() / 2 + 4)
+    .attr("text-anchor", "end")
     .attr("class", "chart__tick")
-    .attr("style", "font-size:10px;fill:var(--fg-2);font-family:var(--font-mono)")
+    .attr("style", "font-size:11px;fill:var(--fg-2);font-family:var(--font-mono)")
     .text((d) => formatAgo(d.ageMs));
   g.append("title")
     .text((d) => `${d.word}\nmissed ${d.n} time${d.n === 1 ? "" : "s"}\nlast missed ${formatAgo(d.ageMs)} ago\nrecency-weighted score: ${d.score.toFixed(2)}`);

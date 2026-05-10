@@ -193,6 +193,70 @@
 .chart-table__bar-val{
   font-size:.72rem;color:var(--fg-2);min-width:3em;text-align:right;
 }
+
+/* Day-detail panel that opens when the user clicks a calendar
+   cell in the contribution heatmap. Title + summary + a clean
+   per-session list. Sticky-scroll friendly. */
+.day-panel{
+  background:var(--bg-1);
+  border:1px solid var(--rule);
+  border-radius:var(--radius);
+  padding:var(--space-4);
+  max-width:880px;margin:var(--space-3) auto 0;
+}
+.day-panel__head{
+  display:flex;flex-direction:column;gap:.2rem;
+  margin-bottom:var(--space-3);
+  padding-bottom:var(--space-3);
+  border-bottom:1px solid var(--rule);
+}
+.day-panel__title{
+  font-family:var(--font-display);font-weight:500;
+  color:var(--fg-0);font-size:var(--fs-500);line-height:1.15;
+  margin:0;
+}
+.day-panel__sub{
+  margin:0;color:var(--fg-2);font-family:var(--font-mono);
+  font-size:.78rem;letter-spacing:.02em;
+}
+.day-panel__list{
+  list-style:none;margin:0;padding:0;
+  display:flex;flex-direction:column;gap:.2rem;
+}
+.day-panel__row{
+  display:grid;
+  grid-template-columns:80px 90px 1fr auto auto;
+  align-items:baseline;gap:.6rem;
+  padding:.45rem .6rem;
+  background:var(--bg-2);
+  border:1px solid color-mix(in oklab, var(--rule) 50%, transparent);
+  border-radius:var(--radius);
+  font-family:var(--font-mono);
+  transition:background var(--t-fast);
+}
+.day-panel__row:hover{background:color-mix(in oklab, var(--bg-2) 70%, var(--accent))}
+.day-panel__time{color:var(--fg-2);font-size:.78rem;font-variant-numeric:tabular-nums}
+.day-panel__mode{color:var(--fg-1);font-size:.78rem}
+.day-panel__wpm{font-size:1.05rem;color:var(--accent);font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
+.day-panel__unit{font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:var(--fg-3);margin-left:.3rem;font-weight:400}
+.day-panel__acc{font-size:.85rem;font-weight:600;font-variant-numeric:tabular-nums;text-align:right;min-width:3em}
+.day-panel__acc--good{color:var(--good, #8fbf90)}
+.day-panel__acc--ok{color:var(--warn, #e3b873)}
+.day-panel__acc--bad{color:var(--bad, #d76050)}
+.day-panel__dur{color:var(--fg-3);font-size:.72rem;font-variant-numeric:tabular-nums;text-align:right;min-width:3em}
+
+@media (max-width:640px){
+  .day-panel__row{
+    grid-template-columns:auto 1fr auto;
+    grid-template-rows:auto auto;
+    gap:.2rem .6rem;
+  }
+  .day-panel__time{grid-column:1;grid-row:1}
+  .day-panel__mode{grid-column:2;grid-row:1}
+  .day-panel__wpm{grid-column:3;grid-row:1}
+  .day-panel__acc{grid-column:1 / span 2;grid-row:2;text-align:left}
+  .day-panel__dur{grid-column:3;grid-row:2}
+}
 .missed-word{
   display:grid;
   grid-template-columns:minmax(8rem, 14rem) 1fr auto auto;
