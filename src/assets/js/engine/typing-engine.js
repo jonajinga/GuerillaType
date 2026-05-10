@@ -325,7 +325,8 @@ export class TypingEngine {
     // on Escape — so it gets the streaming branch below.
     if (this.mode === "words" || this.mode === "quote" || this.mode === "custom" ||
         this.mode === "challenge" || this.mode === "lesson" || this.mode === "drill" ||
-        this.mode === "adaptive" || this.mode === "book") {
+        this.mode === "adaptive" || this.mode === "book" ||
+        this.mode === "idiom" || this.mode === "poem") {
       if (this.cursor >= this.targetArr.length) this.finish();
     }
     // Zen: stream more words as we approach the end.
@@ -432,7 +433,7 @@ export class TypingEngine {
           const wordsDone = this.targetArr.slice(0, this.cursor).join("").split(/\s+/).filter(Boolean).length;
           tel.textContent = `${wordsDone}/${this.wordsTarget}`;
           if (tlb) tlb.textContent = "words typed";
-        } else if (this.mode === "quote" || this.mode === "custom" || this.mode === "lesson" || this.mode === "drill" || this.mode === "challenge" || this.mode === "adaptive" || this.mode === "book") {
+        } else if (this.mode === "quote" || this.mode === "custom" || this.mode === "lesson" || this.mode === "drill" || this.mode === "challenge" || this.mode === "adaptive" || this.mode === "book" || this.mode === "idiom" || this.mode === "poem") {
           const pct = this.targetArr.length ? Math.round((this.cursor / this.targetArr.length) * 100) : 0;
           tel.textContent = `${pct}%`;
           if (tlb) tlb.textContent = "complete";

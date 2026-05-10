@@ -121,11 +121,29 @@ function syncPreferences() {
 }
 function bindPreference(el, key, parse = (v) => v) {
   if (!el) return;
-  el.addEventListener("change", () => updateActive((p) => {
+  // Mobile Safari/Chrome sometimes skip "change" on toggle-styled
+  // checkboxes (the label wraps the box; tap registers on the
+  // label, not the input). Listen on change + input + click so
+  // every reasonable interaction path saves the preference.
+  const save = () => updateActive((p) => {
     p.preferences = p.preferences || {};
     p.preferences[key] = parse(el.type === "checkbox" ? el.checked : el.value);
     return p;
-  }));
+  });
+  el.addEventListener("change", save);
+  el.addEventListener("input", save);
+  // For checkboxes, also catch the click on the wrapping label so
+  // we save even if the synthetic change/input is suppressed.
+  if (el.type === "checkbox") {
+    const wrap = el.closest("label");
+    if (wrap) {
+      wrap.addEventListener("click", () => {
+        // Defer one tick so the checkbox's checked state has
+        // updated before we read it.
+        setTimeout(save, 0);
+      });
+    }
+  }
 }
 PREF_BOOLS.forEach((k) => bindPreference(document.getElementById(`pref-${k}`), k));
 PREF_SELECTS.forEach((k) => bindPreference(document.getElementById(`pref-${k}`), k));

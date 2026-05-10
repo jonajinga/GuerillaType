@@ -409,7 +409,7 @@ function startEngine(target) {
     ? target.reduce((n, s) => n + s.length, 0)
     : (target || "").length;
   const isLongFormPre = state.mode === "custom" || state.mode === "book"
-    || state.mode === "quote"
+    || state.mode === "quote" || state.mode === "idiom" || state.mode === "poem"
     || (state.mode === "lesson" && targetLen > 200);
   textEl.classList.toggle("tt-text--full", !!isLongFormPre);
   // Apply the "reader" book-page styling to every literary target:
@@ -417,6 +417,8 @@ function startEngine(target) {
   // the corpus pages route through custom mode with kind metadata.
   const isLiterary = state.mode === "book"
     || state.mode === "quote"
+    || state.mode === "idiom"
+    || state.mode === "poem"
     || (state.mode === "custom" && state._customMeta && ["quote","idiom","parable","poem"].indexOf(state._customMeta.kind) !== -1);
   textEl.classList.toggle("tt-text--reader", !!isLiterary);
   // Tag the typing surface with the literary kind so kind-specific

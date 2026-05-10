@@ -22,13 +22,33 @@
         <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
       </button>
     </span>
-    <button type="button" class="mode-bar__btn" data-mode="idiom" data-tip="<strong>Idiom</strong><br>Random English idiom with its meaning.">idiom</button>
-    <button type="button" class="mode-bar__btn" data-mode="poem" data-tip="<strong>Poetry</strong><br>Random public-domain poem.">poem</button>
+    <span class="mode-bar__split">
+      <button type="button" class="mode-bar__btn" data-mode="idiom" data-tip="<strong>Idiom</strong><br>Random English idiom with its meaning.">idiom</button>
+      <button type="button" class="mode-bar__chev" data-dropdown-trigger="idiom" aria-haspopup="true" aria-expanded="false" aria-label="Idiom options" data-tip="Filter idioms by region." onclick="window.ttToggleDropdown && window.ttToggleDropdown('idiom', event)">
+        <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+    </span>
+    <span class="mode-bar__split">
+      <button type="button" class="mode-bar__btn" data-mode="poem" data-tip="<strong>Poetry</strong><br>Random public-domain poem.">poem</button>
+      <button type="button" class="mode-bar__chev" data-dropdown-trigger="poem" aria-haspopup="true" aria-expanded="false" aria-label="Poem options" data-tip="Filter poems by era or length." onclick="window.ttToggleDropdown && window.ttToggleDropdown('poem', event)">
+        <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+    </span>
     <button type="button" class="mode-bar__btn" data-mode="zen" data-tip="<strong>Zen mode</strong><br>Untimed, endless. Press Esc to stop.">zen</button>
     <button type="button" class="mode-bar__btn" data-mode="custom" data-tip="<strong>Custom text</strong><br>Type your own pasted text or saved snippets.">custom</button>
     <button type="button" class="mode-bar__btn" data-mode="adaptive" data-tip="<strong>Adaptive mode</strong><br>Picker biased toward your weakest keys + bigrams.">adaptive</button>
-    <button type="button" class="mode-bar__btn" onclick="window.location.href='/drills/'" data-tip="<strong>Drills</strong><br>Browse and pick a key-cluster or bigram drill.">drills</button>
-    <button type="button" class="mode-bar__btn" onclick="window.location.href='/challenges/'" data-tip="<strong>Challenges</strong><br>Browse and pick a structured challenge with a goal.">challenges</button>
+    <span class="mode-bar__split">
+      <button type="button" class="mode-bar__btn" onclick="window.location.href='/drills/'" data-tip="<strong>Drills</strong><br>Browse and pick a key-cluster or bigram drill.">drills</button>
+      <button type="button" class="mode-bar__chev" data-dropdown-trigger="drills" aria-haspopup="true" aria-expanded="false" aria-label="Drills options" data-tip="Jump to a drill category." onclick="window.ttToggleDropdown && window.ttToggleDropdown('drills', event)">
+        <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+    </span>
+    <span class="mode-bar__split">
+      <button type="button" class="mode-bar__btn" onclick="window.location.href='/challenges/'" data-tip="<strong>Challenges</strong><br>Browse and pick a structured challenge with a goal.">challenges</button>
+      <button type="button" class="mode-bar__chev" data-dropdown-trigger="challenges" aria-haspopup="true" aria-expanded="false" aria-label="Challenges options" data-tip="Jump to a challenge difficulty." onclick="window.ttToggleDropdown && window.ttToggleDropdown('challenges', event)">
+        <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+    </span>
     <button type="button" class="mode-bar__btn mode-bar__btn--random" onclick="window.ttRandomMode && window.ttRandomMode()" data-tip="<strong>Random mode</strong><br>Surprise me with a random mode + variant.">random</button>
   </div>
 
@@ -104,6 +124,52 @@
         <button type="button" class="mode-bar__btn" data-tag="science" data-tip="Scientists, mathematicians.">science</button>
         <button type="button" class="mode-bar__btn" data-tag="humor" data-tip="Funny / irreverent.">humor</button>
         <button type="button" class="mode-bar__btn" data-tag="motivation" data-tip="Motivational.">motivation</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="mode-bar__dropdown" data-dropdown="idiom" hidden role="region" aria-label="Idiom settings">
+    <div class="mode-bar__dropdown-section">
+      <p class="mode-bar__dropdown-eyebrow">Click any tag below for a random pick</p>
+      <div class="mode-bar__dropdown-row">
+        <button type="button" class="mode-bar__btn" onclick="window.location.href='/practice/?mode=idiom'" data-tip="Any idiom.">any</button>
+        <button type="button" class="mode-bar__btn" onclick="window.location.href='/idioms/'" data-tip="Browse the full idiom index.">browse all</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="mode-bar__dropdown" data-dropdown="poem" hidden role="region" aria-label="Poem settings">
+    <div class="mode-bar__dropdown-section">
+      <p class="mode-bar__dropdown-eyebrow">Click any option for a random pick</p>
+      <div class="mode-bar__dropdown-row">
+        <button type="button" class="mode-bar__btn" onclick="window.location.href='/practice/?mode=poem'" data-tip="Any poem from the public-domain corpus.">any</button>
+        <button type="button" class="mode-bar__btn" onclick="window.location.href='/poetry/'" data-tip="Browse the full poetry index.">browse all</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="mode-bar__dropdown" data-dropdown="drills" hidden role="region" aria-label="Drill categories">
+    <div class="mode-bar__dropdown-section">
+      <p class="mode-bar__dropdown-eyebrow">Jump to a category</p>
+      <div class="mode-bar__dropdown-row">
+        <button type="button" class="mode-bar__btn" onclick="window.location.href='/drills/'" data-tip="All drills.">all</button>
+        <button type="button" class="mode-bar__btn" onclick="window.location.href='/practice/?drill=home-row'" data-tip="Home-row drill.">home row</button>
+        <button type="button" class="mode-bar__btn" onclick="window.location.href='/practice/?drill=top-row'" data-tip="Top-row drill.">top row</button>
+        <button type="button" class="mode-bar__btn" onclick="window.location.href='/practice/?drill=bottom-row'" data-tip="Bottom-row drill.">bottom row</button>
+        <button type="button" class="mode-bar__btn" onclick="window.location.href='/practice/?drill=numbers'" data-tip="Number row drill.">numbers</button>
+        <button type="button" class="mode-bar__btn" onclick="window.location.href='/practice/?drill=symbols'" data-tip="Symbol cluster drill.">symbols</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="mode-bar__dropdown" data-dropdown="challenges" hidden role="region" aria-label="Challenge categories">
+    <div class="mode-bar__dropdown-section">
+      <p class="mode-bar__dropdown-eyebrow">Browse challenges</p>
+      <div class="mode-bar__dropdown-row">
+        <button type="button" class="mode-bar__btn" onclick="window.location.href='/challenges/'" data-tip="All challenges.">all</button>
+        <button type="button" class="mode-bar__btn" onclick="window.location.href='/practice/?challenge=sprint'" data-tip="60 second sprint -- hit 60 wpm at 95%.">sprint</button>
+        <button type="button" class="mode-bar__btn" onclick="window.location.href='/practice/?challenge=word-500'" data-tip="Endurance -- 500 words at 60 wpm.">endurance</button>
+        <button type="button" class="mode-bar__btn" onclick="window.location.href='/practice/?challenge=accuracy-only'" data-tip="100 words at >= 99% accuracy.">accuracy</button>
       </div>
     </div>
   </div>
