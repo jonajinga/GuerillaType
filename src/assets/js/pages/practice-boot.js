@@ -1071,7 +1071,23 @@ function syncModeBar() {
 function bindModeBar() {
   document.querySelectorAll('.mode-bar__btn').forEach((b) => {
     b.addEventListener("click", () => {
-      if (b.dataset.mode) state.mode = b.dataset.mode;
+      // Mobile: chips with a data-section-url (quote / idiom /
+      // poem) navigate to the dedicated index page instead of
+      // starting a practice session. Lets the user browse the
+      // full library on phones where the small screen makes the
+      // chevron dropdown experience less useful.
+      if (b.dataset.sectionUrl &&
+          window.matchMedia && window.matchMedia("(max-width: 768px)").matches) {
+        window.location.href = b.dataset.sectionUrl;
+        return;
+      }
+      // Switching to any mode chip ends the active challenge --
+      // otherwise the CHALLENGE banner persists across non-
+      // challenge sessions even though the engine has moved on.
+      if (b.dataset.mode) {
+        activeChallenge = null;
+        state.mode = b.dataset.mode;
+      }
       else if (b.dataset.duration) state.duration = parseInt(b.dataset.duration, 10);
       else if (b.dataset.words) state.words = parseInt(b.dataset.words, 10);
       else if (b.dataset.quote) state.quote = b.dataset.quote;
@@ -1124,8 +1140,11 @@ window.ttToggleDropdown = function(mode, event) {
   if (isOpen) return;
   trigger.setAttribute("aria-expanded", "true");
   panel.hidden = false;
-  // Mobile: bottom-sheet -- clear inline coords so the CSS wins.
-  // Desktop: position under the chevron via getBoundingClientRect.
+  // Wipe ALL inline styles first so a previous open-position from
+  // a different viewport (e.g. desktop -> rotated to portrait)
+  // can't carry over and shove the panel under the header. Then
+  // apply the right anchoring for the current viewport.
+  panel.removeAttribute("style");
   const isMobile = window.matchMedia && window.matchMedia("(max-width: 768px)").matches;
   if (!isMobile) {
     const r = trigger.getBoundingClientRect();
@@ -1134,12 +1153,11 @@ window.ttToggleDropdown = function(mode, event) {
     panel.style.left = Math.max(8, Math.min(r.left, window.innerWidth - panelW - 8)) + "px";
     panel.style.right = "auto";
     panel.style.bottom = "auto";
-  } else {
-    panel.style.top = "";
-    panel.style.left = "";
-    panel.style.right = "";
-    panel.style.bottom = "";
   }
+  // On mobile, no inline overrides -- CSS @media bottom-sheet
+  // rules (position:fixed; bottom:0; top:auto) take over so the
+  // panel sits above the on-screen keyboard, never under the
+  // header.
 };
 
 function bindModeDropdowns() {

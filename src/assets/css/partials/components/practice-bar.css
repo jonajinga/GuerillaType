@@ -100,13 +100,32 @@ body[data-page="practice"] .site-main{padding-top:0}
   .practice-bar .mode-bar__custom{
     width:44px;line-height:1;
   }
-  /* Mobile chevrons: 44 x 44 square -- WCAG-AAA touch target.
-     SVG enlarged to match. */
+  /* Mobile chevrons: 44 px tall (matches chip exactly), 36 px
+     wide -- skinnier than the chip but still a tappable target,
+     and proportioned so the chip + chevron read as one
+     connected split-button rather than two equal squares. The
+     chip's right border is dropped, the chevron's left border
+     is dropped, so the two halves share the dividing rule. */
   .practice-bar .mode-bar__chev{
-    height:44px;min-height:44px;width:44px;
+    height:44px;min-height:44px;width:36px;
+    border-left:0;
+    margin-left:0;
   }
   .practice-bar .mode-bar__chev svg{
-    width:18px;height:18px;
+    width:16px;height:16px;
+  }
+  /* Visually merge: when the chip is the active mode, the
+     chevron picks up the same accent border + tinted bg so the
+     split reads as a single highlighted unit. */
+  .practice-bar .mode-bar__btn[aria-pressed="true"] + .mode-bar__chev{
+    border-color:var(--accent);
+    background:color-mix(in oklab, var(--accent) 12%, transparent);
+    color:var(--accent);
+  }
+  /* Add a thin internal divider between chip + chevron so the
+     transition reads cleanly without a heavy border. */
+  .practice-bar .mode-bar__split .mode-bar__btn{
+    border-right:1px solid color-mix(in oklab, var(--rule) 60%, transparent);
   }
   /* Restore practice-page's natural top padding so the typing
      surface doesn't sit flush against the bar, but don't add any
@@ -194,8 +213,12 @@ body[data-page="practice"] .site-main{padding-top:0}
   color:var(--accent);font-weight:600;flex-shrink:0;
 }
 .practice-bar__challenge-name{
-  font-family:var(--font-display);font-size:var(--fs-400);
+  /* Match the eyebrow + goal text style (mono, .7 rem, fg-1)
+     so the three pieces read as a single uniform pill instead
+     of a big display-font name flanked by two small mono labels. */
+  font-family:var(--font-mono);font-size:.78rem;
   color:var(--fg-0);font-weight:500;line-height:1.1;
+  letter-spacing:.02em;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;
 }
 .practice-bar__challenge-goal{

@@ -17,19 +17,19 @@
       </button>
     </span>
     <span class="mode-bar__split">
-      <button type="button" class="mode-bar__btn" data-mode="quote" data-tip="<strong>Quote mode</strong><br>Curated literary quotes.">quote</button>
+      <button type="button" class="mode-bar__btn" data-mode="quote" data-section-url="/quotes/" data-tip="<strong>Quote mode</strong><br>Curated literary quotes. On mobile this opens the full quotes index.">quote</button>
       <button type="button" class="mode-bar__chev" data-dropdown-trigger="quote" aria-haspopup="true" aria-expanded="false" aria-label="Quote options" data-tip="Configure length + source." onclick="window.ttToggleDropdown && window.ttToggleDropdown('quote', event)">
         <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
       </button>
     </span>
     <span class="mode-bar__split">
-      <button type="button" class="mode-bar__btn" data-mode="idiom" data-tip="<strong>Idiom</strong><br>Random English idiom with its meaning.">idiom</button>
+      <button type="button" class="mode-bar__btn" data-mode="idiom" data-section-url="/idioms/" data-tip="<strong>Idiom</strong><br>Random English idiom with its meaning. On mobile this opens the full idioms index.">idiom</button>
       <button type="button" class="mode-bar__chev" data-dropdown-trigger="idiom" aria-haspopup="true" aria-expanded="false" aria-label="Idiom options" data-tip="Filter idioms by region." onclick="window.ttToggleDropdown && window.ttToggleDropdown('idiom', event)">
         <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
       </button>
     </span>
     <span class="mode-bar__split">
-      <button type="button" class="mode-bar__btn" data-mode="poem" data-tip="<strong>Poetry</strong><br>Random public-domain poem.">poem</button>
+      <button type="button" class="mode-bar__btn" data-mode="poem" data-section-url="/poetry/" data-tip="<strong>Poetry</strong><br>Random public-domain poem. On mobile this opens the full poetry index.">poem</button>
       <button type="button" class="mode-bar__chev" data-dropdown-trigger="poem" aria-haspopup="true" aria-expanded="false" aria-label="Poem options" data-tip="Filter poems by era or length." onclick="window.ttToggleDropdown && window.ttToggleDropdown('poem', event)">
         <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
       </button>
@@ -76,9 +76,27 @@
       <div class="mode-bar__dropdown-row">
         <button type="button" class="mode-bar__btn" data-lang="en-1k" aria-pressed="true" data-tip="Top 1,000 English words.">en-1k</button>
         <button type="button" class="mode-bar__btn" data-lang="en-5k" data-tip="Top 5,000 English words.">en-5k</button>
+        <button type="button" class="mode-bar__btn" data-lang="en-10k" data-tip="Top 10,000 English words.">en-10k</button>
+        <button type="button" class="mode-bar__btn" data-lang="en-20k" data-tip="Top 20,000 English words.">en-20k</button>
+        <button type="button" class="mode-bar__btn" data-lang="en-50k" data-tip="Top 50,000 English words. Includes rare vocabulary.">en-50k</button>
+        <button type="button" class="mode-bar__btn" data-lang="en-advanced" data-tip="Hard / advanced English vocabulary.">advanced</button>
         <button type="button" class="mode-bar__btn" data-lang="numbers" data-tip="Digits only.">numbers</button>
+        <button type="button" class="mode-bar__btn" data-lang="punctuation" data-tip="Punctuation-heavy words.">punctuation</button>
+        <button type="button" class="mode-bar__btn" data-lang="capitals" data-tip="Capitalized proper nouns + acronyms.">capitals</button>
+        <button type="button" class="mode-bar__btn" data-lang="countries" data-tip="World country names.">countries</button>
+        <button type="button" class="mode-bar__btn" data-lang="latin-phrases" data-tip="Latin phrases.">latin</button>
         <button type="button" class="mode-bar__btn" data-lang="code-js" data-tip="JavaScript keywords + idioms.">code-js</button>
         <button type="button" class="mode-bar__btn" data-lang="code-py" data-tip="Python keywords + idioms.">code-py</button>
+        <button type="button" class="mode-bar__btn" data-lang="code-ts" data-tip="TypeScript keywords + idioms.">code-ts</button>
+        <button type="button" class="mode-bar__btn" data-lang="code-html" data-tip="HTML tags + attributes.">code-html</button>
+        <button type="button" class="mode-bar__btn" data-lang="code-css" data-tip="CSS properties + selectors.">code-css</button>
+        <button type="button" class="mode-bar__btn" data-lang="code-bash" data-tip="Bash / shell commands.">code-bash</button>
+        <button type="button" class="mode-bar__btn" data-lang="code-sql" data-tip="SQL keywords.">code-sql</button>
+        <button type="button" class="mode-bar__btn" data-lang="code-rust" data-tip="Rust keywords + idioms.">code-rust</button>
+        <button type="button" class="mode-bar__btn" data-lang="missed" data-tip="Your missed-words list, weighted by miss count.">missed</button>
+        <button type="button" class="mode-bar__btn" data-lang="misspellings" data-tip="Commonly misspelled words.">misspellings</button>
+        <button type="button" class="mode-bar__btn" data-lang="scrabble" data-tip="High-scoring Scrabble words.">scrabble</button>
+        <button type="button" class="mode-bar__btn" data-lang="pangrams" data-tip="Sentences using every letter.">pangrams</button>
       </div>
     </div>
   </div>
@@ -99,9 +117,27 @@
       <div class="mode-bar__dropdown-row">
         <button type="button" class="mode-bar__btn" data-lang="en-1k" aria-pressed="true" data-tip="Top 1,000 English words.">en-1k</button>
         <button type="button" class="mode-bar__btn" data-lang="en-5k" data-tip="Top 5,000 English words.">en-5k</button>
+        <button type="button" class="mode-bar__btn" data-lang="en-10k" data-tip="Top 10,000 English words.">en-10k</button>
+        <button type="button" class="mode-bar__btn" data-lang="en-20k" data-tip="Top 20,000 English words.">en-20k</button>
+        <button type="button" class="mode-bar__btn" data-lang="en-50k" data-tip="Top 50,000 English words. Includes rare vocabulary.">en-50k</button>
+        <button type="button" class="mode-bar__btn" data-lang="en-advanced" data-tip="Hard / advanced English vocabulary.">advanced</button>
         <button type="button" class="mode-bar__btn" data-lang="numbers" data-tip="Digits only.">numbers</button>
+        <button type="button" class="mode-bar__btn" data-lang="punctuation" data-tip="Punctuation-heavy words.">punctuation</button>
+        <button type="button" class="mode-bar__btn" data-lang="capitals" data-tip="Capitalized proper nouns + acronyms.">capitals</button>
+        <button type="button" class="mode-bar__btn" data-lang="countries" data-tip="World country names.">countries</button>
+        <button type="button" class="mode-bar__btn" data-lang="latin-phrases" data-tip="Latin phrases.">latin</button>
         <button type="button" class="mode-bar__btn" data-lang="code-js" data-tip="JavaScript keywords + idioms.">code-js</button>
         <button type="button" class="mode-bar__btn" data-lang="code-py" data-tip="Python keywords + idioms.">code-py</button>
+        <button type="button" class="mode-bar__btn" data-lang="code-ts" data-tip="TypeScript keywords + idioms.">code-ts</button>
+        <button type="button" class="mode-bar__btn" data-lang="code-html" data-tip="HTML tags + attributes.">code-html</button>
+        <button type="button" class="mode-bar__btn" data-lang="code-css" data-tip="CSS properties + selectors.">code-css</button>
+        <button type="button" class="mode-bar__btn" data-lang="code-bash" data-tip="Bash / shell commands.">code-bash</button>
+        <button type="button" class="mode-bar__btn" data-lang="code-sql" data-tip="SQL keywords.">code-sql</button>
+        <button type="button" class="mode-bar__btn" data-lang="code-rust" data-tip="Rust keywords + idioms.">code-rust</button>
+        <button type="button" class="mode-bar__btn" data-lang="missed" data-tip="Your missed-words list, weighted by miss count.">missed</button>
+        <button type="button" class="mode-bar__btn" data-lang="misspellings" data-tip="Commonly misspelled words.">misspellings</button>
+        <button type="button" class="mode-bar__btn" data-lang="scrabble" data-tip="High-scoring Scrabble words.">scrabble</button>
+        <button type="button" class="mode-bar__btn" data-lang="pangrams" data-tip="Sentences using every letter.">pangrams</button>
       </div>
     </div>
   </div>
