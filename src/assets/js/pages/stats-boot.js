@@ -11,6 +11,9 @@ import { renderPerKeyD3 } from "../stats/viz-per-key-d3.js";
 import { renderPerFinger, summarizePerFinger } from "../stats/viz-per-finger.js";
 import { renderPerFingerD3 } from "../stats/viz-per-finger-d3.js";
 import { renderCharacterTable } from "../stats/viz-character-table.js";
+import { renderCharacterTableD3 } from "../stats/viz-character-table-d3.js";
+import { renderMissedWordsD3 } from "../stats/viz-missed-words-d3.js";
+import { renderSessionsD3 } from "../stats/viz-sessions-d3.js";
 import { renderLessonTrends } from "../stats/viz-lesson-trends.js";
 import { renderKeyStrip } from "../stats/viz-key-strip.js";
 import { ACHIEVEMENTS } from "../engine/achievements.js";
@@ -179,17 +182,36 @@ renderPerFingerD3(document.getElementById("perfinger-svg"), profile.perFinger ||
   const target = document.getElementById("perfinger-summary");
   if (target && sum) target.textContent = sum.message;
 }
-renderCharacterTable(document.getElementById("char-table-host"), profile.perCharDetail || {}, profile.perKey || {});
+// D3 character table -- richer than the legacy renderCharacterTable
+// (inline bar viz, sort toggles). Falls back to legacy if d3 fails.
+(async () => {
+  const host = document.getElementById("char-table-host");
+  if (!host) return;
+  const ok = await renderCharacterTableD3(host, profile.perCharDetail || {}, profile.perKey || {});
+  if (!ok) renderCharacterTable(host, profile.perCharDetail || {}, profile.perKey || {});
+})();
 renderLessonTrends(document.getElementById("lesson-trends-svg"), profile.lessonResults || []);
 
 // ── Missed-words ranked list ─────────────────────────────────────
-// Pull the top 20 most-missed words by recency-weighted score.
+// Render missed-words via the D3 viz; falls back to the legacy
+// list if D3 fails. The legacy code below stays as the fallback.
 function renderMissedWords() {
   const map = profile.missedWords || {};
   const summary = document.getElementById("missed-words-summary");
   const listEl = document.getElementById("missed-words-list");
   const section = document.getElementById("missed-words-section");
   if (!summary || !listEl) return;
+  // Try D3 first.
+  (async () => {
+    const ok = await renderMissedWordsD3(listEl, map);
+    if (ok) {
+      const total = Object.keys(map).length;
+      summary.textContent = total > 0
+        ? `${total} word${total === 1 ? "" : "s"} tracked · sortable, scroll for more`
+        : "";
+    }
+  })();
+  return; // skip legacy
   const now = Date.now();
   const halfLifeMs = 14 * 24 * 60 * 60 * 1000;
   const ranked = Object.entries(map).map(([w, e]) => {
@@ -313,15 +335,21 @@ function formatModeKey(mode, key) {
   return `${mode} · ${key}`;
 }
 
-// ── Recent sessions ─────────────────────────────────────────────
+// ── Recent sessions (D3 with sparklines) ─────────────────────────
 const sl = $("#sessions-list");
-const sessions = (profile.sessions || []).slice(0, 12);
+const sessions = profile.sessions || [];
 if (sessions.length) {
   sl.classList.remove("stats-empty");
-  sl.innerHTML = `
-    <table class="sessions-table">
-      <thead><tr><th>When</th><th>Mode</th><th class="r">wpm</th><th class="r">acc</th><th class="r">cons</th></tr></thead>
-      <tbody>
-      ${sessions.map((s) => `<tr><td>${new Date(s.at).toLocaleString()}</td><td>${htmlEscape(s.mode)} ${s.duration ? `· ${s.duration}s` : ""}</td><td class="r" style="color:var(--accent)">${Math.round(s.wpm)}</td><td class="r">${Math.round(s.acc)}%</td><td class="r">${Math.round(s.cons)}%</td></tr>`).join("")}
-      </tbody></table>`;
+  (async () => {
+    const ok = await renderSessionsD3(sl, sessions);
+    if (!ok) {
+      // Legacy fallback if D3 fails to load.
+      sl.innerHTML = `
+        <table class="sessions-table">
+          <thead><tr><th>When</th><th>Mode</th><th class="r">wpm</th><th class="r">acc</th><th class="r">cons</th></tr></thead>
+          <tbody>
+          ${sessions.slice(0, 12).map((s) => `<tr><td>${new Date(s.at).toLocaleString()}</td><td>${htmlEscape(s.mode)} ${s.duration ? `· ${s.duration}s` : ""}</td><td class="r" style="color:var(--accent)">${Math.round(s.wpm)}</td><td class="r">${Math.round(s.acc)}%</td><td class="r">${Math.round(s.cons)}%</td></tr>`).join("")}
+          </tbody></table>`;
+    }
+  })();
 }

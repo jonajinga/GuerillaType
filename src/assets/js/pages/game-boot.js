@@ -122,17 +122,45 @@ function frame(elapsed) {
 
 function paintFalling() {
   if (!svgSel) return;
+  const typed = (input.value || "").trim();
   const groups = svgSel.selectAll("g.fall").data(falling, (d) => d.id);
   groups.exit().remove();
+  // New words enter with one <tspan> per char so we can color
+  // each char independently (typed prefix = accent, rest =
+  // neutral). The text is rebuilt only on enter; per-frame we
+  // just update transform and tspan colors.
   const enter = groups.enter().append("g").attr("class", "fall");
-  enter.append("text")
-    .attr("text-anchor", "middle")
-    .attr("fill", "var(--fg-0)")
-    .attr("font-family", "var(--font-mono)")
-    .attr("font-size", "22")
-    .text((d) => d.word);
+  enter.each(function(d) {
+    const t = d3.select(this).append("text")
+      .attr("text-anchor", "middle")
+      .attr("font-family", "var(--font-mono)")
+      .attr("font-size", "22")
+      .attr("font-weight", "500");
+    // Estimate char width by drawing the full word once to measure.
+    // Simpler: lay out tspans with even spacing using the word
+    // length. SVG tspan dx is relative; we use absolute x via
+    // text-anchor:middle on the text + setting each tspan as
+    // monospace.
+    const chars = d.word.split("");
+    chars.forEach((c, i) => {
+      t.append("tspan")
+        .attr("class", "fall__char")
+        .attr("data-i", i)
+        .text(c);
+    });
+  });
+  // Update position + per-char fill on every frame.
   svgSel.selectAll("g.fall")
-    .attr("transform", (d) => `translate(${d.x}, ${d.y})`);
+    .attr("transform", (d) => `translate(${d.x}, ${d.y})`)
+    .each(function(d) {
+      const matchLen = (typed && d.word.startsWith(typed)) ? typed.length : 0;
+      d3.select(this).selectAll("tspan")
+        .attr("fill", function() {
+          const i = +this.getAttribute("data-i");
+          if (i < matchLen) return "var(--accent)";
+          return "var(--fg-0)";
+        });
+    });
 }
 
 function tryCatch(typed) {
@@ -141,7 +169,12 @@ function tryCatch(typed) {
   const i = falling.findIndex((f) => f.word === typed);
   if (i === -1) return false;
   const f = falling[i];
+  // Remove from the active array immediately so the frame loop
+  // stops advancing the word -- but DON'T remove the DOM node yet.
+  // Spawn a dissolve animation on its <g> in-place, then drop the
+  // node when it finishes.
   falling.splice(i, 1);
+  dissolveCaughtWord(f);
   const base = 10 + f.word.length * 2;
   const bonus = stats.streak >= 5 ? 1.5 : 1;
   stats.score += Math.round(base * bonus);
@@ -151,6 +184,46 @@ function tryCatch(typed) {
   paintStats();
   paintFalling();
   return true;
+}
+
+/* Spawn a dissolve burst at the word's position: each char fades
+   out + scales up + drifts in a random direction, then the whole
+   group is removed. Also spawns a "+N" score popup that floats up
+   and fades. Lifecycle ~520 ms total. */
+function dissolveCaughtWord(f) {
+  if (!svgSel || !d3) return;
+  // Find the existing <g> for this word so we can transition it
+  // out instead of duplicating. paintFalling() filters by id so
+  // it won't re-create after the splice above.
+  const node = svgSel.selectAll("g.fall").filter((d) => d && d.id === f.id);
+  if (node.empty()) return;
+  node.classed("fall--dying", true);
+  // Per-char drift + fade.
+  node.selectAll("tspan").each(function(_, i) {
+    const dxRand = (Math.random() - 0.5) * 60;
+    const dyRand = -20 - Math.random() * 30;
+    d3.select(this)
+      .attr("fill", "var(--accent)")
+      .transition().duration(420).ease(d3.easeCubicOut)
+      .attr("dx", dxRand).attr("dy", dyRand)
+      .attr("opacity", 0);
+  });
+  // Score popup floats up.
+  const popup = svgSel.append("g").attr("class", "fall");
+  popup.append("text")
+    .attr("x", f.x).attr("y", f.y)
+    .attr("text-anchor", "middle")
+    .attr("fill", "var(--accent)")
+    .attr("font-family", "var(--font-display)")
+    .attr("font-size", "22").attr("font-weight", "600")
+    .attr("opacity", 0)
+    .text(`+${Math.round((10 + f.word.length * 2) * (stats.streak >= 5 ? 1.5 : 1))}`)
+    .transition().duration(80).attr("opacity", 1)
+    .transition().duration(420).ease(d3.easeCubicOut)
+    .attr("y", f.y - 40).attr("opacity", 0)
+    .on("end", () => popup.remove());
+  // Remove the dying word group after animation completes.
+  node.transition().delay(420).duration(0).remove();
 }
 
 function startRound() {
@@ -218,17 +291,24 @@ function endRound() {
 }
 
 input.addEventListener("input", () => {
-  const v = input.value.trim();
+  const raw = input.value;
+  const v = raw.trim();
+  // Repaint so char colors update as the user types.
+  paintFalling();
   if (!v) return;
   // Catch on space or matching length+content.
-  if (v.endsWith(" ")) {
-    tryCatch(v.trim());
+  if (raw.endsWith(" ")) {
+    tryCatch(v);
     input.value = "";
+    paintFalling();
     return;
   }
   // Also try the immediate match -- some falling words might be
   // shorter than the typed value once the user adds chars.
-  if (tryCatch(v)) input.value = "";
+  if (tryCatch(v)) {
+    input.value = "";
+    paintFalling();
+  }
 });
 
 input.addEventListener("keydown", (e) => {

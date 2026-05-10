@@ -105,6 +105,88 @@
 .missed-words::-webkit-scrollbar{width:8px}
 .missed-words::-webkit-scrollbar-track{background:var(--bg-1)}
 .missed-words::-webkit-scrollbar-thumb{background:var(--fg-3);border-radius:4px}
+
+/* D3 missed-words viz + sessions viz + char-table viz share a
+   common sort-toolbar / scrollable container pattern. */
+.missed-d3__toolbar, .sessions-d3__toolbar, .chart-table__toolbar{
+  display:flex;flex-wrap:wrap;gap:.4rem;
+  padding:.4rem 0;margin-bottom:.4rem;
+}
+.missed-d3__sort, .sessions-d3__sort, .chart-table__sort{
+  font-family:var(--font-mono);font-size:.72rem;letter-spacing:.04em;
+  padding:.3rem .7rem;border:1px solid var(--rule);
+  border-radius:var(--radius);background:transparent;
+  color:var(--fg-1);cursor:pointer;
+  transition:color var(--t-fast), background var(--t-fast), border-color var(--t-fast);
+}
+.missed-d3__sort:hover, .sessions-d3__sort:hover, .chart-table__sort:hover{
+  color:var(--fg-0);background:var(--bg-2);border-color:var(--fg-3);
+}
+.missed-d3__sort.is-active, .sessions-d3__sort.is-active, .chart-table__sort.is-active{
+  color:var(--accent);border-color:var(--accent);
+  background:color-mix(in oklab, var(--accent) 12%, transparent);
+}
+.missed-d3__scroll, .sessions-d3__scroll, .chart-table__scroll{
+  max-height:60vh;overflow-y:auto;
+  background:var(--bg-1);border:1px solid var(--rule);
+  border-radius:var(--radius);padding:.6rem;
+  scrollbar-width:thin;scrollbar-color:var(--fg-3) var(--bg-1);
+}
+.missed-d3__svg{display:block;width:100%}
+
+/* Session row layout. Each row: date + mode + sparkline + wpm + acc. */
+.session-row{
+  border-bottom:1px solid var(--rule);
+  padding:.5rem 0;
+}
+.session-row:last-child{border-bottom:0}
+.session-row__head{
+  display:grid;
+  grid-template-columns:auto auto 1fr auto auto;
+  align-items:center;gap:.8rem;
+}
+.session-row__when{display:flex;flex-direction:column;align-items:flex-start;gap:.1rem;min-width:60px}
+.session-row__date{font-family:var(--font-mono);font-size:.78rem;color:var(--fg-0)}
+.session-row__time{font-family:var(--font-mono);font-size:.62rem;color:var(--fg-3)}
+.session-row__mode{font-family:var(--font-mono);font-size:.72rem;color:var(--fg-2);min-width:60px}
+.session-row__spark{width:180px;height:32px;display:block}
+.session-row__metric{display:flex;align-items:baseline;gap:.25rem;font-family:var(--font-mono)}
+.session-row__wpm{font-size:1.25rem;font-weight:600;font-variant-numeric:tabular-nums}
+.session-row__wpm-label{font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:var(--fg-3)}
+.session-row__acc{font-family:var(--font-mono);font-size:.95rem;font-weight:500;min-width:46px;text-align:right}
+
+@media (max-width:640px){
+  .session-row__head{grid-template-columns:auto 1fr auto;gap:.5rem}
+  .session-row__mode{display:none}
+  .session-row__spark{display:none}
+}
+
+/* Character report -- D3-driven table with inline bar viz. */
+.chart-table{
+  width:100%;border-collapse:collapse;font-family:var(--font-mono);
+}
+.chart-table th{
+  text-align:left;padding:.4rem .5rem;
+  font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--fg-3);font-weight:500;border-bottom:1px solid var(--rule);
+}
+.chart-table td{padding:.35rem .5rem;border-bottom:1px solid color-mix(in oklab, var(--rule) 40%, transparent)}
+.chart-table tr:last-child td{border-bottom:0}
+.chart-table__char{font-size:1rem;color:var(--fg-0);min-width:2em}
+.chart-table__num{font-size:.78rem;color:var(--fg-1);font-variant-numeric:tabular-nums;text-align:right;min-width:3em}
+.chart-table__bar-col{min-width:140px}
+.chart-table__bar-cell{display:flex;align-items:center;gap:.5rem;min-width:140px}
+.chart-table__bar{
+  display:inline-block;flex:1;height:6px;
+  background:var(--bg-2);border-radius:3px;overflow:hidden;
+}
+.chart-table__bar-fill{
+  display:block;height:100%;
+  transition:width var(--t-med) var(--ease, ease-out);
+}
+.chart-table__bar-val{
+  font-size:.72rem;color:var(--fg-2);min-width:3em;text-align:right;
+}
 .missed-word{
   display:grid;
   grid-template-columns:minmax(8rem, 14rem) 1fr auto auto;
