@@ -430,7 +430,7 @@ body:not(:has(#tt-stage[data-state="running"])) .tt-actions__btn--stop:hover{
   /* Pull the action row up close to the typing surface on phones --
      no need for the desktop-spec breathing room when chrome is
      scarce and the row is icon-only. */
-  .practice-page__bottom{margin-top:-50px}
+  .practice-page__bottom{margin-top:-150px}
 }
 .tt-actions__hint{
   flex-basis:100%;width:100%;

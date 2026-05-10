@@ -428,6 +428,25 @@ function startEngine(target) {
   hintEl.dataset.state = "ready";
   renderChallengeHud();
 
+  // Wire the Stop chip directly to THIS engine instance. We rebind on
+  // every startEngine() so the closure always points at the live
+  // engine -- previous attempts via module-level closures + window
+  // globals all left an edge case on the table (timing, minifier
+  // mangling, stale engine after restart). Direct binding is
+  // unambiguous: when the user clicks Stop, the click ends THIS
+  // session. .onclick assignment overwrites any prior handler, so
+  // there's no listener pile-up across restarts.
+  const stopBtn = document.getElementById("tt-stop");
+  if (stopBtn) {
+    stopBtn.onclick = (e) => {
+      e.preventDefault();
+      const st = stage.dataset.state;
+      if (st !== "running" && st !== "ready") return;
+      if (engine.startTs === 0) engine.startTs = performance.now();
+      engine.finish();
+    };
+  }
+
   // Reader header for book mode (chapter title + page counter).
   // Layout classes were already applied before engine.start() so the
   // caret is positioned correctly within the padded reader card.
@@ -1015,17 +1034,6 @@ window.ttRestart = () => {
 
 bindModeBar();
 
-/* Real click listener on the Stop button as a backup to the inline
-   onclick (HTML minifiers occasionally mangle attributes under
-   aggressive whitespace collapse). Reads `engine` at click time. */
-const stopBtn = document.getElementById("tt-stop");
-if (stopBtn) {
-  stopBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    window.ttFinish();
-  });
-}
-
 /* Document-level Escape fallback. The engine's input-capture
    listens for Escape on the inputEl only, so once focus moves away
    (e.g. user clicked Stop, then clicked outside, then tried Esc),
@@ -1038,7 +1046,8 @@ document.addEventListener("keydown", (e) => {
   const st = stage.dataset.state;
   if (st !== "running" && st !== "ready") return;
   e.preventDefault();
-  window.ttFinish();
+  if (engine.startTs === 0) engine.startTs = performance.now();
+  engine.finish();
 });
 
 boot();
