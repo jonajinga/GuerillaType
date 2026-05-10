@@ -433,9 +433,13 @@ function startEngine(target) {
     onFinish: handleFinish,
     onRestart: () => boot(),
     onEscape: () => {
-      // Esc commits a partial session — useful for zen, adaptive, or
+      // Esc commits a partial session -- useful for zen, adaptive, or
       // when the user wants to bail early and still save what they did.
-      if (engine && engine.running) engine.finish();
+      // _stopped flag prevents auto-advance from kicking in.
+      if (engine && engine.running) {
+        engine._stopped = true;
+        engine.finish();
+      }
     },
   });
   engine.start(target);
@@ -449,11 +453,10 @@ function startEngine(target) {
   // engine doesn't pause on click. Mobile: touchstart.preventDefault
   // would suppress the synthetic click event, breaking the chip on
   // touch -- so we DON'T preventDefault any pointer/touch events.
-  // The mobile blur is harmless; finish() runs regardless.
   //
-  // doFinish is shared between click and touchend so we get fired
-  // either way. The first call wins; engine.finish() short-circuits
-  // on this.finished == true.
+  // _stopped flag tells handleFinish that the user opted out of the
+  // session manually. handleFinish reads this to suppress
+  // auto-advance: a stopped session shouldn't keep auto-rolling.
   const stopBtn = document.getElementById("tt-stop");
   if (stopBtn) {
     stopBtn.onmousedown = (e) => { e.preventDefault(); };
@@ -463,6 +466,7 @@ function startEngine(target) {
       if (st !== "running" && st !== "ready") return;
       if (engine.startTs === 0) engine.startTs = performance.now();
       if (engine._pauseAt) engine.resumeTimer();
+      engine._stopped = true;
       engine.finish();
     };
     stopBtn.onclick = doFinish;
@@ -560,12 +564,17 @@ function handleFinish(result) {
       if (completedIds.length) bp.lastParagraphId = completedIds[completedIds.length - 1];
       return p;
     });
-    // Auto-advance to the next page when the session was clean (≥80%
-    // accuracy avoids ratholing on a bad run). If the user wants to
-    // stop, they can hit "All books" or escape.
-    if (result.accuracy >= 80) {
-      result._autoAdvance = true;
-    }
+  }
+  // Universal auto-advance: any naturally-completed clean session
+  // queues an advance. Suppressed when the user pressed Stop / Esc
+  // (engine._stopped) so they aren't whisked away after explicitly
+  // bailing out.
+  const naturallyCompleted = !engine._stopped && (
+    state.mode === "time" ||
+    (result.endCursor || 0) >= (result.targetLen || 0)
+  );
+  if (naturallyCompleted && result.accuracy >= 80) {
+    result._autoAdvance = true;
   }
   // Corpus item completion (quotes / idioms / parables / poetry).
   // Recorded only when the user typed all the way through AND
@@ -868,7 +877,7 @@ function renderResults(r) {
       })()}
     </div>
     ${testimonialPrompt}
-    ${state.bookSlug && r._autoAdvance ? `<p class="muted" id="tt-autoadvance-note" style="margin-top:1rem;text-align:center">Auto-advancing in <span id="tt-autoadvance-count">4</span>s — press Esc to stay.</p>` : ''}
+    ${r._autoAdvance ? `<p class="muted" id="tt-autoadvance-note" style="margin-top:1rem;text-align:center">Auto-advancing in <span id="tt-autoadvance-count">10</span>s -- press Esc to stay.</p>` : ''}
   `;
   // Wire the testimonial-prompt dismiss button if rendered.
   const dismissBtn = document.getElementById("tt-testimonial-dismiss");
@@ -895,32 +904,50 @@ function renderResults(r) {
     window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
   });
 
-  // Book mode auto-advance: after a clean run, count down 4 seconds
-  // and navigate to the next page. Esc cancels.
-  if (state.bookSlug && r._autoAdvance) {
-    const url = nextBookUrl();
-    const note = document.getElementById("tt-autoadvance-note");
-    const counter = document.getElementById("tt-autoadvance-count");
-    let remaining = 4;
-    let cancelled = false;
-    const tick = setInterval(() => {
-      remaining--;
-      if (cancelled) { clearInterval(tick); return; }
-      if (counter) counter.textContent = String(remaining);
-      if (remaining <= 0) {
-        clearInterval(tick);
-        if (!cancelled && url) window.location.href = url;
-      }
-    }, 1000);
-    const cancel = (e) => {
-      if (e.key === "Escape") {
-        cancelled = true; clearInterval(tick);
-        if (note) note.textContent = "Auto-advance cancelled. Use the Next page button when ready.";
-        document.removeEventListener("keydown", cancel);
-      }
-    };
-    document.addEventListener("keydown", cancel);
+  // Universal auto-advance: 10 s countdown, then either navigate to
+  // a fresh URL (book/lesson/quote) or restart the same session
+  // (time/words/practice). Esc cancels. Suppressed entirely when
+  // the user pressed Stop (engine._stopped via handleFinish).
+  if (r._autoAdvance) {
+    const action = getAutoAdvanceAction();
+    if (action) {
+      const note = document.getElementById("tt-autoadvance-note");
+      const counter = document.getElementById("tt-autoadvance-count");
+      let remaining = 10;
+      let cancelled = false;
+      const tick = setInterval(() => {
+        remaining--;
+        if (cancelled) { clearInterval(tick); return; }
+        if (counter) counter.textContent = String(remaining);
+        if (remaining <= 0) {
+          clearInterval(tick);
+          if (cancelled) return;
+          if (action.url) window.location.href = action.url;
+          else if (action.restart && window.ttRestart) window.ttRestart();
+        }
+      }, 1000);
+      const cancel = (e) => {
+        if (e.key === "Escape") {
+          cancelled = true; clearInterval(tick);
+          if (note) note.textContent = "Auto-advance cancelled.";
+          document.removeEventListener("keydown", cancel);
+        }
+      };
+      document.addEventListener("keydown", cancel);
+    }
   }
+}
+
+/* Resolve the next action for auto-advance based on current mode.
+   Returns { url } to navigate, { restart: true } to re-boot in
+   place, or null when no sensible auto-advance applies (zen,
+   adaptive). */
+function getAutoAdvanceAction() {
+  if (state.bookSlug) return { url: nextBookUrl() };
+  if (state.lessonId != null) return { url: `/practice/?lesson=${state.lessonId + 1}` };
+  if (state.mode === "quote") return { url: `/practice/?mode=quote&quote=random` };
+  if (state.mode === "zen" || state.mode === "adaptive") return null;
+  return { restart: true };
 }
 
 function drawSessionChart(svg, samples) {
@@ -1074,6 +1101,7 @@ document.addEventListener("keydown", (e) => {
   if (st !== "running" && st !== "ready") return;
   e.preventDefault();
   if (engine.startTs === 0) engine.startTs = performance.now();
+  engine._stopped = true;
   engine.finish();
 });
 

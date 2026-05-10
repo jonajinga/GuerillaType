@@ -23,6 +23,14 @@
   display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin:0;
   font-size:.78rem;
 }
+@media (max-width:640px){
+  /* Mobile: drop to a 2-column grid so labels + values aren't
+     squashed into 80 px columns. Card padding tightens too. */
+  .library-card{padding:var(--space-3);gap:var(--space-2)}
+  .library-card__title{font-size:var(--fs-400)}
+  .library-card__meta{grid-template-columns:1fr 1fr;gap:.4rem}
+  .library-card__meta dd{font-size:.72rem;overflow-wrap:anywhere}
+}
 .library-card__meta > div{display:flex;flex-direction:column;gap:.15rem}
 .library-card__meta dt{font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.08em;color:var(--fg-3);font-size:.62rem}
 .library-card__meta dd{margin:0;color:var(--fg-1);font-family:var(--font-mono);font-size:.78rem}

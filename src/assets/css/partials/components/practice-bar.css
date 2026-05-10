@@ -67,13 +67,25 @@ body[data-page="practice"] .site-main{padding-top:0}
 }
 @media (max-width:768px){
   .practice-bar{
-    margin-bottom:0;
-    /* Mobile: flush below the header. The desktop 4 px gap reads
-       as wasted real estate on a small screen. */
-    margin-top:0;
+    /* Mobile uses position:fixed to sidestep an issue where
+       sticky positioning was leaving the bar parked far below
+       the header on some devices (likely an ancestor's overflow
+       interfering with the sticky context). Fixed pins the bar
+       to the viewport directly under the header, no ifs/buts. */
+    position:fixed;
     top:var(--header-h, 56px);
+    left:0;right:0;
+    width:100%;
+    margin:0;
     max-height:none;
+    /* The bar is now out of document flow; its 100vw + negative-
+       margin trick from the desktop block is unneeded and would
+       fight position:fixed. */
   }
+  /* Reserve space below the header for the now-fixed bar so the
+     typing surface doesn't render underneath it. 44 px chip +
+     1 px border + var(--space-3) breathing room. */
+  body[data-page="practice"] .site-main{padding-top:calc(45px + var(--space-3))}
   .practice-bar__inner{
     height:auto;min-height:44px;max-height:none;
   }
