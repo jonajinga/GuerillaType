@@ -36,20 +36,19 @@ export async function renderContributionD3(svg, daily, panel, opts = {}) {
     });
   }
 
-  // Bigger cells + more gap when there's less data (week/month
-  // views) so the grid still reads well.
-  const CELL = view === "week" ? 32 : (view === "month" ? 18 : 12);
-  const GAP = view === "week" ? 6 : (view === "month" ? 3 : 2);
-  const ROWS = 7;
+  // Week view = 14 days in a single horizontal row with big
+  // square cells and date labels under each. Year + Month use a
+  // 7-row grid sized to the data.
+  const CELL = view === "week" ? 56 : (view === "month" ? 32 : 12);
+  const GAP = view === "week" ? 8 : (view === "month" ? 4 : 2);
+  const ROWS = view === "week" ? 1 : 7;
   const cols = Math.ceil(cells.length / ROWS);
   const W = cols * (CELL + GAP) + 8;
-  // Extra header room for month labels, extra footer room for the
-  // legend strip so it never overlaps the labels above it.
-  const H = ROWS * (CELL + GAP) + 50;
-  // Override the global .chart__svg { width: 100% } rule for the
-  // shorter views -- otherwise the SVG stretches to fill its
-  // container and cells balloon to >70 px each. Render at natural
-  // pixel size capped to container width.
+  // Extra header room above for weekday labels, extra footer for
+  // legend so it never overlaps the row of date labels above it.
+  const H = ROWS * (CELL + GAP) + (view === "week" ? 70 : 56);
+  // Override .chart__svg { width: 100% } so the short views
+  // render at natural pixel size centered, not stretched.
   svg.style.width = "auto";
   svg.style.maxWidth = "100%";
   svg.style.height = "auto";
@@ -58,12 +57,22 @@ export async function renderContributionD3(svg, daily, panel, opts = {}) {
   svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
   svg.innerHTML = "";
   const sel = d3.select(svg);
+  // For Week view, flatten cells to one row (1x14 strip) instead
+  // of 7x2 grid -- reads as a timeline of the past two weeks.
+  if (view === "week") {
+    // Use the last 14 cells, ignoring Sunday-padding so the strip
+    // is exactly 14 days ending today.
+    while (cells.length > 14) cells.shift();
+  }
 
   const maxChars = d3.max(cells, (c) => c.chars) || 1;
   const color = d3.scaleSequential()
     .domain([0, maxChars])
     .interpolator(d3.interpolateRgbBasis(["#252836", "#f59c80", "#e58060", "#c1413c"]));
 
+  // Cell row offset shifts down on Week view so the day-of-week
+  // labels above each cell have room.
+  const rowOffsetY = view === "week" ? 24 : 4;
   // Cells.
   const cellSel = sel.append("g")
     .selectAll("rect")
@@ -71,9 +80,10 @@ export async function renderContributionD3(svg, daily, panel, opts = {}) {
     .enter()
     .append("rect")
     .attr("x", (d, i) => Math.floor(i / ROWS) * (CELL + GAP) + 4)
-    .attr("y", (d, i) => (i % ROWS) * (CELL + GAP) + 4)
+    .attr("y", (d, i) => (i % ROWS) * (CELL + GAP) + rowOffsetY)
     .attr("width", CELL).attr("height", CELL)
-    .attr("rx", 2).attr("ry", 2)
+    .attr("rx", view === "week" ? 6 : (view === "month" ? 3 : 2))
+    .attr("ry", view === "week" ? 6 : (view === "month" ? 3 : 2))
     .attr("fill", (d) => d.chars > 0 ? color(d.chars) : "var(--bg-2)")
     .attr("opacity", (d) => d.chars > 0 ? 0.95 : 0.5)
     .attr("style", "cursor:pointer");
@@ -97,12 +107,11 @@ export async function renderContributionD3(svg, daily, panel, opts = {}) {
     });
   }
 
-  // Month labels along the bottom of the grid (Year/Month views
-  // only -- Week is too narrow to need them, and the labels would
-  // overlap the legend below). Skip in Week view.
-  const gridBottom = 4 + ROWS * (CELL + GAP);
-  const monthLabelY = gridBottom + 14;
-  if (view !== "week") {
+  const gridBottom = rowOffsetY + ROWS * (CELL + GAP);
+  const labelY = gridBottom + 14;
+
+  if (view === "year") {
+    // Year view -- month names along the bottom.
     let lastMonth = -1;
     cells.forEach((c, i) => {
       if (i % ROWS !== 0) return;
@@ -111,34 +120,61 @@ export async function renderContributionD3(svg, daily, panel, opts = {}) {
         lastMonth = m;
         sel.append("text")
           .attr("x", Math.floor(i / ROWS) * (CELL + GAP) + 4)
-          .attr("y", monthLabelY)
+          .attr("y", labelY)
           .attr("class", "chart__tick")
           .attr("style", "font-size:10px;fill:var(--fg-3)")
           .text(c.date.toLocaleDateString(undefined, { month: "short" }));
       }
     });
-  }
-
-  // Week view shows date labels above each cell column instead.
-  if (view === "week") {
+  } else if (view === "month") {
+    // Month view -- week starts (Sundays) along the bottom.
     cells.forEach((c, i) => {
       if (i % ROWS !== 0) return;
       sel.append("text")
         .attr("x", Math.floor(i / ROWS) * (CELL + GAP) + 4 + CELL / 2)
-        .attr("y", monthLabelY)
+        .attr("y", labelY)
         .attr("text-anchor", "middle")
         .attr("class", "chart__tick")
         .attr("style", "font-size:10px;fill:var(--fg-3)")
         .text(c.date.toLocaleDateString(undefined, { month: "short", day: "numeric" }));
     });
+  } else if (view === "week") {
+    // Week view -- single horizontal strip of 14 cells. Above
+    // each cell: weekday letter. Below: day-of-month number.
+    const weekdayShort = ["S","M","T","W","T","F","S"];
+    cells.forEach((c, i) => {
+      const cx = i * (CELL + GAP) + 4 + CELL / 2;
+      // Weekday letter above the cell.
+      sel.append("text")
+        .attr("x", cx).attr("y", 14)
+        .attr("text-anchor", "middle")
+        .attr("class", "chart__tick")
+        .attr("style", "font-size:11px;fill:var(--fg-3);font-family:var(--font-mono);letter-spacing:.04em")
+        .text(weekdayShort[c.date.getDay()]);
+      // Date below the cell.
+      sel.append("text")
+        .attr("x", cx).attr("y", labelY + 2)
+        .attr("text-anchor", "middle")
+        .attr("class", "chart__tick")
+        .attr("style", "font-size:11px;fill:var(--fg-2);font-family:var(--font-mono)")
+        .text(c.date.getDate());
+      // Month change marker between Apr 30 and May 1 etc.
+      if (i === 0 || c.date.getDate() === 1) {
+        sel.append("text")
+          .attr("x", cx).attr("y", labelY + 18)
+          .attr("text-anchor", "middle")
+          .attr("class", "chart__tick")
+          .attr("style", "font-size:9px;fill:var(--fg-3);font-family:var(--font-mono);letter-spacing:.08em;text-transform:uppercase")
+          .text(c.date.toLocaleDateString(undefined, { month: "short" }));
+      }
+    });
   }
 
-  // Legend strip on its own row, right-aligned, BELOW the month
-  // labels so the two never overlap. Smaller squares so it
-  // doesn't dominate at any view size.
+  // Legend strip below the labels, right-aligned. For Week view,
+  // shift further down to clear the date + month markers.
   const legendCell = 10, legendGap = 3;
   const legendW = 5 * (legendCell + legendGap) + 64;
-  const legendY = monthLabelY + 8;
+  const legendY = view === "week" ? labelY + 28 : labelY + 12;
   const legend = sel.append("g")
     .attr("transform", `translate(${Math.max(0, W - legendW - 4)}, ${legendY})`);
   legend.append("text")
@@ -186,7 +222,7 @@ function renderDayPanel(panel, dayCell, sessions) {
   const ordered = [...sessions].sort((a, b) => new Date(b.at) - new Date(a.at));
   const rows = ordered.map((s) => {
     const t = new Date(s.at).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
-    const dur = Math.round((s.ms || 0) / 1000);
+    const chars = s.chars || 0;
     const wpm = Math.round(s.wpm || 0);
     const acc = Math.round(s.acc || 0);
     // Color the accuracy chip by tier (cheap visual hierarchy).
@@ -197,7 +233,7 @@ function renderDayPanel(panel, dayCell, sessions) {
         <span class="day-panel__mode">${escapeText(s.mode || "?")}</span>
         <span class="day-panel__wpm tabular">${wpm}<span class="day-panel__unit">wpm</span></span>
         <span class="day-panel__acc day-panel__acc--${accClass} tabular">${acc}%</span>
-        <span class="day-panel__dur tabular muted">${dur ? dur + "s" : "—"}</span>
+        <span class="day-panel__chars tabular muted">${chars} <span class="day-panel__unit">chars</span></span>
       </li>`;
   }).join("");
   const summary = [

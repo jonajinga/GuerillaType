@@ -244,6 +244,7 @@
 .day-panel__acc--ok{color:var(--warn, #e3b873)}
 .day-panel__acc--bad{color:var(--bad, #d76050)}
 .day-panel__dur{color:var(--fg-3);font-size:.72rem;font-variant-numeric:tabular-nums;text-align:right;min-width:3em}
+.day-panel__chars{color:var(--fg-3);font-size:.72rem;font-variant-numeric:tabular-nums;text-align:right;min-width:5em}
 
 @media (max-width:640px){
   .day-panel__row{
