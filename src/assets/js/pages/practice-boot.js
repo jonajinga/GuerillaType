@@ -146,6 +146,21 @@ const model = new AdaptiveModel(profile, { layout: state.layout });
 let engine = null;
 
 async function buildText() {
+  // Clear stale per-source metadata before resolving a fresh target.
+  // _customMeta + _customTitle are only repopulated inside the
+  // corpus-mode branches (quote/custom/idiom/parable/poem/book);
+  // without this reset, switching from a corpus mode to a plain
+  // mode (time/words/zen/adaptive) would carry the previous
+  // attribution title forward and renderAttributionHeader would
+  // keep showing it. Same for the book-specific page metadata.
+  state._customMeta = null;
+  state._customTitle = null;
+  state._pageParaIds = null;
+  state._pageParaEnds = null;
+  state._totalPages = null;
+  state._bookTitle = null;
+  state._bookAuthor = null;
+
   // Resolve the challenge first — it overrides mode + source.
   if (challengeId && !activeChallenge) {
     const all = await loadChallenges();
