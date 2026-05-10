@@ -53,15 +53,14 @@ body[data-page="practice"] .site-main{padding-top:0}
 /* Practice surface chrome -- compress the gap between toolbar and
    typing area. Default .tt-stage carries margin:var(--space-5)
    auto + padding:var(--space-4) which combined add ~75 px of
-   vertical chrome above the first line of text. On the practice
-   page we want the bar -> text distance to feel tight, almost
-   touching. The hint row + restart banner still get visible
-   breathing room from their own margins. */
-body[data-page="practice"] .tt-stage{
-  margin-top:0;padding-top:0;
+   vertical chrome above the first line of text. The
+   .practice-page wrapper is unique to this surface so scoping
+   here works without depending on body[data-page]. */
+.practice-page .tt-stage{
+  margin-top:0!important;padding-top:0!important;
 }
-body[data-page="practice"] .tt-stage__hint{
-  margin-bottom:.5rem;
+.practice-page .tt-stage__hint{
+  margin-bottom:.5rem!important;
 }
 @media (max-width:768px){
   .practice-bar{
