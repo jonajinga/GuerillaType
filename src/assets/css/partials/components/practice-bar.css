@@ -65,11 +65,11 @@ body[data-page="practice"] .site-main{padding-top:0}
 }
 .practice-bar__inner{
   /* No max-width: the inner row spreads edge-to-edge so mode chips
-     hug the left edge and live-stats hug the right. Block padding
-     dropped to zero -- chip-button height alone drives the bar's
-     height now. */
+     hug the left edge and live-stats hug the right. Tight block
+     padding -- chip height (24 px) plus 8 px top/bottom = a 40 px
+     bar at desktop. */
   margin-inline:auto;
-  padding:0 var(--gutter);
+  padding:.5rem var(--gutter);
   display:flex;align-items:center;justify-content:space-between;
   gap:var(--space-4);min-height:0;
 }
@@ -151,58 +151,33 @@ body[data-page="practice"] .site-main{padding-top:0}
   }
 }
 
-/* ── Mode bar inside the toolbar ────────────────────────────────── */
+/* ── Mode bar inside the toolbar ──────────────────────────────────
+   Single horizontal row at every viewport. Three logical groups
+   (mode | variant | stats) separated by 1 px vertical rules. No
+   eyebrow labels: the chip text speaks for itself, and the
+   role="group" + aria-label on each .mode-bar__field carries the
+   semantic group name for AT users. */
 .practice-bar .mode-bar{
   display:flex;flex-wrap:nowrap;align-items:center;
-  gap:.9rem;justify-content:flex-start;min-width:0;
+  gap:.6rem;justify-content:flex-start;min-width:0;
 }
 .practice-bar .mode-bar__field{
   display:inline-flex;flex-direction:row;flex-wrap:nowrap;
-  align-items:center;gap:.55rem;
-  padding:0;border:0;margin:0;min-width:0;
-}
-/* Legends are visually hidden -- the button labels themselves
-   (time/words/quote, 15/30/60) read clearly enough that an eyebrow
-   above each group is redundant. Hiding them in CSS keeps the
-   semantic <legend> element for screen readers. The default
-   browser-rendered <legend> position would stack the toolbar to
-   nearly double height; this rule keeps a single low row. */
-.practice-bar .mode-bar__legend{
-  position:absolute!important;width:1px;height:1px;
-  padding:0;margin:-1px;overflow:hidden;
-  clip:rect(0,0,0,0);white-space:nowrap;border:0;
-}
-/* Add a clear horizontal margin on the highlighted button so its
-   tinted background never touches the bordered neighbours. The
-   complaint was Words active-state running into Quote / Zen. */
-.practice-bar .mode-bar__btn[aria-pressed="true"]{
-  margin:0 .15rem;
+  align-items:center;gap:.4rem;
+  padding:0;margin:0;min-width:0;
 }
 .practice-bar .mode-bar__field[hidden]{display:none}
+/* Subtle vertical rule between groups -- much cleaner than the
+   eyebrow labels we used before. Padding keeps the rule from
+   touching the chip border on either side. */
 .practice-bar .mode-bar__field + .mode-bar__field{
-  padding-left:.9rem;
+  padding-left:.7rem;
+  margin-left:.1rem;
   border-left:1px solid var(--rule);
 }
-.practice-bar .mode-bar__legend{
-  /* Inline legend -- sits to the LEFT of the button row so MODE +
-     DURATION (or QUOTE LENGTH) keep their group labels visible while
-     the whole toolbar stays on a single line. The flexbox normal-flow
-     layout (no absolute positioning) means each legend pushes the
-     buttons that follow without overlap. */
-  margin:0;padding:0;line-height:1;
-  font-family:var(--font-mono);font-size:.62rem;
-  letter-spacing:.16em;text-transform:uppercase;
-  color:var(--fg-3);font-weight:500;
-  white-space:nowrap;flex-shrink:0;
-}
-.practice-bar .mode-bar__legend .mode-bar__unit{
-  color:var(--fg-3);font-style:normal;letter-spacing:.1em;
-  margin-left:.25em;
-}
-/* Wrap to a second row only on phones / very narrow tablets. */
-@media (max-width:768px){
-  .practice-bar .mode-bar{flex-wrap:wrap}
-  .practice-bar .mode-bar__field{flex-wrap:wrap}
+/* Highlighted chip never bleeds into a neighbour. */
+.practice-bar .mode-bar__btn[aria-pressed="true"]{
+  margin:0 .1rem;
 }
 .practice-bar .mode-bar__btn{
   height:24px;padding:0 .55rem;min-height:0;

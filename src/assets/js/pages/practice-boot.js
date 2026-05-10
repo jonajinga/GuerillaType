@@ -428,22 +428,33 @@ function startEngine(target) {
   hintEl.dataset.state = "ready";
   renderChallengeHud();
 
-  // Wire the Stop chip directly to THIS engine instance. We rebind on
-  // every startEngine() so the closure always points at the live
-  // engine -- previous attempts via module-level closures + window
-  // globals all left an edge case on the table (timing, minifier
-  // mangling, stale engine after restart). Direct binding is
-  // unambiguous: when the user clicks Stop, the click ends THIS
-  // session. .onclick assignment overwrites any prior handler, so
-  // there's no listener pile-up across restarts.
+  // Stop chip: rebuilt from scratch. Every prior attempt (module-level
+  // bindings, window.ttFinish globals, .onclick assignment) failed to
+  // dispatch on the user's mobile in some way I couldn't reproduce
+  // locally. The simplest possible mechanism: when Stop is clicked,
+  // synthesize the same Escape keydown that desktop users already
+  // press successfully. The engine's input-capture listens for
+  // Escape on the inputEl and routes it through the same onEscape
+  // handler -- the call path that's been working for months.
   const stopBtn = document.getElementById("tt-stop");
   if (stopBtn) {
     stopBtn.onclick = (e) => {
       e.preventDefault();
+      e.stopPropagation();
       const st = stage.dataset.state;
       if (st !== "running" && st !== "ready") return;
+      // Keep startTs sane in the rare "ready but no keystroke yet" case.
       if (engine.startTs === 0) engine.startTs = performance.now();
-      engine.finish();
+      // Refocus the input, then synthesize Escape on it. Refocus is
+      // necessary because clicking the button blurs the input on most
+      // platforms; the keydown listener is attached to inputEl and
+      // would otherwise miss the synthetic event.
+      try { inputEl.focus({ preventScroll: true }); } catch {}
+      const esc = new KeyboardEvent("keydown", {
+        key: "Escape", code: "Escape", keyCode: 27, which: 27,
+        bubbles: true, cancelable: true,
+      });
+      inputEl.dispatchEvent(esc);
     };
   }
 
