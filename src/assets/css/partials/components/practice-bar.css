@@ -25,11 +25,6 @@ body.is-hide-ui:not(.is-corpus-mode) .tt-stage{
 
 .practice-bar{
   position:sticky;
-  /* var(--header-h) is set by JS on load + resize from the actual
-     header.offsetHeight, so the toolbar sticks exactly underneath the
-     header at every viewport. Pulling up by 1 px merges the toolbar's
-     top edge into the header's bottom border so there is no visible
-     hairline gap between the two sticky strips. */
   top:var(--header-h, 58px);
   margin-top:-1px;
   z-index:40;
@@ -37,12 +32,16 @@ body.is-hide-ui:not(.is-corpus-mode) .tt-stage{
   backdrop-filter:saturate(160%) blur(14px);
   -webkit-backdrop-filter:saturate(160%) blur(14px);
   border-bottom:1px solid var(--rule);
-  /* Side margins extend to the gutter so the toolbar reads full-width.
-     Bottom margin tightened to var(--space-2) -- previously --space-4
-     left a noticeable empty band below the toolbar before the typing
-     surface began. */
-  margin-left:calc(-1 * var(--gutter));
-  margin-right:calc(-1 * var(--gutter));
+  /* Span the full viewport width regardless of the page wrapper's
+     gutter. 100vw + a calc() that pulls the bar leftward by half of
+     (100vw - parent's content width) achieves edge-to-edge without
+     positioned tricks. The 100vw approach can introduce horizontal
+     scroll if scrollbars are visible; clip overflow on the bar to
+     suppress that. */
+  width:100vw;
+  margin-left:calc(50% - 50vw);
+  margin-right:calc(50% - 50vw);
+  overflow-x:clip;
   margin-bottom:var(--space-2);
 }
 /* Kill .site-main's top padding on the practice page so the toolbar
@@ -56,13 +55,13 @@ body[data-page="practice"] .site-main{padding-top:0}
   .practice-page{padding-top:var(--space-3)}
 }
 .practice-bar__inner{
-  max-width:var(--max-width);margin-inline:auto;
-  /* Snug top + bottom padding so the toolbar's height tracks the
-     chip row, not the multi-line live-stats block. The earlier .55
-     rem block padding combined with align-items:center left a
-     visible empty band below the chips when the live-stats column
-     (number + label below it) was the tallest item in the row. */
-  padding:.3rem var(--gutter);
+  /* No max-width: the inner row spreads edge-to-edge so the mode
+     chips on the left and the live-stats on the right hug their
+     respective sides. Slim block padding makes the bar visibly
+     compact -- about half the height of the previous .55rem +
+     2-line live-stats stack. */
+  margin-inline:auto;
+  padding:.2rem var(--gutter);
   display:flex;align-items:center;justify-content:space-between;
   gap:var(--space-4);min-height:0;
 }
