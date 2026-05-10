@@ -114,11 +114,17 @@
   .game-stat{flex:1 1 0;min-width:0}
   .game-svg{height:280px}
   /* Buttons stay on one line; shrink the label + padding so all
-     four fit a 360 px phone without wrapping. */
-  .game-actions{gap:.35rem}
+     four fit a 360 px phone without wrapping. min-width:0 lets
+     the buttons collapse below their content's intrinsic width;
+     overflow:hidden + text-overflow:ellipsis truncates the label
+     if it still doesn't fit (rather than spilling out of the
+     container). */
+  .game-actions{gap:.3rem;padding-inline:.4rem}
   .game-actions .btn{
-    padding:.35rem .6rem;font-size:.78rem;
+    padding:.3rem .5rem;font-size:.7rem;
     flex:1 1 0;min-width:0;
+    overflow:hidden;text-overflow:ellipsis;
+    white-space:nowrap;
   }
   .game-page{
     /* Reserve bottom space for the always-on virtual keyboard. */
