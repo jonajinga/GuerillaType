@@ -3,6 +3,7 @@
 import { getActive } from "../profiles.js";
 import { renderKeyboard } from "../stats/viz-keyboard.js";
 import { renderTrend } from "../stats/viz-trend.js";
+import { renderTrendD3 } from "../stats/viz-trend-d3.js";
 import { renderContribution, renderDayStrip } from "../stats/viz-contribution.js";
 import { renderPerKey } from "../stats/viz-per-key.js";
 import { renderPerFinger, summarizePerFinger } from "../stats/viz-per-finger.js";
@@ -128,8 +129,11 @@ function escapeText(s) {
   return String(s == null ? "" : s).replace(/[<>&"]/g, (c) => ({"<":"&lt;",">":"&gt;","&":"&amp;","\"":"&quot;"}[c]));
 }
 
-// Trend
-renderTrend(document.getElementById("trend-svg"), profile.sessions || []);
+// Trend -- D3 version (richer rendering: rolling mean, area fill,
+// per-point hover). Lazy-loads d3 from esm.sh on first call. The
+// legacy renderTrend fallback fires inside renderTrendD3 if D3
+// fails to load (offline, blocked CDN, etc.).
+renderTrendD3(document.getElementById("trend-svg"), profile.sessions || []);
 
 // Keyboard heatmap
 const kbSvg = document.getElementById("kb-svg");

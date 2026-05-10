@@ -389,22 +389,29 @@ if (back) {
 }
 
 // ── Page-specific boot via data-page on body ─────────────────────
+// Each dynamic import URL carries the build's cssVersion as a query
+// string so the service worker treats each new build as a fresh
+// module URL and refetches instead of serving the previous build's
+// cached copy. Without this the SW would happily keep serving last
+// week's practice-boot.js while the user wonders why their freshly
+// shipped fix never appeared.
 const page = document.body.dataset.page;
+const _v = window.__cssVersion ? "?v=" + window.__cssVersion : "";
 const map = {
-  practice: () => import("./pages/practice-boot.js"),
-  index: () => import("./pages/home-boot.js"),
-  home: () => import("./pages/home-boot.js"),
-  lessons: () => import("./pages/lessons-boot.js"),
-  challenges: () => import("./pages/challenges-boot.js"),
-  drills: () => import("./pages/drills-boot.js"),
-  custom: () => import("./pages/custom-boot.js"),
-  settings: () => import("./pages/settings-boot.js"),
-  stats: () => import("./pages/stats-boot.js"),
-  quotes: () => import("./pages/quotes-boot.js"),
-  library: () => import("./pages/library-boot.js"),
-  contact: () => import("./pages/contact-boot.js"),
-  idioms: () => import("./pages/corpus-boot.js"),
-  parables: () => import("./pages/corpus-boot.js"),
-  poetry: () => import("./pages/corpus-boot.js"),
+  practice: () => import("./pages/practice-boot.js" + _v),
+  index: () => import("./pages/home-boot.js" + _v),
+  home: () => import("./pages/home-boot.js" + _v),
+  lessons: () => import("./pages/lessons-boot.js" + _v),
+  challenges: () => import("./pages/challenges-boot.js" + _v),
+  drills: () => import("./pages/drills-boot.js" + _v),
+  custom: () => import("./pages/custom-boot.js" + _v),
+  settings: () => import("./pages/settings-boot.js" + _v),
+  stats: () => import("./pages/stats-boot.js" + _v),
+  quotes: () => import("./pages/quotes-boot.js" + _v),
+  library: () => import("./pages/library-boot.js" + _v),
+  contact: () => import("./pages/contact-boot.js" + _v),
+  idioms: () => import("./pages/corpus-boot.js" + _v),
+  parables: () => import("./pages/corpus-boot.js" + _v),
+  poetry: () => import("./pages/corpus-boot.js" + _v),
 };
 if (map[page]) map[page]().catch((err) => console.warn("[boot]", page, err));

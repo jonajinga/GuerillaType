@@ -595,6 +595,175 @@ export const ACHIEVEMENTS = [
       const recent = (p.sessions || []).slice(0, 3);
       return recent.length === 3 && recent.every((x) => (x.wpm || 0) >= 90 && (x.acc || 0) >= 95);
     } },
+
+  // ── Phase 2 expansion — 56 → ~120 ──────────────────────────────
+  // New categories: extended streaks, big volume tiers, fine-grain
+  // speed milestones, dawn/dusk hours, mode mastery, endurance,
+  // streak recovery, social-ish, easter eggs. All predicates
+  // operate on the existing profile shape (sessions[], lifetime,
+  // daily, perKey, etc.) -- no new fields required.
+
+  // ── Streak milestones (extended) ────────────────────────────────
+  { id: "streak-30", name: "Thirty-day streak", desc: "Type every day for thirty days running.", group: "Streaks",
+    test: (p) => (p.lifetime && p.lifetime.streakDays || 0) >= 30 },
+  { id: "streak-60", name: "Sixty-day streak", desc: "Two months of unbroken daily practice.", group: "Streaks",
+    test: (p) => (p.lifetime && p.lifetime.streakDays || 0) >= 60 },
+  { id: "streak-100", name: "Hundred-day streak", desc: "Hundred consecutive days. Ritual achieved.", group: "Streaks",
+    test: (p) => (p.lifetime && p.lifetime.streakDays || 0) >= 100 },
+  { id: "streak-180", name: "Half-year streak", desc: "180 days in a row. The keyboard is a third hand.", group: "Streaks",
+    test: (p) => (p.lifetime && p.lifetime.streakDays || 0) >= 180 },
+  { id: "streak-365", name: "Year-long streak", desc: "A full year without skipping a day.", group: "Streaks",
+    test: (p) => (p.lifetime && p.lifetime.streakDays || 0) >= 365 },
+
+  // ── Volume tiers (extended) ─────────────────────────────────────
+  { id: "five-million-chars", name: "Five million", desc: "Type five million characters lifetime.", group: "Volume",
+    test: (p) => (p.lifetime && p.lifetime.totalChars || 0) >= 5_000_000 },
+  { id: "ten-million-chars", name: "Ten million", desc: "Type ten million characters lifetime.", group: "Volume",
+    test: (p) => (p.lifetime && p.lifetime.totalChars || 0) >= 10_000_000 },
+  { id: "sessions-500", name: "Five hundred sessions", desc: "Complete five hundred sessions.", group: "Volume",
+    test: (p) => (p.sessions || []).length >= 500 },
+  { id: "sessions-1000", name: "Thousand sessions", desc: "Complete a thousand sessions.", group: "Volume",
+    test: (p) => (p.sessions || []).length >= 1000 },
+  { id: "hours-10", name: "Ten hours", desc: "Spend ten hours actively typing.", group: "Volume",
+    test: (p) => (p.lifetime && p.lifetime.totalMs || 0) >= 10 * 3600 * 1000 },
+  { id: "hours-50", name: "Fifty hours", desc: "Spend fifty hours actively typing.", group: "Volume",
+    test: (p) => (p.lifetime && p.lifetime.totalMs || 0) >= 50 * 3600 * 1000 },
+  { id: "hours-100", name: "Hundred hours", desc: "A hundred hours of focused typing.", group: "Volume",
+    test: (p) => (p.lifetime && p.lifetime.totalMs || 0) >= 100 * 3600 * 1000 },
+
+  // ── Fine-grain speed milestones (every 5 wpm in the upper deck) ─
+  { id: "wpm-45", name: "Forty-five", desc: "Hit 45 wpm in any session.", group: "Speed",
+    test: (p) => (p.lifetime && p.lifetime.bestWpm || 0) >= 45 },
+  { id: "wpm-55", name: "Fifty-five", desc: "Hit 55 wpm in any session.", group: "Speed",
+    test: (p) => (p.lifetime && p.lifetime.bestWpm || 0) >= 55 },
+  { id: "wpm-65", name: "Sixty-five", desc: "Hit 65 wpm in any session.", group: "Speed",
+    test: (p) => (p.lifetime && p.lifetime.bestWpm || 0) >= 65 },
+  { id: "wpm-75", name: "Seventy-five", desc: "Hit 75 wpm in any session.", group: "Speed",
+    test: (p) => (p.lifetime && p.lifetime.bestWpm || 0) >= 75 },
+  { id: "wpm-85", name: "Eighty-five", desc: "Hit 85 wpm in any session.", group: "Speed",
+    test: (p) => (p.lifetime && p.lifetime.bestWpm || 0) >= 85 },
+  { id: "wpm-95", name: "Ninety-five", desc: "Hit 95 wpm in any session.", group: "Speed",
+    test: (p) => (p.lifetime && p.lifetime.bestWpm || 0) >= 95 },
+  { id: "wpm-110", name: "One ten", desc: "Hit 110 wpm in any session.", group: "Speed",
+    test: (p) => (p.lifetime && p.lifetime.bestWpm || 0) >= 110 },
+  { id: "wpm-130", name: "One thirty", desc: "Hit 130 wpm in any session.", group: "Speed",
+    test: (p) => (p.lifetime && p.lifetime.bestWpm || 0) >= 130 },
+  { id: "wpm-150", name: "One fifty", desc: "Hit 150 wpm in any session.", group: "Speed",
+    test: (p) => (p.lifetime && p.lifetime.bestWpm || 0) >= 150 },
+
+  // ── Accuracy tiers (extended) ───────────────────────────────────
+  { id: "acc-99", name: "Pristine", desc: "Reach 99% accuracy in any session.", group: "Accuracy",
+    test: (p) => (p.sessions || []).some((s) => (s.acc || 0) >= 99) },
+  { id: "acc-99-5", name: "Razor-sharp", desc: "Reach 99.5% accuracy in any session ≥ 50 words.", group: "Accuracy",
+    test: (p) => (p.sessions || []).some((s) => (s.acc || 0) >= 99.5 && (s.chars || 0) >= 250) },
+  { id: "acc-100-marathon", name: "Spotless marathon+", desc: "100% accuracy in a session ≥ 500 chars.", group: "Accuracy",
+    test: (p) => (p.sessions || []).some((s) => (s.acc || 0) >= 100 && (s.chars || 0) >= 500) },
+  { id: "no-backspace-100", name: "First take", desc: "Finish a session ≥ 100 chars with zero backspaces.", group: "Accuracy",
+    test: (p) => (p.sessions || []).some((s) => (s.chars || 0) >= 100 && (s.backspaces || 0) === 0) },
+
+  // ── Time-of-day badges ──────────────────────────────────────────
+  { id: "early-bird", name: "Early bird", desc: "Complete a session before 7 AM.", group: "Rituals",
+    test: (p) => (p.sessions || []).some((s) => { try { return new Date(s.at).getHours() < 7; } catch { return false; } }) },
+  { id: "night-owl", name: "Night owl", desc: "Complete a session after midnight.", group: "Rituals",
+    test: (p) => (p.sessions || []).some((s) => { try { const h = new Date(s.at).getHours(); return h >= 0 && h < 5; } catch { return false; } }) },
+  { id: "lunch-break", name: "Lunch break", desc: "Complete a session between noon and 1 PM.", group: "Rituals",
+    test: (p) => (p.sessions || []).some((s) => { try { const h = new Date(s.at).getHours(); return h === 12; } catch { return false; } }) },
+  { id: "monday-morning", name: "Monday momentum", desc: "Practice on a Monday before 9 AM.", group: "Rituals",
+    test: (p) => (p.sessions || []).some((s) => { try { const d = new Date(s.at); return d.getDay() === 1 && d.getHours() < 9; } catch { return false; } }) },
+  { id: "weekend-warrior", name: "Weekend warrior", desc: "Complete five sessions on weekends.", group: "Rituals",
+    test: (p) => {
+      const w = (p.sessions || []).filter((s) => { try { const d = new Date(s.at).getDay(); return d === 0 || d === 6; } catch { return false; } });
+      return w.length >= 5;
+    } },
+
+  // ── Endurance ───────────────────────────────────────────────────
+  { id: "endurance-5min", name: "Five-minute push", desc: "One continuous session ≥ 5 minutes.", group: "Endurance",
+    test: (p) => (p.sessions || []).some((s) => (s.ms || 0) >= 5 * 60 * 1000) },
+  { id: "endurance-15min", name: "Fifteen-minute push", desc: "One continuous session ≥ 15 minutes.", group: "Endurance",
+    test: (p) => (p.sessions || []).some((s) => (s.ms || 0) >= 15 * 60 * 1000) },
+  { id: "endurance-30min", name: "Half-hour push", desc: "One continuous session ≥ 30 minutes.", group: "Endurance",
+    test: (p) => (p.sessions || []).some((s) => (s.ms || 0) >= 30 * 60 * 1000) },
+  { id: "endurance-60min", name: "Hour-long push", desc: "One continuous session ≥ 60 minutes.", group: "Endurance",
+    test: (p) => (p.sessions || []).some((s) => (s.ms || 0) >= 60 * 60 * 1000) },
+
+  // ── Variety ─────────────────────────────────────────────────────
+  { id: "modes-5", name: "Mode explorer", desc: "Use five different practice modes.", group: "Variety",
+    test: (p) => new Set((p.sessions || []).map((s) => s.mode).filter(Boolean)).size >= 5 },
+  { id: "modes-all", name: "Mode collector", desc: "Use every practice mode at least once.", group: "Variety",
+    test: (p) => {
+      const modes = new Set((p.sessions || []).map((s) => s.mode).filter(Boolean));
+      const required = ["time","words","quote","zen","custom","adaptive","idiom","poem"];
+      return required.every((m) => modes.has(m));
+    } },
+  { id: "langs-3", name: "Polyglot starter", desc: "Practice in three different word sources.", group: "Variety",
+    test: (p) => new Set((p.sessions || []).map((s) => s.lang).filter(Boolean)).size >= 3 },
+  { id: "authors-5", name: "Curator", desc: "Type quotes from five different authors.", group: "Variety",
+    test: (p) => {
+      const authors = new Set();
+      (p.corpusProgress && p.corpusProgress.quote ? Object.keys(p.corpusProgress.quote) : []).forEach((id) => authors.add(id.split("-")[1] || id));
+      return authors.size >= 5;
+    } },
+
+  // ── Mode mastery ────────────────────────────────────────────────
+  { id: "quote-25", name: "Quote collector", desc: "Complete twenty-five different quotes.", group: "Mastery",
+    test: (p) => Object.keys((p.corpusProgress && p.corpusProgress.quote) || {}).length >= 25 },
+  { id: "quote-100", name: "Quote scholar", desc: "Complete one hundred different quotes.", group: "Mastery",
+    test: (p) => Object.keys((p.corpusProgress && p.corpusProgress.quote) || {}).length >= 100 },
+  { id: "idiom-25", name: "Phrase keeper", desc: "Complete twenty-five different idioms.", group: "Mastery",
+    test: (p) => Object.keys((p.corpusProgress && p.corpusProgress.idiom) || {}).length >= 25 },
+  { id: "poem-10", name: "Verse keeper", desc: "Complete ten public-domain poems.", group: "Mastery",
+    test: (p) => Object.keys((p.corpusProgress && p.corpusProgress.poem) || {}).length >= 10 },
+  { id: "poem-25", name: "Verse scholar", desc: "Complete twenty-five public-domain poems.", group: "Mastery",
+    test: (p) => Object.keys((p.corpusProgress && p.corpusProgress.poem) || {}).length >= 25 },
+  { id: "books-1", name: "First chapter", desc: "Start typing a book from the library.", group: "Mastery",
+    test: (p) => Object.keys((p.bookProgress || {})).length >= 1 },
+  { id: "books-5", name: "Five-book shelf", desc: "Begin five different books.", group: "Mastery",
+    test: (p) => Object.keys((p.bookProgress || {})).length >= 5 },
+
+  // ── Streak recovery + comebacks ────────────────────────────────
+  { id: "comeback", name: "Comeback", desc: "Beat your previous best by 5+ wpm.", group: "Growth",
+    test: (p) => {
+      const sessions = p.sessions || [];
+      if (sessions.length < 2) return false;
+      const sorted = [...sessions].sort((a, b) => new Date(a.at) - new Date(b.at));
+      let bestSoFar = 0;
+      for (let i = 0; i < sorted.length; i++) {
+        if (i > 0 && sorted[i].wpm >= bestSoFar + 5) return true;
+        bestSoFar = Math.max(bestSoFar, sorted[i].wpm || 0);
+      }
+      return false;
+    } },
+  { id: "from-the-pit", name: "From the pit", desc: "Recover from a sub-60% accuracy session to 90%+ within three runs.", group: "Growth",
+    test: (p) => {
+      const sessions = [...(p.sessions || [])].sort((a, b) => new Date(a.at) - new Date(b.at));
+      for (let i = 0; i < sessions.length; i++) {
+        if ((sessions[i].acc || 100) < 60) {
+          for (let j = i + 1; j < Math.min(sessions.length, i + 4); j++) {
+            if ((sessions[j].acc || 0) >= 90) return true;
+          }
+        }
+      }
+      return false;
+    } },
+
+  // ── Easter eggs (revealed only when unlocked) ───────────────────
+  { id: "easter-alphabet", name: "Full alphabet", desc: "Type a session containing every letter of the alphabet.", group: "Special", secret: true,
+    test: (p) => (p.sessions || []).some((s) => {
+      const target = (s.target || "").toLowerCase();
+      return /a/.test(target) && /b/.test(target) && /c/.test(target) && /d/.test(target) && /e/.test(target) &&
+             /f/.test(target) && /g/.test(target) && /h/.test(target) && /i/.test(target) && /j/.test(target) &&
+             /k/.test(target) && /l/.test(target) && /m/.test(target) && /n/.test(target) && /o/.test(target) &&
+             /p/.test(target) && /q/.test(target) && /r/.test(target) && /s/.test(target) && /t/.test(target) &&
+             /u/.test(target) && /v/.test(target) && /w/.test(target) && /x/.test(target) && /y/.test(target) && /z/.test(target);
+    }) },
+  { id: "easter-leap", name: "Leap day", desc: "Practice on February 29.", group: "Special", secret: true,
+    test: (p) => (p.sessions || []).some((s) => { try { const d = new Date(s.at); return d.getMonth() === 1 && d.getDate() === 29; } catch { return false; } }) },
+  { id: "easter-pi", name: "Pi day", desc: "Practice on March 14.", group: "Special", secret: true,
+    test: (p) => (p.sessions || []).some((s) => { try { const d = new Date(s.at); return d.getMonth() === 2 && d.getDate() === 14; } catch { return false; } }) },
+  { id: "easter-newyear", name: "Resolution kept", desc: "Practice on January 1.", group: "Special", secret: true,
+    test: (p) => (p.sessions || []).some((s) => { try { const d = new Date(s.at); return d.getMonth() === 0 && d.getDate() === 1; } catch { return false; } }) },
+  { id: "easter-friday-13", name: "Unlucky day", desc: "Practice on Friday the 13th.", group: "Special", secret: true,
+    test: (p) => (p.sessions || []).some((s) => { try { const d = new Date(s.at); return d.getDay() === 5 && d.getDate() === 13; } catch { return false; } }) },
 ];
 
 /* Evaluate a profile snapshot. Returns { unlocked, earned }.
