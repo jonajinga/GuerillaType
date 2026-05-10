@@ -70,8 +70,27 @@ export function attachInput(inputEl, host, handlers) {
     host.dataset.focused = "true";
     handlers.onFocus && handlers.onFocus();
   });
-  inputEl.addEventListener("blur", () => {
+  inputEl.addEventListener("blur", (e) => {
     host.dataset.focused = "false";
+    // Skip blurs that go INTO the on-screen virtual keyboard.
+    // Tapping a vkbd key shifts focus to the button for a frame
+    // before our handler refocuses the input. Without this guard
+    // every tap fires pauseTimer, freezing the live stats and
+    // making the user feel like the game / engine paused. The
+    // keyboard buttons live inside .vkbd; relatedTarget gives us
+    // the new focus target on most browsers, and document.
+    // activeElement is the iOS Safari fallback (relatedTarget can
+    // be null on touch-synthesised focus shifts).
+    const goingTo = e.relatedTarget || document.activeElement;
+    if (goingTo && goingTo.closest && goingTo.closest(".vkbd")) {
+      // Re-assert focus right away so the engine never sees the
+      // input as un-focused. Defer one tick so the current blur
+      // event finishes propagating first.
+      setTimeout(() => {
+        try { if (document.activeElement !== inputEl) inputEl.focus({ preventScroll: true }); } catch {}
+      }, 0);
+      return;
+    }
     handlers.onBlur && handlers.onBlur();
   });
 
