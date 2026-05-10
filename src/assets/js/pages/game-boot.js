@@ -123,7 +123,10 @@ function frame(elapsed) {
 function paintFalling() {
   if (!svgSel) return;
   const typed = (input.value || "").trim();
-  const groups = svgSel.selectAll("g.fall").data(falling, (d) => d.id);
+  // Only select live falling groups -- exclude dying groups (mid-
+  // dissolve) and score popups. Both lack a datum and would throw
+  // when the key function evaluates d.id, freezing the game.
+  const groups = svgSel.selectAll("g.fall:not(.fall--dying):not(.fall-popup)").data(falling, (d) => d && d.id);
   groups.exit().remove();
   // New words enter with one <tspan> per char so we can color
   // each char independently (typed prefix = accent, rest =
