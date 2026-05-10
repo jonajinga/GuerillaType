@@ -10,3 +10,41 @@
 .section--tight{padding-block:var(--space-4)}
 .section__head{display:flex;justify-content:space-between;align-items:baseline;gap:var(--space-3);margin-bottom:var(--space-4)}
 .section__title{margin:0}
+
+.page__eyebrow{
+  font-family:var(--font-mono);font-size:.7rem;
+  letter-spacing:.18em;text-transform:uppercase;
+  color:var(--accent);margin:0 0 .4rem;font-weight:600;
+}
+
+/* Long-form prose pages (roadmap, why-contribute, future essay
+   content). Constrains the reading column, paces the vertical
+   rhythm, and gives section headings scroll-margin so the
+   floating TOC anchors don't tuck under the sticky header. */
+.prose{max-width:62ch;color:var(--fg-1);line-height:1.7;font-size:var(--fs-300)}
+.prose h2{
+  font-family:var(--font-display);font-weight:500;
+  font-size:var(--fs-500);line-height:1.2;
+  margin:var(--space-7) 0 var(--space-3);color:var(--fg-0);
+  padding-top:var(--space-2);
+  scroll-margin-top:calc(var(--header-h, 58px) + 24px);
+}
+.prose h2:first-child{margin-top:0;padding-top:0}
+.prose h3{
+  font-family:var(--font-display);font-weight:500;
+  font-size:var(--fs-400);line-height:1.25;
+  margin:var(--space-5) 0 var(--space-2);color:var(--fg-0);
+  scroll-margin-top:calc(var(--header-h, 58px) + 24px);
+}
+.prose p{margin:0 0 var(--space-3)}
+.prose ul, .prose ol{
+  margin:0 0 var(--space-3);padding-left:1.2rem;
+  list-style-position:outside;
+}
+.prose ul{list-style:disc}
+.prose ol{list-style:decimal}
+.prose li{margin:0 0 .35rem}
+.prose a{color:var(--accent);text-underline-offset:3px}
+.prose a:hover{color:var(--accent-soft, var(--accent))}
+.prose strong{color:var(--fg-0);font-weight:600}
+.prose hr{border:0;border-top:1px solid var(--rule);margin:var(--space-6) 0}

@@ -49,6 +49,7 @@ const CSS_ORDER = [
   "components/live-aids.css",
   "components/virtual-keyboard.css",
   "pages/game.css",
+  "pages/games.css",
   "pages/home.css",
   "pages/article.css",
   "pages/practice.css",

@@ -57,6 +57,7 @@ const megamenu = [
           { chip: "I", label: "Daily idiom", url: "/idioms/", desc: "Today's curated idiom + meaning." },
           { chip: "P", label: "A poem", url: "/poetry/", desc: "Frost, Dickinson, Whitman, Shakespeare, Blake." },
           { chip: "F", label: "A parable", url: "/parables/", desc: "Aesop's Fables and short moral stories." },
+          { chip: "🎮", label: "Games", url: "/games/", desc: "Catch the Word + more typing mini-games." },
         ],
       },
     ],
