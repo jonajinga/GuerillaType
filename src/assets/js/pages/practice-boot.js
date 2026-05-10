@@ -982,6 +982,19 @@ async function boot() {
   }
 }
 
+/* End the current session and commit a partial result. Same path as
+   pressing Esc on desktop -- but exposed as window.ttFinish so a UI
+   button (used on mobile, where there's no physical Esc key) can
+   trigger it. The engine's finish() method runs handleFinish which
+   shows the results card with whatever metrics the user reached. */
+window.ttFinish = () => {
+  if (engine && engine.running) {
+    engine.finish();
+    return true;
+  }
+  return false;
+};
+
 window.ttRestart = () => {
   resultsEl.hidden = true;
   boot();

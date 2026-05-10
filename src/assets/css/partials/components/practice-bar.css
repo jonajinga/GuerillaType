@@ -386,6 +386,28 @@ body[data-page="practice"] .site-main{padding-top:0}
    on mobile so the buttons collapse to compact icon-only chips. */
 .tt-actions__btn{display:inline-flex;align-items:center;gap:.45rem}
 .tt-actions__icon{display:none}
+/* Stop button shows only while a session is running OR ready (i.e.
+   anything except idle / done). Without an active session there's
+   nothing to stop. Uses :has() to read the typing surface's data-
+   state attribute -- modern browsers (Chrome 105+, Safari 15.4+,
+   Firefox 121+) all support it; older clients just always see the
+   Stop button which is fine. */
+.tt-actions__btn--stop{display:none}
+body:has(#tt-stage[data-state="running"]) .tt-actions__btn--stop,
+body:has(#tt-stage[data-state="ready"]) .tt-actions__btn--stop{
+  display:inline-flex;
+}
+/* Slight visual weight so Stop reads as the primary in-flight
+   action when it appears. Border + colored icon, otherwise the
+   same chip metrics as Restart / How it works / Send feedback. */
+.tt-actions__btn--stop{
+  border-color:color-mix(in oklab, var(--bad) 60%, var(--rule));
+  color:var(--bad);
+}
+.tt-actions__btn--stop:hover{
+  border-color:var(--bad);
+  background:color-mix(in oklab, var(--bad) 10%, transparent);
+}
 @media (max-width:640px){
   .tt-actions{gap:.5rem}
   .tt-actions > .btn{
