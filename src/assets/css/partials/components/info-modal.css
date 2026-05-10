@@ -11,7 +11,20 @@
   margin-top:var(--space-3);
 }
 .hero__info-link:hover{color:var(--accent);text-decoration-color:var(--accent)}
-.hero__info-link::after{content:" ↗";font-style:normal;margin-left:.2em;font-size:.85em}
+/* Clean SVG diagonal arrow rendered via mask-image. The unicode ↗
+   glyph (U+2197) used here previously fell back to a poorly-hinted
+   system font on mobile and rendered as a thin lopsided chevron
+   misaligned with the underline. An SVG is consistent everywhere. */
+.hero__info-link::after{
+  content:"";
+  display:inline-block;
+  width:.85em;height:.85em;
+  margin-left:.35em;
+  background-color:currentColor;
+  -webkit-mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><line x1='7' y1='17' x2='17' y2='7'/><polyline points='8 7 17 7 17 16'/></svg>") no-repeat center / contain;
+          mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><line x1='7' y1='17' x2='17' y2='7'/><polyline points='8 7 17 7 17 16'/></svg>") no-repeat center / contain;
+  vertical-align:-.05em;
+}
 
 .info-modal{
   width:min(540px, 92vw);
