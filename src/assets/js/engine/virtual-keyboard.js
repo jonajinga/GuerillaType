@@ -173,6 +173,11 @@ function handleKey(btn) {
     return;
   }
   if (action === "backspace") {
+    const handler = window.__vkbdHandler;
+    if (handler && typeof handler.onBackspace === "function") {
+      handler.onBackspace();
+      return;
+    }
     const eng = window.__tt;
     if (eng && eng.onBackspace) eng.onBackspace(false);
     return;
@@ -186,10 +191,19 @@ function handleKey(btn) {
   }
   const k = btn.dataset.k;
   if (k == null) return;
-  const eng = window.__tt;
-  if (!eng || !eng.onChar) return;
   let ch = k;
   if ((shift || caps) && layer === "letters") ch = ch.toUpperCase();
+  // Optional caller-supplied dispatch (e.g. the typing game's
+  // input field). Takes priority over the engine path so pages
+  // without an engine can still consume the keyboard.
+  const handler = window.__vkbdHandler;
+  if (handler && typeof handler.onChar === "function") {
+    handler.onChar(ch);
+    if (shift && !caps) { shift = false; render(); }
+    return;
+  }
+  const eng = window.__tt;
+  if (!eng || !eng.onChar) return;
   // Resume any stray pause from a focus thrash before processing
   // the char so the live stats don't show the pause artifact.
   if (eng._pauseAt) eng.resumeTimer();

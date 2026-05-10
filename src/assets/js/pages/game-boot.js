@@ -11,6 +11,7 @@
 
 import { getActive, updateActive } from "../profiles.js";
 import { loadD3 } from "../stats/d3-loader.js";
+import { mountVirtualKeyboard, unmountVirtualKeyboard, highlightNextKey as vkbdNext } from "../engine/virtual-keyboard.js";
 
 const COMMON_FALLBACK_WORDS = [
   "the", "and", "for", "you", "this", "with", "have", "from", "they",
@@ -189,30 +190,56 @@ function tryCatch(typed) {
   return true;
 }
 
-/* Spawn a dissolve burst at the word's position: each char fades
-   out + scales up + drifts in a random direction, then the whole
-   group is removed. Also spawns a "+N" score popup that floats up
-   and fades. Lifecycle ~520 ms total. */
+/* Caught-word disintegration: the word's text node is hidden
+   immediately, replaced by a swarm of small colored squares that
+   spray outward like exploding pixels. Each pixel fades + drifts
+   on its own trajectory. ~700 ms lifecycle. A "+N" score popup
+   floats up from the word's position over the same window. */
 function dissolveCaughtWord(f) {
   if (!svgSel || !d3) return;
-  // Find the existing <g> for this word so we can transition it
-  // out instead of duplicating. paintFalling() filters by id so
-  // it won't re-create after the splice above.
+  // Find the existing <g> for this word so paintFalling can
+  // exclude it (class .fall--dying).
   const node = svgSel.selectAll("g.fall").filter((d) => d && d.id === f.id);
-  if (node.empty()) return;
-  node.classed("fall--dying", true);
-  // Per-char drift + fade.
-  node.selectAll("tspan").each(function(_, i) {
-    const dxRand = (Math.random() - 0.5) * 60;
-    const dyRand = -20 - Math.random() * 30;
-    d3.select(this)
-      .attr("fill", "var(--accent)")
-      .transition().duration(420).ease(d3.easeCubicOut)
-      .attr("dx", dxRand).attr("dy", dyRand)
+  if (!node.empty()) {
+    node.classed("fall--dying", true);
+    // Hide the text immediately -- pixels take over.
+    node.selectAll("text").attr("opacity", 0);
+    // Remove the dying group once particles finish.
+    node.transition().delay(720).duration(0).remove();
+  }
+
+  // Spawn a particle swarm. Use a separate <g> outside the dying
+  // node so paintFalling can't yank it. ~28 squares clustered at
+  // the word's position, each given a random velocity outward and
+  // up. Bigger pixels for shorter words so the burst always reads
+  // as substantial.
+  const burst = svgSel.append("g").attr("class", "fall-popup");
+  const pixelCount = 22 + Math.min(20, f.word.length * 2);
+  const palette = ["var(--accent)", "var(--accent-soft, #f59c80)", "var(--warn, #e3b873)", "var(--fg-0)"];
+  const cx = f.x, cy = f.y - 6;
+  for (let i = 0; i < pixelCount; i++) {
+    const size = 2 + Math.random() * 3;
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 30 + Math.random() * 90;
+    const dx = Math.cos(angle) * speed;
+    const dy = Math.sin(angle) * speed - 20;
+    const lifetime = 500 + Math.random() * 220;
+    burst.append("rect")
+      .attr("x", cx - size / 2).attr("y", cy - size / 2)
+      .attr("width", size).attr("height", size)
+      .attr("rx", 0.5).attr("ry", 0.5)
+      .attr("fill", palette[Math.floor(Math.random() * palette.length)])
+      .attr("opacity", .9)
+      .transition().duration(lifetime).ease(d3.easeQuadOut)
+      .attr("x", cx + dx - size / 2)
+      .attr("y", cy + dy - size / 2)
       .attr("opacity", 0);
-  });
-  // Score popup floats up.
-  const popup = svgSel.append("g").attr("class", "fall");
+  }
+  // Burst clears itself after the longest pixel lifetime + cushion.
+  burst.transition().delay(800).duration(0).remove();
+
+  // "+N" popup floats up + fades.
+  const popup = svgSel.append("g").attr("class", "fall-popup");
   popup.append("text")
     .attr("x", f.x).attr("y", f.y)
     .attr("text-anchor", "middle")
@@ -222,11 +249,9 @@ function dissolveCaughtWord(f) {
     .attr("opacity", 0)
     .text(`+${Math.round((10 + f.word.length * 2) * (stats.streak >= 5 ? 1.5 : 1))}`)
     .transition().duration(80).attr("opacity", 1)
-    .transition().duration(420).ease(d3.easeCubicOut)
-    .attr("y", f.y - 40).attr("opacity", 0)
+    .transition().duration(500).ease(d3.easeCubicOut)
+    .attr("y", f.y - 50).attr("opacity", 0)
     .on("end", () => popup.remove());
-  // Remove the dying word group after animation completes.
-  node.transition().delay(420).duration(0).remove();
 }
 
 function startRound() {
@@ -296,19 +321,28 @@ function endRound() {
 input.addEventListener("input", () => {
   const raw = input.value;
   const v = raw.trim();
-  // Repaint so char colors update as the user types.
   paintFalling();
   if (!v) return;
-  // Catch on space or matching length+content.
+  // Catch on space.
   if (raw.endsWith(" ")) {
     tryCatch(v);
     input.value = "";
     paintFalling();
     return;
   }
-  // Also try the immediate match -- some falling words might be
-  // shorter than the typed value once the user adds chars.
+  // Immediate match (user typed the full word without a trailing
+  // space).
   if (tryCatch(v)) {
+    input.value = "";
+    paintFalling();
+    return;
+  }
+  // No falling word starts with what they've typed -- they made a
+  // mistake. Clear the input so they don't have to backspace
+  // their way out of a typo. This is the standard typelit.io
+  // behavior.
+  const anyPrefixMatch = falling.some((f) => f.word.startsWith(v));
+  if (!anyPrefixMatch) {
     input.value = "";
     paintFalling();
   }
@@ -345,3 +379,29 @@ resetBtn.addEventListener("click", () => {
 
 // Pre-warm D3 in the background so the first click is instant.
 loadD3().then((m) => { if (m) { d3 = m; svgSel = d3.select("#game-svg"); }});
+
+// Virtual on-screen keyboard for the game. Always visible (the
+// game's CSS overrides the desktop hide rule). Dispatches each
+// tap into the game input as if the user had typed it, then
+// fires a synthetic input event so the catch logic runs.
+function wireVirtualKeyboardForGame() {
+  window.__vkbdHandler = {
+    onChar: (ch) => {
+      input.value += ch;
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    },
+    onBackspace: () => {
+      if (!input.value) return;
+      input.value = input.value.slice(0, -1);
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    },
+  };
+  mountVirtualKeyboard();
+  document.body.classList.add("has-vkbd");
+}
+wireVirtualKeyboardForGame();
+window.addEventListener("beforeunload", () => {
+  // Clean up the handler so other pages aren't affected.
+  try { delete window.__vkbdHandler; } catch {}
+  unmountVirtualKeyboard();
+});

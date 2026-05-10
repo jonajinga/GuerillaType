@@ -65,7 +65,10 @@
 }
 
 .game-actions{
-  display:flex;gap:var(--space-2);justify-content:center;flex-wrap:wrap;
+  display:flex;gap:var(--space-2);justify-content:center;flex-wrap:nowrap;
+}
+.game-actions .btn{
+  white-space:nowrap;flex-shrink:0;
 }
 
 .game-howto{
@@ -92,5 +95,22 @@
   .game-header{flex-direction:column;align-items:flex-start}
   .game-header__stats{width:100%;justify-content:space-between}
   .game-stat{flex:1 1 0;min-width:0}
-  .game-svg{height:380px}
+  .game-svg{height:280px}
+  /* Buttons stay on one line; shrink the label + padding so all
+     four fit a 360 px phone without wrapping. */
+  .game-actions{gap:.35rem}
+  .game-actions .btn{
+    padding:.35rem .6rem;font-size:.78rem;
+    flex:1 1 0;min-width:0;
+  }
+  .game-page{
+    /* Reserve bottom space for the always-on virtual keyboard. */
+    padding-bottom:calc(240px + var(--space-3));
+  }
+  .game-howto{display:none}
+}
+/* Always reserve space for the keyboard on the game page since it
+   is always visible. */
+body[data-page="practice-game"] .game-page{
+  padding-bottom:calc(220px + var(--space-3));
 }
