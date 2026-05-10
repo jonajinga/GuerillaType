@@ -25,10 +25,11 @@ body.is-hide-ui:not(.is-corpus-mode) .tt-stage{
 
 .practice-bar{
   position:sticky;
-  /* Small breathing line between header and toolbar on desktop;
-     mobile pulls back to flush below. */
-  top:calc(var(--header-h, 58px) + 4px);
-  margin-top:4px;
+  /* Flush against the bottom of the header. The -1 px margin
+     overlaps the header's bottom rule with the bar's top, so the
+     two share a single hairline instead of stacking two. */
+  top:var(--header-h, 58px);
+  margin-top:-1px;
   z-index:40;
   background:color-mix(in oklab, var(--bg-1) 92%, transparent);
   backdrop-filter:saturate(160%) blur(14px);
