@@ -206,6 +206,12 @@ async function buildText() {
     } else {
       q = state.quote === "daily" ? dailyQuote(all) : pickQuote(all, state.quote, state.quoteTag || "");
     }
+    // Fallback: if no quote resolved (qid not found, daily empty,
+    // pickQuote miss), grab any quote from the corpus. The previous
+    // pangram fallback leaked into quote mode and confused users.
+    if (!q && all.length) {
+      q = all[Math.floor(Math.random() * all.length)];
+    }
     if (q) {
       // Stash meta so the attribution header can render — author,
       // year, source/work as available from the quote record. The
@@ -220,6 +226,45 @@ async function buildText() {
       };
     }
     return q ? q.text : "the quick brown fox jumps over the lazy dog";
+  }
+  // Random idiom / poem modes -- pick from the public-domain
+  // corpus and surface as a typing session with attribution.
+  if (state.mode === "idiom") {
+    try {
+      const res = await fetch("/data/idioms.json", { cache: "default" });
+      const all = await res.json();
+      const item = all[Math.floor(Math.random() * all.length)];
+      if (item) {
+        state._customMeta = {
+          kind: "idiom",
+          sourceId: item.id || null,
+          source: item.meaning || null,
+          meaning: item.meaning || null,
+        };
+        state._customTitle = item.text;
+        return item.text;
+      }
+    } catch {}
+    return "the early bird catches the worm";
+  }
+  if (state.mode === "poem") {
+    try {
+      const res = await fetch("/data/poetry.json", { cache: "default" });
+      const all = await res.json();
+      const item = all[Math.floor(Math.random() * all.length)];
+      if (item) {
+        state._customMeta = {
+          kind: "poem",
+          sourceId: item.id || null,
+          author: item.author || null,
+          year: item.year || null,
+          source: item.source || null,
+        };
+        state._customTitle = item.title;
+        return item.text;
+      }
+    } catch {}
+    return "Hope is the thing with feathers";
   }
   if (state.mode === "custom") {
     const list = JSON.parse(localStorage.getItem("tt:custom-texts") || "[]");
@@ -487,24 +532,13 @@ function startEngine(target) {
     showLiveTicker(false);
   }
 
-  // Mobile tap-to-type keyboard. Defaults ON for small viewports
-  // (<= 768 px); the user can disable it in Settings -> Visual
-  // aids -> Tap-to-type keyboard (mobile). The ?vkbd=1 URL param
-  // force-enables it on any viewport for testing.
-  const isMobileViewport = window.matchMedia && window.matchMedia("(max-width: 768px)").matches;
-  const isTouchLike = (() => {
-    try {
-      if (isMobileViewport) return true;
-      if (window.matchMedia && window.matchMedia("(hover: none) and (pointer: coarse)").matches) return true;
-      if ("ontouchstart" in window) return true;
-      if (navigator.maxTouchPoints > 0) return true;
-    } catch {}
-    return false;
-  })();
-  // Default ON if user hasn't explicitly set it to false. Treat
-  // undefined as "use the default".
+  // Mobile tap-to-type keyboard. Defaults ON unless user
+  // explicitly disabled it in Settings. The CSS hides .vkbd on
+  // viewports >= 769 px, so mounting is harmless on desktop -- it
+  // just won't be visible. forceVkbd via ?vkbd=1 bypasses the
+  // preference for testing.
   const mobileKbdEnabled = prefs.mobileKeyboard !== false;
-  if ((mobileKbdEnabled || forceVkbd) && isMobileViewport) {
+  if (mobileKbdEnabled || forceVkbd) {
     mountVirtualKeyboard();
     const firstCh2 = Array.isArray(target) ? (target[0] && target[0][0]) : (target && target[0]);
     if (firstCh2) vkbdNext(firstCh2);
@@ -1216,6 +1250,8 @@ window.ttRandomMode = () => {
     { mode: "quote", quote: "short" },
     { mode: "quote", quote: "medium" },
     { mode: "quote", quote: "long" },
+    { mode: "idiom" },
+    { mode: "poem" },
     { mode: "zen" },
     { mode: "adaptive" },
   ];

@@ -22,9 +22,13 @@
         <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
       </button>
     </span>
+    <button type="button" class="mode-bar__btn" data-mode="idiom" data-tip="<strong>Idiom</strong><br>Random English idiom with its meaning.">idiom</button>
+    <button type="button" class="mode-bar__btn" data-mode="poem" data-tip="<strong>Poetry</strong><br>Random public-domain poem.">poem</button>
     <button type="button" class="mode-bar__btn" data-mode="zen" data-tip="<strong>Zen mode</strong><br>Untimed, endless. Press Esc to stop.">zen</button>
     <button type="button" class="mode-bar__btn" data-mode="custom" data-tip="<strong>Custom text</strong><br>Type your own pasted text or saved snippets.">custom</button>
     <button type="button" class="mode-bar__btn" data-mode="adaptive" data-tip="<strong>Adaptive mode</strong><br>Picker biased toward your weakest keys + bigrams.">adaptive</button>
+    <button type="button" class="mode-bar__btn" onclick="window.location.href='/drills/'" data-tip="<strong>Drills</strong><br>Browse and pick a key-cluster or bigram drill.">drills</button>
+    <button type="button" class="mode-bar__btn" onclick="window.location.href='/challenges/'" data-tip="<strong>Challenges</strong><br>Browse and pick a structured challenge with a goal.">challenges</button>
     <button type="button" class="mode-bar__btn mode-bar__btn--random" onclick="window.ttRandomMode && window.ttRandomMode()" data-tip="<strong>Random mode</strong><br>Surprise me with a random mode + variant.">random</button>
   </div>
 

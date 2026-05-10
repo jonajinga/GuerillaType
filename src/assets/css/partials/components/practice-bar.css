@@ -324,6 +324,10 @@ body[data-page="practice"] .site-main{padding-top:0}
   border-top-left-radius:0;border-bottom-left-radius:0;
   border-radius:var(--radius);border-top-left-radius:0;border-bottom-left-radius:0;
   cursor:pointer;
+  /* Make taps fire instantly on touch (no 300 ms wait, no double-
+     tap zoom). Without this the scroll container can swallow the
+     tap as a potential pan gesture. */
+  touch-action:manipulation;
   transition:color var(--t-fast), background var(--t-fast),
              border-color var(--t-fast), transform var(--t-fast);
 }
@@ -493,17 +497,23 @@ body[data-page="practice"] .site-main{padding-top:0}
      for a clean visual rhythm. Pointer-events:auto so they're tappable;
      tap scrolls the inner by 60% of the visible width. */
   .practice-bar__scroll{
-    position:absolute;top:50%;transform:translateY(-50%);
-    width:36px;height:44px;
+    /* Flush with the toolbar: no border, no shadow, no rounded
+       corners. The arrow reads as part of the bar's surface, not
+       a floating button on top of it. The bar background bleeds
+       through behind the icon. */
+    position:absolute;top:0;
+    width:44px;height:44px;
     display:none;align-items:center;justify-content:center;
-    background:color-mix(in oklab, var(--bg-1) 96%, transparent);
-    border:1px solid var(--rule);border-radius:var(--radius);
-    color:var(--fg-0);cursor:pointer;padding:0;
+    background:linear-gradient(90deg, transparent, var(--bg-1) 30%);
+    border:0;border-radius:0;
+    color:var(--fg-1);cursor:pointer;padding:0;
     z-index:2;
-    backdrop-filter:blur(8px);
-    -webkit-backdrop-filter:blur(8px);
-    box-shadow:0 1px 3px rgba(0,0,0,.25);
+    box-shadow:none;
   }
+  .practice-bar__scroll--next{
+    background:linear-gradient(270deg, transparent, var(--bg-1) 30%);
+  }
+  .practice-bar__scroll:hover{color:var(--accent)}
   .practice-bar__scroll[data-show="true"]{display:flex}
   .practice-bar__scroll--prev{left:.35rem}
   .practice-bar__scroll--next{right:.35rem}
