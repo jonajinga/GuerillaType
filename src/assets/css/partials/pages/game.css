@@ -146,14 +146,5 @@
     overflow:hidden;text-overflow:ellipsis;
     white-space:nowrap;
   }
-  .game-page{
-    /* Reserve bottom space for the always-on virtual keyboard. */
-    padding-bottom:calc(240px + var(--space-3));
-  }
   .game-howto{display:none}
-}
-/* Always reserve space for the keyboard on the game page since it
-   is always visible. */
-body[data-page="practice-game"] .game-page{
-  padding-bottom:calc(220px + var(--space-3));
 }

@@ -182,24 +182,23 @@ export class Renderer {
       return;
     }
 
-    // Tape mode: container scrolls horizontally so the caret
-    // sits near the 30 % mark. Uses native scrollLeft instead of
-    // transform -- works regardless of any !important transform
-    // rules elsewhere and gets free smooth-scroll behavior from
-    // the CSS scroll-behavior:smooth on the container.
+    // Tape mode: container scrolls horizontally so the typed char
+    // sits near the 30 % mark of the viewport. The caret is a
+    // position:absolute child of the scroll container, so its
+    // coordinates are in CONTENT space (they scroll with the
+    // inner). Setting caret.left = charContentX pins it to the
+    // char regardless of scroll progress.
     if (cont.classList.contains("tt-text--tape")) {
       const anchorX = cr.width * 0.3;
-      // Char position in the container's scrollable coordinate
-      // space (left of container = 0, regardless of scrollLeft).
-      // r.left is the char's viewport-left; cr.left is the
-      // container's viewport-left; adding the container's current
-      // scrollLeft gives the position in the inner's natural
-      // coordinate system.
       const charContentX = r.left - cr.left + cont.scrollLeft;
       const targetScroll = Math.max(0, charContentX - anchorX);
-      cont.scrollLeft = targetScroll;
-      this.caret.style.left = (charContentX - cont.scrollLeft) + "px";
+      // Set caret in content coords first so it tracks the char
+      // smoothly even while CSS smooth-scroll is animating.
+      this.caret.style.left = charContentX + "px";
       this.caret.style.top = (r.top - cr.top) + "px";
+      if (Math.abs(cont.scrollLeft - targetScroll) > 1) {
+        cont.scrollLeft = targetScroll;
+      }
       return;
     }
 

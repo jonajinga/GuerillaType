@@ -42,28 +42,38 @@ export async function renderContributionD3(svg, daily, panel, opts = {}) {
   const CELL = view === "week" ? 56 : (view === "month" ? 32 : 12);
   const GAP = view === "week" ? 8 : (view === "month" ? 4 : 2);
   const ROWS = view === "week" ? 1 : 7;
+  // Trim Sunday-padding BEFORE computing column count so the SVG
+  // width is sized to the actual cell count, not the padded
+  // pre-trim total. Without this the week view rendered a 21-day-
+  // wide viewBox but only painted the last 14 cells, leaving an
+  // empty trailing band.
+  if (view === "week") {
+    while (cells.length > 14) cells.shift();
+  }
   const cols = Math.ceil(cells.length / ROWS);
   const W = cols * (CELL + GAP) + 8;
   // Extra header room above for weekday labels, extra footer for
   // legend so it never overlaps the row of date labels above it.
   const H = ROWS * (CELL + GAP) + (view === "week" ? 70 : 56);
-  // Override .chart__svg { width: 100% } so the short views
-  // render at natural pixel size centered, not stretched.
-  svg.style.width = "auto";
-  svg.style.maxWidth = "100%";
-  svg.style.height = "auto";
-  svg.style.display = "block";
-  svg.style.marginInline = view !== "year" ? "auto" : "0";
+  // Override .chart__svg { width: 100% } so the short views render
+  // at natural pixel size, centered. Set explicit width/height
+  // pixels so the SVG resolves its size correctly -- without these
+  // (when CSS width is "auto") the browser falls back to the
+  // intrinsic 300x150 default and the chart looks tiny.
   svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  if (view === "year") {
+    svg.style.width = "100%";
+    svg.style.height = "auto";
+    svg.style.marginInline = "0";
+  } else {
+    svg.style.width = W + "px";
+    svg.style.height = H + "px";
+    svg.style.maxWidth = "100%";
+    svg.style.marginInline = "auto";
+  }
+  svg.style.display = "block";
   svg.innerHTML = "";
   const sel = d3.select(svg);
-  // For Week view, flatten cells to one row (1x14 strip) instead
-  // of 7x2 grid -- reads as a timeline of the past two weeks.
-  if (view === "week") {
-    // Use the last 14 cells, ignoring Sunday-padding so the strip
-    // is exactly 14 days ending today.
-    while (cells.length > 14) cells.shift();
-  }
 
   const maxChars = d3.max(cells, (c) => c.chars) || 1;
   const color = d3.scaleSequential()

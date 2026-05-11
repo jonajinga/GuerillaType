@@ -700,30 +700,12 @@ document.querySelectorAll(".game-mode-switch__btn").forEach((btn) => {
   });
 });
 
-// Virtual on-screen keyboard for the game -- mobile only.
-// Desktop users have a physical keyboard and don't need a tap
-// surface (and the user explicitly asked not to show it on
-// desktop). Mounts only when viewport <= 768 px.
-function wireVirtualKeyboardForGame() {
-  const isMobile = window.matchMedia && window.matchMedia("(max-width: 768px)").matches;
-  if (!isMobile) return;
-  window.__vkbdHandler = {
-    onChar: (ch) => {
-      input.value += ch;
-      input.dispatchEvent(new Event("input", { bubbles: true }));
-    },
-    onBackspace: () => {
-      if (!input.value) return;
-      input.value = input.value.slice(0, -1);
-      input.dispatchEvent(new Event("input", { bubbles: true }));
-    },
-  };
-  mountVirtualKeyboard();
-  document.body.classList.add("has-vkbd");
-}
-wireVirtualKeyboardForGame();
+// Mobile typing uses the OS soft keyboard. The game-input has
+// inputmode="text" so iOS / Android surface their native keyboard
+// when the user taps the field (or when startRound focuses it).
+// The custom virtual keyboard was previously mounted here but it
+// covered the falling-word stage on small screens and conflicted
+// with input focus, so the OS keyboard is the more reliable path.
 window.addEventListener("beforeunload", () => {
-  // Clean up the handler so other pages aren't affected.
   try { delete window.__vkbdHandler; } catch {}
-  unmountVirtualKeyboard();
 });

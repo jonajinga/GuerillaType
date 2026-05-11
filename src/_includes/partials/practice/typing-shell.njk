@@ -11,48 +11,16 @@
       {% include "partials/practice/mode-bar.njk" %}
     </div>
   </div>
-  {# Mobile-only scroll affordances. Anchored to the practice-bar so
-     they stay put while the inner content slides under them. JS shows
-     / hides them based on the inner's scrollLeft + scrollWidth. #}
-  <button type="button" class="practice-bar__scroll practice-bar__scroll--prev" id="tt-bar-prev" aria-label="Scroll toolbar left">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>
-  </button>
-  <button type="button" class="practice-bar__scroll practice-bar__scroll--next" id="tt-bar-next" aria-label="Scroll toolbar right">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+  {# Mobile-only "current mode" summary button. Hidden by default;
+     CSS shows it below 768 px. Tapping opens the full mode picker
+     bottom sheet (the same dropdown content already inside .mode-bar). #}
+  <button type="button" class="practice-bar__mobile-summary" id="tt-bar-mobile-summary" aria-label="Open mode picker" aria-haspopup="dialog" aria-expanded="false">
+    <span class="practice-bar__mobile-summary-label">Mode</span>
+    <span class="practice-bar__mobile-summary-value" id="tt-bar-mobile-summary-value">time · 30s · en-1k</span>
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
   </button>
   <div class="practice-bar__progress" id="tt-progress-fill" aria-hidden="true"></div>
 </div>
-<script>
-/* Practice-bar mobile scroll arrows. The inner strip is horizontally
-   scrollable on mobile; these chevrons let the user nudge it left or
-   right by a chip's worth at a tap. Visibility tracks scroll position. */
-(function(){
-  var bar = document.getElementById("tt-bar-inner");
-  var prev = document.getElementById("tt-bar-prev");
-  var next = document.getElementById("tt-bar-next");
-  if (!bar || !prev || !next) return;
-  function update(){
-    var max = bar.scrollWidth - bar.clientWidth;
-    if (max <= 4) { prev.dataset.show = "false"; next.dataset.show = "false"; return; }
-    prev.dataset.show = bar.scrollLeft > 4 ? "true" : "false";
-    next.dataset.show = bar.scrollLeft < max - 4 ? "true" : "false";
-  }
-  function nudge(dir){
-    bar.scrollBy({ left: dir * Math.max(120, bar.clientWidth * 0.6), behavior: "smooth" });
-  }
-  prev.addEventListener("click", function(){ nudge(-1); });
-  next.addEventListener("click", function(){ nudge(1); });
-  bar.addEventListener("scroll", update, { passive: true });
-  window.addEventListener("resize", update);
-  // Always start fully scrolled to the left so the user sees the
-  // mode chips first; the duration/source variants and stats follow
-  // after a swipe right.
-  bar.scrollLeft = 0;
-  // Initial paint after fonts/layout settle.
-  setTimeout(function(){ bar.scrollLeft = 0; update(); }, 50);
-  setTimeout(function(){ bar.scrollLeft = 0; update(); }, 300);
-})();
-</script>
 
 <div class="practice-page">
   {# Contextual back link — populated by practice-boot based on the

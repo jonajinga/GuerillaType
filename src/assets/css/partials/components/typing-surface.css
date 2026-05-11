@@ -3,52 +3,6 @@
 
 .tt-stage{position:relative;width:100%;max-width:1100px;margin:var(--space-5) auto;padding:var(--space-4);background:transparent}
 
-/* ── Tape mode: single horizontal line that scrolls left as the
-   caret advances. The text inner translates so the cursor stays
-   pinned near the left third of the viewport, like a typewriter
-   carriage. Fade masks on both edges so words flow in / out of
-   view cleanly. */
-.tt-text--tape{
-  display:block;width:100%;
-  /* The container scrolls horizontally; the inner sits at its
-     natural width. Hidden scrollbar so the tape reads as a
-     clean strip. scrollLeft is set imperatively from the
-     renderer when the caret needs to move past the anchor. */
-  overflow-x:auto;overflow-y:hidden;
-  white-space:nowrap;
-  padding:1.4rem 0;
-  font-size:var(--fs-700);font-family:var(--font-typing, var(--font-mono));
-  letter-spacing:.02em;line-height:1.4;
-  position:relative;
-  scroll-behavior:smooth;
-  scrollbar-width:none;
-  -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 4rem, #000 calc(100% - 4rem), transparent);
-  mask-image:linear-gradient(90deg, transparent 0, #000 4rem, #000 calc(100% - 4rem), transparent);
-}
-.tt-text--tape::-webkit-scrollbar{display:none}
-.tt-text--tape .tt-text__inner{
-  /* No transform -- the parent's scrollLeft does the scrolling
-     work. Inline-block so the inner's width follows its content
-     and the parent has something to scroll. */
-  display:inline-block;white-space:nowrap;
-  transform:none!important;
-}
-.tt-text--tape .tt-word{
-  display:inline-block;white-space:nowrap;margin-right:.6em;
-}
-.tt-text--tape .tt-char{display:inline-block}
-.tt-text--tape .tt-caret{
-  height:1.2em;width:2px;top:.18em;
-}
-/* Center band where the user is currently typing -- a faint
-   highlight strip behind the active word area. */
-.tt-text--tape::before{
-  content:"";position:absolute;
-  left:30%;top:0;bottom:0;width:4px;
-  background:color-mix(in oklab, var(--accent) 30%, transparent);
-  pointer-events:none;border-radius:2px;
-}
-
 .tt-stage__hint{text-align:center;color:var(--fg-2);font-size:var(--fs-200);margin-bottom:var(--space-3);letter-spacing:.04em;text-transform:uppercase}
 
 .tt-stage__hint[data-state="ready"]{color:var(--accent)}
@@ -146,6 +100,45 @@
   font-size:.95em;
 }
 .tt-char--paraspace{display:none}
+
+/* ── Tape mode: single horizontal line that scrolls left as the
+   caret advances. Doubled-class selectors so this beats the base
+   .tt-text rules (which clip height + hide overflow vertically). */
+.tt-text.tt-text--tape, html .tt-text.tt-text--tape{
+  display:block;width:100%;
+  height:auto !important;max-height:none !important;
+  overflow-x:auto !important;overflow-y:hidden !important;
+  white-space:nowrap;
+  padding:1.4rem 0;
+  font-size:var(--fs-700);
+  font-family:var(--font-typing, var(--font-mono));
+  letter-spacing:.02em;line-height:1.4;
+  position:relative;
+  scroll-behavior:smooth;
+  scrollbar-width:none;
+  -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 4rem, #000 calc(100% - 4rem), transparent) !important;
+  mask-image:linear-gradient(90deg, transparent 0, #000 4rem, #000 calc(100% - 4rem), transparent) !important;
+}
+.tt-text.tt-text--tape::-webkit-scrollbar{display:none}
+.tt-text.tt-text--tape .tt-text__inner{
+  display:inline-block;white-space:nowrap;
+  transform:none !important;
+  min-width:200%;
+}
+.tt-text.tt-text--tape .tt-word{
+  display:inline-block;white-space:nowrap;margin-right:.6em;
+}
+.tt-text.tt-text--tape .tt-char{display:inline-block}
+.tt-text.tt-text--tape .tt-caret{
+  height:1.2em;width:2px;top:.18em;
+}
+.tt-text.tt-text--tape::before{
+  content:"";position:absolute;
+  left:30%;top:0;bottom:0;width:4px;
+  background:color-mix(in oklab, var(--accent) 30%, transparent);
+  pointer-events:none;border-radius:2px;
+  z-index:1;
+}
 
 /* Contextual back link — appears above the typing surface, points
    to the page the user came from (book, quotes, idioms, parables,
