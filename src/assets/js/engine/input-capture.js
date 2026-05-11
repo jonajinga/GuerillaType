@@ -5,6 +5,14 @@
 export function attachInput(inputEl, host, handlers) {
   let imeActive = false;
   let lastValue = "";
+  /* When the keydown handler successfully dispatched a printable
+     char, stamp the time. The `input` event (which may also fire
+     on iOS even after preventDefault) checks this stamp -- if the
+     keydown JUST ran, the input event skips dispatch to avoid
+     double-firing. Only Android-style soft keyboards (where
+     keydown emits "Unidentified" / keyCode 229) fall through to
+     the input-event path. */
+  let lastKeydownCharAt = 0;
   // Tab+Enter restart. When the user presses
   // Tab on the typing surface, we arm a flag and show a "Press Enter
   // to restart" hint via handlers.onRestartArmed; if Enter follows
@@ -101,9 +109,14 @@ export function attachInput(inputEl, host, handlers) {
     handlers.onPaste && handlers.onPaste();
   });
 
-  // Primary keystroke channel.
+  // Primary keystroke channel. We used to early-return when
+  // imeActive=true, but iOS Safari's predictive bar holds the
+  // composition open across many keystrokes -- causing taps to
+  // silently disappear ("session feels paused"). The printable
+  // single-char filter below already rejects the keyCode-229
+  // "Unidentified" events that Android Chrome emits during IME,
+  // so dropping the imeActive guard is safe.
   inputEl.addEventListener("keydown", (e) => {
-    if (imeActive) return;
     // "?" is now scoped to non-input contexts in shortcuts.js, so it
     // passes through here as a normal printable character.
     // Backspace handled BEFORE the modifier early-return so Ctrl/Alt
@@ -146,21 +159,39 @@ export function attachInput(inputEl, host, handlers) {
     // Printable characters: e.key length 1 = single character; ' ' = space.
     if (e.key.length === 1) {
       e.preventDefault();
+      lastKeydownCharAt = performance.now();
       handlers.onChar && handlers.onChar(e.key, e.timeStamp || performance.now());
     }
   });
 
-  // Reject any insertFromPaste that escaped the paste handler.
+  // Mobile soft-keyboard fallback. Android Chrome (and iOS during
+  // IME composition) emits an `input` event but a keyDown with
+  // e.key="Unidentified" / keyCode 229 -- so the printable-char
+  // filter above drops the character. This handler picks those up
+  // by dispatching the newly typed text via onChar. iOS users who
+  // got their keystrokes through keydown won't double-fire because
+  // the input event arrives with inputEl.value="" (engine onChar
+  // already consumed + the engine's own keydown path cleared via
+  // `value=""` on each keystroke).
   inputEl.addEventListener("input", (e) => {
     if (e.inputType === "insertFromPaste") {
       inputEl.value = "";
       lastValue = "";
       handlers.onPaste && handlers.onPaste();
-    } else {
-      // Keep the input cleared so it never accumulates content.
-      lastValue = inputEl.value;
-      inputEl.value = "";
+      return;
     }
+    const text = inputEl.value || "";
+    // If a keydown printable just dispatched (< 50 ms ago), iOS
+    // double-emitted -- skip to avoid double-firing the engine.
+    // Otherwise this is an Android-style insertion (keyCode 229)
+    // that the keydown handler couldn't see; dispatch each char.
+    if (text && (performance.now() - lastKeydownCharAt) >= 50) {
+      for (const ch of text) {
+        handlers.onChar && handlers.onChar(ch, performance.now());
+      }
+    }
+    lastValue = "";
+    inputEl.value = "";
   });
 
   return { focus, isImeActive: () => imeActive };

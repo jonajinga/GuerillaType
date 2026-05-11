@@ -202,17 +202,19 @@ const megamenu = [
         items: [
           { chip: "🎮", label: "All games", url: "/games/", desc: "Every typing game in one place." },
           { chip: "C", label: "Catch the Word", url: "/practice/game/", desc: "Falling-word arcade driven by your missed-words list." },
+          { chip: "🎯", label: "Word Shooter", url: "/practice/game/?mode=shooter", desc: "Words drift sideways. Type to shoot them down before they leave." },
+          { chip: "∞", label: "Endless mode", url: "/practice/game/?mode=endless", desc: "Spawns forever, faster each catch. No 3-miss cap." },
           { chip: "C+", label: "Catch — speed 1.5x", url: "/practice/game/?speed=1.5", desc: "Same game, sped up. Quick warm-up." },
           { chip: "C++", label: "Catch — speed 2x", url: "/practice/game/?speed=2", desc: "Hard mode. Pixels fly." },
           { chip: "★", label: "High scores", url: "/stats/#mode-bests", desc: "Your best score + best streak per game." },
         ],
       },
       {
-        title: "More modes",
+        title: "Pitch + roadmap",
         items: [
-          { chip: "🎯", label: "Shooter mode", url: "/practice/game/?mode=shooter", desc: "Words drift sideways. Type to shoot them down." },
-          { chip: "∞", label: "Endless mode", url: "/practice/game/?mode=endless", desc: "Spawns forever, faster each catch. No 3-miss cap." },
-          { chip: "💡", label: "Suggest a game", url: "/contribute/game/", desc: "Pitch a typing mini-game." },
+          { chip: "💡", label: "Suggest a game", url: "/contribute/game/", desc: "Pitch a typing mini-game with mechanics + scoring." },
+          { chip: "🔭", label: "Game roadmap", url: "/roadmap/", desc: "What's coming next and what's been built." },
+          { chip: "🙏", label: "Why contribute", url: "/why-contribute/", desc: "The case for adding to a free, no-account practice surface." },
         ],
       },
       {

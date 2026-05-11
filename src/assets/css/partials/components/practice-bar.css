@@ -149,6 +149,13 @@ body[data-page="practice"] .site-main{padding-top:0}
   .practice-page .tt-stage{
     margin-top:0!important;padding-top:var(--space-4)!important;
   }
+  /* The practice-bar itself is z-index:40, which creates a stacking
+     context that traps every child below the header (z-index:50).
+     When the sheet is open, lift the whole bar above the header
+     and backdrop so the sheet's top edge is visible. */
+  body.is-mode-sheet-open .practice-bar{
+    z-index:1101 !important;
+  }
   /* When the summary chip is tapped open, surface the chip strip as
      a full bottom sheet with all options visible at once.
      The .practice-bar__modes is normally hidden on mobile; opening

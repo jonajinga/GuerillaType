@@ -154,8 +154,9 @@ function spawn() {
   if (gameMode === "shooter") {
     // Shooter: word enters from the left at a random vertical
     // band, drifts right. Off-stage to the right counts as a
-    // miss. vx = horizontal speed; vy = 0.
-    const y = 40 + Math.random() * (stageH - 80);
+    // miss. Vertical band stops above the input box (which
+    // overlays the bottom ~80 px of the stage).
+    const y = 40 + Math.random() * (stageH - 160);
     const vx = 40 + Math.random() * 30 + stats.caught * 0.8;
     falling.push({
       id: Math.random().toString(36).slice(2),
@@ -201,12 +202,17 @@ function frame(elapsed) {
   }
   // Miss check: falling words past bottom, shooter words past
   // the right edge.
+  // FLOOR_Y leaves room for the typing input box that sits over
+  // the bottom of the stage in screen flow. Without this margin
+  // words would visually slide INTO the input box before the
+  // miss-check fired, which read as a bug.
+  const FLOOR_Y = stageH - 80;
   const before = falling.length;
   falling = falling.filter((f) => {
     if (f.mode === "shooter") {
       if (f.x < stageW + 80) return true;
     } else {
-      if (f.y < stageH - 10) return true;
+      if (f.y < FLOOR_Y) return true;
     }
     stats.missed++;
     stats.streak = 0;
@@ -277,10 +283,10 @@ function tryCatch(typed) {
   // up points on stale entries left in the falling array.
   if (!running) return false;
   // Match the first falling word whose text equals typed AND is
-  // visibly on the stage. Without the y guard the user could
-  // earn credit for a word that just slid past the bottom edge
-  // (the frame's bottom-filter races with this handler).
-  const i = falling.findIndex((f) => f.word === typed && f.y > 0 && f.y < stageH - 10);
+  // visibly on the stage above the input box. Same FLOOR_Y as
+  // the miss-check so a word inside the input area can't be
+  // caught either (it should already be flagged missed).
+  const i = falling.findIndex((f) => f.word === typed && f.y > 0 && f.y < stageH - 80);
   if (i === -1) return false;
   const f = falling[i];
   // Remove from the active array immediately so the frame loop

@@ -116,14 +116,22 @@
   position:relative;
   scroll-behavior:smooth;
   scrollbar-width:none;
-  -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 4rem, #000 calc(100% - 4rem), transparent) !important;
-  mask-image:linear-gradient(90deg, transparent 0, #000 4rem, #000 calc(100% - 4rem), transparent) !important;
+  /* Right-edge fade only -- the left side used to fade too but
+     it ate the first word at scrollLeft=0. Words still fade out
+     cleanly on the right as the caret advances past them. */
+  -webkit-mask-image:linear-gradient(90deg, #000 0, #000 calc(100% - 4rem), transparent) !important;
+  mask-image:linear-gradient(90deg, #000 0, #000 calc(100% - 4rem), transparent) !important;
 }
 .tt-text.tt-text--tape::-webkit-scrollbar{display:none}
 .tt-text.tt-text--tape .tt-text__inner{
   display:inline-block;white-space:nowrap;
   transform:none !important;
-  min-width:200%;
+  /* Padding-left = anchor position so the first char sits AT the
+     30% mark from the very first frame. Without this, the first
+     word renders flush-left, awkwardly far from the caret anchor
+     until the user has typed enough to trigger a scroll. */
+  padding-left:30%;
+  min-width:170%;
 }
 .tt-text.tt-text--tape .tt-word{
   display:inline-block;white-space:nowrap;margin-right:.6em;
