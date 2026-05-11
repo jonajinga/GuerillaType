@@ -143,13 +143,9 @@
 .tt-text.tt-text--tape .tt-caret{
   height:1.2em;width:2px;top:.18em;
 }
-.tt-text.tt-text--tape::before{
-  content:"";position:absolute;
-  left:30%;top:0;bottom:0;width:4px;
-  background:color-mix(in oklab, var(--accent) 30%, transparent);
-  pointer-events:none;border-radius:2px;
-  z-index:1;
-}
+/* Caret-anchor indicator removed. The blinking text caret already
+   marks the fixed read position; the vertical accent bar was
+   redundant chrome that drew the eye away from the words. */
 
 /* Contextual back link — appears above the typing surface, points
    to the page the user came from (book, quotes, idioms, parables,

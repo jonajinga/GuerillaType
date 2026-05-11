@@ -97,7 +97,7 @@ function render() {
     </button>
     <button type="button" class="vkbd__key vkbd__key--mod ${capsCls}" data-action="caps" aria-label="Caps lock" aria-pressed="${caps ? "true" : "false"}">caps</button>
     <button type="button" class="vkbd__key vkbd__key--space" data-k=" " aria-label="Space">space</button>
-    <button type="button" class="vkbd__key vkbd__key--mod" data-action="enter" aria-label="Enter">&#x21B5;</button>
+    <button type="button" class="vkbd__key" data-k="." aria-label="Period">.</button>
   `;
   host.innerHTML = `
     <div class="vkbd__row">${r1}</div>
