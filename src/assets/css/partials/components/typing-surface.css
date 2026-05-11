@@ -122,18 +122,13 @@
 }
 .tt-text.tt-text--tape .tt-text__inner{
   display:inline-block;white-space:nowrap;
-  /* Slide left via translateX (set imperatively from the renderer
-     each keystroke). Padding-left starts the first char at the
-     anchor; transition smooths the per-char slide for a real
-     ticker feel. The renderer's math is transform-invariant
-     (anchored to char[0]'s cached pre-transform x) so mid-
-     animation reads don't corrupt subsequent slides. */
+  /* The renderer drives smoothness via a rAF-eased translateX
+     loop (see _startTapeAnim in renderer.js). A CSS transition
+     would get interrupted by every keystroke and produce jank;
+     the JS lerp re-targets the SAME animation each frame so
+     fast typing stays buttery. */
   padding-left:30%;
-  transition:transform 120ms cubic-bezier(.22,.61,.36,1);
   will-change:transform;
-}
-@media (prefers-reduced-motion: reduce){
-  .tt-text.tt-text--tape .tt-text__inner{transition:none}
 }
 .tt-text.tt-text--tape .tt-word{
   display:inline-block;white-space:nowrap;margin-right:.6em;

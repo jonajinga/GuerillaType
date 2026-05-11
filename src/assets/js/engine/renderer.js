@@ -78,7 +78,12 @@ export class Renderer {
     this.cursor = 0;
     this.scrollPx = 0;
     this._tapeShift = 0;
+    this._tapeTarget = 0;
     this._tapeChar0X = null;        // cached on first moveCaretTo
+    if (this._tapeAnimHandle) {
+      cancelAnimationFrame(this._tapeAnimHandle);
+      this._tapeAnimHandle = null;
+    }
     this.inner.style.transform = "";
     // Force layout so the very first getBoundingClientRect in
     // moveCaretTo sees the newly inserted spans (instead of a
@@ -198,13 +203,6 @@ export class Renderer {
     // expressed in the inner's pre-transform coordinate space).
     if (cont.classList.contains("tt-text--tape")) {
       const anchorX = cr.width * 0.3;
-      // Transform-invariant math: char0 and charN both shift by
-      // the same translateX, so (charN.left - char0.left) gives
-      // the pre-transform delta. We cache char0's pre-transform
-      // X on the first frame (when slide=0 is guaranteed) and use
-      // it as the anchor for every subsequent keystroke. This
-      // works regardless of any CSS padding/margin on the inner,
-      // and is stable mid-CSS-transition.
       const first = this.chars[0];
       if (!first || !first.el) {
         this.caret.style.left = "0px";
@@ -212,22 +210,22 @@ export class Renderer {
         return;
       }
       const fr = first.el.getBoundingClientRect();
+      // Cache char0's pre-transform x on the very first frame so
+      // subsequent reads stay correct regardless of any current
+      // transform on the inner.
       if (this._tapeChar0X == null) {
-        // First frame: slide is 0, transform is "", so fr.left -
-        // cr.left is the true pre-transform offset of char 0.
         this._tapeChar0X = fr.left - cr.left;
       }
+      // charN.left - char0.left is invariant under translateX
+      // (both shift identically), so this delta is stable mid-
+      // animation -- which lets the rAF interpolator below run
+      // smoothly without fighting the position math.
       const charPreX = this._tapeChar0X + (r.left - fr.left);
-      const slide = Math.max(0, charPreX - anchorX);
-      this._tapeShift = slide;
-      this.inner.style.transform = slide > 0 ? `translateX(-${slide}px)` : "";
-      // Caret is a child of the container; not transformed. Position
-      // it at the char's POST-transform viewport position (charPreX
-      // minus the slide). When slide is at the anchor, this lands on
-      // anchorX; when slide is clamped to 0 (early chars), the caret
-      // follows the char flush-left.
-      this.caret.style.left = (charPreX - slide) + "px";
-      this.caret.style.top = (r.top - cr.top) + "px";
+      const target = Math.max(0, charPreX - anchorX);
+      this._tapeTarget = target;
+      this._tapeAnchorTop = r.top - cr.top;
+      this._tapeCaretContentX = charPreX;
+      this._startTapeAnim();
       return;
     }
 
@@ -265,6 +263,38 @@ export class Renderer {
 
   setCaretStyle(style) {
     this.caret.className = "tt-caret tt-caret--" + style;
+  }
+
+  /* Tape-mode interpolator. Each keystroke updates _tapeTarget;
+     this rAF loop eases _tapeShift toward it. Fast typing feels
+     smooth because there's no CSS transition to restart -- the
+     same animation just retargets each frame. */
+  _startTapeAnim() {
+    if (this._tapeAnimHandle) return; // already running
+    const step = () => {
+      const target = this._tapeTarget || 0;
+      const current = this._tapeShift || 0;
+      const delta = target - current;
+      // Lerp factor 0.28 ~ 7-frame catch-up at 60fps. Tunable for
+      // feel. Cap the integer-rounded change at <=1px for the
+      // final approach so the inner doesn't sit ~0.3px off-target
+      // forever (sub-pixel rendering blurs the text).
+      let next;
+      if (Math.abs(delta) < 0.5) next = target;
+      else next = current + delta * 0.28;
+      this._tapeShift = next;
+      this.inner.style.transform = next > 0 ? `translateX(${-next}px)` : "";
+      // Caret tracks the typed char's POST-transform viewport x.
+      const caretX = (this._tapeCaretContentX || 0) - next;
+      this.caret.style.left = caretX + "px";
+      if (this._tapeAnchorTop != null) this.caret.style.top = this._tapeAnchorTop + "px";
+      if (next === target) {
+        this._tapeAnimHandle = null;
+        return;
+      }
+      this._tapeAnimHandle = requestAnimationFrame(step);
+    };
+    this._tapeAnimHandle = requestAnimationFrame(step);
   }
 
   destroy() {

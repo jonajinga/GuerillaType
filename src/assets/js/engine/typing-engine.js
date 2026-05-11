@@ -403,8 +403,12 @@ export class TypingEngine {
   }
 
   pauseTimer() {
-    // Used during IME. We freeze the clock by shifting startTs forward on resume.
-    this._pauseAt = performance.now();
+    // Definitive tap-to-type guard: if the user typed within the
+    // last 450ms, this pause request is almost certainly the soft
+    // keyboard accidentally hitting the Pause button. Refuse.
+    const now = performance.now();
+    if (this._lastTypedAt && (now - this._lastTypedAt) < 450) return;
+    this._pauseAt = now;
   }
   resumeTimer() {
     if (this._pauseAt) {

@@ -73,10 +73,16 @@
 .hero__cta-aux{
   margin-top:var(--space-3);color:var(--fg-2);font-size:var(--fs-200);
   font-family:var(--font-mono);letter-spacing:.02em;
+  /* Wrap to multiple lines cleanly on narrow viewports instead of
+     overflowing to the right. Each chip stays intact as a single
+     non-wrappable unit -- "30s test", "50 words", etc. */
+  display:flex;flex-wrap:wrap;align-items:baseline;
+  column-gap:.55rem;row-gap:.3rem;
 }
 .hero__cta-aux a{
   color:var(--fg-1);text-decoration:none;
   padding:.15rem .4rem;border-radius:var(--radius);
+  white-space:nowrap;
   transition:color var(--t-fast), background var(--t-fast);
 }
 .hero__cta-aux a:hover{color:var(--accent);background:var(--bg-2)}

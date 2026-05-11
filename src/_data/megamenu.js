@@ -210,11 +210,11 @@ const megamenu = [
         ],
       },
       {
-        title: "Pitch + roadmap",
+        title: "Pitch in",
         items: [
           { chip: "💡", label: "Suggest a game", url: "/contribute/game/", desc: "Pitch a typing mini-game with mechanics + scoring." },
-          { chip: "🔭", label: "Game roadmap", url: "/roadmap/", desc: "What's coming next and what's been built." },
           { chip: "🙏", label: "Why contribute", url: "/why-contribute/", desc: "The case for adding to a free, no-account practice surface." },
+          { chip: "★", label: "High scores", url: "/stats/#mode-bests", desc: "Your best score + best streak per game." },
         ],
       },
       {

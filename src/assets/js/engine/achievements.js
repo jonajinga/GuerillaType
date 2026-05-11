@@ -778,13 +778,18 @@ export const ACHIEVEMENTS = [
    weeks ago). */
 export function evaluate(profile, currentSession) {
   const have = new Set(profile.achievements || []);
-  const unlocked = [];
-  const earned = [];
+  const unlockedSet = new Set();
+  const earnedSet = new Set();
   for (const a of ACHIEVEMENTS) {
+    // Defensive dedupe: the catalog has grown over time and some
+    // ids ended up defined more than once. Skip any id we've
+    // already processed this pass so the celebration panel can
+    // never show the same achievement three times.
+    if (unlockedSet.has(a.id)) continue;
     let pass = false;
     try { pass = !!a.test(profile); } catch { pass = false; }
     if (!pass) continue;
-    unlocked.push(a.id);
+    unlockedSet.add(a.id);
     if (have.has(a.id)) continue;
     // Newly unlocked. Decide whether to celebrate it or absorb it
     // silently. If the achievement specifies a `requires` predicate
@@ -799,9 +804,9 @@ export function evaluate(profile, currentSession) {
       // unlocked so the grid shows it as earned.
       celebrate = false;
     }
-    if (celebrate) earned.push(a.id);
+    if (celebrate) earnedSet.add(a.id);
   }
-  return { unlocked, earned };
+  return { unlocked: [...unlockedSet], earned: [...earnedSet] };
 }
 
 export function byId(id) { return ACHIEVEMENTS.find((a) => a.id === id) || null; }
