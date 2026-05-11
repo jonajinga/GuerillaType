@@ -82,27 +82,14 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Network-first for JS modules. Static ES module imports inside
-  // practice-boot.js (renderer.js, typing-engine.js, input-capture.js,
-  // etc.) don't carry the ?v=cssVersion cache-bust we put on the
-  // top-level dynamic import. With cache-first + Cloudflare's
-  // immutable Cache-Control header, those modules can stay frozen
-  // for a year. Network-first forces a re-fetch each visit so a new
-  // build always wins. Falls back to cache when offline.
+  // JS modules: pass through to the browser entirely. The SW used
+  // to intercept these (network-first, then stale-while-revalidate)
+  // but on fresh-SW-install + slow-mobile-network the first JS
+  // fetch could time out and leave the page stuck on "Loading...".
+  // The browser handles JS modules natively per the 5-min
+  // must-revalidate header set in src/_headers -- that's enough
+  // freshness without any SW-side risk of hanging the boot path.
   if (url.pathname.startsWith("/assets/js/") && url.pathname.endsWith(".js")) {
-    event.respondWith((async () => {
-      try {
-        const fresh = await fetch(req);
-        if (fresh.ok) {
-          const cache = await caches.open(RUNTIME_CACHE);
-          cache.put(req, fresh.clone());
-        }
-        return fresh;
-      } catch {
-        const cached = await caches.match(req);
-        return cached || new Response("", { status: 504 });
-      }
-    })());
     return;
   }
 
