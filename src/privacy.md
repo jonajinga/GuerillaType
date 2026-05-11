@@ -23,16 +23,30 @@ All of it:
 
 This is in your browser's `localStorage` under keys prefixed `tt:`. Open dev tools → Application → Local Storage to see it. Clearing browser storage clears it.
 
-## Optional analytics
+## Optional aggregate analytics — currently active
 
-If the site operator has enabled them, this site may use:
+This site runs **[Umami](https://umami.is/)** — a privacy-friendly, cookieless aggregate analytics platform. The full dashboard is public: see [/analytics/](/analytics/) for the live view, no login required.
 
-- **Umami** — privacy-friendly, cookieless aggregate page-view analytics. No personal data, no cross-site tracking, no fingerprinting.
-- **Cloudflare Web Analytics** — Cloudflare's privacy-focused analytics. No cookies, no personal data, GDPR-friendly.
+**What Umami records:**
 
-Both are optional and disabled by default. Both can be blocked by any privacy extension; doing so does not affect the typing experience.
+- Page URL visited (e.g. `/practice/`).
+- Referrer URL (where you came from).
+- Browser + OS (e.g. "Chrome on macOS").
+- Screen size bucket.
+- Country (derived from IP, then IP discarded).
+- Event names + structural properties: which modes are picked, when sessions start / finish, which library books are opened, which settings get toggled. None of these include user-typed text, the actual quote / paragraph content, or any string the user input.
 
-See the [Analytics page](/analytics/) for a full breakdown of what each one collects.
+**What Umami does NOT record:**
+
+- Cookies (none — Umami uses anonymous hash-based session keys).
+- IP address (discarded after country lookup).
+- Name, email, account, or any persistent identifier.
+- Cross-site tracking. Nothing follows you off this domain.
+- Keystroke content or accuracy of individual characters.
+
+Umami can be blocked by any privacy extension or by adding `umami.is` to a host blocklist; doing so does not affect the typing experience.
+
+Cloudflare Web Analytics is wired in but disabled by default.
 
 ## Cookies
 

@@ -78,6 +78,40 @@ The engine watches every keystroke you've ever typed on this device and generate
 
 Use this once you've done a few sessions in any other mode and want to drill your weak spots.
 
+### Tape
+
+Single horizontal line of words that scrolls left as the caret advances. Reads like a ticker — your eye locks onto the current word and the next one slides into the anchor position. 15-second sprint by default.
+
+Use this when you want a focused, fast-burst session without the visual noise of multi-line wrapping.
+
+### Idiom + Poem
+
+Random English idiom (with meaning + region) or random public-domain poem. Each session draws a fresh item; tap the chevron next to the chip to open a length / era filter.
+
+Use these for literary variety — typing a Frost stanza or a Shakespearean sonnet beats yet another lorem-ipsum drill.
+
+## Games
+
+Three typing mini-games at [/games/](/games/), all driven by your missed-words list. The picker pulls from your top mistypes (weighted by miss count) so playing IS targeted practice.
+
+### Catch the Word
+
+Words fall from the top of the stage. Type each one before it hits the bottom. Three misses ends the round. A streak multiplier (1.5x → 5x) builds with consecutive catches and color-escalates from accent → orange → red.
+
+### Word Shooter
+
+Words drift across the screen from left to right. Type each to shoot it down before it leaves the frame. Plane-crash explosion animation on catch.
+
+### Endless
+
+Same falling-word mechanic as Catch, but no 3-miss cap. Spawn rate ramps faster. Stops when you stop. Personal high score saved per device.
+
+## Mobile
+
+On phones, the practice toolbar shrinks to two rows: live stats on top, a single "current mode" summary chip below (e.g. `time · 30s · en-1k`). Tap the chip to open a full bottom sheet with every mode, variant, and source on tap-friendly 44 px chips. Tap the chevron next to time / words / quote in the sheet to expand its options inline.
+
+Typing uses the OS soft keyboard (`inputmode="text"` on the input). Sessions never pause while you're typing — the engine refuses any pause request within 450 ms of the last keystroke.
+
 ## Lessons
 
 Twenty-four progressive lessons take you from two-key home-row drills to fluent typing across the full keyboard, common bigrams, numbers, punctuation, and capitals.
@@ -152,7 +186,7 @@ Total sessions completed, best wpm, best accuracy, current daily streak.
 
 ### Daily activity grid
 
-GitHub-style heatmap. 53 weeks × 7 days. Each cell is bucketed by total practice time that day: < 3 min, 3–10, 10–25, 25+.
+GitHub-style heatmap with a Year / Month / Week toggle. Cells are bucketed by total practice time that day. Click any cell to drill into that day's session list with an hourly heat strip showing exactly when you typed.
 
 ### WPM trend
 

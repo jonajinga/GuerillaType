@@ -14,14 +14,27 @@ cta:
 
 ## Practice modes
 
-Six core modes. Pick one from the toolbar above the typing surface, or land directly via deep-link from anywhere on the site.
+Pick one from the toolbar above the typing surface, or land directly via deep-link from anywhere on the site. On mobile, tap the "current mode" summary chip to open the full picker as a bottom sheet.
 
 - **Time** — type for 15, 30, 60, 120, or 300 seconds. The most common test format.
 - **Words** — type a fixed count of 10, 25, 50, or 100 words.
 - **Quote** — type a curated literary quote in short, medium, long, or "epic" length buckets.
+- **Tape** — single horizontal line of words that scrolls left as the caret advances. 15-second sprint by default; reads like a ticker.
+- **Idiom** — random English idiom with attribution.
+- **Poem** — random public-domain poem.
 - **Zen** — untimed, endless. Stop when you stop. Good for warm-ups.
 - **Adaptive** — generates words biased toward the keys and bigrams you struggle with most.
 - **Custom** — type your own text. Drop a `.txt`, paste a chapter, or save a URL.
+
+## Games
+
+Mini-games built on your missed-words list — sustained engagement when deliberate practice feels like a chore. Per-mode high scores saved locally.
+
+- **Catch the Word** — words fall from the top, type each one before it hits the bottom. Three misses ends the round.
+- **Word Shooter** — words drift across the screen horizontally; type each to shoot it down before it leaves the frame. Plane-crash explosion on catch.
+- **Endless** — no 3-miss cap, spawn rate ramps faster. Personal high score tracked.
+
+Visible combo multiplier (1.5x at 5 caught, 2x at 10, 3x at 20, 5x at 40) and score-pulse animation on every catch. "New best!" overlay at round end when you beat your record.
 
 ## Lessons
 
@@ -64,14 +77,20 @@ Drop a `.txt` or `.md` file, paste any text into the textarea, or fetch a URL. S
 
 ## Stats dashboard
 
-- **Lifetime totals** — sessions, characters typed, total practice time, best wpm, best accuracy, daily streak.
-- **WPM trend** — last 30 sessions, hand-rolled SVG line chart.
-- **Daily contribution grid** — 53 weeks × 7 days, GitHub-style heatmap of practice time.
-- **Keyboard heatmap** — per-key error rate or speed, toggleable, themed via CSS custom properties.
-- **Slowest keys** — top-12 horizontal bar chart sorted by avg key-down time.
-- **Recent sessions** — last 12 with mode, wpm, accuracy, consistency.
+D3-driven visualizations, lazy-loaded; hand-rolled SVG fallback if D3 fails to fetch.
 
-All visualizations are vanilla SVG. No chart library.
+- **Lifetime totals** — sessions, characters typed, total practice time, best wpm, best accuracy, daily streak.
+- **WPM trend** — last 30 sessions as a line + area chart with rolling-mean overlay.
+- **Daily activity** — Year / Month / Week toggle. Click any day cell to drill into that day's session list with hourly breakdown.
+- **Keyboard heatmap** — per-key error rate or speed, toggleable.
+- **Per-finger errors** — error rate × avg key time for all 10 fingers.
+- **Per-key bars** — slowest keys, sortable.
+- **Character report** — sortable per-character table: samples, errors, error %, avg ms, last seen.
+- **Lesson trends** — WPM line per lesson across attempts.
+- **Missed words** — top 20 words you struggle with most. "Practice these" CTA routes to the adaptive picker over missed-only.
+- **Recent sessions** — last 30 with mode, wpm, accuracy, sparklines.
+- **Achievements grid** — ~120 unlocks across speed, accuracy, streaks, volume, endurance, variety, mastery, time-of-day, easter eggs.
+- **Mode bests** — personal best wpm/accuracy per mode + duration.
 
 ## Profiles
 
@@ -83,7 +102,15 @@ Light + dark + system preference, with a no-flash inline script in `<head>`. Fou
 
 ## Privacy by default
 
-No accounts. No backend. No cookies. Everything lives in your browser's localStorage on this device. Privacy-friendly Umami and Cloudflare Web Analytics are optional and disabled by default.
+No accounts. No backend. No cookies. Everything lives in your browser's localStorage on this device. The site runs [Umami](https://umami.is/) for cookieless aggregate analytics — the full dashboard is public at [/analytics/](/analytics/). What's typed never leaves your browser.
+
+## Mobile
+
+- World-class toolbar: stats row + "current mode" summary chip that opens a bottom-sheet picker covering every mode, variant, and source.
+- OS soft keyboard typing on practice + games (`inputmode="text"`, never `inputmode="none"`).
+- Pause guard at the engine level — soft-keyboard taps can never pause mid-typing.
+- 44 × 44 px touch targets across every interactive element.
+- Service-worker auto-update: new builds reach phones without manual cache clears.
 
 ## Keyboard shortcuts
 

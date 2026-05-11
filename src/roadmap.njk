@@ -18,32 +18,38 @@ pageSlug: roadmap
 
 <h2 id="recently-shipped">Recently shipped</h2>
 <ul>
-  <li><strong>D3 across the stats page.</strong> WPM trend, per-finger viz, per-key sortable bars, calendar heatmap with day-detail drill-down, missed-words bar chart, recent-sessions list with sparklines, character report. All lazy-loaded; legacy fallback if D3 fails.</li>
+  <li><strong>Tape (ticker) mode.</strong> Single horizontal line of words that scrolls left as you type. JS rAF-driven slide for smooth motion; 15-second default sprint.</li>
+  <li><strong>Games depth.</strong> Word Shooter (horizontal drift) and Endless (no 3-miss cap) modes. Per-mode high scores in <code>profile.gameStats.byMode</code>. Visible combo multiplier (1.5x → 5x). Score-pulse animation. "New best!" overlay with personal-best chip on each round end.</li>
+  <li><strong>World-class mobile toolbar.</strong> Stats row + "current mode" summary chip. Tapping opens a 62 vh bottom sheet with every mode / variant / source. No more horizontal chip strip.</li>
+  <li><strong>Tap-to-type pause guard.</strong> <code>engine.pauseTimer()</code> itself refuses to pause within 450 ms of the last keystroke — soft-keyboard taps can't bleed onto the Pause button anymore.</li>
+  <li><strong>Umami analytics + public dashboard.</strong> ~50 named events covering session lifecycle, modes, library, lessons, challenges, settings, perf, errors. The full dashboard is embedded on <a href="/analytics/">/analytics/</a>.</li>
+  <li><strong>Red gorilla favicon.</strong> Brand mark re-colored to brand red across every PNG size.</li>
+  <li><strong>Service-worker auto-update.</strong> <code>updateViaCache:'none'</code> + <code>controllerchange</code> auto-reload — fresh builds reach users without manual cache clears.</li>
+  <li><strong>Achievements dedup.</strong> Celebration panel never shows the same achievement twice; <code>evaluate()</code> uses a Set.</li>
+  <li><strong>D3 across the stats page.</strong> WPM trend, per-finger viz, per-key sortable bars, calendar heatmap with day-detail drill-down, missed-words bar chart, recent-sessions list, character report. All lazy-loaded; legacy fallback if D3 fails.</li>
   <li><strong>Catch the Word game.</strong> Falling-word mini-game driven by your missed-words list. Per-char prefix coloring, streak multiplier, pixel-disintegration animation on catch.</li>
-  <li><strong>Mobile virtual keyboard.</strong> Optional tap-to-type keyboard that replaces the OS soft keyboard. QWERTY with shift, caps, numbers/symbols layer, next-expected-key highlight.</li>
-  <li><strong>Achievements expansion.</strong> 56 → ~120 unlocks across streaks, volume, speed, accuracy, time-of-day, endurance, variety, mastery, growth, and easter eggs.</li>
+  <li><strong>Achievements expansion.</strong> 56 → ~120 unlocks.</li>
   <li><strong>Content expansion.</strong> Quotes 452 → 874. Idioms 449 → 717. Poems 148 → 177. Books in library reached 290.</li>
-  <li><strong>Split-button mode chips.</strong> Time / Words / Quote / Idiom / Poem / Drills / Challenges all get chevron dropdowns for richer per-mode configuration.</li>
-  <li><strong>Universal auto-advance.</strong> 10-second countdown after any clean run; mode-aware navigation to the next quote/lesson/book page or in-place restart. Esc or Stop suppresses it.</li>
+  <li><strong>Universal auto-advance.</strong> 10-second countdown after any clean run.</li>
 </ul>
 
 <h2 id="in-flight">In flight</h2>
 <ul>
-  <li>Game Phase 2 — shooter mode (cursor-driven word targeting) and endless mode with persistent high score.</li>
-  <li>Umami analytics — privacy-respecting event tracking for session funnels, mode discovery, retention cohorts.</li>
+  <li>Adaptive lesson curriculum — weighted picker within each lesson's key set, not just Lesson 20.</li>
   <li>Numpad layout + drills for users who want to drill the number pad explicitly.</li>
+  <li>EPUB / PDF import on the custom page so users can type from their own ebooks.</li>
 </ul>
 
 <h2 id="planned">Planned</h2>
 <ul>
-  <li>Adaptive lesson curriculum — weighted picker within each lesson's key set, not just Lesson 20.</li>
   <li>Open lessons + "save as lesson" — turn any saved custom text into a replayable lesson with its own progress tracking.</li>
   <li>Live ticker — keystroke-by-keystroke pulse strip + rolling-WPM ribbon under the typing surface.</li>
   <li>Lesson trends — small-multiples grid showing WPM/accuracy improvement curves per lesson.</li>
   <li>Bigram chord diagram — visualize which bigrams chain into which trigrams.</li>
-  <li>EPUB / PDF import on the custom page so users can type from their own ebooks.</li>
   <li>Theme builder — pick your own background / text / accent tokens, save themes locally, export/import as JSON.</li>
   <li>Additional typing fonts — Fira Code, IBM Plex Mono, Iosevka, Cascadia Code as opt-in choices.</li>
+  <li>More games — Word Snake, Word Boss (single long target with health bar + countdown), Punctuation Storm.</li>
+  <li>Power-ups in games — bonus words that grant time-freeze or screen-clear.</li>
 </ul>
 
 <h2 id="deferred">Deferred</h2>
