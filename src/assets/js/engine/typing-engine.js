@@ -199,6 +199,10 @@ export class TypingEngine {
 
   onChar(ch, tsRaw) {
     const ts = performance.now();
+    // Stamp the very last keystroke so any pause path (notably the
+    // mobile soft-keyboard tap accidentally hitting the Pause button)
+    // can short-circuit when the user was clearly mid-typing.
+    this._lastTypedAt = ts;
     if (!this.running && !this.finished) this.beginRunning(ts);
     if (this.finished) return;
     this.totalKeystrokes++;

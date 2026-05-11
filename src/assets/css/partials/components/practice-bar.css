@@ -644,6 +644,10 @@ body:not(:has(#tt-stage[data-state="running"])) .tt-actions__btn--stop:hover{
        clean trio. */
     min-width:0;width:44px;height:44px;padding:0;
   }
+  /* Mobile: hide the Pause button entirely. Soft-keyboard taps were
+     bleeding onto it and accidentally pausing the session. Stop is
+     still available; users who want to break should hit Stop. */
+  .tt-actions__btn--pause{display:none !important}
   .tt-actions__btn{justify-content:center}
   .tt-actions__icon{display:block}
   .tt-actions__label{

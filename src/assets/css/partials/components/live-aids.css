@@ -92,22 +92,33 @@
 
 /* Ticker — keystroke pulse strip below the typing surface. */
 .live-ticker{
-  margin:var(--space-3) auto 0;max-width:760px;
+  margin:var(--space-3) auto 0;max-width:760px;width:100%;
+  box-sizing:border-box;
   padding:var(--space-3);background:var(--bg-1);
   border:1px solid var(--rule);border-radius:var(--radius);
   display:flex;align-items:center;gap:var(--space-3);
+  min-width:0;            /* let flex children below shrink past content */
+  overflow:hidden;        /* belt + suspenders -- no escape to the right */
 }
 .live-ticker[hidden]{display:none}
 .live-ticker__strip{
-  flex:1;display:flex;gap:2px;
+  flex:1 1 0;min-width:0;   /* min-width:0 is the actual fix for the
+                              right-edge overflow on mobile -- without
+                              it, flex children won't shrink below
+                              their content's intrinsic width. */
+  display:flex;gap:2px;
   height:24px;align-items:stretch;overflow:hidden;
   background:var(--bg-2);border:1px solid var(--rule);border-radius:var(--radius-sm);
   padding:2px;
 }
 .live-ticker__cell{
-  flex:1 1 auto;min-width:6px;
+  flex:1 1 0;min-width:2px;
   border-radius:1px;
   animation:tickerPulse 90ms ease-out;
+}
+@media (max-width:480px){
+  .live-ticker{padding:.5rem;gap:.5rem}
+  .live-ticker__wpm{min-width:5em;font-size:.7rem}
 }
 .live-ticker__cell.is-ok{background:var(--good)}
 .live-ticker__cell.is-bad{background:var(--bad)}

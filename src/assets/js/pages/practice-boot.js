@@ -1328,6 +1328,20 @@ async function boot() {
 window.ttPause = () => {
   const eng = window.__tt || engine;
   if (!eng) return;
+  // Definitive tap-to-type guard: if the user typed within the last
+  // 450 ms, this Pause "click" is almost certainly a soft-keyboard
+  // tap that bled onto the button. Refuse to pause -- AND if we're
+  // currently in a paused state we resume, because the user clearly
+  // never meant to pause in the first place.
+  const lastTyped = eng._lastTypedAt || 0;
+  const now = performance.now();
+  if (lastTyped && now - lastTyped < 450) {
+    if (eng._pauseAt) {
+      eng._userPaused = false;
+      eng.resumeTimer();
+    }
+    return;
+  }
   if (eng._pauseAt && eng._userPaused) {
     // Currently user-paused -- resume.
     eng._userPaused = false;
