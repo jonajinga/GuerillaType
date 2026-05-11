@@ -51,7 +51,13 @@
   overflow:visible !important;
   mask-image:none;-webkit-mask-image:none;
 }
-.tt-text--full .tt-text__inner{transform:none!important}
+/* Long-form modes don't slide the inner -- the entire passage is
+   visible and the caret pins to its char position. Scoped with
+   :not(.tt-text--tape) so a stale --full class can never override
+   tape's translateX. Dropping the previous `!important` is
+   intentional: that flag was the root of the tape-mode breakage
+   when both classes landed on the container at the same time. */
+.tt-text--full:not(.tt-text--tape) .tt-text__inner{transform:none}
 /* Defensive belt-and-braces: any other rule (mobile media queries,
    landscape clamps, container sizing) that tries to clamp .tt-text
    on a long-form session gets overridden. Long-form text MUST flow

@@ -71,6 +71,14 @@ export class TypingEngine {
     this.suspect = false;
     this.running = false;
     this.finished = false;
+    // Pause / typing-guard state. Initialized to 0 (not undefined)
+    // so the keystroke guard in pauseTimer() has well-defined
+    // arithmetic from the very first call -- otherwise the guard's
+    // `if (this._lastTypedAt && ...)` short-circuits on undefined
+    // and a pre-typing pause click slips through.
+    this._lastTypedAt = 0;
+    this._pauseAt = 0;
+    this._userPaused = false;
     this.mode = opts.mode || "time";
     this.duration = (opts.durationSec || 30) * 1000;
     this.wordsTarget = opts.words || 25;
@@ -171,6 +179,14 @@ export class TypingEngine {
     this.suspect = false;
     this.running = false;
     this.finished = false;
+    // Reset pause-related state on every new session so a stale
+    // pauseAt from a previous engine instance can't carry over.
+    // _lastTypedAt at 0 (not undefined) keeps the pauseTimer guard's
+    // arithmetic well-defined from the first keystroke onward.
+    this._lastTypedAt = 0;
+    this._pauseAt = 0;
+    this._userPaused = false;
+    this._erroredCursorSet = new Set();
     this.host.dataset.state = "ready";
     this.renderer.setText(this._paragraphs || this.target);
     this.updateLive(0, 100);

@@ -497,13 +497,19 @@ function startEngine(target) {
     onFinish: handleFinish,
     onRestart: () => boot(),
     onEscape: () => {
-      // Esc commits a partial session -- useful for zen, adaptive, or
-      // when the user wants to bail early and still save what they did.
-      // _stopped flag prevents auto-advance from kicking in.
-      if (engine && engine.running) {
-        engine._stopped = true;
-        engine.finish();
-      }
+      // Esc commits a session and pops the results modal, even if
+      // the user never typed a single keystroke. The previous logic
+      // only fired when `engine.running` (set on first keystroke),
+      // leaving the user stranded on a fresh practice surface with
+      // no way to back out. Mirrors window.ttFinish so the Stop
+      // button and Esc share the same permissive semantics.
+      if (!engine) return;
+      const st = stage.dataset.state;
+      if (st !== "running" && st !== "ready") return;
+      if (engine.startTs === 0) engine.startTs = performance.now();
+      if (engine._pauseAt) engine.resumeTimer();
+      engine._stopped = true;
+      engine.finish();
     },
   });
   engine.start(target);
@@ -1328,6 +1334,12 @@ async function boot() {
 window.ttPause = () => {
   const eng = window.__tt || engine;
   if (!eng) return;
+  // Pre-session guard: if the engine hasn't received a first
+  // keystroke yet (running === false), Pause is meaningless --
+  // there's nothing to pause. Reject so a soft-keyboard tap that
+  // bleeds onto the Pause button can't put the session in a
+  // pre-typing-paused state the user can't escape from.
+  if (!eng.running) return;
   // Definitive tap-to-type guard: if the user typed within the last
   // 450 ms, this Pause "click" is almost certainly a soft-keyboard
   // tap that bled onto the button. Refuse to pause -- AND if we're

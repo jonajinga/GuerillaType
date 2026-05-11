@@ -23,6 +23,14 @@ export class Renderer {
   }
 
   setText(target) {
+    // Defensive class cleanup: when tape mode is the new active
+    // mode, scrub any lingering --full / --reader class on the
+    // container. The toggles in practice-boot SHOULD already do
+    // this, but cross-class !important rules (typing-surface.css)
+    // make any leftover state catastrophic for tape's transform.
+    if (this.container.classList.contains("tt-text--tape")) {
+      this.container.classList.remove("tt-text--full", "tt-text--reader");
+    }
     // Build word-grouped spans; each char gets its own <span>.
     // If target is an array, treat each entry as a separate paragraph
     // and render with visible block breaks between them. The chars[]
@@ -181,26 +189,12 @@ export class Renderer {
     const cr = cont.getBoundingClientRect();
     let r = c.el.getBoundingClientRect();
 
-    // Full-text mode (book reader, custom, long quotes): the parent
-    // shows the entire passage, so we don't slide lines up — just
-    // pin the caret to the char's actual position. The sliding
-    // transform below was causing ghost jumps in paragraph-block mode.
-    if (cont.classList.contains("tt-text--full") || cont.classList.contains("tt-text--reader")) {
-      if (this.scrollPx !== 0) {
-        this.scrollPx = 0;
-        this.inner.style.transform = "";
-      }
-      this.caret.style.left = (r.left - cr.left) + "px";
-      this.caret.style.top = (r.top - cr.top) + "px";
-      return;
-    }
-
-    // Tape mode: the inner slides left via translateX so the
-    // typed char sits near the 30 % mark of the viewport. Avoids
-    // the smooth-scroll / scrollLeft race conditions we hit with
-    // overflow-x:auto. Caret is positioned absolutely inside the
-    // container and follows the inner's transform (its `left` is
-    // expressed in the inner's pre-transform coordinate space).
+    // Tape mode FIRST -- the tape class is mutually exclusive with
+    // --full and --reader, but if a stale class lingers from a prior
+    // session (mode switch, restart), checking tape first guarantees
+    // the tape branch runs and the user sees scrolling. The previous
+    // ordering would short-circuit on a leftover --reader class and
+    // emit translateY(0) instead of tape's translateX.
     if (cont.classList.contains("tt-text--tape")) {
       const anchorX = cr.width * 0.3;
       const first = this.chars[0];
@@ -226,6 +220,20 @@ export class Renderer {
       this._tapeAnchorTop = r.top - cr.top;
       this._tapeCaretContentX = charPreX;
       this._startTapeAnim();
+      return;
+    }
+
+    // Full-text mode (book reader, custom, long quotes): the parent
+    // shows the entire passage, so we don't slide lines up — just
+    // pin the caret to the char's actual position. The sliding
+    // transform below was causing ghost jumps in paragraph-block mode.
+    if (cont.classList.contains("tt-text--full") || cont.classList.contains("tt-text--reader")) {
+      if (this.scrollPx !== 0) {
+        this.scrollPx = 0;
+        this.inner.style.transform = "";
+      }
+      this.caret.style.left = (r.left - cr.left) + "px";
+      this.caret.style.top = (r.top - cr.top) + "px";
       return;
     }
 
