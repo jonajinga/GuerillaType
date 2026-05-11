@@ -70,6 +70,16 @@
 }
 .hero__cta-hint{color:var(--fg-2);font-size:var(--fs-200);display:flex;align-items:center;gap:.5rem}
 .hero__cta-hint kbd{background:var(--bg-2);border:1px solid var(--rule);padding:.05em .35em;font-size:.85em;border-radius:var(--radius-sm);font-family:var(--font-mono)}
+.hero__cta-aux{
+  margin-top:var(--space-3);color:var(--fg-2);font-size:var(--fs-200);
+  font-family:var(--font-mono);letter-spacing:.02em;
+}
+.hero__cta-aux a{
+  color:var(--fg-1);text-decoration:none;
+  padding:.15rem .4rem;border-radius:var(--radius);
+  transition:color var(--t-fast), background var(--t-fast);
+}
+.hero__cta-aux a:hover{color:var(--accent);background:var(--bg-2)}
 
 /* Two-up: copy + featured. */
 .hero--split{display:grid;grid-template-columns:1fr;gap:var(--space-5)}
