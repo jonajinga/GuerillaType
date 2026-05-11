@@ -448,6 +448,9 @@ function startRound() {
   startBtn.hidden = true;
   pauseBtn.hidden = false;
   resetBtn.hidden = false;
+  // Wipe the pre-round hint so it doesn't sit behind the falling
+  // words. paintHint() is a no-op when running=true.
+  if (svgSel) svgSel.selectAll("g.stage-hint").remove();
   Analytics.gameStart({ mode: gameMode, speed: speedMult });
   d3.timer(frame);
 }
@@ -589,7 +592,15 @@ resetBtn.addEventListener("click", () => {
 });
 
 // Pre-warm D3 in the background so the first click is instant.
-loadD3().then((m) => { if (m) { d3 = m; svgSel = d3.select("#game-svg"); }});
+loadD3().then((m) => {
+  if (m) {
+    d3 = m;
+    svgSel = d3.select("#game-svg");
+    // Once D3 is ready, paint the initial pre-round hint so the
+    // user sees mode-specific directions before tapping Start.
+    paintHint();
+  }
+});
 
 /* Game-mode switch buttons. Tabs across the top let the user
    flip between classic / endless / shooter without reloading.
@@ -598,15 +609,18 @@ loadD3().then((m) => { if (m) { d3 = m; svgSel = d3.select("#game-svg"); }});
 const MODE_COPY = {
   classic: {
     title: "Catch the Word",
-    subtitle: "Type the falling words before they hit the bottom. Three misses ends the round.",
+    subtitle: "Type the falling words before they hit the bottom. Three misses ends the round. Picker is weighted toward words you've mistyped before.",
+    hint: "Tap Start when you're ready. Words fall from the top; type each one (or finish with a space). Three misses ends the round.",
   },
   endless: {
     title: "Catch the Word — Endless",
-    subtitle: "No three-miss cap. Spawns forever, faster each catch. Score persists to your profile.",
+    subtitle: "No three-miss cap. Words spawn forever and accelerate with every catch. Round ends only when you walk away.",
+    hint: "Tap Start. Words spawn faster + fall faster the longer you survive. Use Pause for breathers; high score saves to your profile.",
   },
   shooter: {
     title: "Word Shooter",
-    subtitle: "Words drift across the screen left to right. Type each one to shoot it before it leaves the frame.",
+    subtitle: "Words drift across the screen left to right. Type each one to shoot it before it exits the right edge. Three misses ends the round.",
+    hint: "Tap Start. Type each word as it drifts toward the right edge -- catching one sends it nosediving into a pixel-shrapnel explosion at the bottom.",
   },
 };
 function applyModeCopy() {
@@ -618,6 +632,53 @@ function applyModeCopy() {
   document.querySelectorAll(".game-mode-switch__btn").forEach((btn) => {
     btn.classList.toggle("is-active", btn.dataset.gameMode === gameMode);
   });
+  // Paint the in-stage hint that shows BEFORE the round starts.
+  // Once the round is running the hint clears so it doesn't sit
+  // behind the falling words.
+  paintHint();
+}
+function paintHint() {
+  if (!svgSel) return;
+  svgSel.selectAll("g.stage-hint").remove();
+  if (running) return;
+  const c = MODE_COPY[gameMode] || MODE_COPY.classic;
+  const hint = svgSel.append("g").attr("class", "stage-hint");
+  hint.append("text")
+    .attr("x", stageW / 2).attr("y", stageH / 2 - 6)
+    .attr("text-anchor", "middle")
+    .attr("fill", "var(--fg-2)")
+    .attr("font-family", "var(--font-mono)")
+    .attr("font-size", "14")
+    .attr("style", "max-width: 70%")
+    .text(c.title);
+  // Word-wrap the hint text into 2-3 lines manually since SVG
+  // doesn't support text-wrap. Split on word boundaries near
+  // ~52 chars per line.
+  const lines = wrapForSvg(c.hint, 52);
+  lines.forEach((line, i) => {
+    hint.append("text")
+      .attr("x", stageW / 2).attr("y", stageH / 2 + 22 + i * 18)
+      .attr("text-anchor", "middle")
+      .attr("fill", "var(--fg-3)")
+      .attr("font-family", "var(--font-mono)")
+      .attr("font-size", "12")
+      .text(line);
+  });
+}
+function wrapForSvg(s, maxChars) {
+  const words = s.split(" ");
+  const lines = [];
+  let cur = "";
+  for (const w of words) {
+    if ((cur + " " + w).trim().length > maxChars && cur) {
+      lines.push(cur);
+      cur = w;
+    } else {
+      cur = (cur ? cur + " " : "") + w;
+    }
+  }
+  if (cur) lines.push(cur);
+  return lines;
 }
 applyModeCopy();
 document.querySelectorAll(".game-mode-switch__btn").forEach((btn) => {

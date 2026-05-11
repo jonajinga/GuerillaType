@@ -91,11 +91,14 @@ export class TypingEngine {
       onRestart: () => this.restart(),
       onEscape: () => this.escape(),
       onPaste: () => toast("Paste disabled — practice the keys.", "bad"),
-      onImeStart: () => this.pauseTimer(),
-      onImeEnd: () => this.resumeTimer(),
-      // Pause the clock when the input loses focus, resume on focus.
-      // The session pauses without ending so users can step away briefly.
-      onBlur: () => { if (this.running) this.pauseTimer(); },
+      // IME + blur paths no longer auto-pause. Mobile browsers
+      // fire compositionstart on programmatic input.value writes
+      // (virtual keyboard taps) which was the last remaining
+      // accidental-pause source. Pause now happens via the
+      // Pause button or Esc -- nowhere else.
+      onImeStart: () => {},
+      onImeEnd: () => {},
+      onBlur: () => {},
       onFocus: () => {
         // Don't auto-resume when the user explicitly hit Pause.
         // Without this, the virtual-keyboard refocus cycle (or

@@ -182,28 +182,23 @@ export class Renderer {
       return;
     }
 
-    // Tape mode: single horizontal line that scrolls left so the
-    // caret stays near the 30 % mark of the container once typed
-    // text has moved past that point. translateX is set via
-    // setProperty with !important so any conflicting CSS rule
-    // (notably the tt-text--full transform:none!important) can't
-    // strip it.
+    // Tape mode: container scrolls horizontally so the caret
+    // sits near the 30 % mark. Uses native scrollLeft instead of
+    // transform -- works regardless of any !important transform
+    // rules elsewhere and gets free smooth-scroll behavior from
+    // the CSS scroll-behavior:smooth on the container.
     if (cont.classList.contains("tt-text--tape")) {
       const anchorX = cr.width * 0.3;
-      const innerBox = this.inner.getBoundingClientRect();
-      // Char's position relative to the inner element BEFORE any
-      // additional transform is applied. Since translateX shifts
-      // both inner + char equally, the delta is invariant under
-      // the current transform.
-      const charInInner = r.left - innerBox.left;
-      let translateX = 0;
-      let caretLeft = charInInner;
-      if (charInInner > anchorX) {
-        translateX = -(charInInner - anchorX);
-        caretLeft = anchorX;
-      }
-      this.inner.style.setProperty("transform", `translateX(${translateX}px)`, "important");
-      this.caret.style.left = caretLeft + "px";
+      // Char position in the container's scrollable coordinate
+      // space (left of container = 0, regardless of scrollLeft).
+      // r.left is the char's viewport-left; cr.left is the
+      // container's viewport-left; adding the container's current
+      // scrollLeft gives the position in the inner's natural
+      // coordinate system.
+      const charContentX = r.left - cr.left + cont.scrollLeft;
+      const targetScroll = Math.max(0, charContentX - anchorX);
+      cont.scrollLeft = targetScroll;
+      this.caret.style.left = (charContentX - cont.scrollLeft) + "px";
       this.caret.style.top = (r.top - cr.top) + "px";
       return;
     }

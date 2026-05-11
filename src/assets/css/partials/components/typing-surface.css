@@ -10,17 +10,28 @@
    view cleanly. */
 .tt-text--tape{
   display:block;width:100%;
-  overflow:hidden;white-space:nowrap;
+  /* The container scrolls horizontally; the inner sits at its
+     natural width. Hidden scrollbar so the tape reads as a
+     clean strip. scrollLeft is set imperatively from the
+     renderer when the caret needs to move past the anchor. */
+  overflow-x:auto;overflow-y:hidden;
+  white-space:nowrap;
   padding:1.4rem 0;
   font-size:var(--fs-700);font-family:var(--font-typing, var(--font-mono));
   letter-spacing:.02em;line-height:1.4;
   position:relative;
+  scroll-behavior:smooth;
+  scrollbar-width:none;
   -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 4rem, #000 calc(100% - 4rem), transparent);
   mask-image:linear-gradient(90deg, transparent 0, #000 4rem, #000 calc(100% - 4rem), transparent);
 }
+.tt-text--tape::-webkit-scrollbar{display:none}
 .tt-text--tape .tt-text__inner{
+  /* No transform -- the parent's scrollLeft does the scrolling
+     work. Inline-block so the inner's width follows its content
+     and the parent has something to scroll. */
   display:inline-block;white-space:nowrap;
-  transition:transform .12s linear;
+  transform:none!important;
 }
 .tt-text--tape .tt-word{
   display:inline-block;white-space:nowrap;margin-right:.6em;
