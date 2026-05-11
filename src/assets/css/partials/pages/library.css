@@ -124,7 +124,6 @@
   font-family:var(--font-mono);font-size:.78rem;color:var(--fg-2);letter-spacing:.04em;
 }
 .book-header__meta strong{color:var(--accent);font-family:var(--font-display);font-size:var(--fs-400);font-weight:500}
-.book-header__progress{margin-left:auto;color:var(--accent)}
 .book-header__actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:var(--space-4)}
 
 /* Reader and header share the same 880px max-width and the same
@@ -255,6 +254,9 @@
   display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);
   flex-wrap:wrap;margin-top:var(--space-5);padding-top:var(--space-4);
   border-top:1px solid var(--rule);
+}
+.book-reader__footer-actions{
+  display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;
 }
 .book-reader__hint{font-family:var(--font-mono);font-size:.78rem;letter-spacing:.04em}
 

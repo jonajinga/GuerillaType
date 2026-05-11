@@ -18,7 +18,7 @@ eleventyComputed:
     <span><strong>{{ book.chapterCount }}</strong> chapter{% if book.chapterCount != 1 %}s{% endif %}</span>
     <span><strong>{{ book.paragraphCount }}</strong> paragraphs</span>
     <span><strong>{{ (book.charCount / 1000) | round }}k</strong> chars</span>
-    <span class="book-header__progress" id="book-progress">0% read</span>
+    <span><strong id="book-progress">0%</strong> read</span>
   </div>
   <div class="book-header__actions">
     <a class="btn" href="/library/">← All books</a>
@@ -49,7 +49,10 @@ eleventyComputed:
   <article class="book-reader__page-content" id="book-page-content" aria-live="polite"></article>
 
   <footer class="book-reader__footer">
-    <button type="button" class="btn btn--primary" id="book-type-page">Type this page</button>
+    <div class="book-reader__footer-actions">
+      <button type="button" class="btn btn--primary" id="book-type-page">Type this page</button>
+      <button type="button" class="btn btn--ghost btn--small" id="book-reset-page" hidden data-tip="Clear progress for every paragraph on this page. The rest of the book is untouched.">Reset page</button>
+    </div>
     <span class="muted book-reader__hint">Or click any paragraph above to type just that one.</span>
   </footer>
 </div>
@@ -77,6 +80,7 @@ eleventyComputed:
   const prevBtn = document.getElementById("book-prev-page");
   const nextBtn = document.getElementById("book-next-page");
   const typeBtn = document.getElementById("book-type-page");
+  const resetPageBtn = document.getElementById("book-reset-page");
   const resumeBtn = document.getElementById("book-resume");
   const resetBtn = document.getElementById("book-reset");
   const progressEl = document.getElementById("book-progress");
@@ -148,7 +152,13 @@ eleventyComputed:
         resetParagraph(pid);
       });
     });
-    progressEl.textContent = `${totalProgress()}% read`;
+    progressEl.textContent = `${totalProgress()}%`;
+    // Show the "Reset page" button only when at least one paragraph
+    // on the visible page has been typed -- otherwise it's a no-op.
+    if (resetPageBtn) {
+      const anyTyped = paras.some((p) => isTyped(chapterIx, p.id));
+      resetPageBtn.hidden = !anyTyped;
+    }
     location.hash = `ch=${chapterIx}&page=${pageIx}`;
   }
 
@@ -168,6 +178,29 @@ eleventyComputed:
       return p;
     });
     if (prog.typed) delete prog.typed[key];
+    paint();
+  }
+
+  async function resetCurrentPage() {
+    const paras = paragraphsForPage(chapterIx, pageIx);
+    const keys = paras
+      .map((p) => `${chapterIx}:${p.id}`)
+      .filter((k) => prog.typed && prog.typed[k]);
+    if (!keys.length) return;
+    const ok = await confirmModal({
+      title: "Reset this page?",
+      message: `${keys.length} paragraph${keys.length === 1 ? "" : "s"} on this page will be marked untyped. Rest of the book stays.`,
+      confirmLabel: "Reset page",
+      danger: true,
+    });
+    if (!ok) return;
+    updateActive((p) => {
+      if (p.bookProgress && p.bookProgress[slug] && p.bookProgress[slug].typed) {
+        for (const k of keys) delete p.bookProgress[slug].typed[k];
+      }
+      return p;
+    });
+    for (const k of keys) delete prog.typed[k];
     paint();
   }
 
@@ -204,6 +237,7 @@ eleventyComputed:
   nextBtn.addEventListener("click", nextPage);
   prevBtn.addEventListener("click", prevPage);
   typeBtn.addEventListener("click", typePage);
+  if (resetPageBtn) resetPageBtn.addEventListener("click", resetCurrentPage);
   resumeBtn.addEventListener("click", () => {
     // Find the first un-typed paragraph and drop the user straight
     // into a typing session for that page. If the book is finished,
