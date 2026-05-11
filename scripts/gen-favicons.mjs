@@ -75,27 +75,32 @@ const fullRaw = await sharp(resolve(imgDir, "Guerilla Type Favicon.png"))
 const W = fullRaw.info.width;
 const H = fullRaw.info.height;
 
-// 1) Recolor pass. Treat near-white pixels (likely the original
-//    background) AND already-transparent pixels as transparent so
-//    the gorilla floats on whatever surface it lands on. Opaque
-//    non-white pixels get recolored by luminance into the red
-//    palette.
+// 1) Recolor pass. The source PNG's "background" is opaque grayish-
+//    cream (~225) rather than transparent, so an a<16 check alone
+//    won't strip it. Use a LUMINANCE threshold: anything lighter
+//    than ~190 is treated as background (transparent in output).
+//    Anything darker becomes part of the gorilla and gets one of
+//    three red shades by luminance band. Alpha is also blended
+//    by depth (darker = more opaque) so the figure's edges fade
+//    cleanly instead of clipping.
 const redBuf = Buffer.alloc(fullRaw.data.length);
-function isBackgroundPixel(r, g, b, a) {
-  if (a < 16) return true;
-  // Very light pixels (cream / off-white) -- treat as background.
-  return r > 235 && g > 230 && b > 215;
-}
+const BG_LUM = 190;     // pixels brighter than this = background
+const SOLID_LUM = 100;  // darker than this = fully opaque
 for (let i = 0; i < fullRaw.data.length; i += 4) {
   const r = fullRaw.data[i], g = fullRaw.data[i + 1], b = fullRaw.data[i + 2];
   const a = fullRaw.data[i + 3];
-  if (isBackgroundPixel(r, g, b, a)) {
+  const lum = r * 0.299 + g * 0.587 + b * 0.114;
+  if (a < 16 || lum >= BG_LUM) {
     redBuf[i] = 0; redBuf[i+1] = 0; redBuf[i+2] = 0; redBuf[i+3] = 0;
     continue;
   }
-  const lum = r * 0.299 + g * 0.587 + b * 0.114;
-  const c = lum < 60 ? RED_DEEP : lum < 150 ? RED_MID : RED_DIM;
-  redBuf[i]   = c[0]; redBuf[i+1] = c[1]; redBuf[i+2] = c[2]; redBuf[i+3] = 255;
+  const c = lum < 60 ? RED_DEEP : lum < 120 ? RED_MID : RED_DIM;
+  // Soft alpha ramp for the antialiased edge band (lum 100..190).
+  let alpha = 255;
+  if (lum > SOLID_LUM) {
+    alpha = Math.round(255 * (1 - (lum - SOLID_LUM) / (BG_LUM - SOLID_LUM)));
+  }
+  redBuf[i] = c[0]; redBuf[i+1] = c[1]; redBuf[i+2] = c[2]; redBuf[i+3] = alpha;
 }
 
 // 2) Find the tight bounding box of opaque pixels so the gorilla
