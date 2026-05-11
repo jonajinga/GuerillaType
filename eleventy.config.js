@@ -100,6 +100,7 @@ const CSS_ORDER = [
   "pages/blog.css",
   "pages/analytics.css",
   "pages/community-stats.css",
+  "components/analytics-charts.css",
   "print.css",
 ];
 

@@ -193,6 +193,46 @@ snapshot.fastTypists = {
 
 console.log(`[umami-stats] derived: wpmMean=${snapshot.wpmSummary.mean}, accMean=${snapshot.accSummary.mean}, fast60+=${snapshot.fastTypists["60+"]}%`);
 
+// ── Site dimensions for the /analytics/ dashboard ────────────────
+// Pull top metrics across each Umami dimension. These power the
+// D3 charts on the operator-facing dashboard.
+async function metric(type, limit = 12) {
+  try {
+    const rows = await get(`/websites/${SITE}/metrics?startAt=${START}&endAt=${END}&type=${type}&limit=${limit}`);
+    return (rows || []).map((r) => ({ label: r.x || "(unknown)", count: r.y || 0 }));
+  } catch (e) {
+    console.warn(`  metric ${type} failed:`, e.message);
+    return [];
+  }
+}
+
+// Pageview time series -- daily buckets across the window.
+async function pageviewSeries() {
+  try {
+    // The /pageviews endpoint returns two parallel series:
+    // pageviews (visits) and sessions (visitors). Each is
+    // [{ x: timestamp, y: count }]. Unit=day gives a clean daily
+    // series we can line-chart with D3.
+    const rows = await get(`/websites/${SITE}/pageviews?startAt=${START}&endAt=${END}&unit=day&timezone=UTC`);
+    return rows;
+  } catch (e) {
+    console.warn("  pageviews series failed:", e.message);
+    return null;
+  }
+}
+
+snapshot.dimensions = {
+  pages: await metric("url", 12),
+  countries: await metric("country", 12),
+  devices: await metric("device", 6),
+  browsers: await metric("browser", 8),
+  os: await metric("os", 8),
+  referrers: await metric("referrer", 10),
+  topEvents: await metric("event", 15),
+};
+snapshot.pageviewSeries = await pageviewSeries();
+console.log(`[umami-stats] dashboard dims: ${Object.entries(snapshot.dimensions).map(([k, v]) => `${k}=${v.length}`).join(" ")}`);
+
 try {
   await mkdir(dirname(OUT_FILE), { recursive: true });
   await writeFile(OUT_FILE, JSON.stringify(snapshot, null, 2));

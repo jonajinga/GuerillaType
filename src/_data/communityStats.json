@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-05-11T18:49:33.687Z",
+  "updatedAt": "2026-05-11T19:17:59.492Z",
   "updatedAtDate": "2026-05-11",
   "windowDays": 365,
   "site": {
-    "pageviews": 489,
-    "visitors": 9,
-    "visits": 19,
+    "pageviews": 561,
+    "visitors": 13,
+    "visits": 25,
     "bounces": 4,
-    "totaltime": 22764,
+    "totaltime": 25043,
     "comparison": {
       "pageviews": 0,
       "visitors": 0,
@@ -17,37 +17,46 @@
     }
   },
   "wpm": {
-    "0-10": 4,
+    "0-10": 5,
+    "20-30": 4,
+    "30-40": 4,
+    "10-20": 2,
     "50-60": 2,
     "70-80": 1,
     "90-100": 1
   },
   "acc": {
-    "<80": 3,
-    "85-90": 2,
-    "94-95": 1,
-    "95-96": 1,
-    "99-100": 1
+    "<80": 4,
+    "99-100": 4,
+    "92-94": 3,
+    "85-90": 3,
+    "94-95": 2,
+    "98-99": 1,
+    "90-92": 1,
+    "95-96": 1
   },
   "wpmByMode": {
-    "tape": 3,
-    "book": 2,
+    "tape": 9,
+    "book": 4,
+    "words": 2,
+    "time": 2,
     "custom": 1,
-    "words": 1,
-    "time": 1
+    "quote": 1
   },
   "accByMode": {
-    "tape": 3,
-    "book": 2,
-    "words": 1,
-    "time": 1,
+    "tape": 9,
+    "book": 4,
+    "words": 2,
+    "time": 2,
+    "quote": 1,
     "custom": 1
   },
   "modes": {
-    "tape": 3,
-    "book": 2,
-    "words": 1,
-    "time": 1,
+    "tape": 9,
+    "book": 4,
+    "words": 2,
+    "time": 2,
+    "quote": 1,
     "custom": 1
   },
   "speedMilestones": {
@@ -55,42 +64,222 @@
     "75.0000": 5
   },
   "books": {
-    "federalist-papers": 3,
+    "federalist-papers": 5,
     "secret-adversary": 1
   },
   "bookEvents": {
-    "started": 3,
-    "finished": 1
+    "finished": 3,
+    "started": 3
   },
   "practiceVolume": {
-    "25-50": 6,
+    "25-50": 9,
+    "1-5": 5,
+    "5-10": 3,
     "10-25": 2
   },
   "langs": {
-    "en-1k": 6,
+    "en-1k": 14,
+    "en-50k": 3,
     "en-20k": 2
   },
-  "sessionDistCount": 1,
+  "sessionDistCount": 10,
   "wpmSummary": {
-    "total": 8,
-    "mean": 37.5,
-    "medianLabel": "0-10",
-    "median": 5
+    "total": 19,
+    "mean": 30.3,
+    "medianLabel": "20-30",
+    "median": 25
   },
   "accSummary": {
-    "total": 8,
-    "mean": 86.2,
-    "medianLabel": "85-90",
-    "median": 87.5
+    "total": 19,
+    "mean": 90.2,
+    "medianLabel": "92-94",
+    "median": 93
   },
   "fastTypists": {
-    "60+": 25,
-    "80+": 12.5,
+    "60+": 10.5,
+    "80+": 5.3,
     "100+": 0,
     "120+": 0
   },
   "topBooks": {
-    "federalist-papers": 3,
+    "federalist-papers": 5,
     "secret-adversary": 1
+  },
+  "dimensions": {
+    "pages": [
+      {
+        "label": "/",
+        "count": 11
+      },
+      {
+        "label": "/practice/",
+        "count": 8
+      },
+      {
+        "label": "/community-stats/",
+        "count": 5
+      },
+      {
+        "label": "/library/",
+        "count": 4
+      },
+      {
+        "label": "/stats/",
+        "count": 4
+      },
+      {
+        "label": "/library/federalist-papers/",
+        "count": 4
+      },
+      {
+        "label": "/analytics/",
+        "count": 3
+      },
+      {
+        "label": "/changelog/",
+        "count": 2
+      },
+      {
+        "label": "/contact/",
+        "count": 2
+      },
+      {
+        "label": "/sw-reset/",
+        "count": 2
+      },
+      {
+        "label": "/settings/",
+        "count": 1
+      },
+      {
+        "label": "/library/secret-adversary/",
+        "count": 1
+      }
+    ],
+    "countries": [
+      {
+        "label": "US",
+        "count": 11
+      },
+      {
+        "label": "IN",
+        "count": 2
+      }
+    ],
+    "devices": [
+      {
+        "label": "mobile",
+        "count": 8
+      },
+      {
+        "label": "laptop",
+        "count": 3
+      },
+      {
+        "label": "desktop",
+        "count": 2
+      }
+    ],
+    "browsers": [
+      {
+        "label": "chrome",
+        "count": 5
+      },
+      {
+        "label": "ios",
+        "count": 4
+      },
+      {
+        "label": "crios",
+        "count": 4
+      }
+    ],
+    "os": [
+      {
+        "label": "iOS",
+        "count": 8
+      },
+      {
+        "label": "Windows 10",
+        "count": 5
+      }
+    ],
+    "referrers": [],
+    "topEvents": [
+      {
+        "label": "perf_timing",
+        "count": 192
+      },
+      {
+        "label": "session_start",
+        "count": 165
+      },
+      {
+        "label": "session_finish",
+        "count": 45
+      },
+      {
+        "label": "stats_viewed",
+        "count": 30
+      },
+      {
+        "label": "mode_completed",
+        "count": 19
+      },
+      {
+        "label": "wpm_bucket",
+        "count": 19
+      },
+      {
+        "label": "acc_bucket",
+        "count": 19
+      },
+      {
+        "label": "lang_used",
+        "count": 19
+      },
+      {
+        "label": "practice_volume_bucket",
+        "count": 19
+      },
+      {
+        "label": "mode_selected",
+        "count": 14
+      },
+      {
+        "label": "dropdown_opened",
+        "count": 13
+      },
+      {
+        "label": "speed_milestone",
+        "count": 12
+      },
+      {
+        "label": "session_stopped",
+        "count": 11
+      },
+      {
+        "label": "stats_tab_switched",
+        "count": 11
+      },
+      {
+        "label": "session_dist",
+        "count": 10
+      }
+    ]
+  },
+  "pageviewSeries": {
+    "pageviews": [
+      {
+        "x": "2026-05-01T00:00:00Z",
+        "y": 561
+      }
+    ],
+    "sessions": [
+      {
+        "x": "2026-05-01T00:00:00Z",
+        "y": 13
+      }
+    ]
   }
 }

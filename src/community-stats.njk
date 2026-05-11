@@ -8,197 +8,192 @@ pageSlug: community-stats
 {% set d = communityStats %}
 {% set site = d.site %}
 
-{% macro bar(label, count, max) %}
-  {% set pct = (max > 0) and (count * 100 / max) or 0 %}
-  <div class="cs-bar">
-    <span class="cs-bar__label">{{ label }}</span>
-    <span class="cs-bar__track"><span class="cs-bar__fill" style="width:{{ pct }}%"></span></span>
-    <span class="cs-bar__count">{{ count }}</span>
-  </div>
-{% endmacro %}
-
-{% macro chart(title, eyebrow, lede, bucketMap, orderedKeys) -%}
-  {%- set total = 0 -%}
-  {%- for k, v in bucketMap -%}{%- set total = total + v -%}{%- endfor -%}
-  {%- set maxV = 0 -%}
-  {%- for k, v in bucketMap -%}{%- if v > maxV -%}{%- set maxV = v -%}{%- endif -%}{%- endfor -%}
-  <section class="community-stat">
-    <header class="community-stat__head">
-      <p class="community-stat__num">{{ eyebrow }}</p>
-      <h2>{{ title }}</h2>
-      <span class="community-stat__total muted">n = {{ total }}</span>
-    </header>
-    <p class="community-stat__lede">{{ lede | safe }}</p>
-    <div class="community-stat__chart">
-      {%- if orderedKeys -%}
-        {%- for k in orderedKeys -%}
-          {%- if bucketMap[k] -%}{{ bar(k, bucketMap[k], maxV) }}{%- endif -%}
-        {%- endfor -%}
-      {%- else -%}
-        {%- for k, v in bucketMap -%}{{ bar(k, v, maxV) }}{%- endfor -%}
-      {%- endif -%}
-      {%- if total == 0 -%}
-        <p class="community-stat__empty muted">No data yet for this window. Check back after more sessions land.</p>
-      {%- endif -%}
-    </div>
-  </section>
-{%- endmacro %}
-
 <header class="page__head">
   <p class="page__eyebrow">Open metrics</p>
   <h1>Community typing data</h1>
   <p class="page__subtitle">What people actually do on GuerillaType. Aggregate, anonymous, no PII. Counts are bucketed at session-finish and stored as <a href="https://umami.is" target="_blank" rel="noopener">Umami</a> events &mdash; the full operator dashboard is public at <a href="/analytics/">/analytics/</a>.</p>
   <p class="page__sub muted">
     Window: trailing 365 days.
-    Updated {{ d.updatedAtDate or "—" }}.
+    Updated {{ d.updatedAtDate or "&mdash;" }}.
     {% if site %}{{ site.visitors }} visitors &middot; {{ site.visits }} sessions &middot; {{ site.pageviews }} pageviews.{% endif %}
   </p>
 </header>
 
-{# ───────────────── Hero numerics — TypeLit-style top-line stats ─────────────────#}
-<section class="community-hero">
-  <div class="community-hero__cards">
-    <div class="community-hero__card">
-      <span class="community-hero__label">Average WPM</span>
-      <span class="community-hero__value">{{ d.wpmSummary.mean if d.wpmSummary else "—" }}</span>
-      <span class="community-hero__sub">median {{ d.wpmSummary.median if d.wpmSummary else "—" }} ({{ d.wpmSummary.medianLabel if d.wpmSummary else "—" }})</span>
+{# ───────────────── Hero numerics ───────────────── #}
+<section class="ac-summary">
+  <div class="ac-summary__cards">
+    <div class="ac-summary__card">
+      <span class="ac-summary__label">Average WPM</span>
+      <span class="ac-summary__value">{{ d.wpmSummary.mean if d.wpmSummary else "—" }}</span>
+      <span class="ac-summary__sub">mean words-per-minute across all finished sessions. Median {{ d.wpmSummary.median if d.wpmSummary else "—" }} (bucket {{ d.wpmSummary.medianLabel if d.wpmSummary else "—" }}).</span>
     </div>
-    <div class="community-hero__card">
-      <span class="community-hero__label">Average accuracy</span>
-      <span class="community-hero__value">{{ d.accSummary.mean if d.accSummary else "—" }}%</span>
-      <span class="community-hero__sub">median {{ d.accSummary.median if d.accSummary else "—" }}% ({{ d.accSummary.medianLabel if d.accSummary else "—" }})</span>
+    <div class="ac-summary__card">
+      <span class="ac-summary__label">Average accuracy</span>
+      <span class="ac-summary__value">{{ d.accSummary.mean if d.accSummary else "—" }}%</span>
+      <span class="ac-summary__sub">mean keystroke accuracy. Median {{ d.accSummary.median if d.accSummary else "—" }}% (bucket {{ d.accSummary.medianLabel if d.accSummary else "—" }}).</span>
     </div>
-    <div class="community-hero__card">
-      <span class="community-hero__label">Sessions captured</span>
-      <span class="community-hero__value">{{ d.wpmSummary.total if d.wpmSummary else 0 }}</span>
-      <span class="community-hero__sub">finished sessions over 365 days</span>
+    <div class="ac-summary__card">
+      <span class="ac-summary__label">Sessions captured</span>
+      <span class="ac-summary__value">{{ d.wpmSummary.total if d.wpmSummary else 0 }}</span>
+      <span class="ac-summary__sub">total finished practice sessions whose WPM was bucketed and recorded in the last 365 days.</span>
     </div>
-    <div class="community-hero__card">
-      <span class="community-hero__label">Hit 60+ WPM</span>
-      <span class="community-hero__value">{{ d.fastTypists["60+"] if d.fastTypists else 0 }}%</span>
-      <span class="community-hero__sub">of finished sessions</span>
+    <div class="ac-summary__card">
+      <span class="ac-summary__label">60+ WPM rate</span>
+      <span class="ac-summary__value">{{ d.fastTypists["60+"] if d.fastTypists else 0 }}%</span>
+      <span class="ac-summary__sub">share of finished sessions that crossed 60 WPM. Loosely the "trained typist" threshold.</span>
     </div>
   </div>
 </section>
 
-<div class="community-stats">
+{# ───────────────── §01 WPM distribution ───────────────── #}
+<section class="ac-panel">
+  <header class="ac-panel__head">
+    <h2>01 &middot; WPM distribution</h2>
+    <p class="muted">Count of finished sessions in each WPM bucket. <strong>X</strong> = WPM bucket, <strong>Y</strong> = session count. As more sessions accumulate, this settles into a log-normal curve &mdash; most typists land in the 40&ndash;60 WPM bracket, with a long tail above 80.</p>
+  </header>
+  <div class="ac-chart" data-chart="verticalBars" data-series="wpm" data-order="0-10,10-20,20-30,30-40,40-50,50-60,60-70,70-80,80-90,90-100,100-120,120-140,140-150,150+"></div>
+</section>
 
-  {{ chart(
-    "WPM distribution",
-    "01",
-    "How fast people type here. Each finished session contributes one bucket label. The shape settles into a log-normal curve as more sessions accumulate &mdash; most typists land in the 40&ndash;60 wpm bracket, with a long tail above 80.",
-    d.wpm,
-    ["0-10","10-20","20-30","30-40","40-50","50-60","60-70","70-80","80-90","90-100","100-120","120-140","140-150","150+"]
-  ) }}
+{# ───────────────── §02 Accuracy distribution ───────────────── #}
+<section class="ac-panel">
+  <header class="ac-panel__head">
+    <h2>02 &middot; Accuracy distribution</h2>
+    <p class="muted">Count of finished sessions in each accuracy bucket. <strong>X</strong> = accuracy bucket (% characters correct), <strong>Y</strong> = session count. The vast majority cluster between 92&ndash;96% &mdash; people type fast enough to make some mistakes but not so carelessly the text breaks.</p>
+  </header>
+  <div class="ac-chart" data-chart="verticalBars" data-series="acc" data-order="<80,80-85,85-90,90-92,92-94,94-95,95-96,96-97,97-98,98-99,99-100"></div>
+</section>
 
-  {{ chart(
-    "Accuracy distribution",
-    "02",
-    "How accurately people type. The vast majority cluster between 92&ndash;96%. Near-perfect (99&ndash;100%) is always rare &mdash; people type fast enough to make some mistakes but not so carelessly the text breaks.",
-    d.acc,
-    ["<80","80-85","85-90","90-92","92-94","94-95","95-96","96-97","97-98","98-99","99-100"]
-  ) }}
+{# ───────────────── §03 Fast-typist tiers ───────────────── #}
+{%- if d.fastTypists -%}
+<section class="ac-panel">
+  <header class="ac-panel__head">
+    <h2>03 &middot; How rare are fast typists?</h2>
+    <p class="muted">% of finished sessions at or above each WPM threshold. Each step up cuts the population. 80 WPM puts you well above average; 100 WPM is exceptional. <em>Bars are percentages, not raw counts.</em></p>
+  </header>
+  <div class="ac-chart" data-chart="horizontalBars" data-series="fastTypists"></div>
+</section>
+{%- endif -%}
 
-  {# ───────────────── Rare-fast-typists tiers ───────────────── #}
-  {%- if d.fastTypists -%}
-  <section class="community-stat">
-    <header class="community-stat__head">
-      <p class="community-stat__num">03</p>
-      <h2>How rare are fast typists?</h2>
-      <span class="community-stat__total muted">% of finished sessions</span>
+<div class="ac-grid">
+
+  {# ───────────────── §04 Mode popularity ───────────────── #}
+  <section class="ac-panel">
+    <header class="ac-panel__head">
+      <h2>04 &middot; Mode popularity</h2>
+      <p class="muted">Sessions finished per mode. Each completed session emits one <code>mode_completed</code> event. Tells you which practice surfaces actually retain typists.</p>
     </header>
-    <p class="community-stat__lede">Each step up cuts the population. 80&nbsp;wpm puts you well above average; 100&nbsp;wpm is exceptional.</p>
-    <div class="community-stat__chart">
-      {%- set maxPct = 0 -%}
-      {%- for k, v in d.fastTypists -%}{%- if v > maxPct -%}{%- set maxPct = v -%}{%- endif -%}{%- endfor -%}
-      {%- for tier in ["60+","80+","100+","120+"] -%}
-        {%- set pct = d.fastTypists[tier] or 0 -%}
-        <div class="cs-bar">
-          <span class="cs-bar__label">{{ tier }} WPM</span>
-          <span class="cs-bar__track">
-            <span class="cs-bar__fill" style="width:{{ (maxPct > 0) and (pct * 100 / maxPct) or 0 }}%"></span>
-          </span>
-          <span class="cs-bar__count">{{ pct }}%</span>
-        </div>
-      {%- endfor -%}
-    </div>
+    <div class="ac-chart" data-chart="horizontalBars" data-series="modes"></div>
   </section>
-  {%- endif -%}
 
-  {{ chart(
-    "Mode popularity",
-    "04",
-    "Which modes get finished. Each completed session emits its mode label.",
-    d.modes,
-    ["time","words","quote","tape","zen","adaptive","custom","book","lesson","drill","challenge","idiom","poem"]
-  ) }}
+  {# ───────────────── §05 Speed milestones ───────────────── #}
+  <section class="ac-panel">
+    <header class="ac-panel__head">
+      <h2>05 &middot; Speed milestones</h2>
+      <p class="muted">Counts of sessions that crossed each milestone WPM threshold. The 50 / 75 / 100 / 125 / 150 tiers each fire once per qualifying session &mdash; so the bars are <em>session-events</em>, not unique typists.</p>
+    </header>
+    <div class="ac-chart" data-chart="horizontalBars" data-series="speedMilestones"></div>
+  </section>
 
-  {{ chart(
-    "WPM by mode",
-    "05",
-    "Which modes attract faster typists. Counts of WPM-bucket events split by mode. A mode trending toward higher buckets means the surface gets more practiced typists.",
-    d.wpmByMode,
-    ["time","words","quote","tape","zen","adaptive","custom","book","lesson","drill","challenge"]
-  ) }}
+  {# ───────────────── §06 WPM by mode ───────────────── #}
+  <section class="ac-panel">
+    <header class="ac-panel__head">
+      <h2>06 &middot; WPM events by mode</h2>
+      <p class="muted">Total WPM-bucket events split by mode. A mode skewing higher means it attracts more practiced typists. Counts are totals, not per-typist averages.</p>
+    </header>
+    <div class="ac-chart" data-chart="horizontalBars" data-series="wpmByMode"></div>
+  </section>
 
-  {{ chart(
-    "Accuracy by mode",
-    "06",
-    "Which modes register cleaner typing. Modes that bias toward typed-precision (lesson, drill, quote) usually surface higher accuracy than free-form modes.",
-    d.accByMode,
-    ["time","words","quote","tape","zen","adaptive","custom","book","lesson","drill","challenge"]
-  ) }}
+  {# ───────────────── §07 Accuracy by mode ───────────────── #}
+  <section class="ac-panel">
+    <header class="ac-panel__head">
+      <h2>07 &middot; Accuracy events by mode</h2>
+      <p class="muted">Total accuracy-bucket events split by mode. Modes biased toward typed-precision (lesson, drill, quote) usually surface higher accuracy than free-form modes.</p>
+    </header>
+    <div class="ac-chart" data-chart="horizontalBars" data-series="accByMode"></div>
+  </section>
 
-  {{ chart(
-    "Speed milestones",
-    "07",
-    "Counts of sessions that crossed a milestone wpm threshold. The 50 / 75 / 100 / 125 / 150 tiers each fire once per qualifying session.",
-    d.speedMilestones,
-    ["50","75","100","125","150"]
-  ) }}
+  {# ───────────────── §08 Top books typed ───────────────── #}
+  <section class="ac-panel ac-panel--span-2">
+    <header class="ac-panel__head">
+      <h2>08 &middot; Top books typed</h2>
+      <p class="muted">Public-domain titles people are actively practicing through. Counts are per-paragraph completion events &mdash; short works dominate because completion rate falls sharply with length.</p>
+    </header>
+    <div class="ac-chart" data-chart="horizontalBars" data-series="topBooks"></div>
+  </section>
 
-  {{ chart(
-    "Top books typed",
-    "08",
-    "Public-domain titles people are actively typing through. Short works dominate &mdash; pages drive completion rate sharply down as a book lengthens.",
-    d.topBooks or d.books
-  ) }}
+  {# ───────────────── §09 Book lifecycle ───────────────── #}
+  <section class="ac-panel">
+    <header class="ac-panel__head">
+      <h2>09 &middot; Book engagement</h2>
+      <p class="muted">Two lifecycle events per book interaction: <code>started</code> (first paragraph typed) and <code>finished</code> (page completed at &ge;80% accuracy). The ratio sketches a coarse drop-off rate.</p>
+    </header>
+    <div class="ac-chart" data-chart="horizontalBars" data-series="bookEvents"></div>
+  </section>
 
-  {{ chart(
-    "Book engagement",
-    "09",
-    "Books split by lifecycle: <code>started</code> on first paragraph, <code>finished</code> once a page completes at &ge;80% accuracy.",
-    d.bookEvents,
-    ["started","finished"]
-  ) }}
+  {# ───────────────── §10 Practice volume ───────────────── #}
+  <section class="ac-panel">
+    <header class="ac-panel__head">
+      <h2>10 &middot; Practice volume bracket</h2>
+      <p class="muted">Lifetime session count per typist (bucketed and emitted each time a session finishes). Casual visitors vs. habitual practice. Left buckets are inflated &mdash; everyone passes through them on the way up.</p>
+    </header>
+    <div class="ac-chart" data-chart="horizontalBars" data-series="practiceVolume"></div>
+  </section>
 
-  {{ chart(
-    "Practice volume",
-    "10",
-    "Lifetime session count per typist (bucketed). Tells us how many casual visitors stay vs. settle into a real habit. Each finished session emits the typist's current bracket &mdash; so the left buckets are inflated (everyone passes through them once on the way up).",
-    d.practiceVolume,
-    ["1-5","5-10","10-25","25-50","50-100","100-200","200-500","500-1000","1000+"]
-  ) }}
-
-  {{ chart(
-    "Source word list",
-    "11",
-    "Which language / corpus people pull from. Defaults to <code>en-1k</code> unless the user picked otherwise from the toolbar.",
-    d.langs
-  ) }}
+  {# ───────────────── §11 Source word list ───────────────── #}
+  <section class="ac-panel">
+    <header class="ac-panel__head">
+      <h2>11 &middot; Source word list</h2>
+      <p class="muted">Which language / corpus people pull from. Defaults to <code>en-1k</code> unless picked otherwise from the toolbar.</p>
+    </header>
+    <div class="ac-chart" data-chart="horizontalBars" data-series="langs"></div>
+  </section>
 
 </div>
 
+{# ───────────────── Methodology ───────────────── #}
 <section class="prose community-stats__methodology">
   <h2>Methodology + disclaimers</h2>
   <ul>
     <li><strong>Source</strong> &mdash; anonymized event data fired by the GuerillaType practice surface at session finish. No accounts, no cookies, no IP retained beyond country lookup. Data lives in <a href="https://umami.is" target="_blank" rel="noopener">Umami Cloud</a>.</li>
     <li><strong>Window</strong> &mdash; trailing 365 days. Umami Cloud's free tier retains roughly that range.</li>
     <li><strong>Sample</strong> &mdash; every visitor who completes at least one session contributes. No outlier filtering on this view.</li>
-    <li><strong>Bucketing</strong> &mdash; wpm and accuracy are bucketed client-side at session finish (see <code>src/assets/js/pages/practice-boot.js</code> for the exact thresholds). Umami stores the bucket label as a categorical property.</li>
-    <li><strong>Derived numerics</strong> &mdash; averages and medians are computed from bucket midpoints (e.g. "40&ndash;50&nbsp;wpm" contributes 45 to the average). The values are approximations, accurate within roughly &plusmn;5 wpm and &plusmn;1% accuracy.</li>
+    <li><strong>Bucketing</strong> &mdash; WPM and accuracy are bucketed client-side at session finish (see <code>src/assets/js/pages/practice-boot.js</code> for the exact thresholds). Umami stores the bucket label as a categorical property.</li>
+    <li><strong>Derived numerics</strong> &mdash; averages and medians are computed from bucket midpoints (e.g. "40&ndash;50 WPM" contributes 45 to the average). Values are approximations, accurate within roughly &plusmn;5 WPM and &plusmn;1% accuracy.</li>
     <li><strong>What this can't show</strong> &mdash; per-user histories (no cookies), continuous distributions (everything's bucketed), or cross-event correlations beyond the four properties on <code>session_dist</code>. The privacy posture limits what's possible without identifying users.</li>
     <li><strong>Refresh cadence</strong> &mdash; the page bakes a JSON snapshot at each site deploy. Re-fetch by running <code>UMAMI_API_KEY=&hellip; npm run stats</code> then redeploying.</li>
     <li><strong>Full transparency</strong> &mdash; every tracked event is listed on <a href="/privacy/">/privacy/</a>. The raw operator dashboard is public at <a href="/analytics/">/analytics/</a>. No event includes anything the user actually typed.</li>
   </ul>
 </section>
+
+<script>window.__communityData = {{ d | dump | safe }};</script>
+<script type="module">
+  import { paintAll } from "/assets/js/viz/analytics-charts.js?v={{ cssVersion }}";
+  // Adapt bucket-map data to the [{label, count}] shape paintAll
+  // expects on horizontalBars by surfacing pre-sorted arrays alongside
+  // the raw bucket maps in window.__communityData.dimensions.
+  const d = window.__communityData;
+  function bucketsToArray(map, order) {
+    if (!map) return [];
+    if (order) {
+      return order.filter(k => map[k] != null).map(k => ({ label: k, count: map[k] }));
+    }
+    return Object.entries(map)
+      .map(([label, count]) => ({ label, count }))
+      .sort((a, b) => b.count - a.count);
+  }
+  function fastTypistsArray(ft) {
+    if (!ft) return [];
+    return ["60+","80+","100+","120+"].map(k => ({ label: `${k} WPM`, count: ft[k] || 0 }));
+  }
+  d.dimensions = d.dimensions || {};
+  d.dimensions.modes = bucketsToArray(d.modes, ["time","words","quote","tape","zen","adaptive","custom","book","lesson","drill","challenge","idiom","poem"]);
+  d.dimensions.speedMilestones = bucketsToArray(d.speedMilestones, ["50","75","100","125","150"]);
+  d.dimensions.wpmByMode = bucketsToArray(d.wpmByMode);
+  d.dimensions.accByMode = bucketsToArray(d.accByMode);
+  d.dimensions.topBooks = bucketsToArray(d.topBooks || d.books).slice(0, 10);
+  d.dimensions.bookEvents = bucketsToArray(d.bookEvents, ["started","finished"]);
+  d.dimensions.practiceVolume = bucketsToArray(d.practiceVolume, ["1-5","5-10","10-25","25-50","50-100","100-200","200-500","500-1000","1000+"]);
+  d.dimensions.langs = bucketsToArray(d.langs);
+  d.dimensions.fastTypists = fastTypistsArray(d.fastTypists);
+  paintAll(d);
+</script>

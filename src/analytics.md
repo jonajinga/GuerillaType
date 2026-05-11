@@ -2,106 +2,138 @@
 layout: layouts/article.njk
 title: "Analytics"
 eyebrow: "What I track"
-lede: "Almost nothing leaves your device. The public Umami dashboard is embedded below — same view I look at, never paywalled."
-description: "What GuerillaType's analytics actually track, plus the live public Umami dashboard. Privacy-first by design — no cookies, no personal data, full transparency."
+lede: "Live dashboard of GuerillaType visitor activity. Powered by Umami, rendered with D3. No PII, no cookies, no third-party trackers."
+description: "GuerillaType's analytics dashboard. Pageviews, sessions, top pages, geography, devices, browsers, and tracked events — all baked from the Umami API at build time."
 cta:
-  title: "Read the privacy policy"
-  body: "Full statement on what stays on-device and what (if anything) is transmitted."
+  title: "Want the user-facing summary?"
+  body: "Community typing data — WPM distributions, mode popularity, top books — lives at /community-stats/."
   actions:
-    - { label: "Privacy policy", url: "/privacy/", primary: true }
-    - { label: "Tech stack", url: "/tech-stack/" }
+    - { label: "Community stats", url: "/community-stats/", primary: true }
+    - { label: "Privacy policy", url: "/privacy/" }
 ---
 
-## Live dashboard
+{% set d = communityStats %}
+{% set dims = d.dimensions or {} %}
+{% set site = d.site %}
 
-<div class="umami-embed">
-  <iframe
-    src="https://cloud.umami.is/share/Go6W5bgtCW47V4Gf"
-    title="GuerillaType public Umami analytics dashboard"
-    loading="lazy"
-    referrerpolicy="no-referrer-when-downgrade"
-    allow="clipboard-write"></iframe>
+<section class="ac-summary">
+  <div class="ac-summary__cards">
+    <div class="ac-summary__card">
+      <span class="ac-summary__label">Visitors</span>
+      <span class="ac-summary__value">{{ site.visitors if site else 0 }}</span>
+      <span class="ac-summary__sub">unique, last 365 days</span>
+    </div>
+    <div class="ac-summary__card">
+      <span class="ac-summary__label">Sessions</span>
+      <span class="ac-summary__value">{{ site.visits if site else 0 }}</span>
+      <span class="ac-summary__sub">total visits</span>
+    </div>
+    <div class="ac-summary__card">
+      <span class="ac-summary__label">Pageviews</span>
+      <span class="ac-summary__value">{{ site.pageviews if site else 0 }}</span>
+      <span class="ac-summary__sub">across all pages</span>
+    </div>
+    <div class="ac-summary__card">
+      <span class="ac-summary__label">Avg session</span>
+      <span class="ac-summary__value">{{ ((site.totaltime / (site.visits or 1)) | round) if site else 0 }}s</span>
+      <span class="ac-summary__sub">time on site</span>
+    </div>
+  </div>
+</section>
+
+<section class="ac-panel">
+  <header class="ac-panel__head">
+    <h2>Pageviews + sessions over time</h2>
+    <p class="muted">Daily activity from the trailing 365 days. Solid line = pageviews, dashed line = unique sessions.</p>
+  </header>
+  <div class="ac-chart" data-chart="timeLine"></div>
+  <div class="ac-legend">
+    <span class="ac-legend__item"><span class="ac-legend__swatch ac-legend__swatch--primary"></span>Pageviews</span>
+    <span class="ac-legend__item"><span class="ac-legend__swatch ac-legend__swatch--secondary"></span>Sessions</span>
+  </div>
+</section>
+
+<div class="ac-grid">
+
+  <section class="ac-panel">
+    <header class="ac-panel__head">
+      <h2>Top pages</h2>
+      <p class="muted">URL paths ranked by pageviews.</p>
+    </header>
+    <div class="ac-chart" data-chart="horizontalBars" data-series="pages"></div>
+  </section>
+
+  <section class="ac-panel">
+    <header class="ac-panel__head">
+      <h2>Tracked events</h2>
+      <p class="muted">Named events fired by the practice surface, ranked by total count.</p>
+    </header>
+    <div class="ac-chart" data-chart="horizontalBars" data-series="topEvents"></div>
+  </section>
+
+  <section class="ac-panel">
+    <header class="ac-panel__head">
+      <h2>Top countries</h2>
+      <p class="muted">Visitors by ISO country code (derived from IP, then IP discarded).</p>
+    </header>
+    <div class="ac-chart" data-chart="horizontalBars" data-series="countries"></div>
+  </section>
+
+  <section class="ac-panel">
+    <header class="ac-panel__head">
+      <h2>Devices</h2>
+      <p class="muted">Proportional share of visitors by device class.</p>
+    </header>
+    <div class="ac-chart" data-chart="donut" data-series="devices"></div>
+  </section>
+
+  <section class="ac-panel">
+    <header class="ac-panel__head">
+      <h2>Browsers</h2>
+      <p class="muted">Proportional share of visitors by browser engine.</p>
+    </header>
+    <div class="ac-chart" data-chart="donut" data-series="browsers"></div>
+  </section>
+
+  <section class="ac-panel">
+    <header class="ac-panel__head">
+      <h2>Operating systems</h2>
+      <p class="muted">Proportional share of visitors by OS.</p>
+    </header>
+    <div class="ac-chart" data-chart="donut" data-series="os"></div>
+  </section>
+
+  <section class="ac-panel ac-panel--span-2">
+    <header class="ac-panel__head">
+      <h2>Top referrers</h2>
+      <p class="muted">External sites sending traffic. Direct visits (no referrer) aren't counted here.</p>
+    </header>
+    <div class="ac-chart" data-chart="horizontalBars" data-series="referrers"></div>
+  </section>
+
 </div>
 
-Open the dashboard in its own tab: [cloud.umami.is/share/Go6W5bgtCW47V4Gf](https://cloud.umami.is/share/Go6W5bgtCW47V4Gf). For a user-facing summary of the aggregate typing data — WPM distributions, mode popularity, top books typed — see [/community-stats/](/community-stats/).
+<script>window.__analyticsData = {{ d | dump | safe }};</script>
+<script type="module">
+  import { paintAll } from "/assets/js/viz/analytics-charts.js?v={{ cssVersion }}";
+  paintAll(window.__analyticsData);
+</script>
 
-## What I *don't* collect
+## What is tracked
 
-- **No accounts** — there's nothing to sign up for.
-- **No emails** — I never ask for one.
-- **No cookies** — not for tracking, not for sessions, not for anything.
-- **No fingerprinting** — no canvas tricks, no font enumeration, no audio API probing.
-- **No third-party tracking pixels** — Google Analytics, Facebook Pixel, Hotjar, Segment: not present.
-- **No keystroke logging** — your typing data lives in `localStorage` on this device. Not transmitted. Not aggregated. Not analyzed by us.
+- **Pageviews** — every route a visitor lands on.
+- **Sessions** — anonymous, hash-based grouping of one visitor's pageviews. No cookies, no persistent identifier.
+- **Events** — named user actions emitted by the practice surface: session lifecycle, mode picks, library opens, achievements, settings changes, and a few perf timings. Each event carries up to a handful of categorical properties. See [`src/assets/js/analytics.js`](https://github.com/jonajinga/GuerillaType/blob/main/src/assets/js/analytics.js) for the full list.
+- **Geography** — country from IP, then IP discarded.
+- **Device / browser / OS** — coarse fingerprint from User-Agent, no persistent tracking.
 
-## What stays on your device
+## What is NOT tracked
 
-All of it:
+- The character stream you type. None of it leaves your browser.
+- Cookies. Umami is cookieless.
+- Cross-site activity. Nothing follows you off `guerillatype.com`.
+- Identifiers tied to a real person (name, email, IP).
 
-- Your profiles, sessions, daily activity, streaks
-- Per-character and per-bigram timing and error data
-- Custom texts you upload
-- Settings (theme, layout, language preference)
+## Want the user-facing summary?
 
-This is in your browser's `localStorage` under keys prefixed `tt:`. Open dev tools → Application → Local Storage to see it. Clearing browser storage clears it. Switching browsers means a fresh start (use the JSON export to bring it with you).
-
-## Optional aggregate analytics
-
-Two privacy-first analytics are wired into the site but **disabled by default**. The site operator can enable either or both by editing [`src/_data/site.js`](https://github.com/jonajinga/GuerillaType/blob/main/src/_data/site.js).
-
-### Umami
-
-[Umami](https://umami.is/) is a self-hosted, open-source, cookieless analytics platform. If enabled, it logs:
-
-- Page URL visited (e.g. `/practice/`)
-- Referrer URL (where you came from)
-- Browser + OS (e.g. "Chrome on macOS")
-- Screen size bucket
-- Country (from IP, then IP discarded)
-
-Umami does **not** log:
-
-- IP addresses (discarded after country lookup)
-- User agents in full
-- Personal identifiers (no cookies, no localStorage)
-- Cross-site behavior
-
-### Cloudflare Web Analytics
-
-[Cloudflare Web Analytics](https://www.cloudflare.com/web-analytics/) is similar in scope. If enabled, it logs aggregate page views and Core Web Vitals (LCP, FID, CLS) for performance monitoring. No cookies, no personal data, GDPR-compliant.
-
-## Why I have any analytics at all
-
-Two reasons:
-
-1. **Performance monitoring** — knowing if real users on real devices have a bad time loading the site. The Web Vitals data Cloudflare provides flags regressions I can't see in lab tests.
-2. **Knowing if anyone uses it** — for an open-source project, aggregate page views tell us whether anyone is using the site at all. That informs where I put effort.
-
-Neither requires identifying any individual visitor.
-
-## How to opt out
-
-Beyond running an ad-blocker (which already blocks both):
-
-- Browser settings → Privacy → "Block third-party tracking" or equivalent.
-- Add `umami.is` and `static.cloudflareinsights.com` to your blocklist.
-- Use a privacy-respecting browser (Brave, Firefox with strict mode, etc.).
-- Run [`uBlock Origin`](https://ublockorigin.com/) — recommended regardless.
-
-None of these affect the typing experience.
-
-## Server logs
-
-Cloudflare Pages keeps short-lived edge access logs (standard for any web host). These are aggregate and used only for abuse mitigation. I don't query, mine, or correlate them.
-
-## Data export
-
-Settings → Export JSON gives you everything you've generated in a single file. You're free to take it elsewhere or delete it.
-
-## Data deletion
-
-Settings → Clear all data wipes everything from this device. Or just clear browser storage for this domain.
-
-## Questions
-
-Open an issue on [GitHub](https://github.com/jonajinga/GuerillaType/issues). I'll answer in public.
+The community-typing stats live at [/community-stats/](/community-stats/) — WPM distributions, accuracy curves, top books typed, all bucketed and anonymized.
