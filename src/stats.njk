@@ -43,7 +43,7 @@ description: "Lifetime totals, WPM trend, daily contribution grid, keyboard heat
   <div class="stats-tile"><span class="stats-tile__label">Streak</span><span class="stats-tile__value" data-tile="streak">0d</span></div>
 </div>
 
-<section class="stats-section">
+<section class="stats-section" id="contribution">
   <div class="stats-section__title">
     <h2>Daily activity</h2>
     <span class="contrib-toggle" role="tablist" aria-label="View">
@@ -64,12 +64,12 @@ description: "Lifetime totals, WPM trend, daily contribution grid, keyboard heat
   </div>
 </section>
 
-<section class="stats-section">
+<section class="stats-section" id="trend">
   <div class="stats-section__title"><h2>WPM trend (last 30 sessions)</h2></div>
   <div class="chart"><svg id="trend-svg" class="chart__svg" aria-label="WPM trend over recent sessions"></svg></div>
 </section>
 
-<section class="stats-section">
+<section class="stats-section" id="heatmap">
   <div class="stats-section__title">
     <h2>Keyboard heatmap</h2>
     <span class="kb-toggle" role="tablist" aria-label="Heatmap metric">
