@@ -10,6 +10,7 @@ import "./prefetch.js";
 import "./info-modal.js";
 import "./search.js";
 import "./pwa.js";
+import "./debug-overlay.js";
 
 migrate();
 const _profile = getActive(); // ensure default profile exists

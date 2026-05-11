@@ -1,0 +1,76 @@
+---
+layout: layouts/base.njk
+title: "Reset service worker + caches"
+description: "One-time utility page that unregisters every service worker and wipes browser caches for guerillatype.com, then reloads to the home page on fresh code."
+permalink: /sw-reset/
+pageSlug: sw-reset
+noindex: true
+---
+<div class="prose" style="max-width:620px;margin:var(--space-5) auto;padding:var(--space-4)">
+  <p class="eyebrow">Maintenance utility</p>
+  <h1>Reset service worker</h1>
+  <p>This page unregisters every service worker for <strong>guerillatype.com</strong> and clears the browser's cache for the site, then reloads you to the home page on the latest code.</p>
+  <p>Use this if you suspect the site is showing stale assets that haven't refreshed even after a hard reload (a known issue when the previous service worker version was over-eager about caching).</p>
+
+  <div id="sw-reset-status" class="prose" style="margin:var(--space-4) 0;padding:var(--space-3);background:var(--bg-2);border:1px solid var(--rule);border-radius:var(--radius);font-family:var(--font-mono);font-size:.85rem;white-space:pre-line">Press the button below to begin.</div>
+
+  <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:var(--space-4)">
+    <button type="button" class="btn btn--primary" id="sw-reset-go">Reset service worker + caches</button>
+    <a class="btn btn--ghost" href="/">Cancel</a>
+  </div>
+
+  <h2>What this does, line by line</h2>
+  <ul>
+    <li><code>navigator.serviceWorker.getRegistrations()</code> &rarr; unregister each one.</li>
+    <li><code>caches.keys()</code> &rarr; <code>caches.delete(name)</code> for every cache bucket.</li>
+    <li><code>localStorage</code> is <strong>not touched</strong>. Your profile, settings, sessions, custom texts, and streaks survive the reset.</li>
+    <li><code>location.replace("/")</code> &rarr; reload to the home page so the next page-load installs a fresh worker from scratch.</li>
+  </ul>
+  <p class="muted">Source: <a href="https://github.com/jonajinga/GuerillaType/blob/main/src/sw-reset.njk">sw-reset.njk</a></p>
+</div>
+
+<script>
+(function() {
+  const btn = document.getElementById("sw-reset-go");
+  const out = document.getElementById("sw-reset-status");
+  function log(line) { out.textContent += "\n" + line; }
+  btn.addEventListener("click", async () => {
+    btn.disabled = true;
+    out.textContent = "Starting reset...";
+    let regsCleared = 0;
+    let cachesCleared = 0;
+    try {
+      if ("serviceWorker" in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        log("Found " + regs.length + " service worker registration" + (regs.length === 1 ? "" : "s") + ".");
+        for (const reg of regs) {
+          try { await reg.unregister(); regsCleared++; log("  unregistered " + (reg.scope || "(unknown scope)")); }
+          catch (e) { log("  FAILED to unregister: " + (e && e.message || e)); }
+        }
+      } else {
+        log("Service workers not supported in this browser. Skipped.");
+      }
+    } catch (e) {
+      log("Service worker step error: " + (e && e.message || e));
+    }
+    try {
+      if (typeof caches !== "undefined" && caches.keys) {
+        const keys = await caches.keys();
+        log("Found " + keys.length + " cache bucket" + (keys.length === 1 ? "" : "s") + ".");
+        for (const key of keys) {
+          try { await caches.delete(key); cachesCleared++; log("  deleted " + key); }
+          catch (e) { log("  FAILED to delete " + key + ": " + (e && e.message || e)); }
+        }
+      } else {
+        log("Cache API not supported. Skipped.");
+      }
+    } catch (e) {
+      log("Cache step error: " + (e && e.message || e));
+    }
+    log("");
+    log("Done. " + regsCleared + " worker(s) unregistered, " + cachesCleared + " cache(s) cleared.");
+    log("Reloading in 1.5 s...");
+    setTimeout(() => { location.replace("/"); }, 1500);
+  });
+})();
+</script>
