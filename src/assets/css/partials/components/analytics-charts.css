@@ -66,22 +66,25 @@
 .ac-legend__swatch--primary{background:var(--accent)}
 .ac-legend__swatch--secondary{background:var(--fg-2)}
 
-/* ─── Dashboard layout (analytics + community-stats) ─────────────── */
+/* ─── Dashboard layout (analytics + community-stats) ───────────────
+   One uniform card size everywhere. Hero summary cards stretch equal;
+   chart panels stack one per row at a comfortable reading width. */
 
 .ac-summary{
   margin:var(--space-4) 0 var(--space-5);
 }
 .ac-summary__cards{
   display:grid;gap:var(--space-3);
-  grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns:repeat(4, minmax(0, 1fr));
 }
 .ac-summary__card{
   background:var(--bg-1);border:1px solid var(--rule);
   border-radius:var(--radius);padding:var(--space-4);
   display:flex;flex-direction:column;gap:.25rem;
+  min-height:148px;
 }
 .ac-summary__label{
-  font-family:var(--font-mono);font-size:.6rem;
+  font-family:var(--font-mono);font-size:.62rem;
   letter-spacing:.18em;text-transform:uppercase;
   color:var(--fg-3);font-weight:600;
 }
@@ -90,31 +93,50 @@
   font-size:var(--fs-700);font-weight:500;
   color:var(--accent);line-height:1;
   font-variant-numeric:tabular-nums;
-  margin:.15rem 0 .1rem;
+  margin:.2rem 0 .15rem;
 }
 .ac-summary__sub{
-  font-family:var(--font-mono);font-size:.7rem;
+  font-family:var(--font-mono);font-size:.72rem;
   color:var(--fg-2);letter-spacing:.02em;
+  line-height:1.45;margin-top:auto;
+}
+@media (max-width:1024px){
+  .ac-summary__cards{grid-template-columns:repeat(2, minmax(0, 1fr))}
+}
+@media (max-width:560px){
+  .ac-summary__cards{grid-template-columns:1fr}
+}
+
+/* Vertical chart stack — one panel per row, full content width. */
+.ac-stack{
+  display:flex;flex-direction:column;gap:var(--space-4);
+  margin:0 0 var(--space-5);
 }
 
 .ac-panel{
   background:var(--bg-1);border:1px solid var(--rule);
   border-radius:var(--radius);padding:var(--space-5);
-  margin:0 0 var(--space-4);
+  margin:0;
   display:flex;flex-direction:column;gap:var(--space-3);
+  min-height:360px;
 }
+.ac-panel .ac-chart{flex:1 1 auto;display:flex;flex-direction:column}
+.ac-panel .ac-chart__svg{flex:1 1 auto}
 .ac-panel__head{
-  display:flex;flex-direction:column;gap:.25rem;
+  display:flex;flex-direction:column;gap:.3rem;
   margin:0 0 var(--space-2);
+  padding-bottom:var(--space-2);
+  border-bottom:1px solid var(--rule);
 }
 .ac-panel__head h2{
   font-family:var(--font-display);font-weight:500;
   font-size:var(--fs-500);margin:0;
+  letter-spacing:-.01em;
 }
 .ac-panel__head p.muted{
-  font-family:var(--font-mono);font-size:.72rem;
-  color:var(--fg-3);margin:0;line-height:1.5;
-  letter-spacing:.01em;
+  font-family:var(--font-mono);font-size:.74rem;
+  color:var(--fg-2);margin:0;line-height:1.6;
+  letter-spacing:.01em;max-width:80ch;
 }
 .ac-panel__meta{
   font-family:var(--font-mono);font-size:.7rem;
@@ -125,15 +147,25 @@
   font-variant-numeric:tabular-nums;
 }
 
+/* Donut panels render a square chart; cap their height so they
+   don't dominate the stack as a 720x720 box. */
+.ac-panel .ac-chart[data-chart="donut"]{
+  align-items:center;justify-content:center;
+}
+.ac-panel .ac-chart[data-chart="donut"] .ac-chart__svg{
+  max-width:320px;width:100%;height:auto;
+}
+
+/* Legacy grid kept for backwards-compat with /community-stats/. */
 .ac-grid{
-  display:grid;gap:var(--space-4);
-  grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));
+  display:flex;flex-direction:column;gap:var(--space-4);
   margin:0 0 var(--space-5);
 }
 .ac-grid .ac-panel{margin:0}
-.ac-panel--span-2{grid-column:span 2}
+.ac-panel--span-2{grid-column:auto}
+
+.ac-prose{margin-top:var(--space-5)}
 
 @media (max-width:768px){
-  .ac-panel{padding:var(--space-4)}
-  .ac-panel--span-2{grid-column:span 1}
+  .ac-panel{padding:var(--space-4);min-height:300px}
 }

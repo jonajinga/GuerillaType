@@ -1,12 +1,9 @@
 {# Sticky practice toolbar -- anchored below the site header.
-   Desktop: mode chips on the left, live stats in the middle, action
-   buttons on the right. Mobile: mode chips hide (the site header's
-   megamenus carry mode navigation), leaving just stats + actions. #}
+   One row everywhere: live stats on the left, action buttons on
+   the right. Mode selection is owned entirely by the site-header
+   megamenus, which link directly to every mode-and-variant URL. #}
 <div class="practice-bar" data-practice-bar>
   <div class="practice-bar__inner" id="tt-bar-inner">
-    <div class="practice-bar__modes">
-      {% include "partials/practice/mode-bar.njk" %}
-    </div>
     <div class="practice-bar__challenge" id="tt-challenge-pill" hidden></div>
     <div class="practice-bar__stats">
       {% include "partials/practice/live-stats.njk" %}
