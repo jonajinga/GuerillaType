@@ -134,15 +134,85 @@ window.openSettingsModal = function (e) {
   return true;
 };
 
-// ── Theme toggle ─────────────────────────────────────────────────
+// ── Theme toggle + picker ────────────────────────────────────────
+// Plain toggle kept for the settings page and any inline onclick
+// callers that still call window.toggleTheme. Flips light <-> dark.
 window.toggleTheme = function () {
   const root = document.documentElement;
   const cur = root.getAttribute("data-theme") || "dark";
   const next = cur === "dark" ? "light" : "dark";
-  root.setAttribute("data-theme", next);
-  try { localStorage.setItem("tt:theme", next); } catch {}
-  syncBrandMarkTheme();
+  window.setTheme(next);
 };
+
+// Apply a named theme and persist it.
+window.setTheme = function (theme) {
+  if (!theme) return;
+  const root = document.documentElement;
+  root.setAttribute("data-theme", theme);
+  try { localStorage.setItem("tt:theme", theme); } catch {}
+  syncBrandMarkTheme();
+  syncThemePickerActive();
+};
+
+function syncThemePickerActive() {
+  const cur = document.documentElement.getAttribute("data-theme") || "dark";
+  document.querySelectorAll(".theme-picker__item[data-theme-set]").forEach((el) => {
+    el.setAttribute("aria-checked", el.dataset.themeSet === cur ? "true" : "false");
+  });
+}
+
+window.toggleThemePicker = function (event) {
+  if (event) { event.preventDefault(); event.stopPropagation(); }
+  const btn = document.getElementById("theme-toggle");
+  const menu = document.getElementById("theme-picker-menu");
+  if (!btn || !menu) return;
+  const isOpen = btn.getAttribute("aria-expanded") === "true";
+  if (isOpen) {
+    btn.setAttribute("aria-expanded", "false");
+    menu.hidden = true;
+  } else {
+    syncThemePickerActive();
+    btn.setAttribute("aria-expanded", "true");
+    menu.hidden = false;
+  }
+};
+
+// Delegate clicks on any theme-picker item to setTheme + close.
+document.addEventListener("click", (e) => {
+  const item = e.target.closest && e.target.closest(".theme-picker__item[data-theme-set]");
+  if (item) {
+    e.preventDefault();
+    window.setTheme(item.dataset.themeSet);
+    const btn = document.getElementById("theme-toggle");
+    const menu = document.getElementById("theme-picker-menu");
+    if (btn && menu) { btn.setAttribute("aria-expanded", "false"); menu.hidden = true; }
+    return;
+  }
+  // Click outside the picker closes the menu.
+  const picker = document.getElementById("theme-picker");
+  const menu = document.getElementById("theme-picker-menu");
+  const btn = document.getElementById("theme-toggle");
+  if (picker && menu && btn && !menu.hidden && !picker.contains(e.target)) {
+    btn.setAttribute("aria-expanded", "false");
+    menu.hidden = true;
+  }
+});
+
+// Esc closes the picker.
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  const menu = document.getElementById("theme-picker-menu");
+  const btn = document.getElementById("theme-toggle");
+  if (menu && btn && !menu.hidden) {
+    btn.setAttribute("aria-expanded", "false");
+    menu.hidden = true;
+    btn.focus();
+  }
+});
+
+// Initialize the radio state on first paint so the active theme
+// shows its checkmark when the menu opens.
+syncThemePickerActive();
 
 // ── Brand mark theme swap ────────────────────────────────────────
 // The header + footer brand <img> elements have data-brand-mark.

@@ -87,17 +87,50 @@
           <line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
       </button>
-      <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Toggle day / night"
-              title="Toggle day / night"
-              onclick="window.toggleTheme && window.toggleTheme()">
-        <svg class="theme-toggle__sun" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="4"/>
-          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
-        </svg>
-        <svg class="theme-toggle__moon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-        </svg>
-      </button>
+      <div class="theme-picker" id="theme-picker">
+        <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Choose theme"
+                aria-haspopup="menu" aria-expanded="false"
+                title="Choose theme"
+                onclick="window.toggleThemePicker && window.toggleThemePicker(event)">
+          <svg class="theme-toggle__sun" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+          </svg>
+          <svg class="theme-toggle__moon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+        <div class="theme-picker__menu" id="theme-picker-menu" role="menu" aria-labelledby="theme-toggle" hidden>
+          <p class="theme-picker__eyebrow">Theme</p>
+          {% set themes = [
+            { id: "light",           label: "Light",           swatch: "#f7f2e7", accent: "#a23a2a" },
+            { id: "dark",            label: "Dark",            swatch: "#1a1a1a", accent: "#e58060" },
+            { id: "solarized-light", label: "Solarized Light", swatch: "#fdf6e3", accent: "#b03a08" },
+            { id: "solarized-dark",  label: "Solarized Dark",  swatch: "#002b36", accent: "#cb4b16" },
+            { id: "github-light",    label: "GitHub Light",    swatch: "#ffffff", accent: "#0969da" },
+            { id: "github-dark",     label: "GitHub Dark",     swatch: "#0d1117", accent: "#58a6ff" },
+            { id: "dracula",         label: "Dracula",         swatch: "#282a36", accent: "#ff79c6" },
+            { id: "nord",            label: "Nord",            swatch: "#2e3440", accent: "#88c0d0" },
+            { id: "gruvbox-dark",    label: "Gruvbox Dark",    swatch: "#282828", accent: "#fe8019" },
+            { id: "one-dark",        label: "One Dark",        swatch: "#282c34", accent: "#e06c75" },
+            { id: "tokyo-night",     label: "Tokyo Night",     swatch: "#1a1b26", accent: "#bb9af7" },
+            { id: "catppuccin",      label: "Catppuccin",      swatch: "#1e1e2e", accent: "#f5c2e7" },
+            { id: "rose-pine",       label: "Rosé Pine",       swatch: "#191724", accent: "#ebbcba" }
+          ] %}
+          {% for t in themes %}
+          <button type="button" class="theme-picker__item" role="menuitemradio" data-theme-set="{{ t.id }}" data-tip="<strong>{{ t.label }}</strong><br>Bg {{ t.swatch }} · Accent {{ t.accent }}">
+            <span class="theme-picker__swatch" aria-hidden="true">
+              <span class="theme-picker__swatch-bg" style="background:{{ t.swatch }}"></span>
+              <span class="theme-picker__swatch-accent" style="background:{{ t.accent }}"></span>
+            </span>
+            <span class="theme-picker__label">{{ t.label }}</span>
+            <span class="theme-picker__check" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
+          </button>
+          {% endfor %}
+        </div>
+      </div>
       <button type="button" id="hamburger-btn" class="hamburger" aria-label="Open menu"
               aria-controls="hamburger-panel" aria-expanded="false"
               onclick="window.openNavPanel && window.openNavPanel()">

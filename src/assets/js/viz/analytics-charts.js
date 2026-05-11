@@ -215,33 +215,78 @@ export async function timeLine(host, series, opts = {}) {
     .text(fmtNum);
 }
 
-/* Donut for proportional dimensions (devices, browsers, OS). */
+/* Donut for proportional dimensions (devices, browsers, OS). Renders
+   the chart on the left and a labelled legend on the right so each
+   color is identifiable. */
+const DONUT_PALETTE = [
+  "#a23a2a", "#e58060", "#e3b873", "#76c893",
+  "#6c71c4", "#6ba9b3", "#d33682", "#268bd2",
+];
+
 export async function donut(host, data, opts = {}) {
   const d3 = await loadD3();
+  host.innerHTML = "";
   if (!d3 || !data || !data.length) {
     host.innerHTML = `<p class="ac-chart__empty">No data yet.</p>`;
     return;
   }
-  const w = 280;
-  const h = 280;
-  const r = 110;
-  const ir = 64;
-  const { svg } = ensureSvg(host, w, h);
-  const sel = d3.select(svg);
   const total = d3.sum(data, (d) => d.count) || 1;
-  const palette = [COLORS.accent, "#e58060", "#e3b873", "#76c893", "#6c71c4", "#6ba9b3", "#d33682", "#268bd2"];
+
+  // Two-column layout: SVG on the left, legend on the right.
+  const wrap = document.createElement("div");
+  wrap.className = "ac-donut";
+  host.appendChild(wrap);
+
+  // SVG side.
+  const svgHost = document.createElement("div");
+  svgHost.className = "ac-donut__chart";
+  wrap.appendChild(svgHost);
+  const w = 240, h = 240, r = 100, ir = 60;
+  const { svg } = ensureSvg(svgHost, w, h);
+  const sel = d3.select(svg);
   const pie = d3.pie().value((d) => d.count).sort(null);
   const arc = d3.arc().innerRadius(ir).outerRadius(r);
   const g = sel.append("g").attr("transform", `translate(${w / 2}, ${h / 2})`);
   g.selectAll("path").data(pie(data)).enter().append("path")
     .attr("d", arc)
-    .attr("fill", (_, i) => palette[i % palette.length])
+    .attr("fill", (_, i) => DONUT_PALETTE[i % DONUT_PALETTE.length])
+    .attr("stroke", "var(--bg-1)").attr("stroke-width", 1.5)
     .append("title").text((d) => `${d.data.label}: ${d.data.count} (${(d.data.count / total * 100).toFixed(1)}%)`);
   g.append("text")
     .attr("text-anchor", "middle")
     .attr("dominant-baseline", "central")
     .attr("class", "ac-chart__donut-total")
     .text(fmtNum(total));
+  g.append("text")
+    .attr("text-anchor", "middle")
+    .attr("dominant-baseline", "central")
+    .attr("class", "ac-chart__donut-sub")
+    .attr("dy", "1.6em")
+    .text("total");
+
+  // Legend side.
+  const legend = document.createElement("ul");
+  legend.className = "ac-donut__legend";
+  wrap.appendChild(legend);
+  for (let i = 0; i < data.length; i++) {
+    const d = data[i];
+    const pct = (d.count / total * 100).toFixed(1);
+    const li = document.createElement("li");
+    li.className = "ac-donut__legend-row";
+    li.innerHTML = `
+      <span class="ac-donut__swatch" style="background:${DONUT_PALETTE[i % DONUT_PALETTE.length]}" aria-hidden="true"></span>
+      <span class="ac-donut__label">${escapeHtml(d.label)}</span>
+      <span class="ac-donut__count">${fmtNum(d.count)}</span>
+      <span class="ac-donut__pct">${pct}%</span>
+    `;
+    legend.appendChild(li);
+  }
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+  }[c]));
 }
 
 /* Auto-wire data to chart slots based on data-chart attribute. The

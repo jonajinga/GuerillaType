@@ -218,17 +218,27 @@ body:not(:has(#tt-stage[data-state="running"])) .practice-bar__action--stop:hove
     border-top:1px solid var(--rule);
     justify-content:center;
   }
-  /* Action buttons collapse to icon-only on mobile, still flush in the bar. */
+  /* Action buttons collapse to icon-only on mobile, flush in the bar.
+     "How it works" + "Feedback" hide on mobile -- they're accessible
+     from the main nav / footer. Keeps Restart / Pause / Stop only so
+     the toolbar fits a 360 px viewport without overlapping stats. */
   .practice-bar__actions{border-left:1px solid var(--rule)}
   .practice-bar__action{
-    width:44px;min-height:44px;padding:0;
+    width:40px;min-height:40px;padding:0;
     justify-content:center;
   }
-  .practice-bar__action svg{width:16px;height:16px}
+  .practice-bar__action svg{width:15px;height:15px}
   .practice-bar__action-label{
     position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;
     overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
   }
+  /* Drop the two secondary (ghost) buttons on mobile. */
+  .practice-bar__action--ghost{display:none !important}
+  /* Tighten stats so the metric trio + 3 action buttons fit one row. */
+  .practice-bar__stats{padding-right:.5rem}
+  .practice-bar .live-stats{gap:.7rem !important}
+  .practice-bar .live-stats__value{font-size:.95rem !important}
+  .practice-bar .live-stats__label{font-size:.55rem !important}
 }
 
 /* ── Mode bar inside the toolbar (desktop only) ────────────────── */

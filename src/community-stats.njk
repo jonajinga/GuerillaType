@@ -25,12 +25,12 @@ pageSlug: community-stats
     <div class="ac-summary__card">
       <span class="ac-summary__label">Average WPM</span>
       <span class="ac-summary__value">{{ d.wpmSummary.mean if d.wpmSummary else "—" }}</span>
-      <span class="ac-summary__sub">mean words-per-minute across all finished sessions. Median {{ d.wpmSummary.median if d.wpmSummary else "—" }} (bucket {{ d.wpmSummary.medianLabel if d.wpmSummary else "—" }}).</span>
+      <span class="ac-summary__sub">mean WPM across finished sessions. Median {{ d.wpmSummary.median if d.wpmSummary else "—" }} (bucket {{ d.wpmSummary.medianLabel if d.wpmSummary else "—" }}).</span>
     </div>
     <div class="ac-summary__card">
       <span class="ac-summary__label">Average accuracy</span>
       <span class="ac-summary__value">{{ d.accSummary.mean if d.accSummary else "—" }}%</span>
-      <span class="ac-summary__sub">mean keystroke accuracy. Median {{ d.accSummary.median if d.accSummary else "—" }}% (bucket {{ d.accSummary.medianLabel if d.accSummary else "—" }}).</span>
+      <span class="ac-summary__sub">mean accuracy across finished sessions. Median {{ d.accSummary.median if d.accSummary else "—" }}% (bucket {{ d.accSummary.medianLabel if d.accSummary else "—" }}).</span>
     </div>
     <div class="ac-summary__card">
       <span class="ac-summary__label">Sessions captured</span>
@@ -40,7 +40,7 @@ pageSlug: community-stats
     <div class="ac-summary__card">
       <span class="ac-summary__label">60+ WPM rate</span>
       <span class="ac-summary__value">{{ d.fastTypists["60+"] if d.fastTypists else 0 }}%</span>
-      <span class="ac-summary__sub">share of finished sessions that crossed 60 WPM. Loosely the "trained typist" threshold.</span>
+      <span class="ac-summary__sub">share of finished sessions that crossed 60 WPM. Loosely the &quot;trained typist&quot; threshold.</span>
     </div>
   </div>
 </section>
