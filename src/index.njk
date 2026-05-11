@@ -25,8 +25,12 @@ pageSlug: "home"
 
   <aside class="hero__sidecard hero__sidecard--typing" id="home-typing-card">
     <div class="hero__sidecard__eyebrow">
-      <span>Tape sprint &middot; 15s</span>
-      <span class="hero__sidecard__live" id="home-typing-live" aria-live="polite"></span>
+      <span>Tape sprint</span>
+      <span class="hero__sidecard__live" id="home-typing-live" aria-live="off">
+        <span class="home-live"><span class="home-live__value" data-live="time">15</span><span class="home-live__label" data-live-label="time">seconds left</span></span>
+        <span class="home-live"><span class="home-live__value" data-live="wpm">0</span><span class="home-live__label">wpm</span></span>
+        <span class="home-live"><span class="home-live__value" data-live="acc">100</span><span class="home-live__label">% acc</span></span>
+      </span>
     </div>
 
     <div id="tt-stage" class="tt-stage tt-stage--embed" data-mode="tape" data-state="idle" data-focused="true">

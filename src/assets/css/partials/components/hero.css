@@ -214,3 +214,31 @@
   display:flex;flex-wrap:wrap;gap:.4rem;
 }
 .home-results__actions .btn{flex:0 0 auto}
+
+/* ── Live stats inside the tape sprint eyebrow ──────────────────
+   Three compact stat slots: time remaining, live WPM, live
+   accuracy. Replaces the single-span text indicator with proper
+   number+label pairs the engine can drive via updateLive(). */
+.hero__sidecard__live{
+  display:inline-flex;align-items:baseline;gap:.9rem;
+  margin-left:auto;
+  font-family:var(--font-mono);
+}
+.home-live{
+  display:inline-flex;align-items:baseline;gap:.25rem;
+  letter-spacing:.04em;
+}
+.home-live__value{
+  font-family:var(--font-display);
+  font-size:1.05rem;line-height:1;color:var(--accent);
+  font-variant-numeric:tabular-nums;font-weight:500;
+}
+.home-live__label{
+  font-size:.58rem;color:var(--fg-3);
+  letter-spacing:.16em;text-transform:uppercase;
+}
+@media (max-width:560px){
+  .hero__sidecard__live{gap:.6rem}
+  .home-live__value{font-size:.95rem}
+  .home-live__label{font-size:.54rem}
+}
