@@ -14,7 +14,58 @@ import { buildSourceText, evaluateGoal } from "../engine/challenge-runner.js";
 import { mountLiveKeyboard, showLiveKeyboard, highlightChar } from "../viz/live-keyboard.js";
 import { mountLiveTicker, showLiveTicker, recordKeystroke, resetTicker, updateWpm as updateTickerWpm } from "../viz/live-ticker.js";
 import { mountVirtualKeyboard, unmountVirtualKeyboard, highlightNextKey as vkbdNext } from "../engine/virtual-keyboard.js";
-import { Analytics, wpmBucket, accBucket, practiceVolumeBucket } from "../analytics.js";
+import { Analytics } from "../analytics.js";
+
+/* Inlined bucket helpers. These also live in analytics.js as named
+   exports, but importing them from there would tie practice-boot
+   to a specific version of analytics.js -- and browsers heavily
+   cache /assets/js/analytics.js (1-year immutable, set on a prior
+   deploy). The stale cached analytics.js doesn't export these,
+   which kills the whole import chain and leaves the page stuck on
+   "Loading...". Defining them locally severs that dependency. */
+function _wpmBucket(wpm) {
+  const v = Math.max(0, Math.round(wpm || 0));
+  if (v < 10) return "0-10";
+  if (v < 20) return "10-20";
+  if (v < 30) return "20-30";
+  if (v < 40) return "30-40";
+  if (v < 50) return "40-50";
+  if (v < 60) return "50-60";
+  if (v < 70) return "60-70";
+  if (v < 80) return "70-80";
+  if (v < 90) return "80-90";
+  if (v < 100) return "90-100";
+  if (v < 120) return "100-120";
+  if (v < 140) return "120-140";
+  if (v < 150) return "140-150";
+  return "150+";
+}
+function _accBucket(acc) {
+  const v = Math.max(0, Math.round(acc || 0));
+  if (v < 80) return "<80";
+  if (v < 85) return "80-85";
+  if (v < 90) return "85-90";
+  if (v < 92) return "90-92";
+  if (v < 94) return "92-94";
+  if (v < 95) return "94-95";
+  if (v < 96) return "95-96";
+  if (v < 97) return "96-97";
+  if (v < 98) return "97-98";
+  if (v < 99) return "98-99";
+  return "99-100";
+}
+function _practiceVolumeBucket(sessions) {
+  const v = Math.max(0, Math.round(sessions || 0));
+  if (v < 6) return "1-5";
+  if (v < 11) return "5-10";
+  if (v < 26) return "10-25";
+  if (v < 51) return "25-50";
+  if (v < 101) return "50-100";
+  if (v < 201) return "100-200";
+  if (v < 501) return "200-500";
+  if (v < 1001) return "500-1000";
+  return "1000+";
+}
 import { $, htmlEscape, toast } from "../util/dom.js";
 
 let _challengesCache = null;
@@ -612,24 +663,29 @@ function handleFinish(result) {
     stopped,
   });
   if (stopped) Analytics.sessionStopped({ mode: state.mode, wpm, acc });
-  // Bucketed distribution events feeding /community-stats/. One
-  // event per finished session per dimension; Umami treats each
-  // bucket label as a categorical value the operator can chart.
-  Analytics.wpmBucket({ bucket: wpmBucket(wpm), mode: state.mode });
-  Analytics.accBucket({ bucket: accBucket(acc), mode: state.mode });
-  Analytics.modeCompleted({ mode: state.mode });
-  if (state.language) Analytics.langUsed({ lang: state.language });
-  // Lifetime session count bucket -- emitted per-session so the chart
-  // shows the distribution of users by practice-volume bracket.
+  // Bucketed distribution events feeding /community-stats/. Wrapped
+  // in try/catch + Analytics.custom fallback so a stale cached
+  // analytics.js (without these named helpers) can't crash the
+  // post-session flow. Even when Analytics.wpmBucket is undefined,
+  // Analytics.custom always exists.
   try {
+    const emit = (name, props) => {
+      const fn = Analytics && Analytics[name];
+      if (typeof fn === "function") fn(props);
+      else if (Analytics && typeof Analytics.custom === "function") Analytics.custom(name === "wpmBucket" ? "wpm_bucket" : name === "accBucket" ? "acc_bucket" : name === "modeCompleted" ? "mode_completed" : name === "langUsed" ? "lang_used" : name === "practiceVolume" ? "practice_volume_bucket" : name === "bookCompletion" ? "book_completion" : name, props);
+    };
+    emit("wpmBucket", { bucket: _wpmBucket(wpm), mode: state.mode });
+    emit("accBucket", { bucket: _accBucket(acc), mode: state.mode });
+    emit("modeCompleted", { mode: state.mode });
+    if (state.language) emit("langUsed", { lang: state.language });
     const prof = profile || {};
     const sessions = ((prof.lifetime && prof.lifetime.sessions) || 0) + 1;
-    Analytics.practiceVolume({ bucket: practiceVolumeBucket(sessions) });
+    emit("practiceVolume", { bucket: _practiceVolumeBucket(sessions) });
+    if (state.bookSlug) {
+      const completed = (result.endCursor || 0) >= (result.targetLen || 0) && acc >= 80;
+      emit("bookCompletion", { book: state.bookSlug, event: completed ? "finished" : "started" });
+    }
   } catch {}
-  if (state.bookSlug) {
-    const completed = (result.endCursor || 0) >= (result.targetLen || 0) && acc >= 80;
-    Analytics.bookCompletion({ book: state.bookSlug, event: completed ? "finished" : "started" });
-  }
   // 100 % accuracy + non-trivial length is a celebration event.
   if (acc === 100 && (result.chars || 0) >= 80) {
     Analytics.perfectSession({ mode: state.mode, wpm, chars: result.chars });
