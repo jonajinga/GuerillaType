@@ -107,7 +107,23 @@ export default function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy("src/assets/img");
   eleventyConfig.addPassthroughCopy("src/assets/fonts");
   eleventyConfig.addPassthroughCopy("src/assets/js");
-  eleventyConfig.addPassthroughCopy("src/data");
+  // src/data -> _site/data. The default 11ty passthrough uses
+  // @11ty/recursive-copy which races against OneDrive's sync locks
+  // and emits cryptic "Benchmark after() without a before()" errors.
+  // fs.cpSync (Node 16.7+) is sync, atomic per file, and noticeably
+  // faster on this ~290-book directory. Wrapped in a single
+  // eleventy.before hook so it runs before pagination starts.
+  eleventyConfig.on("eleventy.before", () => {
+    try {
+      const src = path.resolve("src/data");
+      const dest = path.resolve("_site/data");
+      if (!fs.existsSync(src)) return;
+      fs.mkdirSync(dest, { recursive: true });
+      fs.cpSync(src, dest, { recursive: true, force: true });
+    } catch (e) {
+      console.warn("[passthrough] src/data copy failed:", e.message);
+    }
+  });
   eleventyConfig.addPassthroughCopy({ "src/_redirects": "_redirects" });
   eleventyConfig.addPassthroughCopy({ "src/_headers": "_headers" });
   eleventyConfig.addPassthroughCopy({ "src/humans.txt": "humans.txt" });
