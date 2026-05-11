@@ -452,6 +452,12 @@ async function buildText() {
     if (!state.duration) state.duration = 15;
     return uniformText(list, 120);  // long stream so it never runs out
   }
+  // Tape Zen: tape rendering + untimed (zen-like). User stops via
+  // the Stop button or Esc. Long word stream so the ticker can
+  // keep scrolling indefinitely.
+  if (state.mode === "tape-zen") {
+    return uniformText(list, 200);
+  }
   // time mode — give a long stream that we'll extend if needed
   return uniformText(list, 80);
 }
@@ -486,7 +492,9 @@ function startEngine(target) {
   textEl.classList.toggle("tt-text--reader", !!isLiterary);
   // Tape mode: single horizontal line that scrolls left as the
   // caret advances. CSS handles the layout via .tt-text--tape.
-  textEl.classList.toggle("tt-text--tape", state.mode === "tape");
+  // Both "tape" and "tape-zen" use the same scroll renderer; the
+  // only difference is whether there's a duration deadline.
+  textEl.classList.toggle("tt-text--tape", state.mode === "tape" || state.mode === "tape-zen");
   // Tag the typing surface with the literary kind so kind-specific
   // styling (e.g. a centered, italic moral on parables) can target
   // just the last .tt-paragraph block via CSS.

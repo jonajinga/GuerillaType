@@ -29,6 +29,7 @@ const megamenu = [
           { chip: "▸", label: "Tape sprint 15s", url: "/practice/?mode=tape&duration=15", desc: "Single horizontal line that scrolls left as you type. 15 seconds." },
           { chip: "▸▸", label: "Tape 30s", url: "/practice/?mode=tape&duration=30", desc: "Tape mode, 30 seconds. The classic ticker length." },
           { chip: "▸▸▸", label: "Tape 60s", url: "/practice/?mode=tape&duration=60", desc: "Tape mode, full minute. Longer reading rhythm." },
+          { chip: "∞", label: "Tape zen", url: "/practice/?mode=tape-zen", desc: "Untimed ticker tape -- type until you stop." },
           { chip: "Q", label: "Today's quote", url: "/practice/?mode=quote&quote=daily", desc: "One curated quote per day, shared by all visitors." },
           { chip: "15", label: "15-second test", url: "/practice/?mode=time&duration=15", desc: "Fastest warm-up. Stacked-line layout." },
           { chip: "30", label: "30-second test", url: "/practice/?mode=time&duration=30", desc: "The classic warm-up -- type as much as you can." },
@@ -41,6 +42,7 @@ const megamenu = [
         items: [
           { chip: "T", label: "Time mode", url: "/practice/?mode=time&duration=30", desc: "Type freely, ends when the clock runs out." },
           { chip: "▸", label: "Tape mode", url: "/practice/?mode=tape&duration=30", desc: "Horizontal ticker-tape that scrolls under a fixed caret." },
+          { chip: "∞", label: "Tape zen", url: "/practice/?mode=tape-zen", desc: "Untimed tape -- type freely with the horizontal scroll renderer." },
           { chip: "10", label: "Words: 10", url: "/practice/?mode=words&words=10", desc: "Short fixed count -- sentence-length burst." },
           { chip: "25", label: "Words: 25", url: "/practice/?mode=words&words=25", desc: "Default words mode." },
           { chip: "50", label: "Words: 50", url: "/practice/?mode=words&words=50", desc: "Mid-length fixed count." },

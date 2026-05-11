@@ -148,6 +148,42 @@ pageSlug: community-stats
     <div class="ac-chart" data-chart="horizontalBars" data-series="langs"></div>
   </section>
 
+  {# ───────────────── §12 Most-missed characters ───────────────── #}
+  <section class="ac-panel ac-panel--span-2">
+    <header class="ac-panel__head">
+      <h2>12 &middot; Most-missed characters</h2>
+      <p class="muted">Top characters typists get wrong across the community. One <code>worst_char</code> event fires per finished session with the single most-missed character on that session's target text. The bar count is the sum of session-events, not raw keystroke errors.</p>
+    </header>
+    <div class="ac-chart" data-chart="horizontalBars" data-series="worstChars"></div>
+  </section>
+
+  {# ───────────────── §13 Most-missed words ───────────────── #}
+  <section class="ac-panel ac-panel--span-2">
+    <header class="ac-panel__head">
+      <h2>13 &middot; Most-missed words</h2>
+      <p class="muted">Words typists trip on. Each finished session emits one <code>worst_word</code> event with the word that accumulated the most errors during that session. Short common words dominate because they appear in nearly every session.</p>
+    </header>
+    <div class="ac-chart" data-chart="horizontalBars" data-series="worstWords"></div>
+  </section>
+
+  {# ───────────────── §14 Worst finger ───────────────── #}
+  <section class="ac-panel">
+    <header class="ac-panel__head">
+      <h2>14 &middot; Worst finger (per session)</h2>
+      <p class="muted">For each finished session, the engine emits one <code>worst_finger</code> event identifying which finger had the lowest accuracy that session. The cumulative count surfaces which fingers most commonly underperform.</p>
+    </header>
+    <div class="ac-chart" data-chart="horizontalBars" data-series="worstFingers"></div>
+  </section>
+
+  {# ───────────────── §15 Finger accuracy distribution ───────────────── #}
+  <section class="ac-panel">
+    <header class="ac-panel__head">
+      <h2>15 &middot; Per-finger accuracy</h2>
+      <p class="muted">Each finished session emits one <code>finger_acc</code> event per finger that touched a key, bucketed by accuracy. Aggregated here as total events per finger &mdash; bigger bar = more session-events recorded for that finger.</p>
+    </header>
+    <div class="ac-chart" data-chart="horizontalBars" data-series="fingerAccByFinger"></div>
+  </section>
+
 </div>
 
 {# ───────────────── Methodology ───────────────── #}
@@ -195,5 +231,11 @@ pageSlug: community-stats
   d.dimensions.practiceVolume = bucketsToArray(d.practiceVolume, ["1-5","5-10","10-25","25-50","50-100","100-200","200-500","500-1000","1000+"]);
   d.dimensions.langs = bucketsToArray(d.langs);
   d.dimensions.fastTypists = fastTypistsArray(d.fastTypists);
+  // Worst-X surfaces. Sorted descending by count, top 15 each so
+  // the long tail doesn't dominate the chart.
+  d.dimensions.worstChars = bucketsToArray(d.worstChars).slice(0, 15);
+  d.dimensions.worstWords = bucketsToArray(d.worstWords).slice(0, 15);
+  d.dimensions.worstFingers = bucketsToArray(d.worstFingers, ["L_pinky","L_ring","L_middle","L_index","R_index","R_middle","R_ring","R_pinky","L_thumb","R_thumb"]);
+  d.dimensions.fingerAccByFinger = bucketsToArray(d.fingerAccByFinger, ["L_pinky","L_ring","L_middle","L_index","R_index","R_middle","R_ring","R_pinky","L_thumb","R_thumb"]);
   paintAll(d);
 </script>

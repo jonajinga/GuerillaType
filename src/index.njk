@@ -25,22 +25,43 @@ pageSlug: "home"
 
   <aside class="hero__sidecard hero__sidecard--typing" id="home-typing-card">
     <div class="hero__sidecard__eyebrow">
-      <span>Today's quote</span>
+      <span>Tape sprint &middot; 15s</span>
       <span class="hero__sidecard__live" id="home-typing-live" aria-live="polite"></span>
     </div>
 
-    <div id="tt-stage" class="tt-stage tt-stage--embed" data-mode="quote" data-state="idle" data-focused="true">
-      <input id="tt-input" class="tt-input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="text" aria-label="Type today's quote">
-      <div id="tt-text" class="tt-text tt-text--full" aria-live="off"></div>
+    <div id="tt-stage" class="tt-stage tt-stage--embed" data-mode="tape" data-state="idle" data-focused="true">
+      <input id="tt-input" class="tt-input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="text" aria-label="Tape sprint -- type the words as they scroll">
+      <div id="tt-text" class="tt-text tt-text--tape" aria-live="off"></div>
       <p id="tt-hint" class="tt-stage__hint" aria-live="polite">Click here, then start typing.</p>
     </div>
     <div class="hero__sidecard__cite" id="daily-cite"></div>
     <div id="tt-progress-fill" class="hero__sidecard__progress" aria-hidden="true"></div>
 
+    {# Inline results popup -- populated by home-boot when the
+       15s sprint finishes. Stays hidden until then. #}
+    <div id="home-results" class="home-results" hidden>
+      <div class="home-results__head">
+        <span class="home-results__eyebrow">Session complete</span>
+        <button type="button" class="home-results__close" id="home-results-close" aria-label="Dismiss">&times;</button>
+      </div>
+      <div class="home-results__metrics">
+        <div class="home-results__metric"><span class="home-results__value" data-metric="wpm">0</span><span class="home-results__label">WPM</span></div>
+        <div class="home-results__metric"><span class="home-results__value" data-metric="acc">0%</span><span class="home-results__label">accuracy</span></div>
+        <div class="home-results__metric"><span class="home-results__value" data-metric="chars">0</span><span class="home-results__label">chars</span></div>
+      </div>
+      <div class="home-results__actions">
+        <button type="button" class="btn btn--small btn--primary" id="home-results-again">Run another sprint</button>
+        <a class="btn btn--small" href="/practice/?mode=tape&amp;duration=30">Try 30s tape</a>
+        <a class="btn btn--small" href="/practice/?mode=tape-zen">Tape zen (untimed)</a>
+        <a class="btn btn--small btn--ghost" href="/practice/?mode=time&amp;duration=30">Switch to 30s test</a>
+        <a class="btn btn--small btn--ghost" href="/practice/?mode=quote&amp;quote=daily">Today's quote</a>
+      </div>
+    </div>
+
     <div id="tt-results" hidden></div>
     <div class="hero__sidecard__actions">
-      <a class="btn btn--small btn--primary" href="/practice/?mode=quote&amp;quote=daily">Open in full practice</a>
-      <a class="btn btn--small" href="/practice/?mode=quote&amp;quote=long">Longer quote</a>
+      <a class="btn btn--small btn--primary" href="/practice/?mode=tape&amp;duration=15">Open in full practice</a>
+      <a class="btn btn--small" href="/practice/?mode=tape-zen">Untimed tape</a>
     </div>
   </aside>
 </section>

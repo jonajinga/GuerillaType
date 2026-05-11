@@ -88,6 +88,12 @@ const jobs = [
   ["bookEvents",     "book_completion",        "event"],
   ["practiceVolume", "practice_volume_bucket", "bucket"],
   ["langs",          "lang_used",              "lang"],
+  // Most-missed surface — community-wide weakest spots.
+  ["worstChars",     "worst_char",             "char"],
+  ["worstWords",     "worst_word",             "word"],
+  ["worstFingers",   "worst_finger",           "finger"],
+  ["fingerAccBuckets","finger_acc",            "bucket"],
+  ["fingerAccByFinger","finger_acc",           "finger"],
 ];
 
 for (const [key, eventName, propertyName] of jobs) {
