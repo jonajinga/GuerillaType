@@ -237,6 +237,28 @@ export default function (eleventyConfig) {
     return fs.readFileSync(file, "utf8");
   });
 
+  // Pre-create every paginated /library/<slug>/ output directory
+  // up-front. Eleventy v3 on Windows + OneDrive intermittently
+  // fails the parallel writeFileSync calls for ~290 paginated
+  // library pages with ENOENT -- the recursive mkdir races with
+  // OneDrive's folder-lock during sync. Sequential mkdirSync here
+  // guarantees the dirs exist by the time the templates write.
+  eleventyConfig.on("eleventy.before", () => {
+    try {
+      const booksDir = path.resolve("src/data/books");
+      if (!fs.existsSync(booksDir)) return;
+      const outBase = path.resolve("_site/library");
+      fs.mkdirSync(outBase, { recursive: true });
+      for (const f of fs.readdirSync(booksDir)) {
+        if (!f.endsWith(".json")) continue;
+        const slug = f.replace(/\.json$/, "");
+        try { fs.mkdirSync(path.join(outBase, slug), { recursive: true }); } catch {}
+      }
+    } catch (e) {
+      console.warn("[prebuild] library mkdir failed:", e.message);
+    }
+  });
+
   // Pre-bake fixed-name responsive variants of the author photo so
   // dynamically-rendered HTML (megamenu.js) and Nunjucks macros (which
   // can't await the async {% image %} shortcode) can reference a
