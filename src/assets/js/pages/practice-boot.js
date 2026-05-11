@@ -1061,21 +1061,9 @@ function renderResults(r) {
     .slice(0, 8)
     .map(([ch]) => ch);
   const meta = r._meta || {};
-  // Show a one-time "leave a testimonial" prompt after 10 lifetime
-  // sessions. The dismissal flag persists in localStorage so we never
-  // re-prompt — even if the count keeps climbing.
-  const lifetimeSessions = ((profile.lifetime && profile.lifetime.sessions) || 0) + 1;
-  let testimonialPrompt = "";
-  try {
-    const dismissed = localStorage.getItem("tt:testimonial-prompt-dismissed") === "true";
-    if (!dismissed && lifetimeSessions >= 10) {
-      testimonialPrompt = `
-        <aside class="results__testimonial-prompt" id="tt-testimonial-prompt">
-          <p>Enjoying GT? <a href="/contribute/testimonial/" data-tip="Submit a short testimonial -- helps the project and may appear on the reviews page if you opt in.">Leave a review →</a></p>
-          <button type="button" class="results__testimonial-dismiss" id="tt-testimonial-dismiss" aria-label="Dismiss this prompt" data-tip="Dismiss this prompt for the rest of the session.">×</button>
-        </aside>`;
-    }
-  } catch {}
+  // Testimonial prompt removed -- the always-visible "Leave a
+  // review" button in the actions row carries the same path.
+  const testimonialPrompt = "";
   const prBadge = meta.newOverallBest
     ? `<span class="results__pr results__pr--lifetime" data-tip="New all-time best wpm across every mode you've practiced.">NEW LIFETIME BEST</span>`
     : meta.newModeBest

@@ -140,7 +140,7 @@
 .results__chart{margin-block:var(--space-4);background:var(--bg-2);padding:var(--space-3);border:1px solid var(--rule);height:180px}
 .results__chart svg{width:100%;height:100%}
 
-.results__actions{display:flex;flex-wrap:nowrap;gap:var(--space-2);justify-content:center;margin-top:var(--space-4)}
+.results__actions{display:flex;flex-wrap:wrap;gap:var(--space-2);justify-content:center;margin-top:var(--space-4)}
 /* Result-card buttons (Next quote / Practice weak keys / View stats /
    Type page again / etc.) share metrics so the post-completion row
    reads as a balanced trio. nowrap on the row plus a media-driven
@@ -148,7 +148,12 @@
    every viewport. */
 .results__btn{
   display:inline-flex;align-items:center;justify-content:center;gap:.45rem;
-  min-width:11rem;
+  /* Soft min-width so the actions row reads as a balanced strip
+     without forcing horizontal overflow when five buttons share
+     it. Was 11rem -- six buttons * 11rem + gaps exceeded the
+     practice surface's content width. */
+  min-width:8.5rem;
+  flex:0 1 auto;
 }
 .results__btn-icon{display:none}
 @media (max-width:768px){
