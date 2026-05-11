@@ -12,6 +12,6 @@ export default {
   repo: "https://github.com/jonajinga/GuerillaType",
   // Analytics — fill these in to enable. Both are optional; both are
   // privacy-friendly and require no cookie banner.
-  umami: { enabled: false, src: "", websiteId: "" },
+  umami: { enabled: true, src: "https://cloud.umami.is/script.js", websiteId: "7627d387-9e08-4f42-92cd-a36f19785920" },
   cloudflare: { enabled: false, token: "" },
 };

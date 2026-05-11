@@ -1,6 +1,8 @@
 /* Stats page boot. Renders all viz, achievements, and per-mode bests. */
 
 import { getActive } from "../profiles.js";
+import { Analytics } from "../analytics.js";
+Analytics.statsViewed({});
 import { renderKeyboard } from "../stats/viz-keyboard.js";
 import { renderTrend } from "../stats/viz-trend.js";
 import { renderTrendD3 } from "../stats/viz-trend-d3.js";
@@ -117,6 +119,7 @@ document.querySelectorAll(".contrib-toggle__btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".contrib-toggle__btn").forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
     contribView = btn.dataset.view || "year";
+    Analytics.statsTabSwitched({ tab: "contribution", view: contribView });
     paintContrib();
   });
 });

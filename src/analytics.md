@@ -2,8 +2,8 @@
 layout: layouts/article.njk
 title: "Analytics"
 eyebrow: "What I track"
-lede: "Almost nothing leaves your device. Here's exactly what gets collected, by whom, and how to opt out."
-description: "What GuerillaType's analytics actually track. Privacy-first by design — no cookies, no personal data, full transparency."
+lede: "Almost nothing leaves your device. The public Umami dashboard is embedded below — same view I look at, never paywalled."
+description: "What GuerillaType's analytics actually track, plus the live public Umami dashboard. Privacy-first by design — no cookies, no personal data, full transparency."
 cta:
   title: "Read the privacy policy"
   body: "Full statement on what stays on-device and what (if anything) is transmitted."
@@ -11,6 +11,19 @@ cta:
     - { label: "Privacy policy", url: "/privacy/", primary: true }
     - { label: "Tech stack", url: "/tech-stack/" }
 ---
+
+## Live dashboard
+
+<div class="umami-embed">
+  <iframe
+    src="https://cloud.umami.is/share/Go6W5bgtCW47V4Gf"
+    title="GuerillaType public Umami analytics dashboard"
+    loading="lazy"
+    referrerpolicy="no-referrer-when-downgrade"
+    allow="clipboard-write"></iframe>
+</div>
+
+Open the dashboard in its own tab: [cloud.umami.is/share/Go6W5bgtCW47V4Gf](https://cloud.umami.is/share/Go6W5bgtCW47V4Gf).
 
 ## What I *don't* collect
 

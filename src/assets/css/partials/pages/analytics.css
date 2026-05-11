@@ -1,0 +1,21 @@
+/* /analytics/ -- embedded Umami public dashboard. */
+.umami-embed{
+  margin:var(--space-5) 0;
+  width:100%;
+  background:var(--bg-1);
+  border:1px solid var(--rule);
+  border-radius:var(--radius);
+  overflow:hidden;
+}
+.umami-embed iframe{
+  display:block;width:100%;
+  height:min(1600px, calc(100vh - 220px));
+  min-height:720px;
+  border:0;background:var(--bg-1);
+}
+@media (max-width:768px){
+  .umami-embed iframe{
+    height:min(1400px, calc(100vh - 160px));
+    min-height:560px;
+  }
+}

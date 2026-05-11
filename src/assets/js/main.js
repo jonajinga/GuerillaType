@@ -3,6 +3,7 @@
 
 import { migrate } from "./storage.js";
 import { getActive } from "./profiles.js";
+import { Analytics } from "./analytics.js";
 import "./megamenu.js";
 import "./shortcuts.js";
 import "./prefetch.js";
@@ -12,6 +13,50 @@ import "./pwa.js";
 
 migrate();
 const _profile = getActive(); // ensure default profile exists
+
+/* Site-wide analytics. Umami auto-records pageviews; these add
+   GuerillaType layer events (LCP buckets, uncaught errors,
+   external-link clicks, PWA install). */
+(function siteAnalytics() {
+  const slug = document.body.dataset.page || "unknown";
+  try {
+    if ("PerformanceObserver" in window) {
+      const po = new PerformanceObserver((list) => {
+        const entries = list.getEntries();
+        const last = entries[entries.length - 1];
+        if (!last) return;
+        const ms = Math.round(last.renderTime || last.loadTime || last.startTime || 0);
+        if (!ms) return;
+        const bucket = ms < 1500 ? "good" : ms < 2500 ? "needs_improvement" : "poor";
+        Analytics.perfTiming({ metric: "LCP", ms, bucket, page: slug });
+        po.disconnect();
+      });
+      po.observe({ type: "largest-contentful-paint", buffered: true });
+    }
+  } catch {}
+  window.addEventListener("error", (e) => {
+    try { Analytics.jsError({ msg: String(e.message || "").slice(0, 200), page: slug }); } catch {}
+  });
+  window.addEventListener("unhandledrejection", (e) => {
+    try {
+      const r = (e.reason && (e.reason.message || String(e.reason))) || "promise";
+      Analytics.jsError({ msg: String(r).slice(0, 200), page: slug, kind: "promise" });
+    } catch {}
+  });
+  document.addEventListener("click", (e) => {
+    const a = e.target.closest && e.target.closest("a[href]");
+    if (!a) return;
+    try {
+      const href = a.getAttribute("href") || "";
+      if (!href || href.startsWith("#") || href.startsWith("mailto:")) return;
+      const u = new URL(href, location.href);
+      if (u.origin !== location.origin) {
+        Analytics.externalLinkClicked({ host: u.hostname, page: slug });
+      }
+    } catch {}
+  });
+  window.addEventListener("appinstalled", () => Analytics.pwaInstalled({ page: slug }));
+})();
 
 // ── Apply user preferences that affect global CSS ────────────────
 // data-whitespace drives the typing-surface space marker; data-cursor

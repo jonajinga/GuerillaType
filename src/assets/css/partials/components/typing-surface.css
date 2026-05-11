@@ -107,31 +107,27 @@
 .tt-text.tt-text--tape, html .tt-text.tt-text--tape{
   display:block;width:100%;
   height:auto !important;max-height:none !important;
-  overflow-x:auto !important;overflow-y:hidden !important;
+  overflow:hidden !important;
   white-space:nowrap;
   padding:1.4rem 0;
   font-size:var(--fs-700);
   font-family:var(--font-typing, var(--font-mono));
   letter-spacing:.02em;line-height:1.4;
   position:relative;
-  scroll-behavior:smooth;
-  scrollbar-width:none;
-  /* Right-edge fade only -- the left side used to fade too but
-     it ate the first word at scrollLeft=0. Words still fade out
+  /* Right-edge fade only -- left side stays solid so the first
+     word is fully visible from the first frame. Words fade out
      cleanly on the right as the caret advances past them. */
   -webkit-mask-image:linear-gradient(90deg, #000 0, #000 calc(100% - 4rem), transparent) !important;
   mask-image:linear-gradient(90deg, #000 0, #000 calc(100% - 4rem), transparent) !important;
 }
-.tt-text.tt-text--tape::-webkit-scrollbar{display:none}
 .tt-text.tt-text--tape .tt-text__inner{
   display:inline-block;white-space:nowrap;
-  transform:none !important;
-  /* Padding-left = anchor position so the first char sits AT the
-     30% mark from the very first frame. Without this, the first
-     word renders flush-left, awkwardly far from the caret anchor
-     until the user has typed enough to trigger a scroll. */
+  /* Slide left via translateX (set imperatively from the renderer
+     each keystroke). Padding-left = anchor position so the first
+     char sits at the 30% mark before any scroll is applied. */
   padding-left:30%;
-  min-width:170%;
+  transition:transform 140ms ease-out;
+  will-change:transform;
 }
 .tt-text.tt-text--tape .tt-word{
   display:inline-block;white-space:nowrap;margin-right:.6em;

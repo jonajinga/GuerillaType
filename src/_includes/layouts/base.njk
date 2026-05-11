@@ -16,18 +16,12 @@
 <meta property="og:image" content="{{ site.url }}{{ ogImage or site.ogImage }}">
 <meta name="twitter:card" content="summary_large_image">
 
-{# Light-mode favicons (default). #}
-<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png" media="(prefers-color-scheme: light)">
-<link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16.png" media="(prefers-color-scheme: light)">
-<link rel="icon" type="image/png" sizes="48x48" href="/assets/img/favicon-48.png" media="(prefers-color-scheme: light)">
-{# Dark-mode favicons. Browsers pick whichever matches the OS color
-   scheme. Without `media`, they fall back to a light-icon default. #}
-<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32-light.png" media="(prefers-color-scheme: dark)">
-<link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16-light.png" media="(prefers-color-scheme: dark)">
-<link rel="icon" type="image/png" sizes="48x48" href="/assets/img/favicon-48-light.png" media="(prefers-color-scheme: dark)">
-{# Default fallback for browsers that ignore media on icon links. #}
-<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/assets/img/apple-touch-icon.png">
+{# White (-light) favicon as the default everywhere -- reads well
+   against both browser-tab backgrounds. #}
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32-light.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16-light.png">
+<link rel="icon" type="image/png" sizes="48x48" href="/assets/img/favicon-48-light.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/img/apple-touch-icon-light.png">
 <link rel="manifest" href="/site.webmanifest">
 
 {# No-flash theme — runs synchronously before paint. #}

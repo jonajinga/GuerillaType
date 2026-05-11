@@ -77,7 +77,8 @@ export class Renderer {
 
     this.cursor = 0;
     this.scrollPx = 0;
-    this.inner.style.transform = "translateY(0)";
+    this._tapeShift = 0;
+    this.inner.style.transform = "";
     this.moveCaretTo(0);
   }
 
@@ -182,23 +183,29 @@ export class Renderer {
       return;
     }
 
-    // Tape mode: container scrolls horizontally so the typed char
-    // sits near the 30 % mark of the viewport. The caret is a
-    // position:absolute child of the scroll container, so its
-    // coordinates are in CONTENT space (they scroll with the
-    // inner). Setting caret.left = charContentX pins it to the
-    // char regardless of scroll progress.
+    // Tape mode: the inner slides left via translateX so the
+    // typed char sits near the 30 % mark of the viewport. Avoids
+    // the smooth-scroll / scrollLeft race conditions we hit with
+    // overflow-x:auto. Caret is positioned absolutely inside the
+    // container and follows the inner's transform (its `left` is
+    // expressed in the inner's pre-transform coordinate space).
     if (cont.classList.contains("tt-text--tape")) {
       const anchorX = cr.width * 0.3;
-      const charContentX = r.left - cr.left + cont.scrollLeft;
-      const targetScroll = Math.max(0, charContentX - anchorX);
-      // Set caret in content coords first so it tracks the char
-      // smoothly even while CSS smooth-scroll is animating.
-      this.caret.style.left = charContentX + "px";
+      // r.left already reflects any current translateX on the
+      // inner. Add back the prior slide to recover the pre-
+      // transform content-space x.
+      const charContentX = r.left - cr.left + (this._tapeShift || 0);
+      const slide = Math.max(0, charContentX - anchorX);
+      this._tapeShift = slide;
+      this.inner.style.transform = slide > 0 ? `translateX(-${slide}px)` : "";
+      // The caret is a child of the container (not the inner) so
+      // it does NOT receive the inner's transform. Place it at the
+      // char's POST-transform viewport position relative to the
+      // container's left edge: charContentX - slide (= anchorX
+      // when scrolling, or = char's flush-left position when no
+      // slide has accumulated yet).
+      this.caret.style.left = (charContentX - slide) + "px";
       this.caret.style.top = (r.top - cr.top) + "px";
-      if (Math.abs(cont.scrollLeft - targetScroll) > 1) {
-        cont.scrollLeft = targetScroll;
-      }
       return;
     }
 

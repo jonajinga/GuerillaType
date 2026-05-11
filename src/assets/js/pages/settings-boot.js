@@ -4,7 +4,10 @@ import { getProfiles, getActive, getActiveId, setActiveId, addProfile, renamePro
 import { quotaUsed, KEY_PROFILES, KEY_ACTIVE, KEY_SETTINGS, KEY_CUSTOM, KEY_META, remove } from "../storage.js";
 import { $, toast } from "../util/dom.js";
 import { confirmModal, promptModal } from "../util/modal.js";
+import { Analytics } from "../analytics.js";
 import "../theme-builder.js";
+
+Analytics.settingsViewed({});
 
 function syncProfileSelect() {
   const sel = $("#profile-select");
@@ -50,10 +53,10 @@ $("#profile-delete").addEventListener("click", async () => {
   deleteProfile(getActiveId());
   window.location.reload();
 });
-$("#profile-export").addEventListener("click", () => exportJson());
+$("#profile-export").addEventListener("click", () => { Analytics.statsExported({ source: "settings" }); exportJson(); });
 $("#profile-import").addEventListener("change", async (e) => {
   const f = e.target.files[0]; if (!f) return;
-  try { await importJson(f); toast("Imported. Reloading…"); setTimeout(() => location.reload(), 800); }
+  try { await importJson(f); Analytics.statsImported({ source: "settings" }); toast("Imported. Reloading…"); setTimeout(() => location.reload(), 800); }
   catch (err) { toast(err.message || "Import failed", "bad"); }
 });
 
@@ -75,7 +78,13 @@ function syncSettings() {
   setSmoothCaret.checked = p.settings.smoothCaret !== false;
 }
 function bindSetting(el, key, parse = (v) => v) {
-  el.addEventListener("change", () => updateActive((p) => { p.settings[key] = parse(el.type === "checkbox" ? el.checked : el.value); return p; }));
+  el.addEventListener("change", () => {
+    const val = parse(el.type === "checkbox" ? el.checked : el.value);
+    updateActive((p) => { p.settings[key] = val; return p; });
+    if (key === "layout") Analytics.layoutChanged({ layout: val });
+    else if (key === "caret") Analytics.caretStyleChanged({ caret: val });
+    else Analytics.prefToggled({ key, value: val });
+  });
 }
 bindSetting(setLang, "language");
 bindSetting(setLayout, "layout");
@@ -125,11 +134,16 @@ function bindPreference(el, key, parse = (v) => v) {
   // checkboxes (the label wraps the box; tap registers on the
   // label, not the input). Listen on change + input + click so
   // every reasonable interaction path saves the preference.
-  const save = () => updateActive((p) => {
-    p.preferences = p.preferences || {};
-    p.preferences[key] = parse(el.type === "checkbox" ? el.checked : el.value);
-    return p;
-  });
+  const save = () => {
+    const val = parse(el.type === "checkbox" ? el.checked : el.value);
+    updateActive((p) => {
+      p.preferences = p.preferences || {};
+      p.preferences[key] = val;
+      return p;
+    });
+    if (key === "typingFont") Analytics.fontChanged({ font: val });
+    else Analytics.prefToggled({ key, value: val });
+  };
   el.addEventListener("change", save);
   el.addEventListener("input", save);
   // For checkboxes, also catch the click on the wrapping label so
@@ -173,6 +187,7 @@ if (themePreset) {
       document.documentElement.setAttribute("data-theme", sys);
       try { localStorage.removeItem("tt:theme"); } catch {}
     }
+    Analytics.themeChanged({ theme: v || "system" });
   });
 }
 

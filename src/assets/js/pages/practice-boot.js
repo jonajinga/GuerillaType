@@ -592,17 +592,45 @@ function renderChallengeHud() {
 function handleFinish(result) {
   result.lang = state.language;
   result.layout = state.layout;
+  const wpm = Math.round(result.wpm || 0);
+  const acc = Math.round(result.accuracy || 0);
+  const stopped = !!(engine && engine._stopped);
   Analytics.sessionFinish({
     mode: state.mode,
     lang: state.language,
     layout: state.layout,
-    wpm: Math.round(result.wpm || 0),
-    acc: Math.round(result.accuracy || 0),
+    wpm, acc,
     duration: state.duration || null,
     words: state.words || null,
     chars: result.chars || 0,
-    stopped: !!(engine && engine._stopped),
+    stopped,
   });
+  if (stopped) Analytics.sessionStopped({ mode: state.mode, wpm, acc });
+  // 100 % accuracy + non-trivial length is a celebration event.
+  if (acc === 100 && (result.chars || 0) >= 80) {
+    Analytics.perfectSession({ mode: state.mode, wpm, chars: result.chars });
+  }
+  // Speed milestones (50 / 75 / 100 / 125 / 150 wpm).
+  if (wpm >= 50) {
+    const tier = wpm >= 150 ? 150 : wpm >= 125 ? 125 : wpm >= 100 ? 100 : wpm >= 75 ? 75 : 50;
+    Analytics.speedMilestone({ mode: state.mode, tier, wpm });
+  }
+  // Lesson + challenge outcome (passed/failed semantics derived from
+  // the engine's pass criteria when state.lessonId or activeChallenge
+  // is set).
+  if (state.lessonId != null) {
+    const passed = acc >= 90 && wpm >= 25;
+    if (passed) Analytics.lessonPassed({ lesson: state.lessonId, wpm, acc });
+    else Analytics.lessonFailed({ lesson: state.lessonId, wpm, acc });
+  }
+  if (activeChallenge && activeChallenge.id) {
+    const passed = (!activeChallenge.goal || (
+      (!activeChallenge.goal.wpm || wpm >= activeChallenge.goal.wpm) &&
+      (!activeChallenge.goal.acc || acc >= activeChallenge.goal.acc)
+    ));
+    if (passed) Analytics.challengeCompleted({ challenge: activeChallenge.id, wpm, acc });
+    else Analytics.challengeFailed({ challenge: activeChallenge.id, wpm, acc });
+  }
   if (state.lessonId != null) result.lessonId = state.lessonId;
   if (state.drillId != null) result.drillId = state.drillId;
   if (state.bookSlug) {
@@ -1122,12 +1150,13 @@ function bindModeBar() {
       if (b.dataset.mode) {
         activeChallenge = null;
         state.mode = b.dataset.mode;
+        Analytics.modeSelected({ mode: state.mode });
       }
-      else if (b.dataset.duration) state.duration = parseInt(b.dataset.duration, 10);
-      else if (b.dataset.words) state.words = parseInt(b.dataset.words, 10);
-      else if (b.dataset.quote) state.quote = b.dataset.quote;
-      else if (b.dataset.lang !== undefined) state.language = b.dataset.lang;
-      else if (b.dataset.tag !== undefined) state.quoteTag = b.dataset.tag;
+      else if (b.dataset.duration) { state.duration = parseInt(b.dataset.duration, 10); Analytics.variantSelected({ kind: "duration", value: state.duration }); }
+      else if (b.dataset.words) { state.words = parseInt(b.dataset.words, 10); Analytics.variantSelected({ kind: "words", value: state.words }); }
+      else if (b.dataset.quote) { state.quote = b.dataset.quote; Analytics.variantSelected({ kind: "quote", value: state.quote }); }
+      else if (b.dataset.lang !== undefined) { state.language = b.dataset.lang; Analytics.sourceSelected({ lang: state.language, mode: state.mode }); }
+      else if (b.dataset.tag !== undefined) { state.quoteTag = b.dataset.tag; Analytics.variantSelected({ kind: "tag", value: state.quoteTag }); }
       syncModeBar();
       boot();
     });
@@ -1173,7 +1202,7 @@ function bindMobileModeSheet() {
   };
   summary.addEventListener("click", () => {
     if (document.body.classList.contains("is-mode-sheet-open")) close();
-    else open();
+    else { open(); Analytics.mobileSheetOpened({ from: "summary_chip", mode: state.mode }); }
   });
   // Backdrop tap closes (the ::before scrim is purely visual; the
   // sheet itself is the click-through; tapping outside the sheet
@@ -1222,6 +1251,7 @@ window.ttToggleDropdown = function(mode, event) {
   if (isOpen) return;
   trigger.setAttribute("aria-expanded", "true");
   panel.hidden = false;
+  Analytics.dropdownOpened({ mode });
   // Wipe ALL inline styles first so a previous open-position from
   // a different viewport (e.g. desktop -> rotated to portrait)
   // can't carry over and shove the panel under the header. Then
@@ -1266,6 +1296,18 @@ async function boot() {
   try {
     const target = await buildText();
     startEngine(target);
+    Analytics.sessionStart({
+      mode: state.mode,
+      lang: state.language,
+      layout: state.layout,
+      duration: state.duration || null,
+      words: state.words || null,
+      quote: state.quote || null,
+      lessonId: state.lessonId || null,
+      drillId: state.drillId || null,
+      challenge: (activeChallenge && activeChallenge.id) || null,
+      bookSlug: state.bookSlug || null,
+    });
   } catch (err) {
     console.error(err);
     hintEl.textContent = "Could not load — check console.";
@@ -1290,10 +1332,12 @@ window.ttPause = () => {
     // Currently user-paused -- resume.
     eng._userPaused = false;
     eng.resumeTimer();
+    Analytics.sessionResumed({ mode: state.mode });
   } else {
     // Pause + mark as user-driven so onFocus can't auto-resume.
     eng._userPaused = true;
     eng.pauseTimer();
+    Analytics.sessionPaused({ mode: state.mode });
   }
   const btn = document.getElementById("tt-pause");
   if (btn) {

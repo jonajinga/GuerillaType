@@ -66,6 +66,7 @@ const CSS_ORDER = [
   "pages/wordlists.css",
   "pages/contribute.css",
   "pages/blog.css",
+  "pages/analytics.css",
   "print.css",
 ];
 
