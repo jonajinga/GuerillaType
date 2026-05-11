@@ -6,6 +6,38 @@ import pluginTinyHtml from "@sardine/eleventy-plugin-tinyhtml";
 import Image from "@11ty/eleventy-img";
 import * as lightningcss from "lightningcss";
 
+/* OneDrive + Eleventy race-condition guard. On Windows with this
+   project sitting inside a OneDrive-synced folder, OneDrive
+   occasionally holds a handle on `_site/library/<slug>/` between
+   our prebuild mkdir and 11ty's parallel writeFileSync for the
+   paginated library pages -- the write fails with ENOENT despite
+   the dir having been created seconds earlier. Patch fs.writeFileSync
+   to mkdir the parent and retry on ENOENT. Pure no-op when there's
+   no race. */
+{
+  const _origWrite = fs.writeFileSync;
+  fs.writeFileSync = function patched(target, data, opts) {
+    try {
+      return _origWrite.call(fs, target, data, opts);
+    } catch (e) {
+      if (e && e.code === "ENOENT" && typeof target === "string") {
+        for (let attempt = 0; attempt < 4; attempt++) {
+          try {
+            fs.mkdirSync(path.dirname(target), { recursive: true });
+            return _origWrite.call(fs, target, data, opts);
+          } catch (e2) {
+            if (attempt === 3 || (e2 && e2.code !== "ENOENT")) throw e2;
+            // brief backoff before retry to let OneDrive release the lock
+            const wait = Date.now() + 60 * (attempt + 1);
+            while (Date.now() < wait) {}
+          }
+        }
+      }
+      throw e;
+    }
+  };
+}
+
 const CSS_DIR = "src/assets/css/partials";
 const CSS_ENTRY = "src/assets/css/global.css";
 
@@ -251,8 +283,22 @@ export default function (eleventyConfig) {
       fs.mkdirSync(outBase, { recursive: true });
       for (const f of fs.readdirSync(booksDir)) {
         if (!f.endsWith(".json")) continue;
-        const slug = f.replace(/\.json$/, "");
+        // Read the actual slug from the JSON -- some files have slugs
+        // that differ from their filename. Without this the dev-mode
+        // ENOENT race fires for any mismatched book.
+        let slug = f.replace(/\.json$/, "");
+        try {
+          const parsed = JSON.parse(fs.readFileSync(path.join(booksDir, f), "utf8"));
+          if (parsed && typeof parsed.slug === "string" && parsed.slug) slug = parsed.slug;
+        } catch {}
         try { fs.mkdirSync(path.join(outBase, slug), { recursive: true }); } catch {}
+        // Belt + suspenders: also pre-create using the filename slug
+        // in case the JSON slug field is stale. Either path the
+        // pagination uses now has a real directory waiting.
+        const fileSlug = f.replace(/\.json$/, "");
+        if (fileSlug !== slug) {
+          try { fs.mkdirSync(path.join(outBase, fileSlug), { recursive: true }); } catch {}
+        }
       }
     } catch (e) {
       console.warn("[prebuild] library mkdir failed:", e.message);
