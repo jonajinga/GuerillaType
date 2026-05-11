@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-05-11T18:17:55.353Z",
+  "updatedAt": "2026-05-11T18:49:33.687Z",
   "updatedAtDate": "2026-05-11",
   "windowDays": 365,
   "site": {
-    "pageviews": 430,
+    "pageviews": 489,
     "visitors": 9,
     "visits": 19,
     "bounces": 4,
-    "totaltime": 19175,
+    "totaltime": 22764,
     "comparison": {
       "pageviews": 0,
       "visitors": 0,
@@ -17,33 +17,80 @@
     }
   },
   "wpm": {
-    "0-10": 3,
-    "50-60": 1
+    "0-10": 4,
+    "50-60": 2,
+    "70-80": 1,
+    "90-100": 1
   },
   "acc": {
     "<80": 3,
-    "85-90": 1
+    "85-90": 2,
+    "94-95": 1,
+    "95-96": 1,
+    "99-100": 1
   },
-  "modes": {
-    "tape": 1,
+  "wpmByMode": {
+    "tape": 3,
+    "book": 2,
+    "custom": 1,
+    "words": 1,
+    "time": 1
+  },
+  "accByMode": {
+    "tape": 3,
+    "book": 2,
     "words": 1,
     "time": 1,
-    "book": 1
+    "custom": 1
+  },
+  "modes": {
+    "tape": 3,
+    "book": 2,
+    "words": 1,
+    "time": 1,
+    "custom": 1
   },
   "speedMilestones": {
-    "50.0000": 6,
+    "50.0000": 7,
     "75.0000": 5
   },
   "books": {
-    "federalist-papers": 3
+    "federalist-papers": 3,
+    "secret-adversary": 1
   },
   "bookEvents": {
-    "started": 3
+    "started": 3,
+    "finished": 1
   },
   "practiceVolume": {
-    "25-50": 4
+    "25-50": 6,
+    "10-25": 2
   },
   "langs": {
-    "en-1k": 4
+    "en-1k": 6,
+    "en-20k": 2
+  },
+  "sessionDistCount": 1,
+  "wpmSummary": {
+    "total": 8,
+    "mean": 37.5,
+    "medianLabel": "0-10",
+    "median": 5
+  },
+  "accSummary": {
+    "total": 8,
+    "mean": 86.2,
+    "medianLabel": "85-90",
+    "median": 87.5
+  },
+  "fastTypists": {
+    "60+": 25,
+    "80+": 12.5,
+    "100+": 0,
+    "120+": 0
+  },
+  "topBooks": {
+    "federalist-papers": 3,
+    "secret-adversary": 1
   }
 }

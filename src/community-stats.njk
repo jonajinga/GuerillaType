@@ -1,7 +1,7 @@
 ---
 layout: layouts/base.njk
 title: "Community stats"
-description: "Aggregate, anonymous typing data from GuerillaType visitors. What people actually do here — WPM distributions, accuracy curves, mode popularity, books read. Powered by Umami; no PII, no cookies."
+description: "Aggregate, anonymous typing data from GuerillaType visitors. WPM distributions, accuracy curves, mode popularity, books read. Privacy-first analytics, no cookies."
 permalink: /community-stats/
 pageSlug: community-stats
 ---
@@ -47,22 +47,46 @@ pageSlug: community-stats
 <header class="page__head">
   <p class="page__eyebrow">Open metrics</p>
   <h1>Community typing data</h1>
-  <p class="page__subtitle">What people actually do on GuerillaType. Aggregate, anonymous, no PII. Counts are bucketed at session-finish and stored as <a href="https://umami.is" target="_blank" rel="noopener">Umami</a> events — the full operator dashboard is public at <a href="/analytics/">/analytics/</a>.</p>
+  <p class="page__subtitle">What people actually do on GuerillaType. Aggregate, anonymous, no PII. Counts are bucketed at session-finish and stored as <a href="https://umami.is" target="_blank" rel="noopener">Umami</a> events &mdash; the full operator dashboard is public at <a href="/analytics/">/analytics/</a>.</p>
   <p class="page__sub muted">
     Window: trailing 365 days.
     Updated {{ d.updatedAtDate or "—" }}.
-    {% if site %}
-      {{ site.visitors }} visitors · {{ site.visits }} sessions · {{ site.pageviews }} pageviews.
-    {% endif %}
+    {% if site %}{{ site.visitors }} visitors &middot; {{ site.visits }} sessions &middot; {{ site.pageviews }} pageviews.{% endif %}
   </p>
 </header>
+
+{# ───────────────── Hero numerics — TypeLit-style top-line stats ─────────────────#}
+<section class="community-hero">
+  <div class="community-hero__cards">
+    <div class="community-hero__card">
+      <span class="community-hero__label">Average WPM</span>
+      <span class="community-hero__value">{{ d.wpmSummary.mean if d.wpmSummary else "—" }}</span>
+      <span class="community-hero__sub">median {{ d.wpmSummary.median if d.wpmSummary else "—" }} ({{ d.wpmSummary.medianLabel if d.wpmSummary else "—" }})</span>
+    </div>
+    <div class="community-hero__card">
+      <span class="community-hero__label">Average accuracy</span>
+      <span class="community-hero__value">{{ d.accSummary.mean if d.accSummary else "—" }}%</span>
+      <span class="community-hero__sub">median {{ d.accSummary.median if d.accSummary else "—" }}% ({{ d.accSummary.medianLabel if d.accSummary else "—" }})</span>
+    </div>
+    <div class="community-hero__card">
+      <span class="community-hero__label">Sessions captured</span>
+      <span class="community-hero__value">{{ d.wpmSummary.total if d.wpmSummary else 0 }}</span>
+      <span class="community-hero__sub">finished sessions over 365 days</span>
+    </div>
+    <div class="community-hero__card">
+      <span class="community-hero__label">Hit 60+ WPM</span>
+      <span class="community-hero__value">{{ d.fastTypists["60+"] if d.fastTypists else 0 }}%</span>
+      <span class="community-hero__sub">of finished sessions</span>
+    </div>
+  </div>
+</section>
 
 <div class="community-stats">
 
   {{ chart(
     "WPM distribution",
     "01",
-    "How fast people type here. Each finished session contributes one bucket label. Most typists settle in the 40&ndash;60 wpm bracket, with a long right tail above 80.",
+    "How fast people type here. Each finished session contributes one bucket label. The shape settles into a log-normal curve as more sessions accumulate &mdash; most typists land in the 40&ndash;60 wpm bracket, with a long tail above 80.",
     d.wpm,
     ["0-10","10-20","20-30","30-40","40-50","50-60","60-70","70-80","80-90","90-100","100-120","120-140","140-150","150+"]
   ) }}
@@ -75,17 +99,59 @@ pageSlug: community-stats
     ["<80","80-85","85-90","90-92","92-94","94-95","95-96","96-97","97-98","98-99","99-100"]
   ) }}
 
+  {# ───────────────── Rare-fast-typists tiers ───────────────── #}
+  {%- if d.fastTypists -%}
+  <section class="community-stat">
+    <header class="community-stat__head">
+      <p class="community-stat__num">03</p>
+      <h2>How rare are fast typists?</h2>
+      <span class="community-stat__total muted">% of finished sessions</span>
+    </header>
+    <p class="community-stat__lede">Each step up cuts the population. 80&nbsp;wpm puts you well above average; 100&nbsp;wpm is exceptional.</p>
+    <div class="community-stat__chart">
+      {%- set maxPct = 0 -%}
+      {%- for k, v in d.fastTypists -%}{%- if v > maxPct -%}{%- set maxPct = v -%}{%- endif -%}{%- endfor -%}
+      {%- for tier in ["60+","80+","100+","120+"] -%}
+        {%- set pct = d.fastTypists[tier] or 0 -%}
+        <div class="cs-bar">
+          <span class="cs-bar__label">{{ tier }} WPM</span>
+          <span class="cs-bar__track">
+            <span class="cs-bar__fill" style="width:{{ (maxPct > 0) and (pct * 100 / maxPct) or 0 }}%"></span>
+          </span>
+          <span class="cs-bar__count">{{ pct }}%</span>
+        </div>
+      {%- endfor -%}
+    </div>
+  </section>
+  {%- endif -%}
+
   {{ chart(
     "Mode popularity",
-    "03",
+    "04",
     "Which modes get finished. Each completed session emits its mode label.",
     d.modes,
     ["time","words","quote","tape","zen","adaptive","custom","book","lesson","drill","challenge","idiom","poem"]
   ) }}
 
   {{ chart(
+    "WPM by mode",
+    "05",
+    "Which modes attract faster typists. Counts of WPM-bucket events split by mode. A mode trending toward higher buckets means the surface gets more practiced typists.",
+    d.wpmByMode,
+    ["time","words","quote","tape","zen","adaptive","custom","book","lesson","drill","challenge"]
+  ) }}
+
+  {{ chart(
+    "Accuracy by mode",
+    "06",
+    "Which modes register cleaner typing. Modes that bias toward typed-precision (lesson, drill, quote) usually surface higher accuracy than free-form modes.",
+    d.accByMode,
+    ["time","words","quote","tape","zen","adaptive","custom","book","lesson","drill","challenge"]
+  ) }}
+
+  {{ chart(
     "Speed milestones",
-    "04",
+    "07",
     "Counts of sessions that crossed a milestone wpm threshold. The 50 / 75 / 100 / 125 / 150 tiers each fire once per qualifying session.",
     d.speedMilestones,
     ["50","75","100","125","150"]
@@ -93,14 +159,14 @@ pageSlug: community-stats
 
   {{ chart(
     "Top books typed",
-    "05",
-    "Public-domain titles people are actively typing through. Started vs finished is broken out in the next chart.",
-    d.books
+    "08",
+    "Public-domain titles people are actively typing through. Short works dominate &mdash; pages drive completion rate sharply down as a book lengthens.",
+    d.topBooks or d.books
   ) }}
 
   {{ chart(
     "Book engagement",
-    "06",
+    "09",
     "Books split by lifecycle: <code>started</code> on first paragraph, <code>finished</code> once a page completes at &ge;80% accuracy.",
     d.bookEvents,
     ["started","finished"]
@@ -108,16 +174,16 @@ pageSlug: community-stats
 
   {{ chart(
     "Practice volume",
-    "07",
-    "Lifetime session count per typist (bucketed). Tells us how casual visitors break out from regular practitioners.",
+    "10",
+    "Lifetime session count per typist (bucketed). Tells us how many casual visitors stay vs. settle into a real habit. Each finished session emits the typist's current bracket &mdash; so the left buckets are inflated (everyone passes through them once on the way up).",
     d.practiceVolume,
     ["1-5","5-10","10-25","25-50","50-100","100-200","200-500","500-1000","1000+"]
   ) }}
 
   {{ chart(
     "Source word list",
-    "08",
-    "Which language / corpus people pull from. Defaults to <code>en-1k</code> unless the user chose otherwise from the toolbar.",
+    "11",
+    "Which language / corpus people pull from. Defaults to <code>en-1k</code> unless the user picked otherwise from the toolbar.",
     d.langs
   ) }}
 
@@ -128,10 +194,11 @@ pageSlug: community-stats
   <ul>
     <li><strong>Source</strong> &mdash; anonymized event data fired by the GuerillaType practice surface at session finish. No accounts, no cookies, no IP retained beyond country lookup. Data lives in <a href="https://umami.is" target="_blank" rel="noopener">Umami Cloud</a>.</li>
     <li><strong>Window</strong> &mdash; trailing 365 days. Umami Cloud's free tier retains roughly that range.</li>
-    <li><strong>Sample</strong> &mdash; every visitor who completes at least one session contributes. No outlier filtering on this view; the operator dashboard can apply ones.</li>
-    <li><strong>Bucketing</strong> &mdash; wpm and accuracy are bucketed client-side at session finish (see <code>src/assets/js/analytics.js</code> for the exact thresholds). Umami stores the bucket label as a categorical property.</li>
-    <li><strong>What this can't show</strong> &mdash; per-user histories (no cookies), continuous distributions (everything's bucketed), or cross-event correlations (no JOIN). The privacy posture limits what's possible without identifying users.</li>
-    <li><strong>Refresh cadence</strong> &mdash; the page bakes a JSON snapshot at each site deploy. Re-fetch by running <code>UMAMI_API_KEY=&hellip; node scripts/fetch-umami-stats.mjs</code> then redeploying.</li>
+    <li><strong>Sample</strong> &mdash; every visitor who completes at least one session contributes. No outlier filtering on this view.</li>
+    <li><strong>Bucketing</strong> &mdash; wpm and accuracy are bucketed client-side at session finish (see <code>src/assets/js/pages/practice-boot.js</code> for the exact thresholds). Umami stores the bucket label as a categorical property.</li>
+    <li><strong>Derived numerics</strong> &mdash; averages and medians are computed from bucket midpoints (e.g. "40&ndash;50&nbsp;wpm" contributes 45 to the average). The values are approximations, accurate within roughly &plusmn;5 wpm and &plusmn;1% accuracy.</li>
+    <li><strong>What this can't show</strong> &mdash; per-user histories (no cookies), continuous distributions (everything's bucketed), or cross-event correlations beyond the four properties on <code>session_dist</code>. The privacy posture limits what's possible without identifying users.</li>
+    <li><strong>Refresh cadence</strong> &mdash; the page bakes a JSON snapshot at each site deploy. Re-fetch by running <code>UMAMI_API_KEY=&hellip; npm run stats</code> then redeploying.</li>
     <li><strong>Full transparency</strong> &mdash; every tracked event is listed on <a href="/privacy/">/privacy/</a>. The raw operator dashboard is public at <a href="/analytics/">/analytics/</a>. No event includes anything the user actually typed.</li>
   </ul>
 </section>

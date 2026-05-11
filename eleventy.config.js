@@ -175,22 +175,15 @@ export default function (eleventyConfig) {
   const BUILD_VERSION = String(Date.now());
   eleventyConfig.addGlobalData("cssVersion", () => BUILD_VERSION);
 
-  // After Eleventy writes everything, walk _site/assets/js and
-  // append ?v=BUILD_VERSION to every static + dynamic JS import.
-  // This breaks the Cloudflare edge cache that pins the existing
-  // .js URLs under `immutable, max-age=31536000` -- the rewritten
-  // URLs are brand new keys the edge has never cached.
+  // Expose the build version to post-build scripts (postbuild npm
+  // hook). The versioner runs as a separate process AFTER 11ty's
+  // passthrough copies have settled -- in-eleventy `eleventy.after`
+  // fires too early; the JS files aren't on disk yet.
   eleventyConfig.on("eleventy.after", async () => {
     try {
-      const { spawnSync } = await import("node:child_process");
-      const r = spawnSync("node", ["scripts/version-js-imports.mjs"], {
-        stdio: "inherit",
-        env: { ...process.env, JS_IMPORT_VERSION: BUILD_VERSION },
-      });
-      if (r.status !== 0) console.warn("[after] js-import versioner exited", r.status);
-    } catch (e) {
-      console.warn("[after] js-import versioner failed:", e.message);
-    }
+      const { writeFile } = await import("node:fs/promises");
+      await writeFile("_site/.build-version", BUILD_VERSION);
+    } catch {}
   });
   eleventyConfig.addGlobalData("buildDate", () => new Date().toISOString().slice(0, 10));
 

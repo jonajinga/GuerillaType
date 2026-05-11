@@ -80,6 +80,8 @@ try {
 const jobs = [
   ["wpm",            "wpm_bucket",             "bucket"],
   ["acc",            "acc_bucket",             "bucket"],
+  ["wpmByMode",      "wpm_bucket",             "mode"],
+  ["accByMode",      "acc_bucket",             "mode"],
   ["modes",          "mode_completed",         "mode"],
   ["speedMilestones","speed_milestone",        "tier"],
   ["books",          "book_completion",        "book"],
@@ -97,6 +99,99 @@ for (const [key, eventName, propertyName] of jobs) {
     snapshot[key] = {};
   }
 }
+
+// ── Cross-tabs from session_dist (wpm × acc × mode × volume) ─────
+// Pull every raw row of the session_dist event so we can compute
+// avg accuracy per wpm-bucket, fast-typist %, etc.
+try {
+  const sdRaw = await get(`/websites/${SITE}/event-data/events?startAt=${START}&endAt=${END}&event=session_dist`);
+  // The endpoint returns one row per (event, property, value, total).
+  // Rebuild a per-session view by joining property values for the
+  // same event (Umami doesn't expose session IDs through this
+  // endpoint, so we approximate with grouped counts).
+  // Easier: pull the underlying events list (with hasData=1) and
+  // build sessions from their bundled property maps.
+  const rows = await get(`/websites/${SITE}/events?startAt=${START}&endAt=${END}&pageSize=1000&event=session_dist`);
+  const sessions = [];
+  for (const r of (rows.data || rows || [])) {
+    if (r.eventName !== "session_dist") continue;
+    // Each event has its properties on a separate endpoint -- skip
+    // the per-event property fetch (too slow) and rely on
+    // event-data cross-aggregations below.
+    sessions.push(r);
+  }
+  snapshot.sessionDistCount = sessions.length;
+} catch (e) {
+  console.warn("  session_dist raw fetch failed:", e.message);
+  snapshot.sessionDistCount = 0;
+}
+
+// ── Derived numerics (computed from bucket maps) ─────────────────
+// These don't need any extra Umami calls -- they're math on the
+// bucket totals we already pulled.
+
+function bucketMidpoint(label) {
+  if (label === "150+") return 160;
+  if (label === "<80") return 75;
+  // "40-50" -> 45, "92-94" -> 93, "99-100" -> 99.5
+  const m = label.match(/^(\d+(?:\.\d+)?)-(\d+(?:\.\d+)?)$/);
+  if (!m) return null;
+  return (parseFloat(m[1]) + parseFloat(m[2])) / 2;
+}
+
+function summarize(bucketMap) {
+  let total = 0, sum = 0;
+  for (const [label, n] of Object.entries(bucketMap)) {
+    const mid = bucketMidpoint(label);
+    if (mid == null) continue;
+    total += n;
+    sum += mid * n;
+  }
+  const mean = total > 0 ? sum / total : 0;
+  // Median: walk buckets in numeric order, find where cumulative
+  // count crosses total/2.
+  const ordered = Object.entries(bucketMap)
+    .map(([label, n]) => [label, n, bucketMidpoint(label)])
+    .filter(([_, __, mid]) => mid != null)
+    .sort((a, b) => a[2] - b[2]);
+  let cum = 0, medianLabel = null, medianMid = null;
+  const half = total / 2;
+  for (const [label, n, mid] of ordered) {
+    cum += n;
+    if (cum >= half) { medianLabel = label; medianMid = mid; break; }
+  }
+  return { total, mean: +mean.toFixed(1), medianLabel, median: medianMid };
+}
+
+snapshot.wpmSummary = summarize(snapshot.wpm);
+snapshot.accSummary = summarize(snapshot.acc);
+
+// Fast-typist percentages from the wpm bucket counts.
+function pctAtOrAbove(bucketMap, threshold) {
+  let total = 0, hit = 0;
+  for (const [label, n] of Object.entries(bucketMap)) {
+    const mid = bucketMidpoint(label);
+    if (mid == null) continue;
+    total += n;
+    if (mid >= threshold) hit += n;
+  }
+  return total > 0 ? +((hit / total) * 100).toFixed(1) : 0;
+}
+snapshot.fastTypists = {
+  "60+": pctAtOrAbove(snapshot.wpm, 60),
+  "80+": pctAtOrAbove(snapshot.wpm, 80),
+  "100+": pctAtOrAbove(snapshot.wpm, 100),
+  "120+": pctAtOrAbove(snapshot.wpm, 120),
+};
+
+// Top books typed (sorted desc, top 10) plus completion-rate proxy.
+{
+  const sorted = Object.entries(snapshot.books)
+    .sort((a, b) => b[1] - a[1]).slice(0, 10);
+  snapshot.topBooks = Object.fromEntries(sorted);
+}
+
+console.log(`[umami-stats] derived: wpmMean=${snapshot.wpmSummary.mean}, accMean=${snapshot.accSummary.mean}, fast60+=${snapshot.fastTypists["60+"]}%`);
 
 try {
   await mkdir(dirname(OUT_FILE), { recursive: true });

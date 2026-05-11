@@ -1,6 +1,38 @@
 /* /community-stats/ -- public typing data, inline bar charts
    driven by data baked from Umami at build time. */
 
+/* Hero numerics row above the chart stack. Four big-number cards
+   matching the page's section-card language but with a denser
+   headline value as the primary read. */
+.community-hero{
+  margin:var(--space-4) 0 var(--space-5);
+}
+.community-hero__cards{
+  display:grid;gap:var(--space-3);
+  grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+}
+.community-hero__card{
+  background:var(--bg-1);border:1px solid var(--rule);
+  border-radius:var(--radius);padding:var(--space-4);
+  display:flex;flex-direction:column;gap:.25rem;
+}
+.community-hero__label{
+  font-family:var(--font-mono);font-size:.6rem;
+  letter-spacing:.18em;text-transform:uppercase;
+  color:var(--fg-3);font-weight:600;
+}
+.community-hero__value{
+  font-family:var(--font-display);
+  font-size:var(--fs-700);font-weight:500;
+  color:var(--accent);line-height:1;
+  font-variant-numeric:tabular-nums;
+  margin:.15rem 0 .1rem;
+}
+.community-hero__sub{
+  font-family:var(--font-mono);font-size:.7rem;
+  color:var(--fg-2);letter-spacing:.02em;
+}
+
 .community-stats{
   display:flex;flex-direction:column;gap:var(--space-5);
   margin:var(--space-5) 0;

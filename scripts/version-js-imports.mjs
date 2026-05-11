@@ -23,7 +23,23 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const ROOT = resolve(__dirname, "..", "_site", "assets", "js");
-const VERSION = process.env.JS_IMPORT_VERSION || String(Date.now());
+
+// Prefer the build version 11ty wrote to _site/.build-version
+// during eleventy.after -- guarantees the JS import suffix matches
+// the cssVersion baked into the HTML for the same build.
+async function readBuildVersion() {
+  if (process.env.JS_IMPORT_VERSION) return process.env.JS_IMPORT_VERSION;
+  try {
+    const buf = await (await import("node:fs/promises")).readFile(
+      resolve(__dirname, "..", "_site", ".build-version"),
+      "utf8"
+    );
+    return buf.trim() || String(Date.now());
+  } catch {
+    return String(Date.now());
+  }
+}
+const VERSION = await readBuildVersion();
 
 const STATIC_IMPORT = /(\bfrom\s+["'])(\.\.?\/[^"'?]+\.js)(["'])/g;
 const DYNAMIC_IMPORT = /(\bimport\s*\(\s*["'])(\.\.?\/[^"'?]+\.js)(["']\s*\))/g;
