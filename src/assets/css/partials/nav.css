@@ -68,11 +68,81 @@
 
 .site-header__actions{display:flex;align-items:center;gap:var(--space-2)}
 
-/* Hamburger — always visible across breakpoints. Pairs with the
-   primary nav on desktop for one-click access to every page. */
-.hamburger{width:44px;height:44px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;border:1px solid var(--rule);background:transparent;border-radius:var(--radius)}
-.hamburger:hover{border-color:var(--accent);color:var(--accent)}
-.hamburger__bar{display:block;width:18px;height:2px;background:currentColor}
+/* Hamburger -- always visible across breakpoints. Pairs with the
+   primary nav on desktop for one-click access to every page.
+   Animated: hover nudges the bars, [aria-expanded="true"] morphs
+   them into a clean X. All transitions ease-out cubic so the
+   motion lands with a slight settle instead of a snap. */
+.hamburger{
+  position:relative;
+  width:44px;height:44px;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:transparent;
+  border:1px solid var(--rule);
+  border-radius:var(--radius);
+  color:var(--fg-1);cursor:pointer;
+  transition:color var(--t-fast), border-color var(--t-fast), background var(--t-fast);
+  overflow:hidden;
+}
+.hamburger:hover{
+  border-color:var(--accent);color:var(--accent);
+  background:color-mix(in oklab, var(--accent) 8%, transparent);
+}
+.hamburger:focus-visible{
+  outline:2px solid var(--accent);outline-offset:2px;
+  border-color:var(--accent);color:var(--accent);
+}
+.hamburger__bar{
+  display:block;
+  position:absolute;left:50%;
+  width:20px;height:2px;
+  background:currentColor;border-radius:2px;
+  transform-origin:50% 50%;
+  transition:
+    transform .32s cubic-bezier(.22,.61,.36,1),
+    opacity .18s ease-out,
+    width .25s cubic-bezier(.22,.61,.36,1),
+    background-color var(--t-fast);
+}
+/* Three positions: -7px (top), 0 (mid), +7px (bottom). The middle
+   bar is a touch shorter for a subtler hierarchy -- a small
+   touch that makes the icon look intentional instead of generic. */
+.hamburger__bar:nth-child(1){transform:translate(-50%, -7px)}
+.hamburger__bar:nth-child(2){transform:translate(-50%, 0);width:14px}
+.hamburger__bar:nth-child(3){transform:translate(-50%, 7px)}
+
+/* Hover: top and bottom bars edge in toward the middle a touch
+   (Squish micro-animation, popular in 2024-era UI kits) and the
+   middle bar expands to full width. Reads as a tiny breath. */
+.hamburger:hover .hamburger__bar:nth-child(1){transform:translate(-50%, -5px)}
+.hamburger:hover .hamburger__bar:nth-child(2){width:20px}
+.hamburger:hover .hamburger__bar:nth-child(3){transform:translate(-50%, 5px)}
+
+/* Open: morph into an X. Middle fades + collapses; top and bottom
+   rotate 45° / -45° and slide to the center to form the X. */
+.hamburger[aria-expanded="true"] .hamburger__bar:nth-child(1){
+  transform:translate(-50%, 0) rotate(45deg);
+}
+.hamburger[aria-expanded="true"] .hamburger__bar:nth-child(2){
+  opacity:0;width:0;
+}
+.hamburger[aria-expanded="true"] .hamburger__bar:nth-child(3){
+  transform:translate(-50%, 0) rotate(-45deg);
+}
+.hamburger[aria-expanded="true"]{
+  border-color:var(--accent);color:var(--accent);
+  background:color-mix(in oklab, var(--accent) 12%, transparent);
+}
+
+/* Reduced-motion: skip the morph + hover bounce. Just swap the
+   bars vs X via opacity so users with motion sensitivity still
+   get a clear visual state. */
+@media (prefers-reduced-motion: reduce){
+  .hamburger__bar{transition:opacity .12s linear}
+  .hamburger:hover .hamburger__bar:nth-child(1){transform:translate(-50%, -7px)}
+  .hamburger:hover .hamburger__bar:nth-child(2){width:14px}
+  .hamburger:hover .hamburger__bar:nth-child(3){transform:translate(-50%, 7px)}
+}
 
 /* ── Phone-portrait header compaction ───────────────────────────────
    At <=480px the row of brand+name + 5-6 icon buttons exceeds the

@@ -95,6 +95,12 @@
   background:var(--bg-1);border:1px solid var(--rule);
   padding:var(--space-5);border-radius:var(--radius);
   position:relative;
+  /* min-width:0 stops the grid track from stretching to the
+     inline-block min-content of the embedded tape engine.
+     Without it the tape's white-space:nowrap content forces
+     the 1fr grid column to blow out past the viewport. */
+  min-width:0;
+  overflow:hidden;
 }
 .hero__sidecard::before{
   content:"";position:absolute;inset:0;pointer-events:none;
@@ -112,6 +118,24 @@
    compact. The full tt-text styles still apply; the wrapper just resets
    the surrounding padding so caret math lines up with the visible box. */
 .hero__sidecard--typing{padding:var(--space-4)}
+.hero__sidecard--typing .tt-stage--embed{
+  width:100%;max-width:100%;
+  min-width:0;overflow:hidden;
+}
+.hero__sidecard--typing .tt-stage--embed .tt-text--tape{
+  /* Trim the tape font-size in the embed context. The full
+     practice surface uses --fs-700 (~1.4rem) which dominates
+     the side card. Drop to a card-appropriate scale. */
+  font-size:var(--fs-500);
+  padding:.9rem 0;
+  width:100%;max-width:100%;
+}
+.hero__sidecard--typing .tt-stage--embed .tt-text--tape .tt-text__inner{
+  /* Same caret-anchor proportion as the full practice page so
+     the rAF scroll math (which uses cont.width * 0.3) lands the
+     caret at the same visible spot. */
+  padding-left:30%;
+}
 .tt-stage--embed{margin:0;padding:.4rem 0;max-width:none}
 .tt-stage--embed .tt-text{
   font-family:var(--font-display);font-style:italic;
