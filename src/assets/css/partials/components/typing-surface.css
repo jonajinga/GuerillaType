@@ -287,21 +287,18 @@
 .tt-caret[data-state="active"]{animation:none;opacity:1}
 @keyframes tt-blink{0%,49%{opacity:1}50%,100%{opacity:0}}
 
-/* Focus prompt -- when input loses focus, blur the text and show a hint.
-   The engine does NOT pause on focus loss (only the Pause button can
-   pause), so the prompt copy is purely a "click to refocus" call.
-   Earlier copy said "Paused" which was misleading -- the timer was
-   still running underneath. */
-.tt-stage[data-focused="false"] .tt-text{filter:blur(2px)}
-.tt-stage[data-focused="false"]::after{
+/* Focus prompt -- ONLY shown pre-session (idle/ready/done). Once a
+   session is running, focus loss is silent: no blur, no overlay,
+   no fake "paused" reads. The engine never pauses on focus loss
+   (only the Pause button can pause), and the next keystroke
+   automatically refocuses the input via the document-level
+   keydown handler in input-capture.js. */
+.tt-stage[data-focused="false"]:not([data-state="running"]) .tt-text{filter:blur(2px)}
+.tt-stage[data-focused="false"]:not([data-state="running"])::after{
   content:"Click or press a key to focus";
   position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
   background:var(--bg-2);border:1px solid var(--rule);padding:.45rem .85rem;color:var(--fg-1);font-size:var(--fs-200);
   pointer-events:none;border-radius:var(--radius);
-}
-.tt-stage[data-focused="false"][data-state="running"]::after{
-  content:"Click or press a key to keep typing";
-  border-color:var(--accent);color:var(--accent);
 }
 /* Touch devices: force the unfocused state from the very first paint.
    The inline script in typing-shell.njk flips
@@ -331,11 +328,18 @@ html[data-touch="true"] .tt-stage[data-state="idle"]::after{
   background:var(--bg-2);border:1px solid var(--rule);padding:.45rem .85rem;color:var(--fg-1);font-size:var(--fs-200);
   pointer-events:none;border-radius:var(--radius);
 }
-html[data-touch="true"] .tt-stage[data-focused="false"]::after{
+html[data-touch="true"] .tt-stage[data-focused="false"]:not([data-state="running"])::after{
   content:"Tap here to start typing";
 }
+/* Touch + running: don't show any overlay -- the engine doesn't
+   pause on focus loss, and the next tap on the surface refocuses
+   the input automatically via input-capture's touchend handler. */
 html[data-touch="true"] .tt-stage[data-focused="false"][data-state="running"]::after{
-  content:"Paused — tap here to resume";
+  content:none;
+  display:none;
+}
+html[data-touch="true"] .tt-stage[data-focused="false"][data-state="running"] .tt-text{
+  filter:none;
 }
 
 /* Toolbar above the surface */
