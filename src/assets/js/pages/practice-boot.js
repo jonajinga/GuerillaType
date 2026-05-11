@@ -8,6 +8,7 @@ import { buildPicker, uniformText } from "../engine/wordpicker.js";
 import { recordSession } from "../engine/session-recorder.js";
 import { byId as achievementById } from "../engine/achievements.js";
 import { fingerForKey } from "../engine/layouts.js";
+import { setSoundPrefs, playKey, playMistake, playFinish } from "../engine/sounds.js";
 import { getActive, updateActive } from "../profiles.js";
 import { loadQuotes, pickQuote, dailyQuote } from "../engine/quotes.js";
 import { getLesson, lessonText } from "../engine/lesson-text.js";
@@ -514,6 +515,10 @@ function startEngine(target) {
   const onCharShared = (prev, ch, ok, ms) => {
     model.record(prev, ch, ok, ms);
     recordKeystroke(ok, ms);
+    // Per-keystroke audio feedback. setSoundPrefs is called once
+    // at boot from the user's settings so playKey/playMistake know
+    // which theme + volume to use.
+    if (ok) playKey(); else playMistake();
     // After advancement (engine.cursor moved), the next expected char
     // is at engine.targetArr[engine.cursor]. Defer to next tick so the
     // engine has finished updating the cursor.
@@ -614,12 +619,11 @@ function startEngine(target) {
     showLiveTicker(false);
   }
 
-  // Mobile tap-to-type keyboard. Defaults ON unless user
-  // explicitly disabled it in Settings. The CSS hides .vkbd on
-  // viewports >= 769 px, so mounting is harmless on desktop -- it
-  // just won't be visible. forceVkbd via ?vkbd=1 bypasses the
-  // preference for testing.
-  const mobileKbdEnabled = prefs.mobileKeyboard !== false;
+  // Mobile tap-to-type keyboard. Defaults OFF -- mobile users have
+  // a native soft keyboard already and the on-page tap-to-type
+  // visual is opt-in. Settings -> Mobile keyboard turns it on.
+  // forceVkbd via ?vkbd=1 bypasses the preference for testing.
+  const mobileKbdEnabled = prefs.mobileKeyboard === true;
   if (mobileKbdEnabled || forceVkbd) {
     mountVirtualKeyboard();
     const firstCh2 = Array.isArray(target) ? (target[0] && target[0][0]) : (target && target[0]);
@@ -662,6 +666,9 @@ function handleFinish(result) {
   const wpm = Math.round(result.wpm || 0);
   const acc = Math.round(result.accuracy || 0);
   const stopped = !!(engine && engine._stopped);
+  // Two-note completion chime (respects sound-theme=off and the
+  // volume preference; both checked inside playFinish).
+  if (!stopped) playFinish();
   Analytics.sessionFinish({
     mode: state.mode,
     lang: state.language,
@@ -1416,6 +1423,12 @@ function bindModeDropdowns() {
 
 async function boot() {
   syncModeBar();
+  // Refresh sound preferences from the live profile each boot so
+  // a change made in Settings is picked up without a page reload.
+  setSoundPrefs({
+    theme: (prefs && prefs.soundTheme) || "off",
+    volume: (prefs && typeof prefs.soundVolume === "number") ? prefs.soundVolume : 0.5,
+  });
   hintEl.textContent = "Loading…";
   try {
     const target = await buildText();

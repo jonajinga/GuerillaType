@@ -137,11 +137,25 @@
   will-change:transform;
 }
 .tt-text.tt-text--tape .tt-word{
-  display:inline-block;white-space:nowrap;margin-right:.6em;
+  /* No right-margin -- the explicit tt-char--space between words
+     already provides the gap. Adding margin-right doubles the
+     visual gap and parks the caret in the middle of empty space
+     instead of right after the last typed character. */
+  display:inline-block;white-space:nowrap;
 }
 .tt-text.tt-text--tape .tt-char{display:inline-block}
-.tt-text.tt-text--tape .tt-caret{
+/* Tape caret -- only apply the height tweak for the LINE caret.
+   Block / underline variants need their own dimensions to keep
+   their distinctive shape; the previous rule clobbered them all
+   to a thin vertical bar regardless of preference. */
+.tt-text.tt-text--tape .tt-caret--line{
   height:1.2em;width:2px;top:.18em;
+}
+.tt-text.tt-text--tape .tt-caret--block{
+  height:1.2em;width:.55em;top:.18em;
+}
+.tt-text.tt-text--tape .tt-caret--underline{
+  height:2px;width:.55em;top:auto;transform:translateY(1.4em);
 }
 /* Caret-anchor indicator removed. The blinking text caret already
    marks the fixed read position; the vertical accent bar was
@@ -268,18 +282,54 @@
 [data-whitespace="none"] .tt-char--space::before{display:none}
 .tt-char--space.tt-char--correct::before, .tt-char--space.tt-char--incorrect::before{display:none}
 
-/* Caret — appears at the leading edge of the current char. */
-.tt-caret{position:absolute;width:2px;background:var(--accent);top:.18em;height:1.1em;animation:tt-blink 1.05s steps(1) infinite;pointer-events:none}
-/* Hide the caret when the surface is unfocused. The text is already
-   blurred + the "Click or press a key to focus" overlay is showing,
-   and a blinking line in the middle of all that reads as broken. */
+/* Caret -- appears at the leading edge of the current char. Three
+   variants:
+     --line       thin vertical bar (default, classic blinking
+                  insertion point)
+     --block      full character-cell rectangle, accent-tinted,
+                  sits BEHIND the character so the glyph stays
+                  readable (terminal-style)
+     --underline  horizontal bar under the character */
+.tt-caret{
+  position:absolute;
+  width:2px;height:1.2em;
+  background:var(--accent);
+  top:.18em;
+  animation:tt-blink 1.05s steps(1) infinite;
+  pointer-events:none;
+  z-index:0;
+}
+/* Hide the caret when the surface is unfocused. */
 .tt-stage[data-focused="false"] .tt-caret{display:none}
-.tt-caret--block{width:.55em;background:var(--accent);opacity:.35}
-/* Underline caret — JS sets `top` to the character's top edge (matching
-   the line caret), so we use transform to push the underline down to
-   sit beneath the text. transform doesn't conflict with the inline
-   style.top the JS sets. */
-.tt-caret--underline{width:.55em;height:2px;background:var(--accent);transform:translateY(1.1em);animation-name:tt-blink}
+
+/* Line caret: explicit class to win cascades when tape/reader
+   contexts try to apply their own caret rules. */
+.tt-caret--line{width:2px;height:1.2em;top:.18em}
+
+/* Block caret -- full character cell highlight. Drops the .35
+   opacity-only treatment (which read as "broken" because it
+   looked identical to a thin line just slightly wider). Now uses
+   a solid accent-tinted block with reduced opacity AND z-index:0
+   so the character glyph sits on top. */
+.tt-caret--block{
+  width:.7em;height:1.25em;
+  top:.1em;
+  background:color-mix(in oklab, var(--accent) 50%, transparent);
+  border-radius:1px;
+}
+
+/* Underline caret -- horizontal bar that sits beneath the char.
+   Explicit width + height beat the base rules. top:auto frees
+   the bar from the JS-set top value; transform alone positions
+   it under the line (cap height + descender + a hair of breathing
+   room). */
+.tt-caret--underline{
+  width:.7em;height:2px;
+  top:auto;
+  transform:translateY(1.4em);
+  background:var(--accent);
+}
+
 .tt-caret[data-state="active"]{animation:none;opacity:1}
 @keyframes tt-blink{0%,49%{opacity:1}50%,100%{opacity:0}}
 
