@@ -680,7 +680,18 @@ function handleFinish(result) {
     if (state.language) emit("langUsed", { lang: state.language });
     const prof = profile || {};
     const sessions = ((prof.lifetime && prof.lifetime.sessions) || 0) + 1;
-    emit("practiceVolume", { bucket: _practiceVolumeBucket(sessions) });
+    const volumeBucket = _practiceVolumeBucket(sessions);
+    emit("practiceVolume", { bucket: volumeBucket });
+    // Compound event for cross-tab derivations -- avg accuracy per
+    // wpm bracket, wpm distribution per practice tier, etc. Single
+    // event with all four buckets so Umami's event-data view can
+    // group on any combination.
+    emit("sessionDist", {
+      wpm: _wpmBucket(wpm),
+      acc: _accBucket(acc),
+      mode: state.mode,
+      volume: volumeBucket,
+    });
     if (state.bookSlug) {
       const completed = (result.endCursor || 0) >= (result.targetLen || 0) && acc >= 80;
       emit("bookCompletion", { book: state.bookSlug, event: completed ? "finished" : "started" });

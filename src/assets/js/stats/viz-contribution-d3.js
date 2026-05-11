@@ -137,16 +137,27 @@ export async function renderContributionD3(svg, daily, panel, opts = {}) {
       }
     });
   } else if (view === "month") {
-    // Month view -- week starts (Sundays) along the bottom.
+    // Month view -- show ONE label per month boundary. Per-Sunday
+    // labels were cramming "15Feb 22Mar 1Mar 8" together because each
+    // column is only 36 px and the label text is wider than that.
+    // Mirror year view: label whichever Sunday column contains the
+    // 1st of a new month, or the first Sunday in the span.
+    let lastMonth = -1;
     cells.forEach((c, i) => {
-      if (i % ROWS !== 0) return;
+      if (i % ROWS !== 0) return; // only label Sunday cells
+      const m = c.date.getMonth();
+      // Label only when the month CHANGES across the span, or the
+      // very first Sunday in the data (whose month introduces the
+      // span). Skip otherwise.
+      if (m === lastMonth) return;
+      lastMonth = m;
       sel.append("text")
         .attr("x", Math.floor(i / ROWS) * (CELL + GAP) + 4 + CELL / 2)
         .attr("y", labelY)
         .attr("text-anchor", "middle")
         .attr("class", "chart__tick")
-        .attr("style", "font-size:10px;fill:var(--fg-3)")
-        .text(c.date.toLocaleDateString(undefined, { month: "short", day: "numeric" }));
+        .attr("style", "font-size:11px;fill:var(--fg-3);font-family:var(--font-mono);letter-spacing:.04em")
+        .text(c.date.toLocaleDateString(undefined, { month: "short" }));
     });
   } else if (view === "week") {
     // Week view -- single horizontal strip of 14 cells. Above

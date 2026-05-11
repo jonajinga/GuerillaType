@@ -190,6 +190,11 @@ export const Analytics = {
   langUsed: (props) => track("lang_used", props),                   // { lang }
   practiceVolume: (props) => track("practice_volume_bucket", props),// { bucket }
   bookCompletion: (props) => track("book_completion", props),       // { book, event }
+  // Compound session distribution -- wpm + acc + mode + volume on
+  // a single event so cross-tabs (speed vs accuracy, speed vs
+  // practice tier, accuracy by mode) can be derived without a JOIN
+  // Umami's event-data endpoint can't perform on its own.
+  sessionDist: (props) => track("session_dist", props),             // { wpm, acc, mode, volume }
 
   // Catch-all for ad-hoc tracking. Use only with stable schemas.
   custom: (name, props) => track(name, props),

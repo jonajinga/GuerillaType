@@ -130,7 +130,7 @@ pageSlug: community-stats
     <li><strong>Window</strong> &mdash; trailing 365 days. Umami Cloud's free tier retains roughly that range.</li>
     <li><strong>Sample</strong> &mdash; every visitor who completes at least one session contributes. No outlier filtering on this view; the operator dashboard can apply ones.</li>
     <li><strong>Bucketing</strong> &mdash; wpm and accuracy are bucketed client-side at session finish (see <code>src/assets/js/analytics.js</code> for the exact thresholds). Umami stores the bucket label as a categorical property.</li>
-    <li><strong>What this can't show</strong> &mdash; per-user histories (no cookies), continuous distributions (everything's bucketed), or cross-event correlations (no JOIN). For inspiration, see TypeLit's <a href="https://www.typelit.io/state-of-typing" rel="noopener" target="_blank">State of Typing</a>; we'd love to publish similar deep cuts but the privacy posture limits what's possible without identifying users.</li>
+    <li><strong>What this can't show</strong> &mdash; per-user histories (no cookies), continuous distributions (everything's bucketed), or cross-event correlations (no JOIN). The privacy posture limits what's possible without identifying users.</li>
     <li><strong>Refresh cadence</strong> &mdash; the page bakes a JSON snapshot at each site deploy. Re-fetch by running <code>UMAMI_API_KEY=&hellip; node scripts/fetch-umami-stats.mjs</code> then redeploying.</li>
     <li><strong>Full transparency</strong> &mdash; every tracked event is listed on <a href="/privacy/">/privacy/</a>. The raw operator dashboard is public at <a href="/analytics/">/analytics/</a>. No event includes anything the user actually typed.</li>
   </ul>
