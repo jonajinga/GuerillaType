@@ -249,12 +249,13 @@ function tryCatch(typed) {
   return true;
 }
 
-/* Caught-word disintegration: the word's text node is hidden
-   immediately, replaced by a swarm of small colored squares that
-   spray outward like exploding pixels. Each pixel fades + drifts
-   on its own trajectory. ~700 ms lifecycle. A "+N" score popup
-   floats up from the word's position over the same window. */
+/* Shooter-mode catch effect: the word becomes a "shot plane"
+   that nosedives toward the bottom of the screen with a faint
+   smoke trail, then explodes at the bottom in a wider pixel
+   burst with a small flash + score popup. Classic / endless
+   modes keep the in-place pixel disintegration. */
 function dissolveCaughtWord(f) {
+  if (f && f.mode === "shooter") return crashCaughtWord(f);
   if (!svgSel || !d3) return;
   // Find the existing <g> for this word so paintFalling can
   // exclude it (class .fall--dying).
@@ -311,6 +312,128 @@ function dissolveCaughtWord(f) {
     .transition().duration(500).ease(d3.easeCubicOut)
     .attr("y", f.y - 50).attr("opacity", 0)
     .on("end", () => popup.remove());
+}
+
+/* Shooter catch -- the word turns into a "shot plane" that
+   nosedives + rotates, drops a smoke trail of tiny squares,
+   then explodes when it hits the bottom. The explosion is a
+   wider, brighter pixel burst than the in-place dissolve. */
+function crashCaughtWord(f) {
+  if (!svgSel || !d3) return;
+  const startX = f.x;
+  const startY = f.y;
+  const endX = f.x + (Math.random() - 0.3) * 80;
+  const endY = stageH - 18;
+  const fallMs = 480 + Math.random() * 120;
+
+  // Hide the original falling group.
+  const node = svgSel.selectAll("g.fall").filter((d) => d && d.id === f.id);
+  if (!node.empty()) {
+    node.classed("fall--dying", true);
+    node.selectAll("text").attr("opacity", 0);
+    node.transition().delay(fallMs + 320).duration(0).remove();
+  }
+
+  // Smoking, rotating plane. Use the word's text inside a group
+  // that animates position + rotation via attrTween on transform.
+  const plane = svgSel.append("g").attr("class", "fall-popup");
+  const planeText = plane.append("text")
+    .attr("text-anchor", "middle")
+    .attr("fill", "var(--bad, #d76050)")
+    .attr("font-family", "var(--font-mono)")
+    .attr("font-size", "20")
+    .attr("font-weight", "600")
+    .attr("opacity", .92)
+    .text(f.word);
+
+  // Smoke-trail spawner -- drops a few squares behind the plane
+  // as it falls. Each square fades quickly.
+  const trail = svgSel.append("g").attr("class", "fall-popup");
+  const smokeTimer = d3.timer((elapsed) => {
+    if (elapsed > fallMs) { smokeTimer.stop(); return; }
+    const t = elapsed / fallMs;
+    const px = startX + (endX - startX) * t + (Math.random() - 0.5) * 6;
+    const py = startY + (endY - startY) * t + (Math.random() - 0.5) * 6;
+    const s = 2 + Math.random() * 2;
+    trail.append("rect")
+      .attr("x", px - s / 2).attr("y", py - s / 2)
+      .attr("width", s).attr("height", s)
+      .attr("fill", "var(--fg-3)").attr("opacity", .55)
+      .transition().duration(380).ease(d3.easeCubicOut)
+      .attr("opacity", 0)
+      .attr("y", py - s / 2 + 14);
+  });
+
+  // Animate the plane to the crash site, then trigger the
+  // explosion + cleanup. d3.transition on transform handles both
+  // translate and rotate at once via a custom attrTween.
+  const start = `translate(${startX},${startY}) rotate(0)`;
+  const end = `translate(${endX},${endY}) rotate(70)`;
+  plane.attr("transform", start)
+    .transition().duration(fallMs).ease(d3.easeCubicIn)
+    .attrTween("transform", () => {
+      return (t) => {
+        const x = startX + (endX - startX) * t;
+        const y = startY + (endY - startY) * t * t;  // accelerate
+        const rot = 70 * t;
+        return `translate(${x},${y}) rotate(${rot})`;
+      };
+    })
+    .on("end", () => {
+      planeText.transition().duration(80).attr("opacity", 0);
+      explodeAt(endX, endY);
+      trail.transition().delay(200).duration(0).remove();
+      plane.transition().delay(280).duration(0).remove();
+    });
+
+  // "+N" popup floats up from the crash site.
+  const popup = svgSel.append("g").attr("class", "fall-popup");
+  popup.append("text")
+    .attr("x", endX).attr("y", endY)
+    .attr("text-anchor", "middle")
+    .attr("fill", "var(--accent)")
+    .attr("font-family", "var(--font-display)")
+    .attr("font-size", "22").attr("font-weight", "600")
+    .attr("opacity", 0)
+    .text(`+${Math.round((10 + f.word.length * 2) * (stats.streak >= 5 ? 1.5 : 1))}`)
+    .transition().delay(fallMs).duration(80).attr("opacity", 1)
+    .transition().duration(520).ease(d3.easeCubicOut)
+    .attr("y", endY - 60).attr("opacity", 0)
+    .on("end", () => popup.remove());
+}
+
+/* Wider pixel burst at the crash site for the shooter mode. */
+function explodeAt(x, y) {
+  if (!svgSel || !d3) return;
+  const burst = svgSel.append("g").attr("class", "fall-popup");
+  // Flash circle that pulses out.
+  burst.append("circle")
+    .attr("cx", x).attr("cy", y).attr("r", 4)
+    .attr("fill", "var(--warn, #e3b873)").attr("opacity", .85)
+    .transition().duration(320).ease(d3.easeCubicOut)
+    .attr("r", 50).attr("opacity", 0);
+  // Pixel shrapnel -- wider spread + bigger pieces than the
+  // in-place dissolve.
+  const palette = ["var(--accent)", "var(--accent-soft, #f59c80)", "var(--warn, #e3b873)", "var(--bad, #d76050)", "var(--fg-0)"];
+  for (let i = 0; i < 36; i++) {
+    const size = 3 + Math.random() * 4;
+    const angle = -Math.PI + Math.random() * Math.PI;  // upper half only -- shrapnel flies up + sideways
+    const speed = 70 + Math.random() * 140;
+    const dx = Math.cos(angle) * speed;
+    const dy = Math.sin(angle) * speed;
+    const lifetime = 600 + Math.random() * 200;
+    burst.append("rect")
+      .attr("x", x - size / 2).attr("y", y - size / 2)
+      .attr("width", size).attr("height", size)
+      .attr("rx", .5).attr("ry", .5)
+      .attr("fill", palette[Math.floor(Math.random() * palette.length)])
+      .attr("opacity", .95)
+      .transition().duration(lifetime).ease(d3.easeQuadOut)
+      .attr("x", x + dx - size / 2)
+      .attr("y", y + dy - size / 2 + 30)  // gravity pull
+      .attr("opacity", 0);
+  }
+  burst.transition().delay(900).duration(0).remove();
 }
 
 function startRound() {

@@ -72,32 +72,20 @@ export function attachInput(inputEl, host, handlers) {
   });
   inputEl.addEventListener("blur", (e) => {
     host.dataset.focused = "false";
-    // Mobile / touch devices: NEVER pause on blur. Mobile users
-    // routinely tap outside the typing area (to dismiss a
-    // keyboard, scroll, adjust settings) without intending to
-    // walk away from the session. Auto-pause makes the live stats
-    // feel like they're glitching. They can still pause via the
-    // explicit Pause button or Esc.
-    const isTouchLike = (() => {
-      try {
-        if (window.matchMedia && window.matchMedia("(max-width: 768px)").matches) return true;
-        if (window.matchMedia && window.matchMedia("(hover: none) and (pointer: coarse)").matches) return true;
-        if ("ontouchstart" in window) return true;
-        if (navigator.maxTouchPoints > 0) return true;
-      } catch {}
-      return false;
-    })();
-    if (isTouchLike) return;
-    // Desktop: skip blurs INTO the on-screen virtual keyboard
-    // so tapping a vkbd key doesn't pause.
+    // Auto-pause on blur is gone. After many rounds of edge
+    // cases (mobile keyboard taps, virtual-keyboard refocus
+    // cycles, scroll handlers stealing focus, dropdown chevrons
+    // taking focus, settings-modal opens), the only consistent
+    // user-experience is "blur never pauses". Users pause via
+    // Pause button or Esc. If focus left because they tapped a
+    // vkbd key, refocus the input so subsequent keystrokes still
+    // route to the engine.
     const goingTo = e.relatedTarget || document.activeElement;
     if (goingTo && goingTo.closest && goingTo.closest(".vkbd")) {
       setTimeout(() => {
         try { if (document.activeElement !== inputEl) inputEl.focus({ preventScroll: true }); } catch {}
       }, 0);
-      return;
     }
-    handlers.onBlur && handlers.onBlur();
   });
 
   inputEl.addEventListener("compositionstart", () => { imeActive = true; handlers.onImeStart && handlers.onImeStart(); });
