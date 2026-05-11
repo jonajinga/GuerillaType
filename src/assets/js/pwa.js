@@ -15,9 +15,31 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
   // Defer until after first paint so registration doesn't compete
   // with critical resources for bandwidth on the initial load.
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js").catch((err) => {
-      console.warn("[pwa] SW registration failed:", err);
-    });
+    // updateViaCache:"none" forces the browser to bypass its HTTP
+    // cache when checking for updates to sw.js itself. Without
+    // this, Cloudflare/browser caches can keep the OLD sw.js alive
+    // and the user never sees fresh JS/CSS until they manually
+    // clear cache. With "none", every page load checks the
+    // network for a new sw.js -- new build hashes activate fast.
+    navigator.serviceWorker.register("/sw.js", { updateViaCache: "none" })
+      .then((reg) => {
+        // Check for updates whenever the user returns to the tab.
+        document.addEventListener("visibilitychange", () => {
+          if (document.visibilityState === "visible") reg.update().catch(() => {});
+        });
+        // When a new SW takes over, reload once so the page picks
+        // up the freshly-cached HTML / CSS / JS the new worker
+        // just installed.
+        let didReload = false;
+        navigator.serviceWorker.addEventListener("controllerchange", () => {
+          if (didReload) return;
+          didReload = true;
+          location.reload();
+        });
+      })
+      .catch((err) => {
+        console.warn("[pwa] SW registration failed:", err);
+      });
   });
 }
 

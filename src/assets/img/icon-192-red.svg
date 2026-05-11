@@ -1,8 +1,39 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-label="GuerillaType">
-  <rect width="192" height="192" fill="#c1413c"/>
-  <rect x="24" y="24" width="144" height="144" fill="#8a2521"/>
-  <rect x="36" y="36" width="120" height="120" fill="#c1413c"/>
-  <text x="96" y="138" text-anchor="middle"
-    font-family="Iowan Old Style, Palatino, Georgia, serif"
-    font-size="118" font-weight="700" font-style="italic" fill="#fff">G</text>
+  <rect width="192" height="192" fill="#14161e"/>
+  <!-- Gorilla face -->
+  <path d="M 28 84
+           C 28 48, 58 24, 96 24
+           C 134 24, 164 48, 164 84
+           L 164 132
+           C 164 156, 142 168, 96 168
+           C 50 168, 28 156, 28 132 Z"
+        fill="#8a2521"/>
+  <!-- Brow ridge / temple shadow -->
+  <path d="M 38 90 C 54 108, 74 114, 96 114 C 118 114, 138 108, 154 90 L 154 132 C 154 150, 130 158, 96 158 C 62 158, 38 150, 38 132 Z"
+        fill="#6e1c19"/>
+  <!-- Muzzle -->
+  <ellipse cx="96" cy="128" rx="36" ry="24" fill="#a8362e"/>
+  <!-- Nostrils -->
+  <ellipse cx="84" cy="126" rx="4.4" ry="2.8" fill="#3a0d0b"/>
+  <ellipse cx="108" cy="126" rx="4.4" ry="2.8" fill="#3a0d0b"/>
+  <!-- Mouth -->
+  <path d="M 82 140 Q 96 148 110 140" stroke="#3a0d0b" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+  <!-- Eyes -->
+  <circle cx="70" cy="92" r="8.6" fill="#1a0606"/>
+  <circle cx="122" cy="92" r="8.6" fill="#1a0606"/>
+  <circle cx="72.4" cy="90" r="2.4" fill="#fff"/>
+  <circle cx="124.4" cy="90" r="2.4" fill="#fff"/>
+  <!-- Bandana band across forehead -->
+  <path d="M 20 60
+           C 34 42, 62 32, 96 32
+           C 130 32, 158 42, 172 60
+           L 172 78
+           C 158 68, 130 62, 96 62
+           C 62 62, 34 68, 20 78 Z"
+        fill="#c1413c"/>
+  <!-- Bandana knot on left -->
+  <path d="M 14 56 L 34 50 L 28 70 L 8 74 Z" fill="#c1413c"/>
+  <path d="M 8 66 L 20 62 L 16 78 L 4 82 Z" fill="#a8362e"/>
+  <!-- Bandana stitching -->
+  <path d="M 26 70 C 54 52, 138 52, 166 70" stroke="#e58060" stroke-width="2.5" fill="none" stroke-linecap="round" opacity=".7"/>
 </svg>

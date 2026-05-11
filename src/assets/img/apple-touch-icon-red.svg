@@ -1,8 +1,39 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="GuerillaType">
-  <rect width="180" height="180" rx="32" ry="32" fill="#c1413c"/>
-  <rect x="22" y="22" width="136" height="136" fill="#8a2521"/>
-  <rect x="34" y="34" width="112" height="112" fill="#c1413c"/>
-  <text x="90" y="128" text-anchor="middle"
-    font-family="Iowan Old Style, Palatino, Georgia, serif"
-    font-size="110" font-weight="700" font-style="italic" fill="#fff">G</text>
+  <rect width="180" height="180" rx="32" ry="32" fill="#14161e"/>
+  <!-- Gorilla face: rounded shape, deep red -->
+  <path d="M 26 78
+           C 26 44, 54 22, 90 22
+           C 126 22, 154 44, 154 78
+           L 154 124
+           C 154 146, 132 158, 90 158
+           C 48 158, 26 146, 26 124 Z"
+        fill="#8a2521"/>
+  <!-- Brow ridge / temple shadow -->
+  <path d="M 36 84 C 50 100, 70 106, 90 106 C 110 106, 130 100, 144 84 L 144 124 C 144 140, 122 148, 90 148 C 58 148, 36 140, 36 124 Z"
+        fill="#6e1c19"/>
+  <!-- Muzzle -->
+  <ellipse cx="90" cy="120" rx="34" ry="22" fill="#a8362e"/>
+  <!-- Nostrils -->
+  <ellipse cx="79" cy="118" rx="4" ry="2.6" fill="#3a0d0b"/>
+  <ellipse cx="101" cy="118" rx="4" ry="2.6" fill="#3a0d0b"/>
+  <!-- Mouth -->
+  <path d="M 76 132 Q 90 140 104 132" stroke="#3a0d0b" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <!-- Eyes -->
+  <circle cx="66" cy="86" r="8" fill="#1a0606"/>
+  <circle cx="114" cy="86" r="8" fill="#1a0606"/>
+  <circle cx="68" cy="84" r="2.2" fill="#fff"/>
+  <circle cx="116" cy="84" r="2.2" fill="#fff"/>
+  <!-- Bandana band across forehead -->
+  <path d="M 18 56
+           C 32 40, 60 32, 90 32
+           C 120 32, 148 40, 162 56
+           L 162 72
+           C 148 64, 120 58, 90 58
+           C 60 58, 32 64, 18 72 Z"
+        fill="#c1413c"/>
+  <!-- Bandana knot on left -->
+  <path d="M 12 52 L 32 46 L 26 64 L 6 68 Z" fill="#c1413c"/>
+  <path d="M 6 62 L 18 58 L 14 72 L 2 76 Z" fill="#a8362e"/>
+  <!-- Bandana stitching -->
+  <path d="M 24 66 C 50 50, 130 50, 156 66" stroke="#e58060" stroke-width="2.5" fill="none" stroke-linecap="round" opacity=".7"/>
 </svg>

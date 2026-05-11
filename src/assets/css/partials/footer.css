@@ -162,8 +162,12 @@
 @media (min-width:480px){
   .site-footer__badges{grid-template-columns:repeat(3, minmax(0, 1fr))}
 }
-@media (min-width:1024px){
-  .site-footer__badges{grid-template-columns:repeat(3, minmax(0, 1fr));max-width:30rem}
+@media (min-width:900px){
+  /* Above tablet-landscape: single row of all six badges. */
+  .site-footer__badges{
+    grid-template-columns:repeat(6, minmax(0, 1fr));
+    max-width:none;
+  }
 }
 .site-footer__badge{
   display:flex;flex-direction:column;align-items:flex-start;

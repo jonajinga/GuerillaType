@@ -78,6 +78,7 @@ export class Renderer {
     this.cursor = 0;
     this.scrollPx = 0;
     this._tapeShift = 0;
+    this._tapeChar0X = null;        // cached on first moveCaretTo
     this.inner.style.transform = "";
     // Force layout so the very first getBoundingClientRect in
     // moveCaretTo sees the newly inserted spans (instead of a
@@ -197,20 +198,35 @@ export class Renderer {
     // expressed in the inner's pre-transform coordinate space).
     if (cont.classList.contains("tt-text--tape")) {
       const anchorX = cr.width * 0.3;
-      // r.left already reflects any current translateX on the
-      // inner. Add back the prior slide to recover the pre-
-      // transform content-space x.
-      const charContentX = r.left - cr.left + (this._tapeShift || 0);
-      const slide = Math.max(0, charContentX - anchorX);
+      // Transform-invariant math: char0 and charN both shift by
+      // the same translateX, so (charN.left - char0.left) gives
+      // the pre-transform delta. We cache char0's pre-transform
+      // X on the first frame (when slide=0 is guaranteed) and use
+      // it as the anchor for every subsequent keystroke. This
+      // works regardless of any CSS padding/margin on the inner,
+      // and is stable mid-CSS-transition.
+      const first = this.chars[0];
+      if (!first || !first.el) {
+        this.caret.style.left = "0px";
+        this.caret.style.top = (r.top - cr.top) + "px";
+        return;
+      }
+      const fr = first.el.getBoundingClientRect();
+      if (this._tapeChar0X == null) {
+        // First frame: slide is 0, transform is "", so fr.left -
+        // cr.left is the true pre-transform offset of char 0.
+        this._tapeChar0X = fr.left - cr.left;
+      }
+      const charPreX = this._tapeChar0X + (r.left - fr.left);
+      const slide = Math.max(0, charPreX - anchorX);
       this._tapeShift = slide;
       this.inner.style.transform = slide > 0 ? `translateX(-${slide}px)` : "";
-      // The caret is a child of the container (not the inner) so
-      // it does NOT receive the inner's transform. Place it at the
-      // char's POST-transform viewport position relative to the
-      // container's left edge: charContentX - slide (= anchorX
-      // when scrolling, or = char's flush-left position when no
-      // slide has accumulated yet).
-      this.caret.style.left = (charContentX - slide) + "px";
+      // Caret is a child of the container; not transformed. Position
+      // it at the char's POST-transform viewport position (charPreX
+      // minus the slide). When slide is at the anchor, this lands on
+      // anchorX; when slide is clamped to 0 (early chars), the caret
+      // follows the char flush-left.
+      this.caret.style.left = (charPreX - slide) + "px";
       this.caret.style.top = (r.top - cr.top) + "px";
       return;
     }

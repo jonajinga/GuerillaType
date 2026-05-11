@@ -123,15 +123,17 @@
 .tt-text.tt-text--tape .tt-text__inner{
   display:inline-block;white-space:nowrap;
   /* Slide left via translateX (set imperatively from the renderer
-     each keystroke). Padding-left = anchor position so the first
-     char sits at the 30% mark before any scroll is applied.
-     No CSS transition -- the renderer reads char positions via
-     getBoundingClientRect() on each keystroke and the math gets
-     wrong values mid-animation. Instant snaps look great here
-     anyway (one char width per keystroke, the eye reads it as
-     smooth motion). */
+     each keystroke). Padding-left starts the first char at the
+     anchor; transition smooths the per-char slide for a real
+     ticker feel. The renderer's math is transform-invariant
+     (anchored to char[0]'s cached pre-transform x) so mid-
+     animation reads don't corrupt subsequent slides. */
   padding-left:30%;
+  transition:transform 120ms cubic-bezier(.22,.61,.36,1);
   will-change:transform;
+}
+@media (prefers-reduced-motion: reduce){
+  .tt-text.tt-text--tape .tt-text__inner{transition:none}
 }
 .tt-text.tt-text--tape .tt-word{
   display:inline-block;white-space:nowrap;margin-right:.6em;
