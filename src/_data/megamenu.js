@@ -212,7 +212,7 @@ const megamenu = [
         items: [
           { chip: "🎯", label: "Shooter mode", url: "/games/#shooter", desc: "Cursor-driven word targeting." },
           { chip: "∞", label: "Endless mode", url: "/games/#endless", desc: "Spawns forever, faster each minute." },
-          { chip: "💡", label: "Suggest a game", url: "/contribute/", desc: "What would you play?" },
+          { chip: "💡", label: "Suggest a game", url: "/contribute/game/", desc: "Pitch a typing mini-game." },
         ],
       },
       {
@@ -279,6 +279,7 @@ const megamenu = [
           { chip: "I", label: "Suggest an idiom", url: "/contribute/idiom/", desc: "Phrase, meaning, origin, region." },
           { chip: "P", label: "Suggest a poem", url: "/contribute/poem/", desc: "Pre-1929 poetry -- sonnets, lyrics, narrative." },
           { chip: "D", label: "Suggest a drill", url: "/contribute/drill/", desc: "Key cluster, bigram, finger isolation, symbol pack." },
+          { chip: "G", label: "Suggest a game", url: "/contribute/game/", desc: "Pitch a typing mini-game with mechanics + scoring." },
           { chip: "+", label: "All forms", url: "/contribute/", desc: "Hub for every contribution type." },
         ],
       },

@@ -183,21 +183,27 @@ export class Renderer {
     }
 
     // Tape mode: single horizontal line that scrolls left so the
-    // caret stays near the 30% mark of the container. Pure
-    // translateX, no vertical scroll math needed.
+    // caret stays near the 30 % mark of the container once typed
+    // text has moved past that point. translateX is set via
+    // setProperty with !important so any conflicting CSS rule
+    // (notably the tt-text--full transform:none!important) can't
+    // strip it.
     if (cont.classList.contains("tt-text--tape")) {
       const anchorX = cr.width * 0.3;
-      const caretX = r.left - cr.left;
-      // Current applied translateX, parsed back from inner.style.
-      const cur = parseFloat((this.inner.style.transform.match(/translateX\(([-\d.]+)px\)/) || [])[1] || 0);
-      // Where the caret would land relative to the container with
-      // no further translation: caretX is already in the current
-      // (translated) frame, so target translate adjusts by the
-      // delta between current caret position and anchor.
-      const delta = caretX - anchorX;
-      const next = cur - delta;
-      this.inner.style.transform = `translateX(${next}px)`;
-      this.caret.style.left = anchorX + "px";
+      const innerBox = this.inner.getBoundingClientRect();
+      // Char's position relative to the inner element BEFORE any
+      // additional transform is applied. Since translateX shifts
+      // both inner + char equally, the delta is invariant under
+      // the current transform.
+      const charInInner = r.left - innerBox.left;
+      let translateX = 0;
+      let caretLeft = charInInner;
+      if (charInInner > anchorX) {
+        translateX = -(charInInner - anchorX);
+        caretLeft = anchorX;
+      }
+      this.inner.style.setProperty("transform", `translateX(${translateX}px)`, "important");
+      this.caret.style.left = caretLeft + "px";
       this.caret.style.top = (r.top - cr.top) + "px";
       return;
     }

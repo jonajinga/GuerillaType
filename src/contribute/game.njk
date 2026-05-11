@@ -1,0 +1,62 @@
+---
+layout: layouts/base.njk
+title: "Suggest a game"
+description: "Pitch a typing mini-game for GuerillaType -- mechanics, scoring, what makes it worth playing."
+permalink: /contribute/game/
+---
+
+{% import "partials/contribute/form-shell.njk" as cf %}
+
+{{ cf.head("Suggest a game", "Pitch a typing mini-game. Tell me what the player does, what makes it fun, and what typing habit it builds.", "game") }}
+
+<aside class="contribute-page__guidelines">
+  <h2>What I'm looking for</h2>
+  <ul>
+    <li>One core verb -- "catch", "shoot", "chase", "build". The simpler the loop, the better the game.</li>
+    <li>A clear pressure source -- timer, gravity, accumulating misses, a chasing cursor.</li>
+    <li>A reason to keep playing -- streak multiplier, high score, unlock, new word pool.</li>
+    <li>Bonus if it leans on the user's <em>missed-words</em> list so playing is also targeted practice.</li>
+    <li>Public-domain or original mechanics only -- no clones of branded games.</li>
+  </ul>
+  <p class="muted">Already shipped: <a href="/practice/game/">Catch the Word</a> (Classic / Endless / Shooter). I'm especially interested in games that test rhythm, accuracy, or vocabulary recall.</p>
+</aside>
+
+<form class="contribute-form" method="POST" action="{{ web3forms.endpoint }}" data-contribute-kind="game">
+  {{ cf.hidden("game", "GT contribution: game suggestion", web3forms) }}
+
+  {{ cf.text("game_name", "Game name", required=true, maxlength=80, placeholder="e.g. Word Ladder, Letter Match, Caps Lock Crawler") }}
+
+  {{ cf.select("game_genre", "Genre", [
+    { value: "arcade", label: "Arcade -- timing + reflex" },
+    { value: "puzzle", label: "Puzzle -- pattern matching, vocabulary recall" },
+    { value: "rhythm", label: "Rhythm -- type to a beat / metronome" },
+    { value: "endless", label: "Endless -- progress until you lose" },
+    { value: "duel", label: "Duel -- player vs. CPU race" },
+    { value: "drill-game", label: "Drill-game -- gamified key practice" },
+    { value: "other", label: "Other / hybrid" }
+  ], required=true) }}
+
+  {{ cf.textarea("how_it_plays", "How does it play?", required=true, minlength=40, maxlength=2000, rows=6, hint="Describe one round from start to finish. What does the player see? What do they type? When does the round end?") }}
+
+  {{ cf.textarea("why_fun", "Why is it fun?", required=true, minlength=20, maxlength=800, rows=3, hint="One or two sentences. What's the hook that keeps people playing?") }}
+
+  {{ cf.textarea("typing_habit", "What typing habit does it build?", required=true, minlength=20, maxlength=600, rows=3, hint="Speed? Accuracy? Specific keys / bigrams? Vocabulary recall?") }}
+
+  {{ cf.select("difficulty", "Difficulty profile", [
+    { value: "casual", label: "Casual -- anyone can play" },
+    { value: "scaling", label: "Scales -- starts easy, ramps up" },
+    { value: "hardcore", label: "Hardcore -- only for fast typists" }
+  ], required=true) }}
+
+  {{ cf.textarea("scoring", "Scoring / progression (optional)", maxlength=600, rows=3, hint="How does the player earn points? Are there unlocks? A leaderboard?") }}
+
+  {{ cf.textarea("references", "References (optional)", maxlength=400, rows=2, hint="Links to existing games or videos that inspired this -- helps me visualize the mechanic.") }}
+
+  {{ cf.text("submitter_name", "Your name", maxlength=120, placeholder="Optional") }}
+
+  {{ cf.submit("Send game suggestion") }}
+</form>
+
+{{ cf.byline() }}
+
+<script type="module" src="/assets/js/pages/contribute-boot.js?v={{ cssVersion }}"></script>
