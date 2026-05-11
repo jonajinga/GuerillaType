@@ -82,8 +82,32 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Cache-first for static assets. The cache-busting query string on
-  // every link means a new build invalidates these naturally.
+  // Network-first for JS modules. Static ES module imports inside
+  // practice-boot.js (renderer.js, typing-engine.js, input-capture.js,
+  // etc.) don't carry the ?v=cssVersion cache-bust we put on the
+  // top-level dynamic import. With cache-first + Cloudflare's
+  // immutable Cache-Control header, those modules can stay frozen
+  // for a year. Network-first forces a re-fetch each visit so a new
+  // build always wins. Falls back to cache when offline.
+  if (url.pathname.startsWith("/assets/js/") && url.pathname.endsWith(".js")) {
+    event.respondWith((async () => {
+      try {
+        const fresh = await fetch(req);
+        if (fresh.ok) {
+          const cache = await caches.open(RUNTIME_CACHE);
+          cache.put(req, fresh.clone());
+        }
+        return fresh;
+      } catch {
+        const cached = await caches.match(req);
+        return cached || new Response("", { status: 504 });
+      }
+    })());
+    return;
+  }
+
+  // Cache-first for everything else (fonts, images, CSS that carries
+  // its own ?v=cssVersion cache-bust on the <link> href).
   event.respondWith((async () => {
     const cached = await caches.match(req);
     if (cached) return cached;
