@@ -490,9 +490,13 @@ function endRound() {
       return p;
     });
   } catch {}
-  // Game-over overlay.
+  // Game-over overlay. Class is "game-over-overlay" (NOT "fall")
+  // so paintFalling's selectAll("g.fall") doesn't include it and
+  // exit().remove() can't yank it on the next paint.
   if (svgSel) {
-    const over = svgSel.append("g").attr("class", "fall game-over");
+    // Wipe any prior overlay (in case of a quick re-end).
+    svgSel.selectAll("g.game-over-overlay").remove();
+    const over = svgSel.append("g").attr("class", "game-over-overlay");
     over.append("rect")
       .attr("x", 0).attr("y", 0).attr("width", stageW).attr("height", stageH)
       .attr("fill", "rgba(20, 22, 30, .82)");
@@ -510,7 +514,19 @@ function endRound() {
       .attr("font-family", "var(--font-mono)")
       .attr("font-size", "18")
       .text(`Score ${stats.score} · ${stats.caught} caught · best streak ${stats.bestStreak}`);
+    // Sub-instruction so the user knows they need to click Play
+    // again -- otherwise they'd reflexively press a key and
+    // wonder why the overlay isn't going anywhere.
+    over.append("text")
+      .attr("x", stageW / 2).attr("y", stageH / 2 + 56)
+      .attr("text-anchor", "middle")
+      .attr("fill", "var(--fg-3)")
+      .attr("font-family", "var(--font-mono)")
+      .attr("font-size", "13")
+      .text("Click Play again to start a new round.");
   }
+  // Also blur the input so a stray key doesn't auto-fire anything.
+  try { input.blur(); } catch {}
 }
 
 input.addEventListener("input", () => {
