@@ -819,18 +819,24 @@ document.querySelectorAll(".game-mode-switch__btn").forEach((btn) => {
     gameMode = btn.dataset.gameMode || "classic";
     applyModeCopy();
     paintStats();  // Best chip flips to the new mode's high score
-    // Reset the round so the new mode takes effect cleanly. The
-    // user starts a fresh round via the Start button.
-    if (running) {
-      running = false;
-      falling = [];
-      reset();
-      startBtn.textContent = "Start";
-      startBtn.hidden = false;
-      pauseBtn.hidden = true;
-      resetBtn.hidden = true;
-      if (svgSel) svgSel.selectAll("g.fall, g.fall--dying, g.fall-popup").remove();
+    // Unconditional reset: whether the previous round was still
+    // running or had ended at the game-over overlay, the new
+    // mode needs a clean stage. The 'if (running)' guard used to
+    // skip this branch after a finished round, leaving the
+    // game-over overlay (and any drifting fall words) parked on
+    // the new mode's surface. reset() handles falling[] +
+    // stats; we additionally wipe every SVG group class the
+    // game has ever appended.
+    reset();
+    if (svgSel) {
+      svgSel.selectAll("g.fall, g.fall--dying, g.fall-popup, g.game-over-overlay, g.stage-hint").remove();
     }
+    startBtn.textContent = "Start";
+    startBtn.hidden = false;
+    pauseBtn.hidden = true;
+    resetBtn.hidden = true;
+    // Re-paint the pre-round hint for the freshly-active mode.
+    paintHint();
   });
 });
 
