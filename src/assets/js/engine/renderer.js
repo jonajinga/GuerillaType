@@ -79,6 +79,12 @@ export class Renderer {
     this.scrollPx = 0;
     this._tapeShift = 0;
     this.inner.style.transform = "";
+    // Force layout so the very first getBoundingClientRect in
+    // moveCaretTo sees the newly inserted spans (instead of a
+    // stale empty inner). Without this, the first char's r.left
+    // can come back equal to the container's left -- collapsing
+    // the tape math to "always at 0".
+    void this.inner.offsetWidth;
     this.moveCaretTo(0);
   }
 

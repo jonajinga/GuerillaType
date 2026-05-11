@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="GuerillaType">
+  <rect width="180" height="180" rx="32" ry="32" fill="#c1413c"/>
+  <rect x="22" y="22" width="136" height="136" fill="#8a2521"/>
+  <rect x="34" y="34" width="112" height="112" fill="#c1413c"/>
+  <text x="90" y="128" text-anchor="middle"
+    font-family="Iowan Old Style, Palatino, Georgia, serif"
+    font-size="110" font-weight="700" font-style="italic" fill="#fff">G</text>
+</svg>
