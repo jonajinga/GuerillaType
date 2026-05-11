@@ -882,7 +882,7 @@ function renderResults(r) {
     if (!dismissed && lifetimeSessions >= 10) {
       testimonialPrompt = `
         <aside class="results__testimonial-prompt" id="tt-testimonial-prompt">
-          <p>Enjoying GuerillaType? <a href="/contribute/testimonial/" data-tip="Submit a short testimonial -- helps the project and may appear on the reviews page if you opt in.">Leave a testimonial →</a></p>
+          <p>Enjoying GT? <a href="/contribute/testimonial/" data-tip="Submit a short testimonial -- helps the project and may appear on the reviews page if you opt in.">Leave a review →</a></p>
           <button type="button" class="results__testimonial-dismiss" id="tt-testimonial-dismiss" aria-label="Dismiss this prompt" data-tip="Dismiss this prompt for the rest of the session.">×</button>
         </aside>`;
     }

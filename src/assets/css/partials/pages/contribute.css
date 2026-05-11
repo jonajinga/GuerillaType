@@ -184,20 +184,32 @@
 /* Inline prompt rendered in the results card after 10+ lifetime
    sessions, asking the user to leave a testimonial. Dismissable. */
 .results__testimonial-prompt{
-  margin-top:var(--space-4);padding:.75rem 1rem;
+  margin-top:var(--space-4);padding:.6rem .8rem;
   background:color-mix(in oklab, var(--accent) 10%, var(--bg-1));
   border:1px solid color-mix(in oklab, var(--accent) 30%, var(--rule));
   border-radius:var(--radius);
   display:flex;align-items:center;justify-content:space-between;gap:.6rem;
+  font-size:.85rem;
 }
-.results__testimonial-prompt p{margin:0;color:var(--fg-1);font-size:var(--fs-300)}
-.results__testimonial-prompt a{color:var(--accent);font-weight:500}
+.results__testimonial-prompt p{
+  margin:0;color:var(--fg-1);
+  flex:1 1 auto;min-width:0;
+  font-size:inherit;line-height:1.35;
+}
+.results__testimonial-prompt a{
+  color:var(--accent);font-weight:500;white-space:nowrap;
+}
 .results__testimonial-dismiss{
   width:28px;height:28px;line-height:1;font-size:1.1rem;
   background:transparent;border:0;color:var(--fg-2);
-  border-radius:var(--radius);cursor:pointer;
+  border-radius:var(--radius);cursor:pointer;flex-shrink:0;
 }
 .results__testimonial-dismiss:hover{color:var(--fg-0);background:var(--bg-2)}
+@media (max-width:480px){
+  .results__testimonial-prompt{
+    padding:.55rem .7rem;font-size:.78rem;
+  }
+}
 
 /* Compact CTA tile dropped at the bottom of corpus pages so users
    can suggest content from where they're already browsing. */
