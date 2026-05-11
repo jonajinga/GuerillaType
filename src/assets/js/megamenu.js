@@ -199,7 +199,7 @@ function populateContribute(p) {
         </a>
         <p class="mega-featured-note__greeting">A note from <a href="https://jonajinga.com" target="_blank" rel="noopener">Jon</a></p>
       </div>
-      <p class="mega-featured-note__body">GuerillaType exists because you use it. Free, no accounts, no tracking -- it stays that way only as long as people care enough to send a quote, leave a review, or just say hi.</p>
+      <p class="mega-featured-note__body">GuerillaType exists because you use it. Free, no accounts, no cookies -- it stays that way only as long as people care enough to send a quote, leave a review, or just say hi.</p>
       <p class="mega-featured-note__body">If the site has helped you type even a little better, the Contribute hub is the easiest way to give back. Thank you for being here.${sessions >= 10 ? ` <strong>${sessions} sessions</strong> in -- you're not a tourist anymore.` : ""}</p>
       <p class="mega-featured-note__sig">-- Jon</p>
     </div>

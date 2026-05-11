@@ -302,7 +302,7 @@ const megamenu = [
           { chip: "📜", label: "Changelog", url: "/changelog/", desc: "Every notable change, in chronological order." },
           { chip: "📚", label: "Guide", url: "/guide/", desc: "How the engine, modes, and stats work under the hood." },
           { chip: "🔭", label: "Roadmap", url: "/roadmap/", desc: "What's coming next and what's been deferred." },
-          { chip: "🙏", label: "Why contribute", url: "/why-contribute/", desc: "The case for adding to a free, no-tracking practice surface." },
+          { chip: "🙏", label: "Why contribute", url: "/why-contribute/", desc: "The case for adding to a free, no-account practice surface." },
         ],
       },
     ],

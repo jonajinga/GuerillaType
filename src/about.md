@@ -2,7 +2,7 @@
 layout: layouts/article.njk
 title: "About"
 eyebrow: "What this is"
-lede: "A free, open-source typing tutor for the rest of us. No accounts, no tracking, no premium tier — just a clean place to practice typing."
+lede: "A free, open-source typing tutor for the rest of us. No accounts, no cookies, no premium tier — just a clean place to practice typing."
 description: "About GuerillaType: what it is, why it exists, who built it, how it's made."
 cta:
   title: "Start typing"
