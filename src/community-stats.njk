@@ -1,0 +1,123 @@
+---
+layout: layouts/base.njk
+title: "Community stats"
+description: "Aggregate, anonymous typing data from GuerillaType visitors. What people actually do here — WPM distributions, accuracy curves, mode popularity, books read."
+permalink: /community-stats/
+pageSlug: community-stats
+---
+<header class="page__head">
+  <p class="page__eyebrow">Open metrics</p>
+  <h1>Community typing data</h1>
+  <p class="page__subtitle">What people actually do on GuerillaType. Aggregated, anonymous, no PII. The charts are pulled live from <a href="/analytics/">the public Umami dashboard</a>; every event is also disclosed on <a href="/privacy/">/privacy/</a>.</p>
+</header>
+
+<div class="community-stats">
+
+  <section class="community-stat">
+    <header class="community-stat__head">
+      <p class="community-stat__num">01</p>
+      <h2>WPM distribution</h2>
+    </header>
+    <p class="community-stat__lede">How fast people type here. Each finished session contributes one bucket label (a 10-wpm-wide bin). The shape settles into a log-normal curve as more sessions accumulate — most typists land in the 40–60 wpm bracket, with a long tail above 80.</p>
+    <div class="community-stat__chart" data-umami-event="wpm_bucket">
+      <iframe
+        src="https://cloud.umami.is/share/Go6W5bgtCW47V4Gf?event=wpm_bucket"
+        title="WPM bucket distribution from GuerillaType sessions"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        allow="clipboard-write"></iframe>
+    </div>
+  </section>
+
+  <section class="community-stat">
+    <header class="community-stat__head">
+      <p class="community-stat__num">02</p>
+      <h2>Accuracy distribution</h2>
+    </header>
+    <p class="community-stat__lede">How accurate people type. Buckets cluster tight around 92–96% in published research; we expect the same here once enough sessions land. Near-perfect (99–100%) is always rare — people type fast enough to make some mistakes but not so carelessly the text breaks.</p>
+    <div class="community-stat__chart" data-umami-event="acc_bucket">
+      <iframe
+        src="https://cloud.umami.is/share/Go6W5bgtCW47V4Gf?event=acc_bucket"
+        title="Accuracy bucket distribution from GuerillaType sessions"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        allow="clipboard-write"></iframe>
+    </div>
+  </section>
+
+  <section class="community-stat">
+    <header class="community-stat__head">
+      <p class="community-stat__num">03</p>
+      <h2>Mode popularity</h2>
+    </header>
+    <p class="community-stat__lede">Which modes do people actually finish? Time / words / quote / tape / zen / adaptive / book / lesson / drill / challenge / custom / idiom / poem — each finished session emits its mode. The relative counts tell us where to invest design effort and which surfaces serve real practice habits.</p>
+    <div class="community-stat__chart" data-umami-event="mode_completed">
+      <iframe
+        src="https://cloud.umami.is/share/Go6W5bgtCW47V4Gf?event=mode_completed"
+        title="Mode popularity distribution from GuerillaType sessions"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        allow="clipboard-write"></iframe>
+    </div>
+  </section>
+
+  <section class="community-stat">
+    <header class="community-stat__head">
+      <p class="community-stat__num">04</p>
+      <h2>Speed milestones</h2>
+    </header>
+    <p class="community-stat__lede">Counts of sessions that crossed a milestone wpm threshold. The 50 / 75 / 100 / 125 / 150 wpm tiers each fire once per session that hits them, so the chart reads as "how many sessions cleared 80 wpm at least once."</p>
+    <div class="community-stat__chart" data-umami-event="speed_milestone">
+      <iframe
+        src="https://cloud.umami.is/share/Go6W5bgtCW47V4Gf?event=speed_milestone"
+        title="Speed milestone tier counts"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        allow="clipboard-write"></iframe>
+    </div>
+  </section>
+
+  <section class="community-stat">
+    <header class="community-stat__head">
+      <p class="community-stat__num">05</p>
+      <h2>Top books typed</h2>
+    </header>
+    <p class="community-stat__lede">Which public-domain books from <a href="/library/">the library</a> people actually start, type, and finish. <code>started</code> events fire on first paragraph; <code>finished</code> fires only when the full page is completed at 80%+ accuracy. Length matters: short works dominate completion counts.</p>
+    <div class="community-stat__chart" data-umami-event="book_completion">
+      <iframe
+        src="https://cloud.umami.is/share/Go6W5bgtCW47V4Gf?event=book_completion"
+        title="Book start + completion counts"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        allow="clipboard-write"></iframe>
+    </div>
+  </section>
+
+  <section class="community-stat">
+    <header class="community-stat__head">
+      <p class="community-stat__num">06</p>
+      <h2>Practice volume</h2>
+    </header>
+    <p class="community-stat__lede">Lifetime session count per typist (bucketed). Tells us how many casual visitors stay vs. settle into a habit. Each finished session emits the typist's current bracket — so the chart's left buckets get inflated (everyone passes through them once on the way up).</p>
+    <div class="community-stat__chart" data-umami-event="practice_volume_bucket">
+      <iframe
+        src="https://cloud.umami.is/share/Go6W5bgtCW47V4Gf?event=practice_volume_bucket"
+        title="Practice-volume bracket distribution"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        allow="clipboard-write"></iframe>
+    </div>
+  </section>
+
+</div>
+
+<section class="prose community-stats__methodology">
+  <h2>Methodology + disclaimers</h2>
+  <ul>
+    <li><strong>Source</strong> — anonymized event data from Umami, fired by the GuerillaType practice surface at session finish. No accounts, no cookies, no IP retained.</li>
+    <li><strong>Sample</strong> — every visitor who completes at least one session contributes. There's no filter for outliers in this view; the operator's <a href="/analytics/">dashboard</a> can apply ones.</li>
+    <li><strong>Bucketing</strong> — wpm and accuracy are bucketed client-side at session finish (see <code>src/assets/js/analytics.js</code>). Umami stores the bucket label as a categorical property.</li>
+    <li><strong>What this can't show</strong> — per-user histories (no cookies), continuous distributions (everything's bucketed), or cross-event correlations (Umami has no JOIN). For inspiration, see TypeLit's <a href="https://www.typelit.io/state-of-typing" rel="noopener" target="_blank">State of Typing</a>; we'd love to publish similar deep cuts but the privacy posture limits what's possible.</li>
+    <li><strong>Full transparency</strong> — every tracked event is listed on <a href="/privacy/">/privacy/</a>. The operator dashboard is public: <a href="/analytics/">/analytics/</a>. No event includes anything the user typed.</li>
+  </ul>
+</section>

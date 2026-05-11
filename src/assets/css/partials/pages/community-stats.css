@@ -1,0 +1,63 @@
+/* /community-stats/ — public typing data, six embedded Umami charts. */
+
+.community-stats{
+  display:flex;flex-direction:column;gap:var(--space-6);
+  margin:var(--space-5) 0;
+}
+
+.community-stat{
+  background:var(--bg-1);
+  border:1px solid var(--rule);border-radius:var(--radius);
+  padding:var(--space-5);
+}
+.community-stat__head{
+  display:flex;align-items:baseline;gap:var(--space-3);
+  margin:0 0 var(--space-3);
+}
+.community-stat__num{
+  font-family:var(--font-mono);font-size:.7rem;
+  letter-spacing:.16em;text-transform:uppercase;
+  color:var(--fg-3);margin:0;font-weight:600;
+}
+.community-stat h2{
+  font-family:var(--font-display);font-weight:500;
+  font-size:var(--fs-500);margin:0;
+}
+.community-stat__lede{
+  color:var(--fg-1);line-height:1.65;
+  margin:0 0 var(--space-4);max-width:62ch;
+}
+.community-stat__chart{
+  position:relative;
+  background:var(--bg-2);
+  border:1px solid var(--rule);border-radius:var(--radius);
+  overflow:hidden;
+}
+.community-stat__chart iframe{
+  display:block;width:100%;
+  height:480px;border:0;background:var(--bg-2);
+}
+
+.community-stats__methodology{
+  margin-top:var(--space-6);padding-top:var(--space-5);
+  border-top:1px solid var(--rule);
+}
+.community-stats__methodology h2{
+  font-family:var(--font-display);font-weight:500;
+  font-size:var(--fs-500);margin:0 0 var(--space-3);
+}
+.community-stats__methodology ul{
+  list-style:disc;padding-left:1.4rem;
+  display:flex;flex-direction:column;gap:.6rem;
+  line-height:1.6;color:var(--fg-1);
+  max-width:62ch;
+}
+.community-stats__methodology code{
+  font-family:var(--font-mono);font-size:.88em;
+  padding:.05em .35em;background:var(--bg-2);border-radius:var(--radius-sm);
+}
+
+@media (max-width:768px){
+  .community-stat{padding:var(--space-4)}
+  .community-stat__chart iframe{height:380px}
+}

@@ -23,7 +23,7 @@ cta:
     allow="clipboard-write"></iframe>
 </div>
 
-Open the dashboard in its own tab: [cloud.umami.is/share/Go6W5bgtCW47V4Gf](https://cloud.umami.is/share/Go6W5bgtCW47V4Gf).
+Open the dashboard in its own tab: [cloud.umami.is/share/Go6W5bgtCW47V4Gf](https://cloud.umami.is/share/Go6W5bgtCW47V4Gf). For a user-facing summary of the aggregate typing data — WPM distributions, mode popularity, top books typed — see [/community-stats/](/community-stats/).
 
 ## What I *don't* collect
 

@@ -13,6 +13,55 @@
 let _debug = false;
 try { _debug = localStorage.getItem("tt:analytics-debug") === "true"; } catch {}
 
+/* Categorical bucket helpers. Umami treats event PROPERTIES as
+   string dimensions, so to chart distributions (WPM histogram,
+   accuracy distribution) we emit one event per session with a
+   bucket label. The /community-stats/ page reads these via the
+   Umami share dashboard. */
+export function wpmBucket(wpm) {
+  const v = Math.max(0, Math.round(wpm || 0));
+  if (v < 10) return "0-10";
+  if (v < 20) return "10-20";
+  if (v < 30) return "20-30";
+  if (v < 40) return "30-40";
+  if (v < 50) return "40-50";
+  if (v < 60) return "50-60";
+  if (v < 70) return "60-70";
+  if (v < 80) return "70-80";
+  if (v < 90) return "80-90";
+  if (v < 100) return "90-100";
+  if (v < 120) return "100-120";
+  if (v < 140) return "120-140";
+  if (v < 150) return "140-150";
+  return "150+";
+}
+export function accBucket(acc) {
+  const v = Math.max(0, Math.round(acc || 0));
+  if (v < 80) return "<80";
+  if (v < 85) return "80-85";
+  if (v < 90) return "85-90";
+  if (v < 92) return "90-92";
+  if (v < 94) return "92-94";
+  if (v < 95) return "94-95";
+  if (v < 96) return "95-96";
+  if (v < 97) return "96-97";
+  if (v < 98) return "97-98";
+  if (v < 99) return "98-99";
+  return "99-100";
+}
+export function practiceVolumeBucket(sessions) {
+  const v = Math.max(0, Math.round(sessions || 0));
+  if (v < 6) return "1-5";
+  if (v < 11) return "5-10";
+  if (v < 26) return "10-25";
+  if (v < 51) return "25-50";
+  if (v < 101) return "50-100";
+  if (v < 201) return "100-200";
+  if (v < 501) return "200-500";
+  if (v < 1001) return "500-1000";
+  return "1000+";
+}
+
 function track(name, props) {
   if (_debug) console.log("[analytics]", name, props || {});
   try {
@@ -131,6 +180,16 @@ export const Analytics = {
   // Performance / health
   perfTiming: (props) => track("perf_timing", props),               // LCP / FCP / TTI buckets
   jsError: (props) => track("js_error", props),
+
+  // Bucketed distribution events for the public /community-stats/ page.
+  // Each fired once per session_finish so Umami can chart them as
+  // categorical histograms.
+  wpmBucket: (props) => track("wpm_bucket", props),                 // { bucket: "40-50", mode }
+  accBucket: (props) => track("acc_bucket", props),                 // { bucket: "94-95", mode }
+  modeCompleted: (props) => track("mode_completed", props),         // { mode }
+  langUsed: (props) => track("lang_used", props),                   // { lang }
+  practiceVolume: (props) => track("practice_volume_bucket", props),// { bucket }
+  bookCompletion: (props) => track("book_completion", props),       // { book, event }
 
   // Catch-all for ad-hoc tracking. Use only with stable schemas.
   custom: (name, props) => track(name, props),

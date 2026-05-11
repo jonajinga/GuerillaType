@@ -14,7 +14,7 @@ import { buildSourceText, evaluateGoal } from "../engine/challenge-runner.js";
 import { mountLiveKeyboard, showLiveKeyboard, highlightChar } from "../viz/live-keyboard.js";
 import { mountLiveTicker, showLiveTicker, recordKeystroke, resetTicker, updateWpm as updateTickerWpm } from "../viz/live-ticker.js";
 import { mountVirtualKeyboard, unmountVirtualKeyboard, highlightNextKey as vkbdNext } from "../engine/virtual-keyboard.js";
-import { Analytics } from "../analytics.js";
+import { Analytics, wpmBucket, accBucket, practiceVolumeBucket } from "../analytics.js";
 import { $, htmlEscape, toast } from "../util/dom.js";
 
 let _challengesCache = null;
@@ -612,6 +612,24 @@ function handleFinish(result) {
     stopped,
   });
   if (stopped) Analytics.sessionStopped({ mode: state.mode, wpm, acc });
+  // Bucketed distribution events feeding /community-stats/. One
+  // event per finished session per dimension; Umami treats each
+  // bucket label as a categorical value the operator can chart.
+  Analytics.wpmBucket({ bucket: wpmBucket(wpm), mode: state.mode });
+  Analytics.accBucket({ bucket: accBucket(acc), mode: state.mode });
+  Analytics.modeCompleted({ mode: state.mode });
+  if (state.language) Analytics.langUsed({ lang: state.language });
+  // Lifetime session count bucket -- emitted per-session so the chart
+  // shows the distribution of users by practice-volume bracket.
+  try {
+    const prof = profile || {};
+    const sessions = ((prof.lifetime && prof.lifetime.sessions) || 0) + 1;
+    Analytics.practiceVolume({ bucket: practiceVolumeBucket(sessions) });
+  } catch {}
+  if (state.bookSlug) {
+    const completed = (result.endCursor || 0) >= (result.targetLen || 0) && acc >= 80;
+    Analytics.bookCompletion({ book: state.bookSlug, event: completed ? "finished" : "started" });
+  }
   // 100 % accuracy + non-trivial length is a celebration event.
   if (acc === 100 && (result.chars || 0) >= 80) {
     Analytics.perfectSession({ mode: state.mode, wpm, chars: result.chars });

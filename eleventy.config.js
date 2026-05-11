@@ -99,6 +99,7 @@ const CSS_ORDER = [
   "pages/contribute.css",
   "pages/blog.css",
   "pages/analytics.css",
+  "pages/community-stats.css",
   "print.css",
 ];
 
