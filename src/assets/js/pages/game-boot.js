@@ -715,16 +715,37 @@ const MODE_COPY = {
     title: "Catch the Word",
     subtitle: "Type the falling words before they hit the bottom. Three misses ends the round. Picker is weighted toward words you've mistyped before.",
     hint: "Tap Start when you're ready. Words fall from the top; type each one (or finish with a space). Three misses ends the round.",
+    howtoTitle: "How to play — Classic",
+    howto: [
+      "Words fall from the top of the stage. Type the next one before it hits the bottom.",
+      "Each catch scores points. A <strong>streak multiplier</strong> (1.5× → 5×) kicks in after 5 in a row and color-escalates with speed.",
+      "Three misses ends the round. Your high score saves per-mode to your profile.",
+      "Words come from your <strong>missed-words list</strong> when available — if you've never missed a word, it falls back to high-error keys from your typing history.",
+    ],
   },
   endless: {
     title: "Catch the Word — Endless",
     subtitle: "No three-miss cap. Words spawn forever and accelerate with every catch. Round ends only when you walk away.",
     hint: "Tap Start. Words spawn faster + fall faster the longer you survive. Use Pause for breathers; high score saves to your profile.",
+    howtoTitle: "How to play — Endless",
+    howto: [
+      "Same falling-word stage as Classic, but <strong>no three-miss cap</strong>. The round only ends when you click Reset.",
+      "Spawn pacing and fall speed ramp up <strong>continuously</strong> with every catch — the screen gets denser the longer you survive.",
+      "Score the way Classic scores, but missed words just keep coming. Misses do NOT end the round; they tick the missed counter for the post-round summary.",
+      "Use <strong>Pause</strong> between waves to breathe. High score saves to your profile under the Endless bucket.",
+    ],
   },
   shooter: {
     title: "Word Shooter",
     subtitle: "Words drift across the screen left to right. Type each one to shoot it before it exits the right edge. Three misses ends the round.",
     hint: "Tap Start. Type each word as it drifts toward the right edge -- catching one sends it nosediving into a pixel-shrapnel explosion at the bottom.",
+    howtoTitle: "How to play — Word Shooter",
+    howto: [
+      "Words enter from the <strong>left edge</strong> and drift toward the right. Type each one before it exits.",
+      "A catch sends the word nosediving in a <strong>pixel-shrapnel explosion</strong> at the bottom of the stage — the visual reward is the point.",
+      "Three exits = three misses = round ends. Streak multiplier still applies; long runs hit 5× quickly.",
+      "Words come from your <strong>missed-words list</strong> first, then fall back to high-error keys. Same pool as Classic — same targeted practice.",
+    ],
   },
 };
 function applyModeCopy() {
@@ -733,6 +754,13 @@ function applyModeCopy() {
   const s = document.getElementById("game-subtitle");
   if (t) t.textContent = c.title;
   if (s) s.textContent = c.subtitle;
+  // Per-mode How-to-play panel below the stage.
+  const ht = document.getElementById("game-howto-title");
+  const hl = document.getElementById("game-howto-list");
+  if (ht) ht.textContent = c.howtoTitle || "How to play";
+  if (hl && Array.isArray(c.howto)) {
+    hl.innerHTML = c.howto.map((line) => `<li>${line}</li>`).join("");
+  }
   document.querySelectorAll(".game-mode-switch__btn").forEach((btn) => {
     btn.classList.toggle("is-active", btn.dataset.gameMode === gameMode);
   });
