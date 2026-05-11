@@ -1,29 +1,44 @@
-{# Sticky practice toolbar — anchored below the site header.
-   Three regions: mode/variant selectors on the left, a center spacer
-   that grows the toolbar to full width, and live stats on the right. #}
+{# Sticky practice toolbar -- anchored below the site header.
+   Desktop: mode chips on the left, live stats in the middle, action
+   buttons on the right. Mobile: mode chips hide (the site header's
+   megamenus carry mode navigation), leaving just stats + actions. #}
 <div class="practice-bar" data-practice-bar>
   <div class="practice-bar__inner" id="tt-bar-inner">
-    <div class="practice-bar__stats">
-      {% include "partials/practice/live-stats.njk" %}
-    </div>
-    <div class="practice-bar__challenge" id="tt-challenge-pill" hidden></div>
     <div class="practice-bar__modes">
       {% include "partials/practice/mode-bar.njk" %}
     </div>
+    <div class="practice-bar__challenge" id="tt-challenge-pill" hidden></div>
+    <div class="practice-bar__stats">
+      {% include "partials/practice/live-stats.njk" %}
+    </div>
+    <div class="practice-bar__actions" id="tt-bar-actions">
+      <button type="button" class="practice-bar__action" id="tt-restart" onclick="window.ttRestart && window.ttRestart()" aria-label="Restart this session" data-tip="<strong>Restart this session</strong><br>Or press <kbd>Tab</kbd> then <kbd>Enter</kbd> on the typing surface.">
+        <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+        <span class="practice-bar__action-label">Restart</span>
+      </button>
+      <button type="button" class="practice-bar__action practice-bar__action--pause" id="tt-pause" onclick="window.ttPause && window.ttPause()" aria-label="Pause this session" data-tip="<strong>Pause</strong><br>Freeze the timer + live stats. Tap or press any key to resume.">
+        <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+        <span class="practice-bar__action-label">Pause</span>
+      </button>
+      <button type="button" class="practice-bar__action practice-bar__action--stop" id="tt-stop" onclick="window.ttFinish && window.ttFinish()" aria-label="End this session and see your results" data-tip="<strong>End this session</strong><br>Stops the timer, saves whatever you typed, and shows your results. (Same as pressing <kbd>Esc</kbd> on desktop.)">
+        <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="14" height="14" rx="1.5"/></svg>
+        <span class="practice-bar__action-label">Stop</span>
+      </button>
+      <button type="button" class="practice-bar__action practice-bar__action--ghost" onclick="window.openInfoModal && window.openInfoModal('practice')" aria-label="How the practice surface works" data-tip="<strong>How the practice surface works</strong><br>Modes, scoring, and what the live stats mean.">
+        <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 4 2c-.7.5-1.5 1-1.5 2"/><circle cx="12" cy="17" r="0.6" fill="currentColor"/></svg>
+        <span class="practice-bar__action-label">How it works</span>
+      </button>
+      <button type="button" class="practice-bar__action practice-bar__action--ghost" onclick="window.openFeedbackModal && window.openFeedbackModal()" aria-label="Send feedback" data-tip="<strong>Send a quick note</strong><br>Topic + message. Doesn't leave this page or interrupt your session.">
+        <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z"/></svg>
+        <span class="practice-bar__action-label">Feedback</span>
+      </button>
+    </div>
   </div>
-  {# Mobile-only "current mode" summary button. Hidden by default;
-     CSS shows it below 768 px. Tapping opens the full mode picker
-     bottom sheet (the same dropdown content already inside .mode-bar). #}
-  <button type="button" class="practice-bar__mobile-summary" id="tt-bar-mobile-summary" aria-label="Open mode picker" aria-haspopup="dialog" aria-expanded="false">
-    <span class="practice-bar__mobile-summary-label">Mode</span>
-    <span class="practice-bar__mobile-summary-value" id="tt-bar-mobile-summary-value">time · 30s · en-1k</span>
-    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-  </button>
   <div class="practice-bar__progress" id="tt-progress-fill" aria-hidden="true"></div>
 </div>
 
 <div class="practice-page">
-  {# Contextual back link — populated by practice-boot based on the
+  {# Contextual back link -- populated by practice-boot based on the
      mode/source of the current session (book, quote, idiom, parable,
      poem, custom). Hidden by default. #}
   <a id="tt-back-link" class="tt-back-link" hidden></a>
@@ -67,33 +82,13 @@
            aria-label="Typing input" aria-autocomplete="none"
            data-form-type="other" data-1p-ignore="" data-lpignore="true" data-bwignore="true">
     <div id="tt-text" class="tt-text" aria-live="off"></div>
-    <p id="tt-hint" class="tt-stage__hint" aria-live="polite">Loading…</p>
+    <p id="tt-hint" class="tt-stage__hint" aria-live="polite">Loading&hellip;</p>
   </div>
 
   {% include "partials/practice/live-keyboard.njk" %}
 
   <div class="practice-page__bottom">
     <div class="tt-actions">
-      <button type="button" class="btn btn--small tt-actions__btn" id="tt-restart" onclick="window.ttRestart && window.ttRestart()" aria-label="Restart this session" data-tip="<strong>Restart this session</strong><br>Or press <kbd>Tab</kbd> then <kbd>Enter</kbd> on the typing surface.">
-        <svg class="tt-actions__icon" viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
-        <span class="tt-actions__label">Restart</span>
-      </button>
-      <button type="button" class="btn btn--small tt-actions__btn tt-actions__btn--pause" id="tt-pause" onclick="window.ttPause && window.ttPause()" aria-label="Pause this session" data-tip="<strong>Pause</strong><br>Freeze the timer + live stats. Tap or press any key to resume.">
-        <svg class="tt-actions__icon" viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
-        <span class="tt-actions__label">Pause</span>
-      </button>
-      <button type="button" class="btn btn--small tt-actions__btn tt-actions__btn--stop" id="tt-stop" onclick="window.ttFinish && window.ttFinish()" aria-label="End this session and see your results" data-tip="<strong>End this session</strong><br>Stops the timer, saves whatever you typed, and shows your results. (Same as pressing <kbd>Esc</kbd> on desktop.)">
-        <svg class="tt-actions__icon" viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="14" height="14" rx="1.5"/></svg>
-        <span class="tt-actions__label">Stop</span>
-      </button>
-      <button type="button" class="btn btn--small btn--ghost tt-actions__btn" onclick="window.openInfoModal && window.openInfoModal('practice')" aria-label="How the practice surface works" data-tip="<strong>How the practice surface works</strong><br>Modes, scoring, and what the live stats mean.">
-        <svg class="tt-actions__icon" viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 4 2c-.7.5-1.5 1-1.5 2"/><circle cx="12" cy="17" r="0.6" fill="currentColor"/></svg>
-        <span class="tt-actions__label">How it works ↗</span>
-      </button>
-      <button type="button" class="btn btn--small btn--ghost tt-actions__btn" onclick="window.openFeedbackModal && window.openFeedbackModal()" aria-label="Send feedback" data-tip="<strong>Send a quick note</strong><br>Topic + message. Doesn't leave this page or interrupt your session.">
-        <svg class="tt-actions__icon" viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z"/></svg>
-        <span class="tt-actions__label">Send feedback ↗</span>
-      </button>
       <span class="tt-actions__hint">
         <span class="tt-actions__hint-group" data-tip="<strong>Restart the test</strong><br>Press <kbd>Tab</kbd> to arm the prompt, then <kbd>Enter</kbd> within 2 seconds to confirm. Any other key cancels."><kbd>Tab</kbd> <kbd>Enter</kbd> <em>restart</em></span>
         <span class="tt-actions__hint-group" data-tip="<strong>End the session</strong><br>Saves whatever you typed and returns to the toolbar."><kbd>Esc</kbd> <em>end session</em></span>

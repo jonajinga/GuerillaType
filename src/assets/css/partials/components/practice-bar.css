@@ -1,20 +1,16 @@
-/* Practice toolbar — sticky, minimalist, single-row.
-   Mode + variant pills on the left, live stats on the right, separated
-   by a 1px rule. A 2px accent strip pinned to the bottom edge fills as
-   the session progresses.
+/* Practice toolbar -- sticky, minimalist, single row.
+   Desktop: modes (left) | live stats | actions (right).
+   Mobile: mode bar hides (site-header megamenus carry mode picks),
+   leaving stats + action buttons in one compact row.
 
-   Hidden when the user enables "Hide practice toolbar" or the broader
-   "Hide UI" preference -- practice-boot.js applies the body classes.
-   "Hide UI" also hides the action row (Restart / How it works / Send
-   feedback / kbd-legend) for a fully distraction-free surface. With
-   chrome gone, the typing area centers vertically in the viewport.   */
+   Hidden when the user enables "Hide practice toolbar" or the
+   broader "Hide UI" preference -- practice-boot.js applies the
+   body classes. */
 body.is-hide-toolbar .practice-bar{display:none}
-body.is-hide-ui .tt-actions{display:none}
+body.is-hide-ui .practice-bar{display:none}
 /* Push the typing surface down to a comfortable read height when the
-   toolbar/UI is hidden on plain word modes (time, words, zen, etc.) --
-   without chrome above, the text would sit right under the header and
-   force users to look up. ~22vh lands it in the upper-middle of the
-   viewport where the eye naturally settles.
+   toolbar is hidden on plain word modes (time, words, zen, etc.) --
+   without chrome above, the text would sit right under the header.
    Corpus modes (idiom, quote, parable, poem, book, custom, lesson,
    drill) are excluded -- they show an attribution card above the
    typing surface that already fills that space. */
@@ -36,11 +32,7 @@ body.is-hide-ui:not(.is-corpus-mode) .tt-stage{
   -webkit-backdrop-filter:saturate(160%) blur(14px);
   border-bottom:1px solid var(--rule);
   /* Span the full viewport width regardless of the page wrapper's
-     gutter. 100vw + a calc() that pulls the bar leftward by half of
-     (100vw - parent's content width) achieves edge-to-edge without
-     positioned tricks. The 100vw approach can introduce horizontal
-     scroll if scrollbars are visible; clip overflow on the bar to
-     suppress that. */
+     gutter. */
   width:100vw;
   margin-left:calc(50% - 50vw);
   margin-right:calc(50% - 50vw);
@@ -48,256 +40,27 @@ body.is-hide-ui:not(.is-corpus-mode) .tt-stage{
   margin-bottom:0;
 }
 /* Kill .site-main's top padding on the practice page so the toolbar
-   actually touches the bottom of the header. Without this, the
-   toolbar sits below the header by var(--space-5) (~1.5 rem) at
-   page load -- sticky only kicks in once the user scrolls past that
-   threshold, so the gap is visible until the page is scrolled. */
+   touches the bottom of the header. */
 body[data-page="practice"] .site-main{padding-top:0}
-/* Practice surface chrome -- compress the gap between toolbar and
-   typing area. Default .tt-stage carries margin:var(--space-5)
-   auto + padding:var(--space-4) which combined add ~75 px of
-   vertical chrome above the first line of text. The
-   .practice-page wrapper is unique to this surface so scoping
-   here works without depending on body[data-page]. */
+/* Compress the gap between toolbar and typing area. */
 .practice-page .tt-stage{
   margin-top:0!important;padding-top:0!important;
 }
 .practice-page .tt-stage__hint{
   margin-bottom:.5rem!important;
 }
-/* Hidden by default; the mobile media query below flips it on. */
-.practice-bar__mobile-summary{display:none}
 
-@media (max-width:768px){
-  /* Mobile toolbar layout — clean, no horizontal scroll, no arrows.
-     Two stacked rows:
-       row 1: live stats (compact)
-       row 2: "current mode" summary chip — tapping opens the full
-              mode/variant/source picker as a bottom sheet.
-     The chip-strip + chevrons that desktop uses are HIDDEN on mobile;
-     the bottom-sheet picker carries every option. */
-  .practice-bar{
-    position:fixed!important;
-    top:var(--header-h, 56px)!important;
-    left:0!important;right:0!important;
-    width:100%!important;
-    margin:0!important;
-    max-height:none;
-    background:var(--bg-1);
-    border-bottom:1px solid var(--rule);
-  }
-  body[data-page="practice"] .site-main{padding-top:calc(112px + var(--space-3))}
-  /* Inner: hold the stats row + summary row in vertical stack. */
-  .practice-bar__inner{
-    display:flex;flex-direction:column;align-items:stretch;
-    gap:0;
-    padding:0;margin:0;
-    height:auto;min-height:0;max-height:none;
-    overflow:visible;
-    mask-image:none;-webkit-mask-image:none;
-    background:transparent;
-  }
-  /* Row 1: live stats. Compact single horizontal row. */
-  .practice-bar__stats{
-    order:0;flex-shrink:0;
-    display:flex;align-items:center;justify-content:space-around;
-    padding:.5rem var(--space-3);
-    border-right:0;border-bottom:1px solid color-mix(in oklab, var(--rule) 60%, transparent);
-  }
-  .practice-bar .live-stats{
-    width:100%;gap:1.1rem;
-    justify-content:space-around;
-  }
-  .practice-bar .live-stats__metric{
-    flex-direction:row !important;align-items:baseline !important;gap:.35rem !important;
-  }
-  .practice-bar .live-stats__value{font-size:1.05rem !important}
-  .practice-bar .live-stats__label{font-size:.6rem !important}
-  /* Row 2: HIDE the horizontal chip strip on mobile. The summary
-     button + bottom sheet are the only mobile entry points. */
-  .practice-bar__modes{display:none !important}
-  /* Mobile-only summary chip. Sits in row 2 of the toolbar; large
-     touch target, displays the current mode + variant + source. */
-  .practice-bar__mobile-summary{
-    order:1;
-    display:flex;align-items:center;gap:.6rem;
-    width:100%;min-height:48px;
-    padding:.5rem var(--space-3);
-    background:transparent;border:0;border-radius:0;
-    color:var(--fg-0);cursor:pointer;
-    font-family:var(--font-mono);text-align:left;
-  }
-  .practice-bar__mobile-summary:hover{background:var(--bg-2)}
-  .practice-bar__mobile-summary[aria-expanded="true"]{
-    background:color-mix(in oklab, var(--accent) 12%, transparent);
-    color:var(--accent);
-  }
-  .practice-bar__mobile-summary-label{
-    font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;
-    color:var(--fg-3);font-weight:600;
-  }
-  .practice-bar__mobile-summary-value{
-    font-size:.92rem;letter-spacing:.02em;color:var(--fg-0);
-    flex:1 1 0;min-width:0;
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  }
-  .practice-bar__mobile-summary[aria-expanded="true"] .practice-bar__mobile-summary-value{color:var(--accent)}
-  .practice-bar__mobile-summary svg{flex-shrink:0;color:var(--fg-2);transition:transform var(--t-fast)}
-  .practice-bar__mobile-summary[aria-expanded="true"] svg{transform:rotate(180deg);color:var(--accent)}
-  /* Restore practice-page top padding. */
-  .practice-page{padding-top:var(--space-4)}
-  .practice-page .tt-stage{
-    margin-top:0!important;padding-top:var(--space-4)!important;
-  }
-  /* The practice-bar itself is z-index:40, which creates a stacking
-     context that traps every child below the header (z-index:50).
-     When the sheet is open, lift the whole bar AND the header above
-     normal layering so the sheet's top edge is visible. Header
-     drops to z-index:5 so it doesn't poke through the sheet's
-     backdrop on mobile. */
-  body.is-mode-sheet-open .practice-bar{
-    z-index:1101 !important;
-  }
-  body.is-mode-sheet-open .site-header{
-    z-index:5 !important;
-  }
-  /* When the summary chip is tapped open, surface the chip strip as
-     a full bottom sheet with all options visible at once.
-     The .practice-bar__modes is normally hidden on mobile; opening
-     unhides it and re-layouts it as a sheet. */
-  body.is-mode-sheet-open .practice-bar__modes{
-    display:block !important;
-    position:fixed;left:0;right:0;bottom:0;top:auto;
-    z-index:1100;
-    background:var(--bg-1);
-    border-top:1px solid var(--rule);
-    box-shadow:0 -12px 32px rgba(0,0,0,.32);
-    padding:var(--space-4) var(--space-3) calc(var(--space-4) + env(safe-area-inset-bottom));
-    /* Sheet sits in the BOTTOM half of the viewport. Was 78 vh
-       which felt like it dominated the screen -- now capped at
-       62 vh so the top edge stays well below the header / stats
-       row. Inner content scrolls. */
-    max-height:62vh;overflow-y:auto;
-    border-radius:var(--radius) var(--radius) 0 0;
-    animation:tt-sheet-up .22s ease-out;
-  }
-  @keyframes tt-sheet-up{
-    from{transform:translateY(100%)}
-    to  {transform:translateY(0)}
-  }
-  /* Backdrop scrim. */
-  body.is-mode-sheet-open::before{
-    content:"";position:fixed;inset:0;background:rgba(0,0,0,.4);
-    z-index:1099;animation:tt-fade-in .22s ease-out;
-  }
-  @keyframes tt-fade-in{ from{opacity:0} to{opacity:1} }
-  /* Sheet header — title + close. */
-  body.is-mode-sheet-open .practice-bar__modes .mode-bar::before{
-    content:"Choose mode";
-    display:flex;justify-content:space-between;align-items:center;
-    font-family:var(--font-mono);font-size:.72rem;
-    letter-spacing:.18em;text-transform:uppercase;
-    color:var(--fg-3);font-weight:600;
-    padding-bottom:.6rem;margin-bottom:.6rem;
-    border-bottom:1px solid var(--rule);width:100%;flex-basis:100%;
-  }
-  body.is-mode-sheet-open .practice-bar__modes .mode-bar{
-    display:flex;flex-direction:column;align-items:stretch;
-    gap:var(--space-3);overflow:visible;
-  }
-  body.is-mode-sheet-open .practice-bar__modes .mode-bar__field{
-    display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;
-    gap:.45rem;width:100%;
-    padding-left:0;margin-left:0;border-left:0;
-  }
-  body.is-mode-sheet-open .practice-bar__modes .mode-bar__btn,
-  body.is-mode-sheet-open .practice-bar__modes .mode-bar__custom,
-  body.is-mode-sheet-open .practice-bar__modes .mode-bar__chev{
-    box-sizing:border-box;
-    height:44px;min-height:44px;
-    min-width:0;padding:0 .9rem;
-    font-size:.88rem;line-height:42px;
-    border-radius:var(--radius);
-  }
-  body.is-mode-sheet-open .practice-bar__modes .mode-bar__chev{
-    width:44px;padding:0;border-left:0;line-height:1;
-  }
-  body.is-mode-sheet-open .practice-bar__modes .mode-bar__split{
-    border:0;
-  }
-  body.is-mode-sheet-open .practice-bar__modes .mode-bar__split .mode-bar__btn{
-    border-right:0;
-  }
-  /* In-sheet dropdown panels render as inline sections, not as
-     nested bottom sheets. */
-  body.is-mode-sheet-open .practice-bar__modes .mode-bar__dropdown{
-    position:static !important;
-    inset:auto !important;
-    width:100% !important;max-width:100% !important;
-    margin:0 !important;
-    border:1px solid var(--rule) !important;border-radius:var(--radius) !important;
-    background:var(--bg-2) !important;
-    padding:var(--space-3) !important;
-    max-height:none !important;overflow:visible !important;
-    box-shadow:none !important;
-    animation:none !important;
-  }
-  body.is-mode-sheet-open .practice-bar__modes .mode-bar__dropdown[hidden]{display:none !important}
-}
 .practice-bar__inner{
-  /* Hard-pin the bar's interior to a known height. */
   margin-inline:auto;
   padding:0 var(--gutter);
-  display:flex;align-items:center;justify-content:center;
-  gap:var(--space-4);
-  height:32px;min-height:32px;max-height:32px;
-}
-/* Belt + suspenders: the bar wrapper itself shouldn't ever exceed
-   the inner. Border-bottom is its own pixel. */
-.practice-bar{max-height:33px}
-@media (max-width:768px){
-  .practice-bar{max-height:none}
-}
-/* Live-stats stack reduces to a single inline row so the bar's
-   height matches the chip row. The number + label sit side-by-side
-   instead of stacked vertically; the toolbar collapses to a single
-   compact strip of buttons + stats. */
-/* Toolbar live-stats: collapse to a single inline row. The base
-   .live-stats rule forces min-height: 3.4em + flex-direction: column
-   on each metric (number stacked above label) -- that's right for
-   the standalone results card but wrong for the toolbar where the
-   bar's height should track the chip row. Override aggressively. */
-.practice-bar .live-stats{
-  display:flex !important;align-items:center !important;
-  gap:1rem !important;min-height:0 !important;
-}
-.practice-bar .live-stats__metric{
-  display:inline-flex !important;flex-direction:row !important;
-  align-items:baseline !important;gap:.3rem !important;
-  padding-inline:0 !important;
-}
-.practice-bar .live-stats__metric + .live-stats__metric::before{display:none !important}
-.practice-bar .live-stats__value{
-  /* Default value is --fs-700 (~1.4 rem) which dominates bar
-     height. Drop to body size so the toolbar tracks chip height
-     (22 px) instead of stat-number cap height. */
-  font-size:.95rem !important;line-height:1 !important;
-}
-.practice-bar .live-stats__label{
-  font-size:.6rem !important;margin-top:0 !important;line-height:1 !important;
-}
-.practice-bar__stats{
-  order:0;
-  flex-shrink:0;padding-right:var(--space-4);
-  border-right:1px solid var(--rule);
-}
-.practice-bar__challenge{order:1}
-.practice-bar__modes{
-  order:2;
   display:flex;align-items:center;
-  justify-content:center;min-width:0;gap:.6rem;flex-wrap:nowrap;
-  /* Narrow desktops: never wrap. The bar slides horizontally if there
-     is more content than fits. */
+  gap:var(--space-3);
+  min-height:40px;
+}
+.practice-bar__modes{
+  flex:1 1 auto;
+  display:flex;align-items:center;
+  justify-content:flex-start;min-width:0;gap:.6rem;flex-wrap:nowrap;
   overflow-x:auto;overflow-y:hidden;
   scroll-snap-type:x proximity;
   -webkit-overflow-scrolling:touch;
@@ -306,13 +69,12 @@ body[data-page="practice"] .site-main{padding-top:0}
 .practice-bar__modes::-webkit-scrollbar{display:none}
 .practice-bar__modes > *{flex-shrink:0;scroll-snap-align:start}
 
-/* Active-challenge pill — sits in the toolbar's center between
-   __modes and __stats. Hidden via [hidden] when no challenge active. */
 .practice-bar__challenge{
   display:flex;align-items:baseline;gap:.6rem;flex-wrap:nowrap;min-width:0;
-  padding:0 var(--space-4);
+  padding:0 var(--space-3);
   border-left:1px solid var(--rule);border-right:1px solid var(--rule);
   cursor:help;
+  flex-shrink:0;
 }
 .practice-bar__challenge[hidden]{display:none}
 .practice-bar__challenge-eyebrow{
@@ -321,9 +83,6 @@ body[data-page="practice"] .site-main{padding-top:0}
   color:var(--accent);font-weight:600;flex-shrink:0;
 }
 .practice-bar__challenge-name{
-  /* Match the eyebrow + goal text style (mono, .7 rem, fg-1)
-     so the three pieces read as a single uniform pill instead
-     of a big display-font name flanked by two small mono labels. */
   font-family:var(--font-mono);font-size:.78rem;
   color:var(--fg-0);font-weight:500;line-height:1.1;
   letter-spacing:.02em;
@@ -337,20 +96,141 @@ body[data-page="practice"] .site-main{padding-top:0}
 @media (max-width:1023px){
   .practice-bar__challenge-goal{display:none}
 }
+
+.practice-bar__stats{
+  flex-shrink:0;
+  display:flex;align-items:center;
+  padding:0 var(--space-3);
+  border-left:1px solid var(--rule);border-right:1px solid var(--rule);
+}
+
+.practice-bar__actions{
+  flex-shrink:0;
+  display:flex;align-items:center;gap:.35rem;
+}
+.practice-bar__action{
+  display:inline-flex;align-items:center;gap:.4rem;
+  height:28px;padding:0 .65rem;
+  font-family:var(--font-mono);font-size:.74rem;letter-spacing:.02em;
+  color:var(--fg-1);background:transparent;
+  border:1px solid var(--rule);
+  border-radius:var(--radius);
+  cursor:pointer;
+  touch-action:manipulation;
+  transition:color var(--t-fast), background var(--t-fast), border-color var(--t-fast);
+}
+.practice-bar__action svg{flex-shrink:0;width:14px;height:14px}
+.practice-bar__action:hover{
+  color:var(--fg-0);background:var(--bg-2);border-color:var(--fg-3);
+}
+.practice-bar__action--ghost{color:var(--fg-2)}
+.practice-bar__action--pause[aria-pressed="true"],
+.practice-bar__action--pause.is-active{
+  color:var(--accent);border-color:var(--accent);
+  background:color-mix(in oklab, var(--accent) 12%, transparent);
+}
+.practice-bar__action--stop{
+  border-color:color-mix(in oklab, var(--bad) 60%, var(--rule));
+  color:var(--bad);
+}
+.practice-bar__action--stop:hover{
+  border-color:var(--bad);
+  background:color-mix(in oklab, var(--bad) 10%, transparent);
+}
+/* Stop dims when no session is running. */
+body:not(:has(#tt-stage[data-state="running"])) .practice-bar__action--stop{
+  opacity:.5;cursor:not-allowed;
+  border-color:var(--rule);color:var(--fg-2);
+}
+body:not(:has(#tt-stage[data-state="running"])) .practice-bar__action--stop:hover{
+  background:transparent;border-color:var(--rule);
+}
+
+/* ── Live stats column ──────────────────────────────────────────── */
+.practice-bar .live-stats{
+  display:flex !important;align-items:baseline !important;
+  gap:var(--space-4) !important;min-height:0 !important;
+  padding:0;background:transparent;border:0;
+}
+.practice-bar .live-stats__metric{
+  display:inline-flex !important;flex-direction:row !important;
+  align-items:baseline !important;gap:.3rem !important;
+  padding-inline:0 !important;min-width:0;
+}
+.practice-bar .live-stats__metric + .live-stats__metric::before{display:none !important}
+.practice-bar .live-stats__value{
+  font-family:var(--font-display);font-size:var(--fs-400);
+  line-height:1;letter-spacing:-.01em;color:var(--accent);
+  font-variant-numeric:tabular-nums;font-weight:500;
+}
+.practice-bar .live-stats__label{
+  font-family:var(--font-mono);font-size:.6rem;
+  margin:0;letter-spacing:.14em;
+  color:var(--fg-3);text-transform:uppercase;font-weight:500;
+}
+.live-stats__suffix{
+  font-size:.58em;color:var(--fg-2);margin-left:.05em;
+  font-weight:500;letter-spacing:0;
+}
+.practice-bar .timer-bar{display:none}
+
+/* Bottom-edge progress strip. */
+.practice-bar__progress{
+  position:absolute;left:0;right:0;bottom:-1px;height:2px;
+  background:var(--accent);
+  width:0;transition:width 120ms linear;
+}
+
+/* ── Mobile (≤768) ───────────────────────────────────────────────
+   Hide the in-toolbar mode chips. The site-header megamenu carries
+   mode selection on mobile; the practice-bar collapses to a single
+   row of stats + action buttons. */
 @media (max-width:768px){
+  .practice-bar{
+    position:fixed!important;
+    top:var(--header-h, 56px)!important;
+    left:0!important;right:0!important;
+    width:100%!important;margin:0!important;
+    background:var(--bg-1);
+    border-bottom:1px solid var(--rule);
+  }
+  body[data-page="practice"] .site-main{padding-top:calc(56px + var(--space-3))}
+  .practice-bar__inner{
+    padding:.4rem var(--space-3);
+    gap:var(--space-3);
+    flex-wrap:nowrap;
+  }
+  .practice-bar__modes{display:none !important}
+  .practice-bar__stats{
+    flex:1 1 auto;padding:0;border:0;
+    justify-content:flex-start;
+  }
+  .practice-bar .live-stats{
+    gap:1.1rem !important;
+  }
+  .practice-bar .live-stats__value{font-size:1.05rem}
+  .practice-bar .live-stats__label{font-size:.6rem}
   .practice-bar__challenge{
     border-left:0;border-right:0;padding:0;
-    border-top:1px solid var(--rule);padding-top:var(--space-2);
+    flex:1 1 100%;order:99;
+    padding-top:.4rem;margin-top:.4rem;
+    border-top:1px solid var(--rule);
     justify-content:center;
+  }
+  /* Action buttons collapse to icon-only on mobile. */
+  .practice-bar__actions{gap:.25rem}
+  .practice-bar__action{
+    width:36px;height:36px;padding:0;
+    justify-content:center;
+  }
+  .practice-bar__action svg{width:16px;height:16px}
+  .practice-bar__action-label{
+    position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;
+    overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
   }
 }
 
-/* ── Mode bar inside the toolbar ──────────────────────────────────
-   Single horizontal row at every viewport. Three logical groups
-   (mode | variant | stats) separated by 1 px vertical rules. No
-   eyebrow labels: the chip text speaks for itself, and the
-   role="group" + aria-label on each .mode-bar__field carries the
-   semantic group name for AT users. */
+/* ── Mode bar inside the toolbar (desktop only) ────────────────── */
 .practice-bar .mode-bar{
   position:relative;
   display:flex;flex-wrap:nowrap;align-items:center;
@@ -362,25 +242,18 @@ body[data-page="practice"] .site-main{padding-top:0}
   padding:0;margin:0;min-width:0;
 }
 .practice-bar .mode-bar__field[hidden]{display:none}
-/* Subtle vertical rule between groups -- much cleaner than the
-   eyebrow labels we used before. Padding keeps the rule from
-   touching the chip border on either side. */
 .practice-bar .mode-bar__field + .mode-bar__field{
   padding-left:.7rem;
   margin-left:.1rem;
   border-left:1px solid var(--rule);
 }
-/* Highlighted chip never bleeds into a neighbour. */
-.practice-bar .mode-bar__btn[aria-pressed="true"]{
-  margin:0 .1rem;
-}
+.practice-bar .mode-bar__btn[aria-pressed="true"]{margin:0 .1rem}
 .practice-bar .mode-bar__btn{
-  height:22px;padding:0 .55rem;min-height:0;
+  height:24px;padding:0 .55rem;min-height:0;
   font-family:var(--font-mono);font-size:.74rem;letter-spacing:.02em;
   color:var(--fg-1);background:transparent;
   border:1px solid var(--rule);
-  border-radius:var(--radius);
-  margin:0;
+  border-radius:var(--radius);margin:0;
   transition:color var(--t-fast), background var(--t-fast),
              border-color var(--t-fast);
 }
@@ -392,72 +265,46 @@ body[data-page="practice"] .site-main{padding-top:0}
   border-color:var(--accent);
   background:color-mix(in oklab, var(--accent) 12%, transparent);
 }
-/* Custom-value inputs sitting alongside the duration / word-count
-   preset buttons. Match the button metrics exactly -- same height,
-   same padding, same width-to-content ratio -- so the input visually
-   reads as just another preset chip. */
 .practice-bar .mode-bar__custom{
-  /* Match the chip metrics exactly -- same height, padding, type
-     scale, border. Force border-box so the visible height lands on
-     22 px the same as <button>. line-height needs explicit pinning
-     because <input> defaults to its font's line-height which can
-     stretch the input taller than the declared height. */
   box-sizing:border-box;
-  height:22px;min-height:22px;max-height:22px;
+  height:24px;min-height:24px;max-height:24px;
   width:3rem;padding:0 .35rem;
   font-family:var(--font-mono);font-size:.74rem;letter-spacing:.02em;
-  line-height:20px;
+  line-height:22px;
   color:var(--fg-1);background:transparent;
   border:1px solid var(--rule);
-  border-radius:var(--radius);
-  margin:0;
+  border-radius:var(--radius);margin:0;
   text-align:center;
-  -moz-appearance:textfield;
-  appearance:textfield;
+  -moz-appearance:textfield;appearance:textfield;
 }
 .practice-bar .mode-bar__custom::-webkit-outer-spin-button,
 .practice-bar .mode-bar__custom::-webkit-inner-spin-button{
   -webkit-appearance:none;margin:0;
 }
-.practice-bar .mode-bar__custom::placeholder{
-  color:var(--fg-3);font-style:italic;
-}
+.practice-bar .mode-bar__custom::placeholder{color:var(--fg-3);font-style:italic}
 .practice-bar .mode-bar__custom:focus-visible{
   outline:2px solid var(--accent);outline-offset:2px;
-  border-color:var(--accent);
-  color:var(--fg-0);
+  border-color:var(--accent);color:var(--fg-0);
 }
 .practice-bar .mode-bar__custom:not(:placeholder-shown){
   color:var(--accent);border-color:var(--accent);
   background:color-mix(in oklab, var(--accent) 8%, transparent);
 }
 
-/* ── Split-button mode chips ────────────────────────────────────
-   Each rich mode (time / words / quote) renders as a chip + small
-   chevron pair. Chip click selects the mode; chevron click opens
-   a dropdown panel anchored to the chip. The two halves visually
-   touch -- shared border on the inside, no gap -- so the pair
-   reads as a single split-button widget. */
-.practice-bar .mode-bar__split{
-  display:inline-flex;align-items:center;gap:0;
-}
+/* Split chip + chevron pair for rich modes. */
+.practice-bar .mode-bar__split{display:inline-flex;align-items:center;gap:0}
 .practice-bar .mode-bar__split .mode-bar__btn{
   border-top-right-radius:0;border-bottom-right-radius:0;
-  border-right:0;
-  margin-right:0;
+  border-right:0;margin-right:0;
 }
 .practice-bar .mode-bar__chev{
   display:inline-flex;align-items:center;justify-content:center;
-  /* Desktop: chevron matches chip height (22 px); width bumped
-     to 28 px so the click target is bigger than the previous
-     18 px sliver. Mobile media-query overrides to 44 x 44. */
-  height:22px;width:28px;min-height:0;padding:0;margin:0;
+  height:24px;width:28px;min-height:0;padding:0;margin:0;
   background:transparent;color:var(--fg-2);
   border:1px solid var(--rule);
+  border-radius:var(--radius);
   border-top-left-radius:0;border-bottom-left-radius:0;
-  border-radius:var(--radius);border-top-left-radius:0;border-bottom-left-radius:0;
-  cursor:pointer;
-  touch-action:manipulation;
+  cursor:pointer;touch-action:manipulation;
   transition:color var(--t-fast), background var(--t-fast),
              border-color var(--t-fast), transform var(--t-fast);
 }
@@ -472,34 +319,15 @@ body[data-page="practice"] .site-main{padding-top:0}
   color:var(--accent);border-color:var(--accent);
   background:color-mix(in oklab, var(--accent) 12%, transparent);
 }
-.practice-bar .mode-bar__chev[aria-expanded="true"] svg{
-  transform:rotate(180deg);
-}
-.practice-bar .mode-bar__chev svg{
-  display:block;transition:transform var(--t-fast);
-}
-/* When the chip's mode is the active one, both halves get the
-   accent treatment so the split reads as a single highlighted
-   button. */
+.practice-bar .mode-bar__chev[aria-expanded="true"] svg{transform:rotate(180deg)}
 .practice-bar .mode-bar__btn[aria-pressed="true"] + .mode-bar__chev{
-  border-color:var(--accent);
-  color:var(--accent);
+  border-color:var(--accent);color:var(--accent);
   background:color-mix(in oklab, var(--accent) 12%, transparent);
 }
 
-/* ── Mode-bar dropdown panels ──────────────────────────────────
-   One panel per rich mode. Anchored to its chevron via JS that
-   sets data-anchor-x as the panel opens. Floats below the bar,
-   independent of the toolbar's height pin. */
+/* Dropdown panels. */
 .practice-bar .mode-bar__dropdown{
-  /* position:fixed so the dropdown escapes the toolbar's
-     overflow-y:hidden clipping. JS sets top/left from the
-     chevron's getBoundingClientRect each open. z-index above
-     the site-header's 50 + the practice-bar's 40 + any sticky
-     ancestor so the panel sits visually on top of every other
-     surface. */
-  position:fixed;
-  z-index:1000;
+  position:fixed;z-index:1000;
   min-width:280px;max-width:min(420px, 92vw);
   padding:var(--space-3);
   background:var(--bg-1);
@@ -527,149 +355,20 @@ body[data-page="practice"] .site-main{padding-top:0}
   padding-top:var(--space-2);
   border-top:1px solid var(--rule);
 }
-@media (max-width:768px){
-  /* Mobile: dropdown becomes a bottom sheet -- full width, fixed
-     to viewport bottom, taller chip rows for touch. */
-  .practice-bar .mode-bar__dropdown{
-    position:fixed;
-    top:auto;left:0;right:0;bottom:0;
-    margin:0;
-    min-width:0;max-width:none;width:100%;
-    border-radius:0;
-    border-top:1px solid var(--rule);
-    border-left:0;border-right:0;border-bottom:0;
-    box-shadow:0 -8px 24px rgba(0,0,0,.25);
-    padding:var(--space-4);
-    max-height:60vh;overflow-y:auto;
-  }
-  .mode-bar__dropdown-row .mode-bar__btn,
-  .mode-bar__dropdown-row .mode-bar__custom{
-    height:44px;min-height:44px;line-height:42px;
-    font-size:.85rem;padding:0 .85rem;
-  }
-}
-
-/* ── Live stats column ──────────────────────────────────────────── */
-.practice-bar .live-stats{
-  min-height:0;gap:var(--space-4);align-items:baseline;
-  padding:0;background:transparent;border:0;
-}
-.practice-bar .live-stats__metric{
-  padding-inline:0;display:inline-flex;align-items:baseline;gap:.35rem;
-  min-width:0;
-}
-.practice-bar .live-stats__metric + .live-stats__metric::before{display:none}
-.practice-bar .live-stats__value{
-  font-family:var(--font-display);font-size:var(--fs-400);
-  line-height:1;letter-spacing:-.01em;color:var(--accent);
-  font-variant-numeric:tabular-nums;font-weight:500;
-}
-.practice-bar .live-stats__label{
-  font-family:var(--font-mono);font-size:.6rem;
-  margin:0;letter-spacing:.14em;
-  color:var(--fg-3);text-transform:uppercase;font-weight:500;
-}
-/* Suffix glyph rendered inline after the accuracy number (the "%"
-   symbol). Slightly smaller + muted so the actual digit reads as the
-   primary stat. */
-.live-stats__suffix{
-  font-size:.58em;color:var(--fg-2);margin-left:.05em;
-  font-weight:500;letter-spacing:0;
-}
-.practice-bar .timer-bar{display:none}
-
-/* Bottom-edge progress strip — fills as the session runs. */
-.practice-bar__progress{
-  position:absolute;left:0;right:0;bottom:-1px;height:2px;
-  background:var(--accent);
-  width:0;transition:width 120ms linear;
-}
 
 .practice-page{padding-block:var(--space-3) var(--space-5)}
 
-/* ── Responsive (phone-portrait specifics for the bottom-sheet picker) */
-@media (max-width:480px){
-  .practice-bar__mobile-summary{padding:.55rem var(--space-3)}
-  .practice-bar__mobile-summary-value{font-size:.88rem}
-  .practice-bar .mode-bar__legend{
-    width:100%;flex-basis:100%;
-    font-size:.66rem;letter-spacing:.18em;
-    padding-top:.25rem;
-  }
-  .practice-bar .live-stats{
-    gap:var(--space-3);justify-content:space-around;
-  }
-  .practice-bar .live-stats__metric{gap:.25rem}
-  .practice-bar .live-stats__label{font-size:.66rem}
-  .practice-bar .live-stats__value{font-size:var(--fs-500)}
-}
-
-.tt-actions{display:flex;align-items:center;justify-content:center;gap:var(--space-3);flex-wrap:wrap;margin-top:var(--space-4);color:var(--fg-2);font-size:var(--fs-200)}
-/* Restart / How it works / Send feedback share a min-width so the
-   row reads as a balanced trio rather than three differently-sized
-   chips. Without this, "Restart" sat short while the other two
-   stretched to fit their longer labels + ↗ glyphs. */
-.tt-actions > .btn{
-  min-width:9.5rem;
-  flex:0 0 auto;
-  justify-content:center;text-align:center;
-}
-/* Icon + label row inside each button. The icon hides on desktop --
-   the labels carry the meaning at full width -- and the label hides
-   on mobile so the buttons collapse to compact icon-only chips. */
-.tt-actions__btn{display:inline-flex;align-items:center;gap:.45rem}
-.tt-actions__icon{display:none}
-/* Stop chip is always visible -- users like the persistent
-   affordance -- but it's only interactive while a session is
-   running. Outside of that state it dims and the click handler
-   short-circuits (see window.ttFinish). Uses :has() to read the
-   typing surface's data-state attribute. */
-.tt-actions__btn--stop{
-  display:inline-flex;
-  border-color:color-mix(in oklab, var(--bad) 60%, var(--rule));
-  color:var(--bad);
-}
-.tt-actions__btn--stop:hover{
-  border-color:var(--bad);
-  background:color-mix(in oklab, var(--bad) 10%, transparent);
-}
-/* Idle / ready / done -> render Stop as visually disabled. The
-   button stays in the DOM so the layout doesn't reflow when a
-   session begins; only its affordance changes. */
-body:not(:has(#tt-stage[data-state="running"])) .tt-actions__btn--stop{
-  opacity:.5;
-  cursor:not-allowed;
-  border-color:var(--rule);
-  color:var(--fg-2);
-}
-body:not(:has(#tt-stage[data-state="running"])) .tt-actions__btn--stop:hover{
-  background:transparent;
-  border-color:var(--rule);
-}
-@media (max-width:640px){
-  .tt-actions{gap:.5rem}
-  .tt-actions > .btn{
-    /* Square icon-only buttons on mobile. Width matches height for a
-       clean trio. */
-    min-width:0;width:44px;height:44px;padding:0;
-  }
-  .tt-actions__btn{justify-content:center}
-  .tt-actions__icon{display:block}
-  .tt-actions__label{
-    /* Hide label visually but keep it for screen readers. */
-    position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;
-    overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
-  }
-  /* Pull the action row up close to the typing surface on phones --
-     no need for the desktop-spec breathing room when chrome is
-     scarce and the row is icon-only. */
-  .practice-page__bottom{margin-top:-150px}
+/* ── Bottom hint strip (desktop only) ─────────────────────────── */
+.tt-actions{
+  display:flex;align-items:center;justify-content:center;
+  gap:var(--space-3);flex-wrap:wrap;margin-top:var(--space-4);
+  color:var(--fg-2);font-size:var(--fs-200);
 }
 .tt-actions__hint{
   flex-basis:100%;width:100%;
   display:flex;flex-wrap:wrap;justify-content:center;
   gap:.4rem .8rem;
-  margin-top:.6rem;color:var(--fg-3);
+  color:var(--fg-3);
   font-family:var(--font-mono);font-size:var(--fs-200);
 }
 .tt-actions__hint-group{
@@ -683,9 +382,9 @@ body:not(:has(#tt-stage[data-state="running"])) .tt-actions__btn--stop:hover{
 }
 .tt-actions__hint-group kbd{margin:0}
 .tt-actions__hint kbd{margin-right:.15em}
-/* Mobile: hide the keyboard-shortcut hint row entirely. Phones don't
-   have a Tab key, an Esc key, or Ctrl+K. The hints are noise. */
+/* Hide keyboard hints on touch devices. */
 @media (max-width:767px),
        (hover:none) and (pointer:coarse){
   .tt-actions__hint{display:none}
+  .practice-page__bottom{display:none}
 }

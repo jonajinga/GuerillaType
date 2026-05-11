@@ -1182,19 +1182,6 @@ function drawSessionChart(svg, samples) {
 function syncModeBar() {
   const presetDurations = new Set([15, 30, 60, 120, 300]);
   const presetWords = new Set([10, 25, 50, 100]);
-  // Mobile summary chip: reflect the current mode + key variant + source
-  // so the user can see at a glance what the next Start will produce.
-  const summaryEl = document.getElementById("tt-bar-mobile-summary-value");
-  if (summaryEl) {
-    const parts = [state.mode];
-    if (state.mode === "time" || state.mode === "tape") parts.push(state.duration + "s");
-    else if (state.mode === "words") parts.push(state.words + " words");
-    else if (state.mode === "quote") parts.push(state.quote);
-    if (["time", "words", "tape", "adaptive", "zen"].indexOf(state.mode) !== -1) {
-      parts.push(state.language);
-    }
-    summaryEl.textContent = parts.join(" · ");
-  }
   document.querySelectorAll('.mode-bar__btn[data-mode]').forEach((b) => {
     b.setAttribute("aria-pressed", String(b.dataset.mode === state.mode));
   });
@@ -1272,53 +1259,6 @@ function bindModeBar() {
   });
   // Wire dropdown chevrons.
   bindModeDropdowns();
-  // Mobile mode-sheet toggle. The summary chip opens the bottom
-  // sheet that surfaces every mode / variant / source option at
-  // once; tapping any chip auto-closes the sheet and starts the
-  // new session via boot().
-  bindMobileModeSheet();
-}
-
-function bindMobileModeSheet() {
-  const summary = document.getElementById("tt-bar-mobile-summary");
-  if (!summary) return;
-  const open = () => {
-    document.body.classList.add("is-mode-sheet-open");
-    summary.setAttribute("aria-expanded", "true");
-  };
-  const close = () => {
-    document.body.classList.remove("is-mode-sheet-open");
-    summary.setAttribute("aria-expanded", "false");
-    closeAllDropdowns();
-  };
-  summary.addEventListener("click", () => {
-    if (document.body.classList.contains("is-mode-sheet-open")) close();
-    else { open(); Analytics.mobileSheetOpened({ from: "summary_chip", mode: state.mode }); }
-  });
-  // Backdrop tap closes (the ::before scrim is purely visual; the
-  // sheet itself is the click-through; tapping outside the sheet
-  // catches on body).
-  document.addEventListener("click", (e) => {
-    if (!document.body.classList.contains("is-mode-sheet-open")) return;
-    if (e.target.closest(".practice-bar__modes")) return;
-    if (e.target.closest(".practice-bar__mobile-summary")) return;
-    close();
-  });
-  // Esc closes the sheet.
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && document.body.classList.contains("is-mode-sheet-open")) {
-      e.stopPropagation();
-      close();
-    }
-  });
-  // Picking any mode chip closes the sheet (boot() restarts the session).
-  document.querySelectorAll('.practice-bar__modes .mode-bar__btn[data-mode]').forEach((b) => {
-    b.addEventListener("click", () => {
-      if (document.body.classList.contains("is-mode-sheet-open")) {
-        setTimeout(close, 80);
-      }
-    });
-  });
 }
 
 /* Dropdown open/close. Exposed as window.ttToggleDropdown so the
@@ -1356,16 +1296,6 @@ window.ttToggleDropdown = function(mode, event) {
     panel.style.left = Math.max(8, Math.min(r.left, window.innerWidth - panelW - 8)) + "px";
     panel.style.right = "auto";
     panel.style.bottom = "auto";
-  }
-  // On mobile, no inline overrides -- CSS rules pin the dropdown
-  // inline within the open mode-sheet. After expanding, scroll
-  // the panel into view inside the sheet so the user sees the
-  // newly-revealed options (not just an empty drop below the chip
-  // they tapped).
-  if (isMobile && document.body.classList.contains("is-mode-sheet-open")) {
-    requestAnimationFrame(() => {
-      try { panel.scrollIntoView({ block: "nearest", behavior: "smooth" }); } catch {}
-    });
   }
 };
 
@@ -1462,9 +1392,10 @@ window.ttPause = () => {
   const btn = document.getElementById("tt-pause");
   if (btn) {
     btn.setAttribute("aria-pressed", eng._userPaused ? "true" : "false");
-    const label = btn.querySelector(".tt-actions__label");
+    const label = btn.querySelector(".practice-bar__action-label, .tt-actions__label");
     if (label) label.textContent = eng._userPaused ? "Resume" : "Pause";
     btn.classList.toggle("is-paused", !!eng._userPaused);
+    btn.classList.toggle("is-active", !!eng._userPaused);
   }
 };
 
