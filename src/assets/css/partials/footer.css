@@ -54,11 +54,12 @@
    on the largest band so seven columns fit without crowding. */
 .site-footer__inner{max-width:var(--max-width);margin-inline:auto;padding:var(--space-6) var(--gutter);display:grid;gap:var(--space-4);grid-template-columns:1fr}
 @media (min-width:640px){.site-footer__inner{grid-template-columns:repeat(2,1fr)}}
-@media (min-width:1024px){.site-footer__inner{grid-template-columns:repeat(4,1fr)}}
-/* 8 columns at wide desktop -- 6 megamenu sections + Project +
+@media (min-width:1024px){.site-footer__inner{grid-template-columns:repeat(3,1fr)}}
+/* 9 columns at wide desktop -- 7 megamenu sections (Practice, Learn,
+   Library, Compete, Games, Insights, Contribute) + Project +
    Resources. Container widens past --max-width on the largest band
-   so eight columns fit without crowding each label. */
-@media (min-width:1180px){.site-footer__inner{max-width:min(96vw, 1640px);grid-template-columns:repeat(8,1fr);gap:var(--space-3)}}
+   so all columns fit in a single row without crowding labels. */
+@media (min-width:1180px){.site-footer__inner{max-width:min(98vw, 1760px);grid-template-columns:repeat(9,minmax(0,1fr));gap:var(--space-2)}}
 .site-footer__col h2{font-family:var(--font-mono);font-size:var(--fs-200);margin-bottom:var(--space-3);color:var(--fg-2);text-transform:uppercase;letter-spacing:.16em;font-weight:500;padding-bottom:.4rem;border-bottom:1px solid var(--rule)}
 .site-footer__col ul{display:flex;flex-direction:column;gap:.4rem}
 .site-footer__col a{color:var(--fg-1);text-decoration:none;font-size:var(--fs-300)}
@@ -162,12 +163,8 @@
 @media (min-width:480px){
   .site-footer__badges{grid-template-columns:repeat(3, minmax(0, 1fr))}
 }
-@media (min-width:900px){
-  /* Above tablet-landscape: single row of all six badges. */
-  .site-footer__badges{
-    grid-template-columns:repeat(6, minmax(0, 1fr));
-    max-width:none;
-  }
+@media (min-width:1024px){
+  .site-footer__badges{grid-template-columns:repeat(3, minmax(0, 1fr));max-width:30rem}
 }
 .site-footer__badge{
   display:flex;flex-direction:column;align-items:flex-start;
