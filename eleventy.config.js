@@ -292,6 +292,24 @@ export default function (eleventyConfig) {
   // library pages with ENOENT -- the recursive mkdir races with
   // OneDrive's folder-lock during sync. Sequential mkdirSync here
   // guarantees the dirs exist by the time the templates write.
+  // Auto-refresh community-stats snapshot at build time IF the
+  // operator has set UMAMI_API_KEY in the build environment.
+  // Falls back to whatever JSON is already committed when the key
+  // isn't available -- so dev builds and PR builds don't fail.
+  eleventyConfig.on("eleventy.before", async () => {
+    if (!process.env.UMAMI_API_KEY) return;
+    try {
+      const { spawnSync } = await import("node:child_process");
+      const r = spawnSync("node", ["scripts/fetch-umami-stats.mjs"], {
+        stdio: "inherit",
+        env: process.env,
+      });
+      if (r.status !== 0) console.warn("[prebuild] umami fetch exited", r.status);
+    } catch (e) {
+      console.warn("[prebuild] umami fetch failed:", e.message);
+    }
+  });
+
   eleventyConfig.on("eleventy.before", () => {
     try {
       const booksDir = path.resolve("src/data/books");

@@ -1,7 +1,8 @@
-/* /community-stats/ — public typing data, six embedded Umami charts. */
+/* /community-stats/ -- public typing data, inline bar charts
+   driven by data baked from Umami at build time. */
 
 .community-stats{
-  display:flex;flex-direction:column;gap:var(--space-6);
+  display:flex;flex-direction:column;gap:var(--space-5);
   margin:var(--space-5) 0;
 }
 
@@ -12,7 +13,7 @@
 }
 .community-stat__head{
   display:flex;align-items:baseline;gap:var(--space-3);
-  margin:0 0 var(--space-3);
+  margin:0 0 var(--space-3);flex-wrap:wrap;
 }
 .community-stat__num{
   font-family:var(--font-mono);font-size:.7rem;
@@ -23,21 +24,51 @@
   font-family:var(--font-display);font-weight:500;
   font-size:var(--fs-500);margin:0;
 }
+.community-stat__total{
+  font-family:var(--font-mono);font-size:.7rem;
+  letter-spacing:.04em;margin-left:auto;
+  color:var(--fg-3);
+}
 .community-stat__lede{
   color:var(--fg-1);line-height:1.65;
   margin:0 0 var(--space-4);max-width:62ch;
 }
 .community-stat__chart{
-  position:relative;
-  background:var(--bg-2);
-  border:1px solid var(--rule);border-radius:var(--radius);
-  overflow:hidden;
+  display:flex;flex-direction:column;gap:.45rem;
 }
-.community-stat__chart iframe{
-  display:block;width:100%;
-  height:480px;border:0;background:var(--bg-2);
+.community-stat__empty{
+  padding:var(--space-3) 0;text-align:center;font-size:var(--fs-200);
 }
 
+/* One row per bucket: label (left, fixed width), bar (flex), count. */
+.cs-bar{
+  display:grid;
+  grid-template-columns:minmax(6.5rem, 14ch) 1fr minmax(3.5rem, auto);
+  align-items:center;gap:.8rem;
+  font-family:var(--font-mono);font-size:.78rem;
+}
+.cs-bar__label{
+  color:var(--fg-2);letter-spacing:.02em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.cs-bar__track{
+  position:relative;display:block;
+  height:14px;background:var(--bg-2);
+  border:1px solid var(--rule);border-radius:var(--radius-sm);
+  overflow:hidden;
+}
+.cs-bar__fill{
+  position:absolute;left:0;top:0;bottom:0;
+  background:linear-gradient(90deg, var(--accent), color-mix(in oklab, var(--accent) 65%, transparent));
+  border-right:1px solid color-mix(in oklab, var(--accent) 50%, transparent);
+  transition:width .4s cubic-bezier(.22,.61,.36,1);
+}
+.cs-bar__count{
+  color:var(--accent);text-align:right;
+  font-variant-numeric:tabular-nums;font-weight:500;
+}
+
+/* Methodology block sits under the chart stack. */
 .community-stats__methodology{
   margin-top:var(--space-6);padding-top:var(--space-5);
   border-top:1px solid var(--rule);
@@ -50,14 +81,18 @@
   list-style:disc;padding-left:1.4rem;
   display:flex;flex-direction:column;gap:.6rem;
   line-height:1.6;color:var(--fg-1);
-  max-width:62ch;
+  max-width:64ch;
 }
 .community-stats__methodology code{
   font-family:var(--font-mono);font-size:.88em;
   padding:.05em .35em;background:var(--bg-2);border-radius:var(--radius-sm);
 }
 
-@media (max-width:768px){
+@media (max-width:640px){
   .community-stat{padding:var(--space-4)}
-  .community-stat__chart iframe{height:380px}
+  .cs-bar{
+    grid-template-columns:minmax(5rem, 10ch) 1fr minmax(2.5rem, auto);
+    gap:.5rem;font-size:.72rem;
+  }
+  .cs-bar__track{height:12px}
 }

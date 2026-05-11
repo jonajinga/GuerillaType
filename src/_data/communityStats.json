@@ -1,0 +1,49 @@
+{
+  "updatedAt": "2026-05-11T18:17:55.353Z",
+  "updatedAtDate": "2026-05-11",
+  "windowDays": 365,
+  "site": {
+    "pageviews": 430,
+    "visitors": 9,
+    "visits": 19,
+    "bounces": 4,
+    "totaltime": 19175,
+    "comparison": {
+      "pageviews": 0,
+      "visitors": 0,
+      "visits": 0,
+      "bounces": 0,
+      "totaltime": 0
+    }
+  },
+  "wpm": {
+    "0-10": 3,
+    "50-60": 1
+  },
+  "acc": {
+    "<80": 3,
+    "85-90": 1
+  },
+  "modes": {
+    "tape": 1,
+    "words": 1,
+    "time": 1,
+    "book": 1
+  },
+  "speedMilestones": {
+    "50.0000": 6,
+    "75.0000": 5
+  },
+  "books": {
+    "federalist-papers": 3
+  },
+  "bookEvents": {
+    "started": 3
+  },
+  "practiceVolume": {
+    "25-50": 4
+  },
+  "langs": {
+    "en-1k": 4
+  }
+}

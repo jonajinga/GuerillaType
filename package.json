@@ -18,7 +18,8 @@
     "dev": "eleventy --serve",
     "build": "eleventy",
     "clean": "npx rimraf _site",
-    "audit": "node scripts/audit-viewports.mjs"
+    "audit": "node scripts/audit-viewports.mjs",
+    "stats": "node scripts/fetch-umami-stats.mjs"
   },
   "dependencies": {
     "@11ty/eleventy": "^3.0.0",
