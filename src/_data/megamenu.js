@@ -26,12 +26,13 @@ const megamenu = [
       {
         title: "Quick start",
         items: [
+          { chip: "▸", label: "Tape sprint 15s", url: "/practice/?mode=tape&duration=15", desc: "Single horizontal line that scrolls left as you type. 15 seconds." },
+          { chip: "▸▸", label: "Tape 30s", url: "/practice/?mode=tape&duration=30", desc: "Tape mode, 30 seconds. The classic ticker length." },
+          { chip: "▸▸▸", label: "Tape 60s", url: "/practice/?mode=tape&duration=60", desc: "Tape mode, full minute. Longer reading rhythm." },
           { chip: "Q", label: "Today's quote", url: "/practice/?mode=quote&quote=daily", desc: "One curated quote per day, shared by all visitors." },
-          { chip: "15", label: "15-second sprint", url: "/practice/?mode=time&duration=15", desc: "Fastest warm-up. One short burst." },
+          { chip: "15", label: "15-second test", url: "/practice/?mode=time&duration=15", desc: "Fastest warm-up. Stacked-line layout." },
           { chip: "30", label: "30-second test", url: "/practice/?mode=time&duration=30", desc: "The classic warm-up -- type as much as you can." },
           { chip: "60", label: "60-second test", url: "/practice/?mode=time&duration=60", desc: "A common benchmark length." },
-          { chip: "2m", label: "2-minute test", url: "/practice/?mode=time&duration=120", desc: "Tests sustained pace." },
-          { chip: "5m", label: "5-minute test", url: "/practice/?mode=time&duration=300", desc: "Endurance. Holds attention longer than a sprint." },
           { chip: "Z", label: "Zen mode", url: "/practice/?mode=zen", desc: "Untimed. Stop when you stop." },
         ],
       },
@@ -39,6 +40,7 @@ const megamenu = [
         title: "Pick a mode",
         items: [
           { chip: "T", label: "Time mode", url: "/practice/?mode=time&duration=30", desc: "Type freely, ends when the clock runs out." },
+          { chip: "▸", label: "Tape mode", url: "/practice/?mode=tape&duration=30", desc: "Horizontal ticker-tape that scrolls under a fixed caret." },
           { chip: "10", label: "Words: 10", url: "/practice/?mode=words&words=10", desc: "Short fixed count -- sentence-length burst." },
           { chip: "25", label: "Words: 25", url: "/practice/?mode=words&words=25", desc: "Default words mode." },
           { chip: "50", label: "Words: 50", url: "/practice/?mode=words&words=50", desc: "Mid-length fixed count." },

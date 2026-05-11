@@ -7,6 +7,7 @@ import { AdaptiveModel } from "../engine/adaptive.js";
 import { buildPicker, uniformText } from "../engine/wordpicker.js";
 import { recordSession } from "../engine/session-recorder.js";
 import { byId as achievementById } from "../engine/achievements.js";
+import { fingerForKey } from "../engine/layouts.js";
 import { getActive, updateActive } from "../profiles.js";
 import { loadQuotes, pickQuote, dailyQuote } from "../engine/quotes.js";
 import { getLesson, lessonText } from "../engine/lesson-text.js";
@@ -444,10 +445,11 @@ async function buildText() {
   if (state.mode === "words") return uniformText(list, state.words);
   if (state.mode === "zen") return uniformText(list, 50);
   // Tape mode: same word stream as time mode but rendered as a
-  // horizontal scrolling ticker. Default to 15s if no duration
-  // was set explicitly via the URL or settings.
+  // horizontal scrolling ticker. Default to 15s only if duration
+  // is genuinely missing -- a user's explicit duration=30 / 60 / etc
+  // must NOT be coerced back to 15.
   if (state.mode === "tape") {
-    if (!state.duration || state.duration === 30) state.duration = 15;
+    if (!state.duration) state.duration = 15;
     return uniformText(list, 120);  // long stream so it never runs out
   }
   // time mode — give a long stream that we'll extend if needed
@@ -669,10 +671,25 @@ function handleFinish(result) {
   // post-session flow. Even when Analytics.wpmBucket is undefined,
   // Analytics.custom always exists.
   try {
+    const EMIT_FALLBACK_NAMES = {
+      wpmBucket: "wpm_bucket",
+      accBucket: "acc_bucket",
+      modeCompleted: "mode_completed",
+      langUsed: "lang_used",
+      practiceVolume: "practice_volume_bucket",
+      bookCompletion: "book_completion",
+      sessionDist: "session_dist",
+      worstChar: "worst_char",
+      worstFinger: "worst_finger",
+      fingerAcc: "finger_acc",
+      worstWord: "worst_word",
+    };
     const emit = (name, props) => {
       const fn = Analytics && Analytics[name];
       if (typeof fn === "function") fn(props);
-      else if (Analytics && typeof Analytics.custom === "function") Analytics.custom(name === "wpmBucket" ? "wpm_bucket" : name === "accBucket" ? "acc_bucket" : name === "modeCompleted" ? "mode_completed" : name === "langUsed" ? "lang_used" : name === "practiceVolume" ? "practice_volume_bucket" : name === "bookCompletion" ? "book_completion" : name, props);
+      else if (Analytics && typeof Analytics.custom === "function") {
+        Analytics.custom(EMIT_FALLBACK_NAMES[name] || name, props);
+      }
     };
     emit("wpmBucket", { bucket: _wpmBucket(wpm), mode: state.mode });
     emit("accBucket", { bucket: _accBucket(acc), mode: state.mode });
@@ -695,6 +712,78 @@ function handleFinish(result) {
     if (state.bookSlug) {
       const completed = (result.endCursor || 0) >= (result.targetLen || 0) && acc >= 80;
       emit("bookCompletion", { book: state.bookSlug, event: completed ? "finished" : "started" });
+    }
+
+    // ── Most-missed character / finger / word ──────────────────
+    // Per-session "weakest spots". Each fires once at session-
+    // finish; Umami's categorical aggregation turns the firehose
+    // into a community-wide ranking on /community-stats/.
+    const target = String(result.target || "");
+    const errorCursors = Array.isArray(result.erroredCursors) ? result.erroredCursors : [];
+    if (target && errorCursors.length) {
+      // Worst character.
+      const charMiss = {};
+      for (const c of errorCursors) {
+        const ch = target[c];
+        if (!ch || ch === " ") continue;
+        charMiss[ch] = (charMiss[ch] || 0) + 1;
+      }
+      let worstCh = null, worstChCount = 0;
+      for (const k of Object.keys(charMiss)) {
+        if (charMiss[k] > worstChCount) { worstCh = k; worstChCount = charMiss[k]; }
+      }
+      if (worstCh) emit("worstChar", { char: worstCh, missCount: worstChCount });
+
+      // Per-finger totals + misses.
+      const layout = state.layout || "qwerty";
+      const fingerTotal = {}, fingerMiss = {};
+      for (let i = 0; i < target.length; i++) {
+        const f = fingerForKey(target[i], layout);
+        if (!f) continue;
+        fingerTotal[f] = (fingerTotal[f] || 0) + 1;
+      }
+      for (const c of errorCursors) {
+        const f = fingerForKey(target[c], layout);
+        if (!f) continue;
+        fingerMiss[f] = (fingerMiss[f] || 0) + 1;
+      }
+      let worstFinger = null, worstFingerAcc = 101;
+      for (const f of Object.keys(fingerTotal)) {
+        const tot = fingerTotal[f];
+        const errs = fingerMiss[f] || 0;
+        const a = tot > 0 ? Math.round(((tot - errs) / tot) * 100) : 100;
+        emit("fingerAcc", { finger: f, bucket: _accBucket(a) });
+        if (a < worstFingerAcc) { worstFinger = f; worstFingerAcc = a; }
+      }
+      if (worstFinger) {
+        emit("worstFinger", { finger: worstFinger, accBucket: _accBucket(worstFingerAcc) });
+      }
+
+      // Worst word.
+      const wordRanges = [];
+      let inW = false, wStart = 0;
+      for (let i = 0; i <= target.length; i++) {
+        const ch = i < target.length ? target[i] : " ";
+        const isW = ch !== " " && i < target.length;
+        if (isW && !inW) { wStart = i; inW = true; }
+        else if (!isW && inW) { wordRanges.push([wStart, i]); inW = false; }
+      }
+      const wordMiss = {};
+      for (const c of errorCursors) {
+        for (let i = 0; i < wordRanges.length; i++) {
+          const a = wordRanges[i][0], b = wordRanges[i][1];
+          if (c >= a && c < b) {
+            const w = target.slice(a, b).toLowerCase();
+            if (w.length >= 2) wordMiss[w] = (wordMiss[w] || 0) + 1;
+            break;
+          }
+        }
+      }
+      let worstWord = null, worstWordCount = 0;
+      for (const k of Object.keys(wordMiss)) {
+        if (wordMiss[k] > worstWordCount) { worstWord = k; worstWordCount = wordMiss[k]; }
+      }
+      if (worstWord) emit("worstWord", { word: worstWord, missCount: worstWordCount });
     }
   } catch {}
   // 100 % accuracy + non-trivial length is a celebration event.

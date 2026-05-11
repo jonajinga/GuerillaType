@@ -185,6 +185,40 @@ export default function (eleventyConfig) {
       const { writeFile } = await import("node:fs/promises");
       await writeFile("_site/.build-version", BUILD_VERSION);
     } catch {}
+    // Versioner runs INSIDE the eleventy.after hook so it executes
+    // no matter how the build is invoked (npm run build, npx
+    // @11ty/eleventy directly, or whatever Cloudflare Pages decides
+    // to run). The standalone scripts/version-js-imports.mjs still
+    // exists for manual re-versioning, but this in-process pass is
+    // the authoritative one.
+    try {
+      const { readdir, readFile, writeFile } = await import("node:fs/promises");
+      const { join, resolve } = await import("node:path");
+      const ROOT = resolve(process.cwd(), "_site", "assets", "js");
+      const STATIC_IMPORT = /(\bfrom\s+["'])(\.\.?\/[^"'?]+\.js)(["'])/g;
+      const DYNAMIC_IMPORT = /(\bimport\s*\(\s*["'])(\.\.?\/[^"'?]+\.js)(["']\s*\))/g;
+      let touched = 0, rewritten = 0;
+      async function walk(dir) {
+        let entries;
+        try { entries = await readdir(dir, { withFileTypes: true }); }
+        catch { return; }
+        for (const e of entries) {
+          const full = join(dir, e.name);
+          if (e.isDirectory()) await walk(full);
+          else if (e.isFile() && full.endsWith(".js")) {
+            const src = await readFile(full, "utf8");
+            let out = src, n = 0;
+            out = out.replace(STATIC_IMPORT, (m, a, b, c) => { n++; return `${a}${b}?v=${BUILD_VERSION}${c}`; });
+            out = out.replace(DYNAMIC_IMPORT, (m, a, b, c) => { n++; return `${a}${b}?v=${BUILD_VERSION}${c}`; });
+            if (n > 0) { await writeFile(full, out); rewritten += n; touched++; }
+          }
+        }
+      }
+      await walk(ROOT);
+      console.log(`[11ty:version-js-imports] rewrote ${rewritten} imports across ${touched} files (v=${BUILD_VERSION})`);
+    } catch (e) {
+      console.warn("[11ty:version-js-imports] failed:", e?.message || e);
+    }
   });
   eleventyConfig.addGlobalData("buildDate", () => new Date().toISOString().slice(0, 10));
 

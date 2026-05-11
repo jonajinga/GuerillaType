@@ -196,6 +196,20 @@ export const Analytics = {
   // Umami's event-data endpoint can't perform on its own.
   sessionDist: (props) => track("session_dist", props),             // { wpm, acc, mode, volume }
 
+  // Per-session "weakest" surface. At session_finish, the engine
+  // emits the SINGLE most-missed character on the qwerty keyboard
+  // and the SINGLE worst finger (by accuracy). Umami's categorical
+  // aggregation then surfaces the community-wide weakest spots.
+  worstChar: (props) => track("worst_char", props),                 // { char: "e", missCount }
+  worstFinger: (props) => track("worst_finger", props),             // { finger: "l-pinky" | ... | "thumb", accBucket }
+  // Per-finger accuracy bucket. Fires once per finger per session
+  // (8 events per session at most) so Umami can cross-tab
+  // finger × accuracy bracket across the whole community.
+  fingerAcc: (props) => track("finger_acc", props),                 // { finger, bucket }
+  // Most-missed-word events. Each finished session emits ONE
+  // worst_word with the top word from this session's missed list.
+  worstWord: (props) => track("worst_word", props),                 // { word, missCount }
+
   // Catch-all for ad-hoc tracking. Use only with stable schemas.
   custom: (name, props) => track(name, props),
 };
