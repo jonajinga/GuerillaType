@@ -63,7 +63,7 @@ export function renderKeyboard(svg, perKey, opts = {}) {
       // Inline style beats the .kb__key CSS rule's fill, which would
       // otherwise override an SVG fill attribute.
       if (fill) rect.style.fill = fill;
-      const lbl = el("text", { x: x + KEY_W / 2, y: y + KEY_H / 2 - 4, class: "kb__keylabel" });
+      const lbl = el("text", { x: x + KEY_W / 2, y: y + KEY_H / 2, class: "kb__keylabel" });
       lbl.textContent = ch;
       g.appendChild(rect);
       g.appendChild(lbl);
