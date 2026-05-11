@@ -44,6 +44,14 @@
 .ac-chart__area{
   fill:var(--accent);opacity:.14;
 }
+.ac-chart__dot{
+  stroke:var(--bg-1);stroke-width:1.5;
+  cursor:pointer;
+  transition:r var(--t-fast);
+}
+.ac-chart__dot--primary{fill:var(--accent)}
+.ac-chart__dot--secondary{fill:var(--fg-2)}
+.ac-chart__dot:hover{r:5}
 .ac-chart__donut-total{
   font-family:var(--font-display);font-size:28px;
   fill:var(--fg-0);font-weight:500;

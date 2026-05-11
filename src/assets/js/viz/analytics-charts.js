@@ -196,6 +196,26 @@ export async function timeLine(host, series, opts = {}) {
   // Sessions layer
   g.append("path").datum(sessions).attr("class", "ac-chart__line ac-chart__line--secondary").attr("d", line);
 
+  // Render visible dots for non-zero points so sparse series (one
+  // or two days of activity in a long window) don't render as
+  // empty space. Helps the eye anchor where activity actually
+  // happened.
+  const nonZeroPv = pageviews.filter((p) => p.v > 0);
+  const nonZeroSe = sessions.filter((p) => p.v > 0);
+  // Cap markers if the series is dense; otherwise the chart turns
+  // into a polka-dot mess.
+  const shouldMark = nonZeroPv.length <= 60;
+  if (shouldMark) {
+    g.append("g").selectAll("circle.pv").data(nonZeroPv).enter().append("circle")
+      .attr("class", "ac-chart__dot ac-chart__dot--primary")
+      .attr("cx", (d) => x(d.t)).attr("cy", (d) => y(d.v)).attr("r", 3.5)
+      .append("title").text((d) => `${d3.timeFormat("%b %d, %Y")(d.t)} — ${d.v} pageviews`);
+    g.append("g").selectAll("circle.se").data(nonZeroSe).enter().append("circle")
+      .attr("class", "ac-chart__dot ac-chart__dot--secondary")
+      .attr("cx", (d) => x(d.t)).attr("cy", (d) => y(d.v)).attr("r", 3)
+      .append("title").text((d) => `${d3.timeFormat("%b %d, %Y")(d.t)} — ${d.v} sessions`);
+  }
+
   // Axes
   const xTicks = x.ticks(Math.min(6, allPoints.length));
   g.append("g").attr("transform", `translate(0,${innerH})`)
