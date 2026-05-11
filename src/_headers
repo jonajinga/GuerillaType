@@ -4,7 +4,25 @@
   Permissions-Policy: interest-cohort=(), geolocation=(), microphone=(), camera=()
   X-Frame-Options: DENY
 
-/assets/*
+# JS modules: short cache + must-revalidate. Static ES imports inside
+# practice-boot.js (renderer.js, typing-engine.js, etc.) don't carry
+# the ?v=cssVersion query bust we put on the top-level dynamic import.
+# A 1-year immutable cache here freezes those files at the Cloudflare
+# edge for a year, defeating every site update. 5-minute cache lets
+# the CDN coalesce traffic spikes but new builds reach users within
+# minutes, not next year.
+/assets/js/*
+  Cache-Control: public, max-age=300, must-revalidate
+
+# CSS: same -- the ?v= on the <link> changes the URL each build, but
+# guard against future static @imports going stale.
+/assets/css/*
+  Cache-Control: public, max-age=300, must-revalidate
+
+# Fonts + images: rarely change, keep the long cache.
+/assets/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+/assets/img/*
   Cache-Control: public, max-age=31536000, immutable
 
 /data/*
