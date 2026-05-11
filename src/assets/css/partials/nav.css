@@ -2,21 +2,44 @@
    Megamenu drops from each top-level item on hover/click. */
 
 .site-header{position:sticky;top:0;z-index:50;background:color-mix(in oklab, var(--bg-0) 94%, transparent);backdrop-filter:saturate(140%) blur(10px);border-bottom:1px solid var(--rule)}
-.site-header__inner{max-width:var(--max-width);margin-inline:auto;padding:var(--space-3) var(--gutter);display:flex;align-items:center;gap:var(--space-3);justify-content:space-between}
+.site-header__inner{
+  max-width:var(--max-width);margin-inline:auto;
+  padding:var(--space-3) var(--gutter);
+  display:flex;align-items:center;gap:var(--space-3);justify-content:space-between;
+  /* Without min-width:0, the nav (which has nowrap children with
+     no shrink) can push the brand off the left edge. With it the
+     flex shrinking math works correctly. */
+  min-width:0;
+}
 
 /* Brand mark — small filled square that becomes a frame on hover. */
-.site-brand{display:inline-flex;align-items:center;gap:.55rem;text-decoration:none;letter-spacing:-.015em}
+.site-brand{
+  display:inline-flex;align-items:center;gap:.55rem;
+  text-decoration:none;letter-spacing:-.015em;
+  /* Brand never shrinks -- the gorilla + wordmark are part of
+     the page identity and shouldn't collapse to make room for
+     more nav items. */
+  flex-shrink:0;
+  white-space:nowrap;
+}
 /* Brand mark is an <img> element so the icon survives any CSS
    loading hiccup (page-nav transitions, stale SW cache, etc.).
    Theme-aware src swap is driven by main.js watching data-theme. */
 .site-brand__mark{
-  display:inline-block;width:62px;height:62px;
+  display:inline-block;width:54px;height:54px;
   transition:transform var(--t-fast);
   object-fit:contain;
+  flex-shrink:0;
 }
 .site-brand:hover .site-brand__mark{transform:scale(1.05)}
-.site-brand__name{font-family:var(--font-display);font-weight:600;font-size:1.18rem;color:var(--fg-0)}
-.site-brand__name em{font-style:italic;color:var(--accent);font-weight:500;margin-left:.1em}
+.site-brand__name{
+  font-family:var(--font-display);font-weight:600;font-size:1.18rem;
+  color:var(--fg-0);white-space:nowrap;
+}
+.site-brand__name em{
+  font-style:italic;color:var(--accent);font-weight:500;
+  margin-left:.18em;display:inline-block;
+}
 
 /* Primary nav row -- only render on truly wide desktops. Below the
    wide-desktop threshold the hamburger panel handles navigation, so
@@ -29,7 +52,7 @@
   .site-nav__item{position:relative}
   .site-nav__link{
     display:inline-flex;align-items:center;gap:.35rem;
-    height:44px;padding:0 .9rem;
+    height:44px;padding:0 .7rem;
     color:var(--fg-1);text-decoration:none;white-space:nowrap;
     font-size:var(--fs-300);font-weight:500;font-family:inherit;
     transition:color var(--t-fast) var(--ease);
@@ -61,7 +84,7 @@
   .site-header__inner{padding-block:.5rem;gap:.4rem}
   .site-header__inner > .site-brand{min-width:0}
   .site-brand__name{display:none}
-  .site-brand__mark{width:45px;height:45px}
+  .site-brand__mark{width:42px;height:42px}
   .site-header__actions{gap:.3rem}
   .site-header__actions #header-fullscreen,
   .site-header__actions #header-search{display:none}

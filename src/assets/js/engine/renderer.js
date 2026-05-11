@@ -182,6 +182,26 @@ export class Renderer {
       return;
     }
 
+    // Tape mode: single horizontal line that scrolls left so the
+    // caret stays near the 30% mark of the container. Pure
+    // translateX, no vertical scroll math needed.
+    if (cont.classList.contains("tt-text--tape")) {
+      const anchorX = cr.width * 0.3;
+      const caretX = r.left - cr.left;
+      // Current applied translateX, parsed back from inner.style.
+      const cur = parseFloat((this.inner.style.transform.match(/translateX\(([-\d.]+)px\)/) || [])[1] || 0);
+      // Where the caret would land relative to the container with
+      // no further translation: caretX is already in the current
+      // (translated) frame, so target translate adjusts by the
+      // delta between current caret position and anchor.
+      const delta = caretX - anchorX;
+      const next = cur - delta;
+      this.inner.style.transform = `translateX(${next}px)`;
+      this.caret.style.left = anchorX + "px";
+      this.caret.style.top = (r.top - cr.top) + "px";
+      return;
+    }
+
     // Char's bounding rect height = line-height in pixels (since
     // .tt-char is inline its rect spans the full line box). Reliable
     // in pixels, unlike getComputedStyle().lineHeight which returns

@@ -392,6 +392,13 @@ async function buildText() {
   }
   if (state.mode === "words") return uniformText(list, state.words);
   if (state.mode === "zen") return uniformText(list, 50);
+  // Tape mode: same word stream as time mode but rendered as a
+  // horizontal scrolling ticker. Default to 15s if no duration
+  // was set explicitly via the URL or settings.
+  if (state.mode === "tape") {
+    if (!state.duration || state.duration === 30) state.duration = 15;
+    return uniformText(list, 120);  // long stream so it never runs out
+  }
   // time mode — give a long stream that we'll extend if needed
   return uniformText(list, 80);
 }
@@ -424,6 +431,9 @@ function startEngine(target) {
     || state.mode === "poem"
     || (state.mode === "custom" && state._customMeta && ["quote","idiom","parable","poem"].indexOf(state._customMeta.kind) !== -1);
   textEl.classList.toggle("tt-text--reader", !!isLiterary);
+  // Tape mode: single horizontal line that scrolls left as the
+  // caret advances. CSS handles the layout via .tt-text--tape.
+  textEl.classList.toggle("tt-text--tape", state.mode === "tape");
   // Tag the typing surface with the literary kind so kind-specific
   // styling (e.g. a centered, italic moral on parables) can target
   // just the last .tt-paragraph block via CSS.

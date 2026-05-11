@@ -329,7 +329,7 @@ export class TypingEngine {
     if (this.mode === "words" || this.mode === "quote" || this.mode === "custom" ||
         this.mode === "challenge" || this.mode === "lesson" || this.mode === "drill" ||
         this.mode === "adaptive" || this.mode === "book" ||
-        this.mode === "idiom" || this.mode === "poem") {
+        this.mode === "idiom" || this.mode === "poem" || this.mode === "tape") {
       if (this.cursor >= this.targetArr.length) this.finish();
     }
     // Zen: stream more words as we approach the end.
@@ -386,7 +386,7 @@ export class TypingEngine {
       if (!this.running) return;
       this.tickLive();
       // Don't tick the deadline while paused.
-      if (!this._pauseAt && this.mode === "time" && performance.now() - this.startTs >= this.duration) {
+      if (!this._pauseAt && (this.mode === "time" || this.mode === "tape") && performance.now() - this.startTs >= this.duration) {
         this.finish();
         return;
       }
@@ -428,7 +428,7 @@ export class TypingEngine {
       if (wel) wel.textContent = String(Math.round(wpm));
       if (ael) ael.textContent = String(Math.round(acc));
       if (tel) {
-        if (this.mode === "time") {
+        if (this.mode === "time" || this.mode === "tape") {
           const remain = Math.max(0, this.duration - (ms || 0));
           tel.textContent = String(Math.ceil(remain / 1000));
           if (tlb) tlb.textContent = "seconds left";
