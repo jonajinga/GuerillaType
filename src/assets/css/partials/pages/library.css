@@ -217,6 +217,39 @@
 .book-reader__para.is-typed::before{
   content:"✓ ";color:var(--good);font-style:normal;font-family:var(--font-mono);font-weight:700;
 }
+/* Each paragraph row + its optional Reset chip live in a wrapper so
+   the chip can sit alongside the text without affecting the
+   paragraph's text-wrap. */
+.book-reader__para-wrap{
+  display:flex;align-items:flex-start;gap:.6rem;
+}
+.book-reader__para-wrap .book-reader__para{flex:1 1 auto;min-width:0}
+.book-reader__para-reset{
+  flex-shrink:0;align-self:center;
+  background:transparent;
+  color:var(--fg-3);
+  border:1px solid var(--rule);
+  border-radius:var(--radius);
+  font-family:var(--font-mono);font-size:.62rem;letter-spacing:.06em;
+  padding:.2rem .55rem;
+  cursor:pointer;opacity:0;
+  transition:opacity var(--t-fast), color var(--t-fast), border-color var(--t-fast), background var(--t-fast);
+}
+/* Visible on hover/focus of the wrapper (desktop) or always on touch */
+.book-reader__para-wrap.is-typed:hover .book-reader__para-reset,
+.book-reader__para-wrap.is-typed:focus-within .book-reader__para-reset{opacity:1}
+.book-reader__para-reset:hover{
+  color:var(--bad);border-color:var(--bad);
+  background:color-mix(in oklab, var(--bad) 10%, transparent);
+}
+.book-reader__para-reset:focus-visible{
+  opacity:1;outline:2px solid var(--accent);outline-offset:2px;
+}
+@media (hover: none){
+  /* Touch devices: no hover state -- show the chip dimly always so
+     it's reachable. */
+  .book-reader__para-wrap.is-typed .book-reader__para-reset{opacity:.8}
+}
 
 .book-reader__footer{
   display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);

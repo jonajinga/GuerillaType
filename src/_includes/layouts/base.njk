@@ -18,17 +18,18 @@
 
 {# Gorilla-face favicon: cropped from the brand source. Dark theme =
    cream face on navy tile. Light theme = navy face on cream tile.
-   Browsers pick whichever matches the OS color scheme; the
-   trailing no-media tags are the fallback for browsers that ignore
-   media on icon links. #}
-<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-face-32.png" media="(prefers-color-scheme: dark)">
-<link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-face-16.png" media="(prefers-color-scheme: dark)">
-<link rel="icon" type="image/png" sizes="48x48" href="/assets/img/favicon-face-48.png" media="(prefers-color-scheme: dark)">
-<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-face-32-light.png" media="(prefers-color-scheme: light)">
-<link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-face-16-light.png" media="(prefers-color-scheme: light)">
-<link rel="icon" type="image/png" sizes="48x48" href="/assets/img/favicon-face-48-light.png" media="(prefers-color-scheme: light)">
-<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-face-32.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/assets/img/apple-touch-icon.png">
+   ?v={{ cssVersion }} forces browsers + Cloudflare's edge to
+   refetch when the favicon file contents change but the URL path
+   stays stable. Without the cache-bust the edge serves whatever
+   was first cached at the URL for a year. #}
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-face-32.png?v={{ cssVersion }}" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-face-16.png?v={{ cssVersion }}" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/png" sizes="48x48" href="/assets/img/favicon-face-48.png?v={{ cssVersion }}" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-face-32-light.png?v={{ cssVersion }}" media="(prefers-color-scheme: light)">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-face-16-light.png?v={{ cssVersion }}" media="(prefers-color-scheme: light)">
+<link rel="icon" type="image/png" sizes="48x48" href="/assets/img/favicon-face-48-light.png?v={{ cssVersion }}" media="(prefers-color-scheme: light)">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-face-32.png?v={{ cssVersion }}">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/img/apple-touch-icon.png?v={{ cssVersion }}">
 <link rel="manifest" href="/site.webmanifest">
 
 {# No-flash theme — runs synchronously before paint. #}

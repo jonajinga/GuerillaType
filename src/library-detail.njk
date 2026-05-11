@@ -116,16 +116,36 @@ eleventyComputed:
     const paras = paragraphsForPage(chapterIx, pageIx);
     content.innerHTML = `
       <h2 class="book-reader__chapter-title">${escape(ch.title)}</h2>
-      ${paras.map((p) => `
-        <p class="book-reader__para${isTyped(chapterIx, p.id) ? " is-typed" : ""}"
-           data-pid="${escape(p.id)}"
-           tabindex="0">${escape(p.text)}</p>
-      `).join("")}
+      ${paras.map((p) => {
+        const typed = isTyped(chapterIx, p.id);
+        return `
+        <div class="book-reader__para-wrap${typed ? " is-typed" : ""}">
+          <p class="book-reader__para${typed ? " is-typed" : ""}"
+             data-pid="${escape(p.id)}"
+             tabindex="0"
+             role="button"
+             aria-label="Type this paragraph">${escape(p.text)}</p>
+          ${typed ? `
+            <button type="button" class="book-reader__para-reset"
+              data-pid-reset="${escape(p.id)}"
+              aria-label="Reset progress for this paragraph"
+              data-tip="Clear this paragraph's completion mark so it shows as untyped again.">
+              ↺ Reset
+            </button>` : ""}
+        </div>`;
+      }).join("")}
     `;
     content.querySelectorAll(".book-reader__para").forEach((el) => {
       el.addEventListener("click", () => goType(el.dataset.pid));
       el.addEventListener("keydown", (e) => {
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); goType(el.dataset.pid); }
+      });
+    });
+    content.querySelectorAll(".book-reader__para-reset").forEach((el) => {
+      el.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const pid = el.dataset.pidReset;
+        resetParagraph(pid);
       });
     });
     progressEl.textContent = `${totalProgress()}% read`;
@@ -136,6 +156,19 @@ eleventyComputed:
     // Single-paragraph navigation (used when a user clicks one
     // paragraph specifically).
     window.location.href = `/practice/?book=${encodeURIComponent(slug)}&ch=${chapterIx}&p=${encodeURIComponent(pid)}`;
+  }
+
+  function resetParagraph(pid) {
+    const key = `${chapterIx}:${pid}`;
+    if (!prog.typed || !prog.typed[key]) return;
+    updateActive((p) => {
+      if (p.bookProgress && p.bookProgress[slug] && p.bookProgress[slug].typed) {
+        delete p.bookProgress[slug].typed[key];
+      }
+      return p;
+    });
+    if (prog.typed) delete prog.typed[key];
+    paint();
   }
 
   function typePage() {
