@@ -90,10 +90,12 @@ function render() {
     ${rows[2].map((k) => keyHTML(k)).join("")}
     <button type="button" class="vkbd__key vkbd__key--mod" data-action="backspace" aria-label="Backspace">&#x232B;</button>
   `;
+  const capsCls = caps ? "vkbd__key--locked" : "";
   const utility = `
     <button type="button" class="vkbd__key vkbd__key--mod" data-action="layer" aria-label="${layer === 'letters' ? 'Switch to numbers' : 'Switch to letters'}">
       ${layer === "letters" ? "123" : "ABC"}
     </button>
+    <button type="button" class="vkbd__key vkbd__key--mod ${capsCls}" data-action="caps" aria-label="Caps lock" aria-pressed="${caps ? "true" : "false"}">caps</button>
     <button type="button" class="vkbd__key vkbd__key--space" data-k=" " aria-label="Space">space</button>
     <button type="button" class="vkbd__key vkbd__key--mod" data-action="enter" aria-label="Enter">&#x21B5;</button>
   `;
@@ -161,6 +163,15 @@ function handleKey(btn) {
       shift = !shift; if (shift) caps = false;
     }
     btn._lastTap = now;
+    render();
+    return;
+  }
+  if (action === "caps") {
+    // Dedicated caps-lock toggle. Independent from shift's
+    // double-tap path so users can find it explicitly. Tapping
+    // caps clears any one-shot shift state.
+    caps = !caps;
+    shift = false;
     render();
     return;
   }

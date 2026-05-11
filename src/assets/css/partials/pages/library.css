@@ -229,7 +229,8 @@
    .btn--ghost + .btn--small declarations from buttons.css with the
    hover-reveal opacity layered on top. */
 .book-reader__para-reset{
-  flex-shrink:0;align-self:center;
+  flex-shrink:0;align-self:flex-start;
+  margin-top:.35rem;
   display:inline-flex;align-items:center;justify-content:center;gap:.4rem;
   font-family:var(--font-sans);font-size:var(--fs-200);font-weight:500;
   padding:.4rem .75rem;min-height:0;

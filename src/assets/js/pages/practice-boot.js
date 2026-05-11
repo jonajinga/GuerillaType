@@ -1357,10 +1357,16 @@ window.ttToggleDropdown = function(mode, event) {
     panel.style.right = "auto";
     panel.style.bottom = "auto";
   }
-  // On mobile, no inline overrides -- CSS @media bottom-sheet
-  // rules (position:fixed; bottom:0; top:auto) take over so the
-  // panel sits above the on-screen keyboard, never under the
-  // header.
+  // On mobile, no inline overrides -- CSS rules pin the dropdown
+  // inline within the open mode-sheet. After expanding, scroll
+  // the panel into view inside the sheet so the user sees the
+  // newly-revealed options (not just an empty drop below the chip
+  // they tapped).
+  if (isMobile && document.body.classList.contains("is-mode-sheet-open")) {
+    requestAnimationFrame(() => {
+      try { panel.scrollIntoView({ block: "nearest", behavior: "smooth" }); } catch {}
+    });
+  }
 };
 
 function bindModeDropdowns() {
@@ -1446,8 +1452,11 @@ window.ttPause = () => {
     Analytics.sessionResumed({ mode: state.mode });
   } else {
     // Pause + mark as user-driven so onFocus can't auto-resume.
+    // The "user-pause" reason token is the ONLY way pauseTimer
+    // honors the call -- every other entry point is rejected at
+    // the engine. See typing-engine.js pauseTimer().
     eng._userPaused = true;
-    eng.pauseTimer();
+    eng.pauseTimer("user-pause");
     Analytics.sessionPaused({ mode: state.mode });
   }
   const btn = document.getElementById("tt-pause");

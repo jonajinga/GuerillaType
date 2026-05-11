@@ -418,11 +418,17 @@ export class TypingEngine {
     this.tickHandle = requestAnimationFrame(loop);
   }
 
-  pauseTimer() {
-    // Definitive tap-to-type guard: if the user typed within the
-    // last 450ms, this pause request is almost certainly the soft
-    // keyboard accidentally hitting the Pause button. Refuse.
+  pauseTimer(reason) {
+    // Definitive lock: only the explicit Pause button click can
+    // pause a session. Every other path -- blur, IME, focus shift,
+    // soft-keyboard tap that bled onto the button -- is rejected.
+    // The Pause-button onclick (window.ttPause in practice-boot)
+    // passes the magic token "user-pause"; nothing else does.
+    if (reason !== "user-pause") return;
     const now = performance.now();
+    // Belt + suspenders: even with the token, reject if the user
+    // typed within the last 450 ms. Catches accidental physical-
+    // button presses during fast typing too.
     if (this._lastTypedAt && (now - this._lastTypedAt) < 450) return;
     this._pauseAt = now;
   }

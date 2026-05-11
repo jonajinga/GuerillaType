@@ -16,7 +16,7 @@
   "scripts": {
     "start": "eleventy --serve",
     "dev": "eleventy --serve",
-    "build": "eleventy",
+    "build": "eleventy && node scripts/version-js-imports.mjs",
     "clean": "npx rimraf _site",
     "audit": "node scripts/audit-viewports.mjs",
     "stats": "node scripts/fetch-umami-stats.mjs",
