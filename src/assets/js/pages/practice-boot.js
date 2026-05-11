@@ -858,17 +858,11 @@ function handleFinish(result) {
       return p;
     });
   }
-  // Universal auto-advance: any naturally-completed clean session
-  // queues an advance. Suppressed when the user pressed Stop / Esc
-  // (engine._stopped) so they aren't whisked away after explicitly
-  // bailing out.
-  const naturallyCompleted = !engine._stopped && (
-    state.mode === "time" ||
-    (result.endCursor || 0) >= (result.targetLen || 0)
-  );
-  if (naturallyCompleted && result.accuracy >= 80) {
-    result._autoAdvance = true;
-  }
+  // Auto-advance is disabled: every session ends at the results
+  // card and waits for the user to pick what's next. The previous
+  // "10s countdown then jump" flow was rushing users through
+  // sessions; the explicit action buttons below cover every path.
+  result._autoAdvance = false;
   // Corpus item completion (quotes / idioms / parables / poetry).
   // Recorded only when the user typed all the way through AND
   // accuracy was at least 80% — same threshold as book auto-advance.
@@ -1145,6 +1139,8 @@ function renderResults(r) {
           stats:   `<svg class="results__btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-7"/></svg>`,
           book:    `<svg class="results__btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
           lesson:  `<svg class="results__btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
+          feedback:`<svg class="results__btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z"/></svg>`,
+          review:  `<svg class="results__btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15 9 22 9.5 16.5 14 18 21 12 17.5 6 21 7.5 14 2 9.5 9 9 12 2"/></svg>`,
         };
         const wrap = (icon, label, attrs, tip, primary) => `
           <${attrs.tag || "button"} class="btn results__btn ${primary ? "btn--primary" : ""}" ${attrs.attrs || ""} data-tip="${tip}" aria-label="${label}">
@@ -1166,7 +1162,15 @@ function renderResults(r) {
             + wrap(ICONS.list, "All lessons", { tag: "a", attrs: `href="/lessons/"` }, "See every lesson available.")
           : wrap(ICONS.adaptive, "Practice weak keys", { tag: "a", attrs: `href="/practice/?mode=adaptive"` }, "Switch to adaptive mode -- the picker weights your weakest keys more heavily.")
             + wrap(ICONS.stats, "View stats", { tag: "a", attrs: `href="/stats/"` }, "Open your full performance dashboard with charts, heatmaps, and history.");
-        return nextBtn + tail;
+        // Always-visible feedback path: a "Send feedback" button
+        // and a "Leave a review" link, regardless of mode. Keeps
+        // user-feedback collection on the surface even when there's
+        // no testimonial-prompt aside (which only fires after 10
+        // lifetime sessions).
+        const feedbackBtns =
+          wrap(ICONS.feedback, "Send feedback", { attrs: `type="button" onclick="window.openFeedbackModal && window.openFeedbackModal()"` }, "Drop a quick note about anything -- bugs, ideas, things you wish worked differently.")
+          + wrap(ICONS.review, "Leave a review", { tag: "a", attrs: `href="/contribute/testimonial/"` }, "Submit a short testimonial. Helps the project and may appear on the reviews page if you opt in.");
+        return nextBtn + tail + feedbackBtns;
       })()}
     </div>
     ${testimonialPrompt}

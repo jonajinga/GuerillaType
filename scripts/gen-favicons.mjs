@@ -58,4 +58,47 @@ for (const sz of SIZES) {
   await emit(darkBuf,  "dark",  NAVY_DEEP, sz);
   await emit(lightBuf, "light", CREAM_BG,  sz);
 }
+
+// ── Red full-icon favicon ─────────────────────────────────────
+// Uses the WHOLE source image (no face crop) and recolors every
+// pixel based on luminance to a red palette on the cream tile
+// background. This is the primary favicon -- the cropped face
+// variants stay around for theme-specific use cases. */
+console.log("Generating red full-icon favicon...");
+const RED_DEEP = [162, 58, 42];   // #a23a2a -- primary accent (logo body)
+const RED_MID  = [201, 90, 64];   // mid-tone red (face features)
+const RED_DIM  = [225, 165, 145]; // soft red highlight
+const TILE_BG  = [247, 242, 231]; // #f7f2e7 cream background
+
+const fullRaw = await sharp(resolve(imgDir, "Guerilla Type Favicon.png"))
+  .raw().toBuffer({ resolveWithObject: true });
+const redBuf = Buffer.alloc(fullRaw.data.length);
+for (let i = 0; i < fullRaw.data.length; i += 4) {
+  const r = fullRaw.data[i], g = fullRaw.data[i + 1], b = fullRaw.data[i + 2];
+  const a = fullRaw.data[i + 3];
+  const lum = r * 0.299 + g * 0.587 + b * 0.114;
+  let c;
+  // Transparent pixels stay transparent; PNG output keeps the alpha.
+  if (a === 0)          { redBuf[i] = TILE_BG[0]; redBuf[i+1] = TILE_BG[1]; redBuf[i+2] = TILE_BG[2]; redBuf[i+3] = 0; continue; }
+  if (lum < 60)         c = RED_DEEP;
+  else if (lum < 150)   c = RED_MID;
+  else if (lum < 220)   c = RED_DIM;
+  else                  c = TILE_BG;
+  redBuf[i]   = c[0]; redBuf[i+1] = c[1]; redBuf[i+2] = c[2]; redBuf[i+3] = 255;
+}
+async function emitRed(size) {
+  const prefix = size === 180 ? "apple-touch-icon-red" : (size >= 192 ? "icon-red" : "favicon-red");
+  const dim = size === 180 ? "" : "-" + size;
+  const out = resolve(imgDir, prefix + dim + ".png");
+  await sharp(redBuf, { raw: { width: fullRaw.info.width, height: fullRaw.info.height, channels: 4 } })
+    .resize(size, size, { fit: "contain", background: { r: TILE_BG[0], g: TILE_BG[1], b: TILE_BG[2] } })
+    .flatten({ background: { r: TILE_BG[0], g: TILE_BG[1], b: TILE_BG[2] } })
+    .png({ compressionLevel: 9 })
+    .toFile(out);
+  console.log("  wrote", out);
+}
+for (const sz of SIZES) {
+  await emitRed(sz);
+}
+
 console.log("Done.");

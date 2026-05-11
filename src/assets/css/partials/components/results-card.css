@@ -152,18 +152,26 @@
 }
 .results__btn-icon{display:none}
 @media (max-width:768px){
-  /* Mobile + small tablet: icon-only square buttons. The labels
-     collapse to screen-reader-only spans so the row stays compact
-     and trio-aligned on phones. */
-  .results__actions{gap:.5rem;flex-wrap:nowrap}
+  /* Mobile: icon + LABEL buttons so users know what each action
+     does. Previously labels collapsed to screen-reader-only spans,
+     leaving cryptic icon-only squares. Now the row wraps to two
+     rows if needed and each button is a full pill with both icon
+     and text. */
+  .results__actions{gap:.5rem;flex-wrap:wrap;justify-content:center}
   .results__btn{
-    min-width:0;width:48px;height:48px;padding:0;flex-shrink:0;
+    min-width:0;flex:1 1 calc(50% - .5rem);
+    height:auto;min-height:44px;padding:.55rem .75rem;
+    font-size:var(--fs-200);
   }
-  .results__btn-icon{display:block;width:18px;height:18px}
+  .results__btn-icon{display:block;width:16px;height:16px;flex-shrink:0}
   .results__btn-label{
-    position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;
-    overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+    display:inline;white-space:normal;text-align:left;line-height:1.2;
   }
+}
+@media (max-width:480px){
+  /* Very narrow phones: one button per row so labels never wrap
+     mid-word. */
+  .results__btn{flex:1 1 100%}
 }
 
 .results__weakkeys{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:var(--space-3)}

@@ -111,11 +111,23 @@ function pickWord() {
   return words[Math.floor(Math.random() * words.length)];
 }
 
+// Shared timer handle. Every startRound / pauseRound / endRound /
+// reset path needs to either own or stop this handle -- otherwise
+// d3.timer accumulates timers each cycle and frame() gets called
+// N times per tick, doubling spawn pacing and physics step.
+let frameTimer = null;
+function stopFrameTimer() {
+  if (frameTimer) { try { frameTimer.stop(); } catch {} frameTimer = null; }
+}
+
 function reset() {
+  stopFrameTimer();
+  running = false;
   falling = [];
   stats = { score: 0, caught: 0, missed: 0, streak: 0, bestStreak: 0 };
   paintStats();
   if (svgSel) svgSel.selectAll("g.fall").remove();
+  if (input) input.value = "";
 }
 
 let _lastPaintedScore = 0;
@@ -509,7 +521,8 @@ function startRound() {
   // words. paintHint() is a no-op when running=true.
   if (svgSel) svgSel.selectAll("g.stage-hint").remove();
   Analytics.gameStart({ mode: gameMode, speed: speedMult });
-  d3.timer(frame);
+  stopFrameTimer();
+  frameTimer = d3.timer(frame);
 }
 
 function pauseRound() {
@@ -518,12 +531,18 @@ function pauseRound() {
   if (running) {
     lastSpawnTs = performance.now();
     lastFrameTs = performance.now();
-    d3.timer(frame);
+    stopFrameTimer();
+    frameTimer = d3.timer(frame);
+  } else {
+    // Halt the frame loop while paused so it doesn't keep
+    // burning CPU + accumulating phantom dt values.
+    stopFrameTimer();
   }
 }
 
 function endRound() {
   running = false;
+  stopFrameTimer();
   // Clear the falling array so stale entries can't be caught
   // by typing through the game-over overlay.
   falling = [];
