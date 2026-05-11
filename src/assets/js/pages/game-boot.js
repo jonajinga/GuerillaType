@@ -163,26 +163,46 @@ function paintStats() {
 function spawn() {
   const w = pickWord();
   if (!w) return;
+  // Approximate half-width of the word at 22px monospace. A
+  // little wider than mono-precise to leave breathing room on the
+  // sides so the word's edges never visibly kiss the stage walls.
+  const halfW = Math.max(20, Math.ceil(w.length * 7));
+  const margin = 16;
   if (gameMode === "shooter") {
-    // Shooter: word enters from the left at a random vertical
-    // band, drifts right. Off-stage to the right counts as a
-    // miss. Vertical band stops above the input box (which
-    // overlays the bottom ~80 px of the stage).
-    const y = 40 + Math.random() * (stageH - 160);
+    // Shooter: word enters fully off-screen to the LEFT, drifts
+    // right. Vertical band stops above the input box (which
+    // overlays the bottom ~80 px of the stage) AND clears the
+    // top edge by enough to fit the font's ascent (~22 px).
+    const minY = 28;
+    const maxY = Math.max(minY + 1, stageH - 110);
+    const y = minY + Math.random() * (maxY - minY);
     const vx = 40 + Math.random() * 30 + stats.caught * 0.8;
     falling.push({
       id: Math.random().toString(36).slice(2),
-      word: w, x: -40, y, vx: vx * speedMult, vy: 0, mode: "shooter",
+      word: w,
+      // Start fully off-screen so the word slides in cleanly
+      // instead of popping in mid-glyph.
+      x: -halfW - 6,
+      y, vx: vx * speedMult, vy: 0, mode: "shooter",
     });
     return;
   }
-  // Classic / endless: word falls from the top.
-  const x = 60 + Math.random() * (stageW - 120);
+  // Classic / endless: word falls from the top. Clamp the x so
+  // the ENTIRE word stays inside the stage (text-anchor:middle
+  // means the word extends halfW px to each side of f.x). Long
+  // words used to clip both edges because the spawn range
+  // assumed a fixed 60 px margin regardless of word length.
+  const minX = halfW + margin;
+  const maxX = Math.max(minX + 1, stageW - halfW - margin);
+  const x = minX + Math.random() * (maxX - minX);
   const rampPerCatch = gameMode === "endless" ? 1.5 : 0.6;
   const baseSpeed = 50 + Math.random() * 30 + stats.caught * rampPerCatch;
+  // Start the word JUST above the stage so the top of the glyph
+  // is at -22 (cap height) and the word slides into view rather
+  // than appearing already 20 px deep.
   falling.push({
     id: Math.random().toString(36).slice(2),
-    word: w, x, y: -20, vx: 0, vy: baseSpeed * speedMult, mode: "fall",
+    word: w, x, y: -22, vx: 0, vy: baseSpeed * speedMult, mode: "fall",
   });
 }
 
