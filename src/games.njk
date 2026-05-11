@@ -27,6 +27,11 @@ pageSlug: games
       <li><strong>Length</strong> Until 3 misses</li>
       <li><strong>Difficulty</strong> Slider, 0.5x – 2.5x</li>
     </ul>
+    <div class="game-card__best" data-game-best="classic" hidden>
+      <span class="game-card__best-label">Your best</span>
+      <span class="game-card__best-score" data-game-best-score>0</span>
+      <span class="game-card__best-streak" data-game-best-streak></span>
+    </div>
     <a class="btn btn--primary" href="/practice/game/">Play Catch the Word →</a>
   </article>
 
@@ -48,6 +53,11 @@ pageSlug: games
       <li><strong>Length</strong> Until 3 misses</li>
       <li><strong>Direction</strong> Horizontal drift</li>
     </ul>
+    <div class="game-card__best" data-game-best="shooter" hidden>
+      <span class="game-card__best-label">Your best</span>
+      <span class="game-card__best-score" data-game-best-score>0</span>
+      <span class="game-card__best-streak" data-game-best-streak></span>
+    </div>
     <a class="btn btn--primary" href="/practice/game/?mode=shooter">Play Shooter →</a>
   </article>
 
@@ -66,9 +76,39 @@ pageSlug: games
       <li><strong>Length</strong> Until you stop</li>
       <li><strong>Difficulty</strong> Ramps faster than Classic</li>
     </ul>
+    <div class="game-card__best" data-game-best="endless" hidden>
+      <span class="game-card__best-label">Your best</span>
+      <span class="game-card__best-score" data-game-best-score>0</span>
+      <span class="game-card__best-streak" data-game-best-streak></span>
+    </div>
     <a class="btn btn--primary" href="/practice/game/?mode=endless">Play Endless →</a>
   </article>
 </div>
+
+<script type="module">
+/* Paint per-mode high scores from the active profile. Falls back
+   silently to the hidden state if the profile / gameStats / byMode
+   key isn't there yet (new user, never played). */
+import { getActive } from "/assets/js/profiles.js?v={{ cssVersion }}";
+(function(){
+  const p = getActive();
+  const gs = (p && p.gameStats) || {};
+  const byMode = gs.byMode || {};
+  // Legacy migration: pre-byMode profiles only had a flat
+  // gameStats.highScore -- which we treat as classic-mode.
+  const legacyClassic = { highScore: gs.highScore || 0, bestStreak: gs.bestStreak || 0 };
+  document.querySelectorAll(".game-card__best").forEach((el) => {
+    const mode = el.dataset.gameBest;
+    const m = byMode[mode] || (mode === "classic" ? legacyClassic : null);
+    if (!m || !m.highScore) return;
+    el.hidden = false;
+    const score = el.querySelector("[data-game-best-score]");
+    const streak = el.querySelector("[data-game-best-streak]");
+    if (score) score.textContent = m.highScore.toLocaleString();
+    if (streak && m.bestStreak) streak.textContent = "best streak " + m.bestStreak;
+  });
+})();
+</script>
 
 <section class="games-footer" id="why">
   <h2>Why games?</h2>

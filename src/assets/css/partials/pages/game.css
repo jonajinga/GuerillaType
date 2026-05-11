@@ -32,6 +32,51 @@
   font-family:var(--font-display);font-size:var(--fs-500);
   color:var(--accent);font-variant-numeric:tabular-nums;
   line-height:1;
+  transition:transform 80ms ease-out;
+}
+/* Best chip is visually muted vs Score -- it's reference info, not
+   the live number. Border tints it just enough to read as a chip. */
+.game-stat--best{
+  background:color-mix(in oklab, var(--bg-1) 92%, var(--accent));
+  border-color:color-mix(in oklab, var(--rule) 50%, var(--accent));
+}
+.game-stat--best .game-stat__value{color:var(--fg-1);font-size:var(--fs-400)}
+/* Score pulse -- brief scale + accent glow on every increment.
+   Triggered by paintStats() adding .is-pulsing and removing it
+   on the next frame so the keyframe restarts cleanly. */
+.game-stat--score .game-stat__value.is-pulsing{
+  animation:game-score-pulse 360ms cubic-bezier(.2,.7,.3,1);
+}
+@keyframes game-score-pulse{
+  0%   {transform:scale(1);   text-shadow:none}
+  35%  {transform:scale(1.22);text-shadow:0 0 14px color-mix(in oklab, var(--accent) 60%, transparent)}
+  100% {transform:scale(1);   text-shadow:none}
+}
+/* Combo multiplier badge. Floats inside the game-stage top-right;
+   tier color escalates from accent (1.5x) through warn (3x) to bad
+   (5x) so the user can read difficulty at a glance. */
+.game-mult{
+  position:absolute;top:.65rem;right:.75rem;z-index:3;
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:3.2rem;height:2.2rem;padding:0 .8rem;
+  font-family:var(--font-display);font-size:1.35rem;font-weight:600;
+  font-variant-numeric:tabular-nums;
+  color:var(--bg-0);background:var(--accent);
+  border:0;border-radius:999px;
+  box-shadow:0 4px 14px color-mix(in oklab, var(--accent) 40%, transparent);
+  pointer-events:none;
+  animation:game-mult-pop 280ms cubic-bezier(.2,.8,.3,1.2);
+  letter-spacing:.02em;
+}
+.game-mult[hidden]{display:none}
+.game-mult[data-tier="1.5"]{background:var(--accent)}
+.game-mult[data-tier="2"]  {background:#e58060;color:#241208}
+.game-mult[data-tier="3"]  {background:#d4794a;color:#241208;box-shadow:0 0 18px color-mix(in oklab, #d4794a 60%, transparent)}
+.game-mult[data-tier="5"]  {background:var(--bad);color:#fff;box-shadow:0 0 22px color-mix(in oklab, var(--bad) 70%, transparent)}
+@keyframes game-mult-pop{
+  0%   {transform:scale(.4);opacity:0}
+  60%  {transform:scale(1.18);opacity:1}
+  100% {transform:scale(1);  opacity:1}
 }
 
 .game-stage{

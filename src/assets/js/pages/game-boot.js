@@ -11,7 +11,6 @@
 
 import { getActive, updateActive } from "../profiles.js";
 import { loadD3 } from "../stats/d3-loader.js";
-import { mountVirtualKeyboard, unmountVirtualKeyboard, highlightNextKey as vkbdNext } from "../engine/virtual-keyboard.js";
 import { Analytics } from "../analytics.js";
 
 const COMMON_FALLBACK_WORDS = [
@@ -57,6 +56,35 @@ const scoreEl = document.querySelector("[data-score]");
 const caughtEl = document.querySelector("[data-caught]");
 const missedEl = document.querySelector("[data-missed]");
 const streakEl = document.querySelector("[data-streak]");
+const bestEl = document.querySelector("[data-best]");
+const multEl = document.querySelector("[data-mult]");
+
+/* Streak -> multiplier tier table. Visible reward for catching
+   words in rapid succession -- tiers are wide enough that the
+   user can lose one without dropping below the next floor. */
+function multiplierFor(streak) {
+  if (streak >= 40) return 5;
+  if (streak >= 20) return 3;
+  if (streak >= 10) return 2;
+  if (streak >= 5)  return 1.5;
+  return 1;
+}
+
+/* Per-mode best score / best streak. Always re-fetches the active
+   profile so the chip / overlay reflect writes made earlier in
+   this same session (the module-scoped `profile` is captured at
+   boot and doesn't auto-refresh on updateActive). */
+function readBest(modeKey) {
+  const fresh = getActive() || profile || {};
+  const gs = fresh.gameStats || {};
+  if (gs.byMode && gs.byMode[modeKey]) return gs.byMode[modeKey];
+  // Legacy migration: pre-byMode, all scores were lumped into the
+  // top-level highScore / bestStreak. Treat those as classic-mode.
+  if (modeKey === "classic") {
+    return { highScore: gs.highScore || 0, bestStreak: gs.bestStreak || 0 };
+  }
+  return { highScore: 0, bestStreak: 0 };
+}
 
 /* Build the candidate-word pool, weighted by miss-count from the
    user's profile. Falls back to a curated list of common words
@@ -90,11 +118,34 @@ function reset() {
   if (svgSel) svgSel.selectAll("g.fall").remove();
 }
 
+let _lastPaintedScore = 0;
 function paintStats() {
+  const prev = _lastPaintedScore;
   scoreEl.textContent = String(stats.score);
   caughtEl.textContent = String(stats.caught);
   missedEl.textContent = String(stats.missed);
   streakEl.textContent = String(stats.streak);
+  if (bestEl) {
+    const best = readBest(gameMode);
+    bestEl.textContent = String(best.highScore || 0);
+  }
+  if (multEl) {
+    const m = multiplierFor(stats.streak);
+    if (m > 1) {
+      multEl.hidden = false;
+      multEl.textContent = m + "×";
+      multEl.dataset.tier = String(m);
+    } else {
+      multEl.hidden = true;
+    }
+  }
+  // Score pulse: brief scale + glow when the score jumps.
+  if (stats.score > prev) {
+    scoreEl.classList.remove("is-pulsing");
+    void scoreEl.offsetWidth; // restart animation
+    scoreEl.classList.add("is-pulsing");
+  }
+  _lastPaintedScore = stats.score;
 }
 
 function spawn() {
@@ -239,7 +290,7 @@ function tryCatch(typed) {
   falling.splice(i, 1);
   dissolveCaughtWord(f);
   const base = 10 + f.word.length * 2;
-  const bonus = stats.streak >= 5 ? 1.5 : 1;
+  const bonus = multiplierFor(stats.streak);
   stats.score += Math.round(base * bonus);
   stats.caught++;
   stats.streak++;
@@ -482,13 +533,22 @@ function endRound() {
     bestStreak: stats.bestStreak,
     speed: speedMult,
   });
-  // Stash high score for future leaderboard work.
+  // Stash high score per-mode. Legacy top-level keys are preserved
+  // for backward compat (and so old code reading them still works).
   try {
     updateActive((p) => {
-      p.gameStats = p.gameStats || { highScore: 0, rounds: 0, totalCaught: 0 };
-      if (stats.score > p.gameStats.highScore) p.gameStats.highScore = stats.score;
-      p.gameStats.rounds += 1;
-      p.gameStats.totalCaught += stats.caught;
+      p.gameStats = p.gameStats || { rounds: 0, totalCaught: 0 };
+      p.gameStats.byMode = p.gameStats.byMode || {};
+      const m = p.gameStats.byMode[gameMode] || { highScore: 0, bestStreak: 0, rounds: 0, totalCaught: 0 };
+      if (stats.score > m.highScore) m.highScore = stats.score;
+      if (stats.bestStreak > m.bestStreak) m.bestStreak = stats.bestStreak;
+      m.rounds = (m.rounds || 0) + 1;
+      m.totalCaught = (m.totalCaught || 0) + stats.caught;
+      m.lastPlayedAt = new Date().toISOString();
+      p.gameStats.byMode[gameMode] = m;
+      p.gameStats.rounds = (p.gameStats.rounds || 0) + 1;
+      p.gameStats.totalCaught = (p.gameStats.totalCaught || 0) + stats.caught;
+      if (stats.score > (p.gameStats.highScore || 0)) p.gameStats.highScore = stats.score;
       p.gameStats.bestStreak = Math.max(p.gameStats.bestStreak || 0, stats.bestStreak);
       return p;
     });
@@ -497,19 +557,32 @@ function endRound() {
   // so paintFalling's selectAll("g.fall") doesn't include it and
   // exit().remove() can't yank it on the next paint.
   if (svgSel) {
-    // Wipe any prior overlay (in case of a quick re-end).
+    // Refresh the in-memory profile so the best chip in the
+    // overlay reflects the score we JUST wrote.
+    const refreshedBest = readBest(gameMode);
+    const isNewBest = stats.score > 0 && stats.score >= refreshedBest.highScore;
     svgSel.selectAll("g.game-over-overlay").remove();
     const over = svgSel.append("g").attr("class", "game-over-overlay");
     over.append("rect")
       .attr("x", 0).attr("y", 0).attr("width", stageW).attr("height", stageH)
       .attr("fill", "rgba(20, 22, 30, .82)");
+    const titleY = isNewBest ? stageH / 2 - 60 : stageH / 2 - 30;
     over.append("text")
-      .attr("x", stageW / 2).attr("y", stageH / 2 - 30)
+      .attr("x", stageW / 2).attr("y", titleY)
       .attr("text-anchor", "middle")
       .attr("fill", "var(--accent)")
       .attr("font-family", "var(--font-display)")
       .attr("font-size", "44").attr("font-weight", "500")
-      .text("Round over");
+      .text(isNewBest ? "New best!" : "Round over");
+    if (isNewBest) {
+      over.append("text")
+        .attr("x", stageW / 2).attr("y", titleY + 36)
+        .attr("text-anchor", "middle")
+        .attr("fill", "var(--good, #76c893)")
+        .attr("font-family", "var(--font-mono)")
+        .attr("font-size", "14").attr("letter-spacing", "0.12em")
+        .text(`PERSONAL ${gameMode.toUpperCase()} BEST`);
+    }
     over.append("text")
       .attr("x", stageW / 2).attr("y", stageH / 2 + 20)
       .attr("text-anchor", "middle")
@@ -517,11 +590,17 @@ function endRound() {
       .attr("font-family", "var(--font-mono)")
       .attr("font-size", "18")
       .text(`Score ${stats.score} · ${stats.caught} caught · best streak ${stats.bestStreak}`);
-    // Sub-instruction so the user knows they need to click Play
-    // again -- otherwise they'd reflexively press a key and
-    // wonder why the overlay isn't going anywhere.
+    if (!isNewBest && refreshedBest.highScore > 0) {
+      over.append("text")
+        .attr("x", stageW / 2).attr("y", stageH / 2 + 44)
+        .attr("text-anchor", "middle")
+        .attr("fill", "var(--fg-3)")
+        .attr("font-family", "var(--font-mono)")
+        .attr("font-size", "12")
+        .text(`Your best: ${refreshedBest.highScore} (need ${refreshedBest.highScore - stats.score + 1} more)`);
+    }
     over.append("text")
-      .attr("x", stageW / 2).attr("y", stageH / 2 + 56)
+      .attr("x", stageW / 2).attr("y", stageH / 2 + (isNewBest ? 56 : 74))
       .attr("text-anchor", "middle")
       .attr("fill", "var(--fg-3)")
       .attr("font-family", "var(--font-mono)")
@@ -681,10 +760,12 @@ function wrapForSvg(s, maxChars) {
   return lines;
 }
 applyModeCopy();
+paintStats();  // initial paint so the Best chip reflects the mode at load
 document.querySelectorAll(".game-mode-switch__btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     gameMode = btn.dataset.gameMode || "classic";
     applyModeCopy();
+    paintStats();  // Best chip flips to the new mode's high score
     // Reset the round so the new mode takes effect cleanly. The
     // user starts a fresh round via the Start button.
     if (running) {

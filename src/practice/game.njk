@@ -15,10 +15,11 @@ pageSlug: practice-game
       <p class="muted" id="game-subtitle">Type the falling words before they hit the bottom. Weighted toward letters and words you've struggled with.</p>
     </div>
     <div class="game-header__stats" id="game-stats">
-      <div class="game-stat"><span class="game-stat__label">Score</span><span class="game-stat__value" data-score>0</span></div>
+      <div class="game-stat game-stat--score"><span class="game-stat__label">Score</span><span class="game-stat__value" data-score>0</span></div>
       <div class="game-stat"><span class="game-stat__label">Caught</span><span class="game-stat__value" data-caught>0</span></div>
       <div class="game-stat"><span class="game-stat__label">Missed</span><span class="game-stat__value" data-missed>0</span></div>
       <div class="game-stat"><span class="game-stat__label">Streak</span><span class="game-stat__value" data-streak>0</span></div>
+      <div class="game-stat game-stat--best" data-tip="Your personal best on this mode. Beat it to set a new high score."><span class="game-stat__label">Best</span><span class="game-stat__value" data-best>0</span></div>
     </div>
   </header>
 
@@ -29,6 +30,7 @@ pageSlug: practice-game
   </nav>
 
   <section class="game-stage">
+    <span class="game-mult" data-mult hidden aria-live="polite" data-tip="Combo multiplier. Builds with consecutive catches: 5+ caught = 1.5x, 10+ = 2x, 20+ = 3x, 40+ = 5x. Miss to reset."></span>
     <svg id="game-svg" class="game-svg" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" aria-label="Falling words"></svg>
     <div class="game-input-wrap">
       <input

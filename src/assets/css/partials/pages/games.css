@@ -47,6 +47,33 @@
 }
 .game-card .btn{margin-top:auto;align-self:flex-start}
 
+/* Personal-best chip on each game card. Painted at boot by an
+   inline script that reads profile.gameStats.byMode[<mode>].
+   Hidden until the user has played that mode at least once. */
+.game-card__best{
+  display:flex;align-items:baseline;gap:.6rem;flex-wrap:wrap;
+  margin:.2rem 0 var(--space-2);padding:.55rem .75rem;
+  background:color-mix(in oklab, var(--accent) 12%, var(--bg-2));
+  border:1px solid color-mix(in oklab, var(--accent) 35%, var(--rule));
+  border-radius:var(--radius);
+}
+.game-card__best[hidden]{display:none}
+.game-card__best-label{
+  font-family:var(--font-mono);font-size:.55rem;
+  letter-spacing:.16em;text-transform:uppercase;
+  color:var(--fg-3);font-weight:600;
+}
+.game-card__best-score{
+  font-family:var(--font-display);font-size:var(--fs-500);
+  font-weight:500;color:var(--accent);line-height:1;
+  font-variant-numeric:tabular-nums;
+}
+.game-card__best-streak{
+  font-family:var(--font-mono);font-size:.7rem;color:var(--fg-2);
+  letter-spacing:.02em;
+}
+.game-card__best-streak:empty{display:none}
+
 .games-footer{
   margin-top:var(--space-7);padding-top:var(--space-5);
   border-top:1px solid var(--rule);max-width:62ch;
