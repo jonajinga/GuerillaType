@@ -166,7 +166,32 @@ export default function (eleventyConfig) {
   });
 
   // Cache-bust
-  eleventyConfig.addGlobalData("cssVersion", () => String(Date.now()));
+  // Single build hash shared by both the cssVersion global (used in
+  // HTML template paths) AND the post-build JS-import versioner
+  // (rewrites every static + dynamic JS import to carry the same
+  // ?v=HASH). Same value = HTML and JS module URLs reach Cloudflare
+  // as a coherent set; new build = new hash = no possibility of a
+  // stale module landing in a fresh module chain.
+  const BUILD_VERSION = String(Date.now());
+  eleventyConfig.addGlobalData("cssVersion", () => BUILD_VERSION);
+
+  // After Eleventy writes everything, walk _site/assets/js and
+  // append ?v=BUILD_VERSION to every static + dynamic JS import.
+  // This breaks the Cloudflare edge cache that pins the existing
+  // .js URLs under `immutable, max-age=31536000` -- the rewritten
+  // URLs are brand new keys the edge has never cached.
+  eleventyConfig.on("eleventy.after", async () => {
+    try {
+      const { spawnSync } = await import("node:child_process");
+      const r = spawnSync("node", ["scripts/version-js-imports.mjs"], {
+        stdio: "inherit",
+        env: { ...process.env, JS_IMPORT_VERSION: BUILD_VERSION },
+      });
+      if (r.status !== 0) console.warn("[after] js-import versioner exited", r.status);
+    } catch (e) {
+      console.warn("[after] js-import versioner failed:", e.message);
+    }
+  });
   eleventyConfig.addGlobalData("buildDate", () => new Date().toISOString().slice(0, 10));
 
   // Date filters
