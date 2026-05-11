@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-05-11T21:50:22.397Z",
+  "updatedAt": "2026-05-11T22:33:11.979Z",
   "updatedAtDate": "2026-05-11",
   "windowDays": 365,
   "site": {
-    "pageviews": 715,
-    "visitors": 23,
-    "visits": 37,
-    "bounces": 7,
-    "totaltime": 29327,
+    "pageviews": 861,
+    "visitors": 28,
+    "visits": 43,
+    "bounces": 8,
+    "totaltime": 32726,
     "comparison": {
       "pageviews": 0,
       "visitors": 0,
@@ -17,57 +17,67 @@
     }
   },
   "wpm": {
-    "30-40": 8,
-    "0-10": 6,
-    "10-20": 5,
-    "20-30": 5,
-    "50-60": 2,
+    "30-40": 14,
+    "20-30": 9,
+    "0-10": 8,
+    "10-20": 6,
+    "50-60": 4,
+    "60-70": 2,
+    "40-50": 2,
     "70-80": 1,
     "90-100": 1
   },
   "acc": {
-    "99-100": 8,
-    "<80": 5,
-    "92-94": 4,
-    "94-95": 3,
-    "85-90": 3,
-    "98-99": 2,
-    "90-92": 1,
-    "95-96": 1,
+    "<80": 10,
+    "99-100": 10,
+    "92-94": 5,
+    "94-95": 4,
+    "90-92": 4,
+    "85-90": 4,
+    "98-99": 3,
+    "80-85": 3,
+    "95-96": 2,
+    "96-97": 1,
     "97-98": 1
   },
   "wpmByMode": {
-    "tape": 11,
-    "time": 5,
+    "tape": 20,
+    "time": 7,
+    "drill": 4,
+    "quote": 4,
     "book": 4,
-    "drill": 2,
+    "custom": 2,
     "words": 2,
-    "quote": 2,
-    "custom": 1,
-    "adaptive": 1
+    "adaptive": 2,
+    "tape-zen": 1,
+    "lesson": 1
   },
   "accByMode": {
-    "tape": 11,
-    "time": 5,
+    "tape": 20,
+    "time": 7,
+    "quote": 4,
+    "drill": 4,
     "book": 4,
-    "quote": 2,
+    "adaptive": 2,
     "words": 2,
-    "drill": 2,
-    "adaptive": 1,
-    "custom": 1
+    "custom": 2,
+    "tape-zen": 1,
+    "lesson": 1
   },
   "modes": {
-    "tape": 11,
-    "time": 5,
+    "tape": 20,
+    "time": 7,
+    "drill": 4,
     "book": 4,
+    "quote": 4,
     "words": 2,
-    "drill": 2,
-    "quote": 2,
-    "adaptive": 1,
-    "custom": 1
+    "adaptive": 2,
+    "custom": 2,
+    "tape-zen": 1,
+    "lesson": 1
   },
   "speedMilestones": {
-    "50.0000": 7,
+    "50.0000": 11,
     "75.0000": 5
   },
   "books": {
@@ -79,32 +89,92 @@
     "started": 3
   },
   "practiceVolume": {
-    "25-50": 15,
-    "1-5": 5,
-    "10-25": 4,
-    "5-10": 4
+    "25-50": 19,
+    "10-25": 18,
+    "5-10": 5,
+    "1-5": 5
   },
   "langs": {
-    "en-1k": 17,
+    "en-1k": 34,
     "en-50k": 7,
-    "en-20k": 4
+    "en-20k": 6
   },
-  "sessionDistCount": 12,
+  "worstChars": {
+    "e": 2,
+    "a": 2,
+    "t": 2,
+    "s": 1,
+    "c": 1,
+    "m": 1,
+    "r": 1,
+    "'": 1,
+    "f": 1,
+    "l": 1
+  },
+  "worstWords": {
+    "weight": 1,
+    "something": 1,
+    "great": 1,
+    "connect": 1,
+    "consider": 1,
+    "coming": 1,
+    "one": 1,
+    "sash": 1,
+    "original": 1,
+    "toward": 1,
+    "government": 1,
+    "fridays": 1,
+    "dash": 1
+  },
+  "worstFingers": {
+    "L_ring": 3,
+    "R_middle": 2,
+    "L_index": 2,
+    "R_index": 2,
+    "R_pinky": 2,
+    "L_middle": 1,
+    "L_pinky": 1
+  },
+  "fingerAccBuckets": {
+    "99-100": 61,
+    "<80": 15,
+    "98-99": 9,
+    "97-98": 7,
+    "92-94": 5,
+    "85-90": 5,
+    "96-97": 4,
+    "95-96": 3,
+    "80-85": 3,
+    "90-92": 1,
+    "94-95": 1
+  },
+  "fingerAccByFinger": {
+    "L_index": 13,
+    "R_index": 13,
+    "L_ring": 13,
+    "R_middle": 13,
+    "R_ring": 13,
+    "L_middle": 13,
+    "R_thumb": 13,
+    "L_pinky": 13,
+    "R_pinky": 10
+  },
+  "sessionDistCount": 29,
   "wpmSummary": {
-    "total": 28,
-    "mean": 28.2,
-    "medianLabel": "20-30",
-    "median": 25
+    "total": 47,
+    "mean": 31,
+    "medianLabel": "30-40",
+    "median": 35
   },
   "accSummary": {
-    "total": 28,
-    "mean": 91.8,
-    "medianLabel": "94-95",
-    "median": 94.5
+    "total": 47,
+    "mean": 90,
+    "medianLabel": "92-94",
+    "median": 93
   },
   "fastTypists": {
-    "60+": 7.1,
-    "80+": 3.6,
+    "60+": 8.5,
+    "80+": 2.1,
     "100+": 0,
     "120+": 0
   },
@@ -116,57 +186,57 @@
     "pages": [
       {
         "label": "/",
-        "count": 18
+        "count": 22
       },
       {
         "label": "/practice/",
-        "count": 14
+        "count": 17
+      },
+      {
+        "label": "/stats/",
+        "count": 9
       },
       {
         "label": "/community-stats/",
         "count": 7
       },
       {
-        "label": "/stats/",
-        "count": 6
-      },
-      {
         "label": "/library/",
-        "count": 5
-      },
-      {
-        "label": "/library/federalist-papers/",
-        "count": 4
+        "count": 6
       },
       {
         "label": "/analytics/",
         "count": 4
       },
       {
-        "label": "/contact/",
-        "count": 2
-      },
-      {
-        "label": "/changelog/",
-        "count": 2
+        "label": "/library/federalist-papers/",
+        "count": 4
       },
       {
         "label": "/library/aesops-fables/",
-        "count": 2
+        "count": 3
       },
       {
         "label": "/drills/",
+        "count": 3
+      },
+      {
+        "label": "/practice/game/",
         "count": 2
       },
       {
-        "label": "/sw-reset/",
+        "label": "/idioms/",
+        "count": 2
+      },
+      {
+        "label": "/contact/",
         "count": 2
       }
     ],
     "countries": [
       {
         "label": "US",
-        "count": 21
+        "count": 26
       },
       {
         "label": "IN",
@@ -176,11 +246,11 @@
     "devices": [
       {
         "label": "mobile",
-        "count": 16
+        "count": 19
       },
       {
         "label": "laptop",
-        "count": 5
+        "count": 7
       },
       {
         "label": "desktop",
@@ -190,11 +260,11 @@
     "browsers": [
       {
         "label": "ios",
-        "count": 11
+        "count": 14
       },
       {
         "label": "chrome",
-        "count": 6
+        "count": 8
       },
       {
         "label": "crios",
@@ -208,11 +278,15 @@
     "os": [
       {
         "label": "iOS",
-        "count": 16
+        "count": 19
       },
       {
         "label": "Windows 10",
         "count": 6
+      },
+      {
+        "label": "Linux",
+        "count": 2
       },
       {
         "label": "Mac OS",
@@ -223,71 +297,151 @@
     "topEvents": [
       {
         "label": "perf_timing",
-        "count": 235
+        "count": 340
       },
       {
         "label": "session_start",
-        "count": 207
+        "count": 264
+      },
+      {
+        "label": "finger_acc",
+        "count": 114
       },
       {
         "label": "session_finish",
-        "count": 54
+        "count": 78
       },
       {
         "label": "stats_viewed",
-        "count": 41
+        "count": 48
       },
       {
         "label": "mode_completed",
-        "count": 28
+        "count": 47
       },
       {
         "label": "wpm_bucket",
-        "count": 28
+        "count": 47
       },
       {
         "label": "acc_bucket",
-        "count": 28
+        "count": 47
       },
       {
         "label": "lang_used",
-        "count": 28
+        "count": 47
       },
       {
         "label": "practice_volume_bucket",
-        "count": 28
+        "count": 47
+      },
+      {
+        "label": "session_dist",
+        "count": 29
+      },
+      {
+        "label": "session_stopped",
+        "count": 18
+      },
+      {
+        "label": "speed_milestone",
+        "count": 16
       },
       {
         "label": "mode_selected",
         "count": 14
       },
       {
-        "label": "dropdown_opened",
-        "count": 13
-      },
-      {
-        "label": "session_stopped",
-        "count": 13
-      },
-      {
         "label": "stats_tab_switched",
-        "count": 13
-      },
-      {
-        "label": "session_dist",
-        "count": 12
-      },
-      {
-        "label": "speed_milestone",
-        "count": 12
+        "count": 14
       }
     ]
   },
   "pageviewSeries": {
     "pageviews": [
       {
+        "x": "2026-04-11T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-12T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-13T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-14T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-15T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-16T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-17T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-18T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-19T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-20T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-21T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-22T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-23T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-24T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-25T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-26T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-27T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-28T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-29T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-30T00:00:00.000Z",
+        "y": 0
+      },
+      {
         "x": "2026-05-01T00:00:00.000Z",
-        "y": 717
+        "y": 0
       },
       {
         "x": "2026-05-02T00:00:00.000Z",
@@ -327,13 +481,93 @@
       },
       {
         "x": "2026-05-11T00:00:00.000Z",
-        "y": 0
+        "y": 862
       }
     ],
     "sessions": [
       {
+        "x": "2026-04-11T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-12T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-13T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-14T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-15T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-16T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-17T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-18T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-19T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-20T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-21T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-22T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-23T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-24T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-25T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-26T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-27T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-28T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-29T00:00:00.000Z",
+        "y": 0
+      },
+      {
+        "x": "2026-04-30T00:00:00.000Z",
+        "y": 0
+      },
+      {
         "x": "2026-05-01T00:00:00.000Z",
-        "y": 23
+        "y": 0
       },
       {
         "x": "2026-05-02T00:00:00.000Z",
@@ -373,7 +607,7 @@
       },
       {
         "x": "2026-05-11T00:00:00.000Z",
-        "y": 0
+        "y": 43
       }
     ]
   }

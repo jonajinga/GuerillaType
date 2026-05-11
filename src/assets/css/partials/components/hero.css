@@ -79,6 +79,18 @@
   display:flex;flex-wrap:wrap;align-items:baseline;
   column-gap:.55rem;row-gap:.3rem;
 }
+.hero__cta-aux__chips{
+  display:inline-flex;flex-wrap:wrap;
+  column-gap:.4rem;row-gap:.25rem;align-items:baseline;
+}
+/* Mobile: drop the chips onto their own line below the prompt
+   so "Or pick a different start" doesn't wrap awkwardly mid-
+   sentence. Below 600px stack the prompt and the chip strip
+   vertically; above that they stay inline. */
+@media (max-width:600px){
+  .hero__cta-aux{flex-direction:column;align-items:flex-start;gap:.4rem}
+  .hero__cta-aux__chips{width:100%}
+}
 .hero__cta-aux a{
   color:var(--fg-1);text-decoration:none;
   padding:.15rem .4rem;border-radius:var(--radius);

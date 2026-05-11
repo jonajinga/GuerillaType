@@ -212,46 +212,44 @@ async function metric(type, limit = 12) {
   }
 }
 
-// Pageview time series -- daily buckets across the window. Umami
-// omits days with zero events, so we backfill those rows with y=0
-// to give D3 a continuous daily series that renders as a visible
-// line across the whole window.
+// Pageview time series. Umami's /pageviews?unit=day silently
+// collapses to a single aggregated row when the window exceeds
+// ~30 days (confirmed empirically against api.umami.is). To get
+// usable daily granularity we pull a SHORTER window with
+// unit=hour and aggregate up to UTC days client-side, then
+// backfill zero days so D3 draws a continuous line.
+const SERIES_DAYS = 30;
+const SERIES_START = END - SERIES_DAYS * 86400 * 1000;
+
 async function pageviewSeries() {
   try {
-    // The /pageviews endpoint returns two parallel series:
-    // pageviews (visits) and sessions (visitors). Each is
-    // [{ x: timestamp, y: count }]. Unit=day gives a clean daily
-    // series we can line-chart with D3.
-    const rows = await get(`/websites/${SITE}/pageviews?startAt=${START}&endAt=${END}&unit=day&timezone=UTC`);
+    const rows = await get(`/websites/${SITE}/pageviews?startAt=${SERIES_START}&endAt=${END}&unit=hour&timezone=UTC`);
     if (!rows || (!rows.pageviews && !rows.sessions)) return rows;
 
-    function backfill(series) {
-      if (!Array.isArray(series) || series.length === 0) return series || [];
+    function aggregateDaily(series) {
+      if (!Array.isArray(series)) return [];
+      // Aggregate every hourly bucket into the UTC day it falls in.
       const byDay = new Map();
       for (const p of series) {
         const d = new Date(p.x);
-        // Snap to UTC day boundary so we don't double-up partial days.
-        const key = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
-        byDay.set(key, (+p.y) || 0);
+        const dayKey = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+        byDay.set(dayKey, (byDay.get(dayKey) || 0) + ((+p.y) || 0));
       }
-      const first = Math.min(...byDay.keys());
-      // End at the LATER of (first data point + 1 day) and START / END
-      // window. We anchor the start of the rendered series at the
-      // earliest day with real data; ending at END renders the chart
-      // up through today so the user sees the most recent activity.
-      const start = first;
-      const end = END;
+      // Build a contiguous day-by-day series from SERIES_START to END.
       const out = [];
       const oneDay = 86400 * 1000;
-      for (let t = start; t <= end; t += oneDay) {
-        const iso = new Date(t).toISOString();
-        out.push({ x: iso, y: byDay.get(t) || 0 });
+      // Start at the UTC-day containing SERIES_START so the first
+      // bucket is a clean midnight boundary.
+      const startDate = new Date(SERIES_START);
+      const firstDay = Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate());
+      for (let t = firstDay; t <= END; t += oneDay) {
+        out.push({ x: new Date(t).toISOString(), y: byDay.get(t) || 0 });
       }
       return out;
     }
 
-    rows.pageviews = backfill(rows.pageviews);
-    rows.sessions = backfill(rows.sessions);
+    rows.pageviews = aggregateDaily(rows.pageviews);
+    rows.sessions = aggregateDaily(rows.sessions);
     return rows;
   } catch (e) {
     console.warn("  pageviews series failed:", e.message);

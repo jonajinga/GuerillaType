@@ -13,10 +13,12 @@ pageSlug: "home"
       <a class="btn btn--big" href="/practice/?mode=quote&amp;quote=daily">Today's quote</a>
     </div>
     <p class="hero__cta-aux">
-      Or pick a different start:
-      <a href="/practice/?mode=time&duration=30">30s test</a> ·
-      <a href="/practice/?mode=words&words=50">50 words</a> ·
-      <a href="/practice/game/">Catch the Word</a>
+      <span class="hero__cta-aux__prompt">Or pick a different start:</span>
+      <span class="hero__cta-aux__chips">
+        <a href="/practice/?mode=time&amp;duration=30">30s test</a> &middot;
+        <a href="/practice/?mode=words&amp;words=50">50 words</a> &middot;
+        <a href="/practice/game/">Catch the Word</a>
+      </span>
     </p>
     <button type="button" class="hero__info-link" onclick="window.openInfoModal && window.openInfoModal('home')">
       How does this work?
@@ -27,9 +29,9 @@ pageSlug: "home"
     <div class="hero__sidecard__eyebrow">
       <span>Tape sprint</span>
       <span class="hero__sidecard__live" id="home-typing-live" aria-live="off">
-        <span class="home-live"><span class="home-live__value" data-live="time">15</span><span class="home-live__label" data-live-label="time">seconds left</span></span>
+        <span class="home-live"><span class="home-live__value" data-live="time">15</span><span class="home-live__label">s</span></span>
         <span class="home-live"><span class="home-live__value" data-live="wpm">0</span><span class="home-live__label">wpm</span></span>
-        <span class="home-live"><span class="home-live__value" data-live="acc">100</span><span class="home-live__label">% acc</span></span>
+        <span class="home-live"><span class="home-live__value" data-live="acc">100</span><span class="home-live__label">%</span></span>
       </span>
     </div>
 

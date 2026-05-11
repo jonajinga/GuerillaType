@@ -13,8 +13,7 @@ pageSlug: analytics
   <h1>Analytics</h1>
   <p class="page__subtitle">Live dashboard of GuerillaType visitor activity. Powered by <a href="https://umami.is" target="_blank" rel="noopener">Umami</a>, rendered with D3. No PII, no cookies, no third-party trackers.</p>
   <p class="page__sub muted">
-    Window: trailing 365 days.
-    Updated {{ d.updatedAtDate or "&mdash;" }}.
+    Site totals: trailing 365 days. Time-series chart: trailing 30 days (hourly &rarr; daily). Snapshot taken {{ d.updatedAt or "&mdash;" }}.
     Community-facing summary lives at <a href="/community-stats/">/community-stats/</a>.
   </p>
 </header>
