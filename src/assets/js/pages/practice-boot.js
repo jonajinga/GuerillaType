@@ -258,13 +258,27 @@ async function buildText() {
         advanceActiveIndex();
       }
     } else {
-      q = state.quote === "daily" ? dailyQuote(all) : pickQuote(all, state.quote, state.quoteTag || "");
+      // Non-daily quote mode (length bucket / tag): re-pick on every
+      // restart and ALSO skip the previously-served quote so Next
+      // test reliably produces a different one. pickQuote already
+      // accepts an exclude-id arg; we feed it state._lastCorpusId.quote.
+      const lastId = (state._lastCorpusId && state._lastCorpusId.quote) || null;
+      q = state.quote === "daily"
+        ? dailyQuote(all)
+        : pickQuote(all, state.quote, state.quoteTag || "", lastId);
     }
     // Fallback: if no quote resolved (qid not found, daily empty,
-    // pickQuote miss), grab any quote from the corpus. The previous
-    // pangram fallback leaked into quote mode and confused users.
+    // pickQuote miss), grab any quote from the corpus.
     if (!q && all.length) {
-      q = all[Math.floor(Math.random() * all.length)];
+      const lastId = state._lastCorpusId && state._lastCorpusId.quote;
+      const pool = all.length > 1 && lastId ? all.filter((x) => x.id !== lastId) : all;
+      q = pool[Math.floor(Math.random() * pool.length)];
+    }
+    // Remember which quote we just served so the next pick can
+    // explicitly skip it.
+    if (q && q.id) {
+      state._lastCorpusId = state._lastCorpusId || {};
+      state._lastCorpusId.quote = q.id;
     }
     if (q) {
       // Stash meta so the attribution header can render — author,
@@ -283,11 +297,27 @@ async function buildText() {
   }
   // Random idiom / poem modes -- pick from the public-domain
   // corpus and surface as a typing session with attribution.
+  // pickFresh excludes the previously-shown item (state._lastCorpusId)
+  // when the pool has more than one entry, so "Next test" actually
+  // shows a different one instead of a repeat by Math.random() coincidence.
+  function pickFresh(all, kind) {
+    if (!all || !all.length) return null;
+    const lastId = state._lastCorpusId && state._lastCorpusId[kind];
+    const pool = (all.length > 1 && lastId)
+      ? all.filter((x) => x.id !== lastId)
+      : all;
+    const item = pool[Math.floor(Math.random() * pool.length)];
+    if (item && item.id) {
+      state._lastCorpusId = state._lastCorpusId || {};
+      state._lastCorpusId[kind] = item.id;
+    }
+    return item;
+  }
   if (state.mode === "idiom") {
     try {
       const res = await fetch("/data/idioms.json", { cache: "default" });
       const all = await res.json();
-      const item = all[Math.floor(Math.random() * all.length)];
+      const item = pickFresh(all, "idiom");
       if (item) {
         state._customMeta = {
           kind: "idiom",
@@ -307,7 +337,7 @@ async function buildText() {
     try {
       const res = await fetch("/data/poetry.json", { cache: "default" });
       const all = await res.json();
-      const item = all[Math.floor(Math.random() * all.length)];
+      const item = pickFresh(all, "poem");
       if (item) {
         state._customMeta = {
           kind: "poem",

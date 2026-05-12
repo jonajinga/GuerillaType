@@ -31,7 +31,7 @@ function normalize(q) {
   return t === q.text ? q : { ...q, text: t };
 }
 
-export function pickQuote(quotes, b, tag) {
+export function pickQuote(quotes, b, tag, excludeId) {
   // "random" is a non-bucket selector that means "any quote, picked
   // uniformly at random across the full corpus". Falls through to the
   // un-filtered branch below. Without this, "random" gets passed to
@@ -45,6 +45,13 @@ export function pickQuote(quotes, b, tag) {
     list = isBucket ? filterByBucket(quotes, b) : quotes;
   }
   if (!list.length) return null;
+  // Exclude the previously-served quote so "Next test" produces a
+  // different one. Only when the pool has more than one candidate;
+  // otherwise we'd hand back null.
+  if (excludeId && list.length > 1) {
+    const filtered = list.filter((q) => q.id !== excludeId);
+    if (filtered.length) list = filtered;
+  }
   return normalize(list[Math.floor(Math.random() * list.length)]);
 }
 

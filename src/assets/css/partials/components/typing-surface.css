@@ -74,12 +74,14 @@
    prose typography. */
 .tt-text--reader{
   font-family:var(--font-display);
-  /* Doubled from --fs-400 -- users were squinting at literary
-     content (books, poems, idioms, quotes). Reader text now lands
-     in the display-size range so a sentence reads like a printed
-     book page, not body copy. */
-  font-size:var(--fs-600);
-  line-height:1.55;
+  /* WCAG AA preferred body text: at least 16 px (1 rem), with
+     larger sizes recommended for sustained reading. --fs-500
+     clamps to roughly 1.15-1.4 rem (18-22 px) -- comfortably
+     above the AA floor and the most common publishing body-copy
+     size, without the oversized display-text scale that the
+     temporary doubled-up --fs-600 was hitting. */
+  font-size:var(--fs-500);
+  line-height:1.65;
   color:var(--fg-1);
   max-width:780px;margin-inline:auto;
   background:var(--bg-1);
@@ -253,9 +255,10 @@
 }
 
 @media (max-width:768px){
-  /* Mobile reader keeps the doubled-up scale, just trimmed one
-     stop so the lines don't break too short on a phone column. */
-  .tt-text--reader{padding:var(--space-4) var(--space-4);font-size:var(--fs-500)}
+  /* Mobile reader sits at --fs-400 (~1-1.125 rem). Still above
+     the WCAG AA floor and comfortable for phone reading without
+     pushing each line to just 4-5 words. */
+  .tt-text--reader{padding:var(--space-4) var(--space-4);font-size:var(--fs-400)}
 }
 
 .tt-text__inner{display:block;will-change:transform}
