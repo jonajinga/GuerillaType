@@ -5759,5 +5759,1112 @@
     "tags": [
       "near-miss"
     ]
+  },
+  {
+    "id": "id-cat-among-pigeons",
+    "text": "put the cat among the pigeons",
+    "meaning": "to do or say something that causes trouble and makes people angry",
+    "tags": [
+      "mischief",
+      "animals"
+    ]
+  },
+  {
+    "id": "id-cats-pajamas",
+    "text": "the cat's pajamas",
+    "meaning": "an excellent person or thing",
+    "tags": [
+      "praise",
+      "animals"
+    ]
+  },
+  {
+    "id": "id-pig-poke",
+    "text": "a pig in a poke",
+    "meaning": "something bought or accepted without first being inspected",
+    "tags": [
+      "caution",
+      "commerce"
+    ]
+  },
+  {
+    "id": "id-hog-heaven",
+    "text": "in hog heaven",
+    "meaning": "extremely happy or contented",
+    "tags": [
+      "happiness",
+      "animals"
+    ]
+  },
+  {
+    "id": "id-eat-crow",
+    "text": "eat crow",
+    "meaning": "to admit one was wrong, often humiliatingly",
+    "tags": [
+      "regret",
+      "truth"
+    ]
+  },
+  {
+    "id": "id-monkey-back",
+    "text": "get the monkey off one's back",
+    "meaning": "to free oneself of a long-standing problem or burden",
+    "tags": [
+      "relief",
+      "struggle"
+    ]
+  },
+  {
+    "id": "id-monkey-business",
+    "text": "monkey business",
+    "meaning": "silly, dishonest, or mischievous activity",
+    "tags": [
+      "mischief",
+      "work"
+    ]
+  },
+  {
+    "id": "id-monkeys-uncle",
+    "text": "well, I'll be a monkey's uncle",
+    "meaning": "an expression of complete surprise",
+    "tags": [
+      "surprise",
+      "exclamation"
+    ]
+  },
+  {
+    "id": "id-cat-got-tongue",
+    "text": "has the cat got your tongue",
+    "meaning": "asked of someone who is unexpectedly silent",
+    "tags": [
+      "silence",
+      "speaking"
+    ]
+  },
+  {
+    "id": "id-fish-other-fry",
+    "text": "have other fish to fry",
+    "meaning": "to have more important things to do",
+    "tags": [
+      "priority",
+      "work"
+    ]
+  },
+  {
+    "id": "id-cock-bull",
+    "text": "a cock and bull story",
+    "meaning": "a far-fetched, untrue tale",
+    "tags": [
+      "lies",
+      "stories"
+    ]
+  },
+  {
+    "id": "id-snake-grass",
+    "text": "a snake in the grass",
+    "meaning": "a treacherous or deceitful person",
+    "tags": [
+      "betrayal",
+      "warning"
+    ]
+  },
+  {
+    "id": "id-paper-tiger",
+    "text": "a paper tiger",
+    "meaning": "someone or something that seems threatening but is actually weak",
+    "tags": [
+      "appearance",
+      "weakness"
+    ]
+  },
+  {
+    "id": "id-rabbit-hat",
+    "text": "pull a rabbit out of a hat",
+    "meaning": "to produce an unexpected solution at the last moment",
+    "tags": [
+      "surprise",
+      "problem-solving"
+    ]
+  },
+  {
+    "id": "id-rabbit-hole",
+    "text": "go down the rabbit hole",
+    "meaning": "to enter into a complex, bewildering, or absorbing situation",
+    "tags": [
+      "complexity",
+      "exploration"
+    ]
+  },
+  {
+    "id": "id-cooking-goose",
+    "text": "your goose is cooked",
+    "meaning": "you are in serious trouble with no way out",
+    "tags": [
+      "trouble",
+      "ruin"
+    ]
+  },
+  {
+    "id": "id-sitting-duck",
+    "text": "a sitting duck",
+    "meaning": "someone or something easy to attack or deceive",
+    "tags": [
+      "vulnerable",
+      "easy"
+    ]
+  },
+  {
+    "id": "id-duck-water",
+    "text": "like a duck to water",
+    "meaning": "naturally suited to or comfortable with a new activity",
+    "tags": [
+      "ability",
+      "natural"
+    ]
+  },
+  {
+    "id": "id-ugly-duckling",
+    "text": "an ugly duckling",
+    "meaning": "someone who develops from an unpromising start into something admirable",
+    "tags": [
+      "growth",
+      "change"
+    ]
+  },
+  {
+    "id": "id-busy-as-bee",
+    "text": "as busy as a bee",
+    "meaning": "very hard at work",
+    "tags": [
+      "work",
+      "industrious"
+    ]
+  },
+  {
+    "id": "id-birds-feather",
+    "text": "birds of a feather flock together",
+    "meaning": "similar people tend to associate with each other",
+    "tags": [
+      "friendship",
+      "sociology"
+    ]
+  },
+  {
+    "id": "id-night-owl",
+    "text": "a night owl",
+    "meaning": "a person who stays up and is most active late at night",
+    "tags": [
+      "habits",
+      "time"
+    ]
+  },
+  {
+    "id": "id-dog-fight",
+    "text": "fight like cats and dogs",
+    "meaning": "to argue or quarrel constantly",
+    "tags": [
+      "conflict",
+      "argument"
+    ]
+  },
+  {
+    "id": "id-dog-house",
+    "text": "in the doghouse",
+    "meaning": "in trouble with someone, especially a partner",
+    "tags": [
+      "trouble",
+      "relationships"
+    ]
+  },
+  {
+    "id": "id-tail-wagging-dog",
+    "text": "the tail wagging the dog",
+    "meaning": "a small or unimportant part controlling the whole",
+    "tags": [
+      "power",
+      "priority"
+    ]
+  },
+  {
+    "id": "id-bark-worse-bite",
+    "text": "his bark is worse than his bite",
+    "meaning": "someone seems harsher than they really are",
+    "tags": [
+      "appearance",
+      "character"
+    ]
+  },
+  {
+    "id": "id-shoulder-cry",
+    "text": "a shoulder to cry on",
+    "meaning": "a sympathetic listener in times of distress",
+    "tags": [
+      "comfort",
+      "support"
+    ]
+  },
+  {
+    "id": "id-elbow-room",
+    "text": "elbow room",
+    "meaning": "space to move or work freely",
+    "tags": [
+      "space",
+      "freedom"
+    ]
+  },
+  {
+    "id": "id-knee-jerk",
+    "text": "a knee-jerk reaction",
+    "meaning": "an automatic, unthinking response",
+    "tags": [
+      "reaction",
+      "impulsive"
+    ]
+  },
+  {
+    "id": "id-slip-tongue",
+    "text": "a slip of the tongue",
+    "meaning": "a minor unintended verbal mistake",
+    "tags": [
+      "mistake",
+      "speaking"
+    ]
+  },
+  {
+    "id": "id-ears-burning",
+    "text": "my ears are burning",
+    "meaning": "I feel that someone is talking about me",
+    "tags": [
+      "gossip",
+      "superstition"
+    ]
+  },
+  {
+    "id": "id-eye-needle",
+    "text": "the eye of the needle",
+    "meaning": "a very narrow opening, literal or figurative",
+    "tags": [
+      "difficulty",
+      "passage"
+    ]
+  },
+  {
+    "id": "id-nose-grindstone",
+    "text": "keep your nose to the grindstone",
+    "meaning": "to work hard and steadily",
+    "tags": [
+      "work",
+      "diligence"
+    ]
+  },
+  {
+    "id": "id-nose-out-joint",
+    "text": "put one's nose out of joint",
+    "meaning": "to offend or annoy",
+    "tags": [
+      "offense",
+      "social"
+    ]
+  },
+  {
+    "id": "id-under-nose",
+    "text": "right under your nose",
+    "meaning": "very close by, but unnoticed",
+    "tags": [
+      "obvious",
+      "hidden"
+    ]
+  },
+  {
+    "id": "id-stick-neck-out",
+    "text": "stick your neck out",
+    "meaning": "to take a risk to help someone",
+    "tags": [
+      "risk",
+      "courage"
+    ]
+  },
+  {
+    "id": "id-pain-neck",
+    "text": "a pain in the neck",
+    "meaning": "an annoying person or thing",
+    "tags": [
+      "annoyance",
+      "complaint"
+    ]
+  },
+  {
+    "id": "id-breathe-down-neck",
+    "text": "breathe down someone's neck",
+    "meaning": "to monitor or pressure someone closely",
+    "tags": [
+      "pressure",
+      "oversight"
+    ]
+  },
+  {
+    "id": "id-head-water",
+    "text": "keep your head above water",
+    "meaning": "to manage to survive a difficult situation",
+    "tags": [
+      "survival",
+      "struggle"
+    ]
+  },
+  {
+    "id": "id-lose-head",
+    "text": "lose your head",
+    "meaning": "to panic or become uncontrollably emotional",
+    "tags": [
+      "panic",
+      "emotion"
+    ]
+  },
+  {
+    "id": "id-bite-head-off",
+    "text": "bite someone's head off",
+    "meaning": "to respond to someone harshly and angrily",
+    "tags": [
+      "anger",
+      "harshness"
+    ]
+  },
+  {
+    "id": "id-hand-mouth",
+    "text": "live from hand to mouth",
+    "meaning": "to have just enough money to survive day to day",
+    "tags": [
+      "poverty",
+      "survival"
+    ]
+  },
+  {
+    "id": "id-hand-on-heart",
+    "text": "with my hand on my heart",
+    "meaning": "speaking with complete sincerity",
+    "tags": [
+      "honesty",
+      "sincerity"
+    ]
+  },
+  {
+    "id": "id-give-hand",
+    "text": "give someone a hand",
+    "meaning": "to help, or to applaud",
+    "tags": [
+      "help",
+      "support"
+    ]
+  },
+  {
+    "id": "id-leg-up",
+    "text": "give someone a leg up",
+    "meaning": "to help someone succeed or get started",
+    "tags": [
+      "help",
+      "support"
+    ]
+  },
+  {
+    "id": "id-not-leg-stand",
+    "text": "not have a leg to stand on",
+    "meaning": "to have no support for one's position",
+    "tags": [
+      "weakness",
+      "argument"
+    ]
+  },
+  {
+    "id": "id-thumbs-up",
+    "text": "give the thumbs up",
+    "meaning": "to indicate approval",
+    "tags": [
+      "approval",
+      "communication"
+    ]
+  },
+  {
+    "id": "id-finger-pulse",
+    "text": "have your finger on the pulse",
+    "meaning": "to be fully aware of current developments",
+    "tags": [
+      "awareness",
+      "trends"
+    ]
+  },
+  {
+    "id": "id-finger-pies",
+    "text": "have a finger in every pie",
+    "meaning": "to be involved in many different activities",
+    "tags": [
+      "involvement",
+      "busy"
+    ]
+  },
+  {
+    "id": "id-pointing-finger",
+    "text": "point the finger",
+    "meaning": "to accuse or blame someone",
+    "tags": [
+      "blame",
+      "accusation"
+    ]
+  },
+  {
+    "id": "id-bring-home-bacon",
+    "text": "bring home the bacon",
+    "meaning": "to earn money for the family",
+    "tags": [
+      "money",
+      "work"
+    ]
+  },
+  {
+    "id": "id-burn-candle",
+    "text": "burn the candle at both ends",
+    "meaning": "to exhaust yourself by overworking",
+    "tags": [
+      "exhaustion",
+      "overwork"
+    ]
+  },
+  {
+    "id": "id-cash-cow",
+    "text": "a cash cow",
+    "meaning": "a business or product that reliably generates profit",
+    "tags": [
+      "money",
+      "business"
+    ]
+  },
+  {
+    "id": "id-not-penny-rub",
+    "text": "not have two pennies to rub together",
+    "meaning": "to be very poor",
+    "tags": [
+      "poverty",
+      "money"
+    ]
+  },
+  {
+    "id": "id-penny-pincher",
+    "text": "a penny pincher",
+    "meaning": "someone unwilling to spend money",
+    "tags": [
+      "frugality",
+      "character"
+    ]
+  },
+  {
+    "id": "id-rolling-dough",
+    "text": "rolling in dough",
+    "meaning": "to be very wealthy",
+    "tags": [
+      "wealth",
+      "money"
+    ]
+  },
+  {
+    "id": "id-pay-piper",
+    "text": "pay the piper",
+    "meaning": "to face the consequences of past actions",
+    "tags": [
+      "consequence",
+      "payment"
+    ]
+  },
+  {
+    "id": "id-pretty-penny",
+    "text": "a pretty penny",
+    "meaning": "a large sum of money",
+    "tags": [
+      "money",
+      "cost"
+    ]
+  },
+  {
+    "id": "id-strike-gold",
+    "text": "strike gold",
+    "meaning": "to find or achieve something very valuable",
+    "tags": [
+      "success",
+      "discovery"
+    ]
+  },
+  {
+    "id": "id-bring-table",
+    "text": "bring something to the table",
+    "meaning": "to contribute something valuable in a discussion or partnership",
+    "tags": [
+      "contribution",
+      "value"
+    ]
+  },
+  {
+    "id": "id-tighten-screws",
+    "text": "tighten the screws on",
+    "meaning": "to apply pressure to force action",
+    "tags": [
+      "pressure",
+      "force"
+    ]
+  },
+  {
+    "id": "id-pulling-strings",
+    "text": "pull some strings",
+    "meaning": "to use personal influence to obtain a favor",
+    "tags": [
+      "influence",
+      "favor"
+    ]
+  },
+  {
+    "id": "id-time-flies",
+    "text": "time flies",
+    "meaning": "time passes quickly, especially when you're enjoying it",
+    "tags": [
+      "time",
+      "perception"
+    ]
+  },
+  {
+    "id": "id-time-is-money",
+    "text": "time is money",
+    "meaning": "wasted time is wasted earning potential",
+    "tags": [
+      "time",
+      "money"
+    ]
+  },
+  {
+    "id": "id-time-essence",
+    "text": "time is of the essence",
+    "meaning": "speed is critically important",
+    "tags": [
+      "time",
+      "urgency"
+    ]
+  },
+  {
+    "id": "id-clock-watch",
+    "text": "watch the clock",
+    "meaning": "to count the minutes until something ends",
+    "tags": [
+      "impatience",
+      "boredom"
+    ]
+  },
+  {
+    "id": "id-against-clock",
+    "text": "race against the clock",
+    "meaning": "to hurry to finish before a deadline",
+    "tags": [
+      "urgency",
+      "deadline"
+    ]
+  },
+  {
+    "id": "id-out-frying-pan",
+    "text": "out of the frying pan and into the fire",
+    "meaning": "to escape one bad situation only to enter a worse one",
+    "tags": [
+      "trouble",
+      "escape"
+    ]
+  },
+  {
+    "id": "id-irons-fire",
+    "text": "have too many irons in the fire",
+    "meaning": "to be involved in too many activities at once",
+    "tags": [
+      "overcommit",
+      "busy"
+    ]
+  },
+  {
+    "id": "id-haste-makes-waste",
+    "text": "haste makes waste",
+    "meaning": "rushing leads to mistakes",
+    "tags": [
+      "caution",
+      "speed"
+    ]
+  },
+  {
+    "id": "id-leap-of-faith",
+    "text": "take a leap of faith",
+    "meaning": "to believe in or attempt something despite uncertainty",
+    "tags": [
+      "risk",
+      "trust"
+    ]
+  },
+  {
+    "id": "id-blow-fuse",
+    "text": "blow a fuse",
+    "meaning": "to lose one's temper suddenly",
+    "tags": [
+      "anger",
+      "outburst"
+    ]
+  },
+  {
+    "id": "id-blow-top",
+    "text": "blow your top",
+    "meaning": "to become extremely angry",
+    "tags": [
+      "anger",
+      "outburst"
+    ]
+  },
+  {
+    "id": "id-hit-roof",
+    "text": "hit the roof",
+    "meaning": "to react with intense anger",
+    "tags": [
+      "anger",
+      "reaction"
+    ]
+  },
+  {
+    "id": "id-keep-shirt-on",
+    "text": "keep your shirt on",
+    "meaning": "calm down; don't lose patience",
+    "tags": [
+      "calm",
+      "patience"
+    ]
+  },
+  {
+    "id": "id-cards-vest",
+    "text": "play your cards close to the vest",
+    "meaning": "to keep your plans secret",
+    "tags": [
+      "secrecy",
+      "caution"
+    ]
+  },
+  {
+    "id": "id-on-board",
+    "text": "on board with something",
+    "meaning": "in agreement with a plan or idea",
+    "tags": [
+      "agreement",
+      "support"
+    ]
+  },
+  {
+    "id": "id-ship-sailed",
+    "text": "that ship has sailed",
+    "meaning": "the opportunity has already passed",
+    "tags": [
+      "missed",
+      "finality"
+    ]
+  },
+  {
+    "id": "id-running-tight",
+    "text": "run a tight ship",
+    "meaning": "to manage strictly and efficiently",
+    "tags": [
+      "discipline",
+      "management"
+    ]
+  },
+  {
+    "id": "id-jump-ship",
+    "text": "jump ship",
+    "meaning": "to abandon a project or organization in trouble",
+    "tags": [
+      "abandonment",
+      "crisis"
+    ]
+  },
+  {
+    "id": "id-pulled-rug",
+    "text": "pull the rug out from under",
+    "meaning": "to withdraw support suddenly",
+    "tags": [
+      "betrayal",
+      "abandonment"
+    ]
+  },
+  {
+    "id": "id-swim-against-current",
+    "text": "swim against the current",
+    "meaning": "to act against prevailing opinion",
+    "tags": [
+      "nonconformity",
+      "resistance"
+    ]
+  },
+  {
+    "id": "id-rise-occasion",
+    "text": "rise to the occasion",
+    "meaning": "to perform well in a challenging situation",
+    "tags": [
+      "excellence",
+      "challenge"
+    ]
+  },
+  {
+    "id": "id-walking-air",
+    "text": "walking on air",
+    "meaning": "feeling elated and happy",
+    "tags": [
+      "happiness",
+      "joy"
+    ]
+  },
+  {
+    "id": "id-feel-blue",
+    "text": "feeling blue",
+    "meaning": "feeling sad or melancholy",
+    "tags": [
+      "sadness",
+      "mood"
+    ]
+  },
+  {
+    "id": "id-silver-platter",
+    "text": "on a silver platter",
+    "meaning": "given easily, without having to work for it",
+    "tags": [
+      "easy",
+      "reward"
+    ]
+  },
+  {
+    "id": "id-call-spade",
+    "text": "call a spade a spade",
+    "meaning": "to speak plainly without euphemism",
+    "tags": [
+      "honesty",
+      "plainness"
+    ]
+  },
+  {
+    "id": "id-fingers-burnt",
+    "text": "get your fingers burnt",
+    "meaning": "to suffer because of an unwise involvement",
+    "tags": [
+      "regret",
+      "consequence"
+    ]
+  },
+  {
+    "id": "id-cut-from-cloth",
+    "text": "cut from the same cloth",
+    "meaning": "very similar in character or temperament",
+    "tags": [
+      "similarity",
+      "kinship"
+    ]
+  },
+  {
+    "id": "id-rotten-apple",
+    "text": "one rotten apple spoils the barrel",
+    "meaning": "one bad person can corrupt a whole group",
+    "tags": [
+      "corruption",
+      "influence"
+    ]
+  },
+  {
+    "id": "id-apple-tree",
+    "text": "the apple doesn't fall far from the tree",
+    "meaning": "children resemble their parents",
+    "tags": [
+      "heredity",
+      "family"
+    ]
+  },
+  {
+    "id": "id-comparing-apples-oranges",
+    "text": "comparing apples and oranges",
+    "meaning": "comparing two unlike things",
+    "tags": [
+      "comparison",
+      "logic"
+    ]
+  },
+  {
+    "id": "id-grapevine",
+    "text": "I heard it through the grapevine",
+    "meaning": "I learned it through unofficial channels or gossip",
+    "tags": [
+      "gossip",
+      "rumor"
+    ]
+  },
+  {
+    "id": "id-spilling-tea",
+    "text": "spill the tea",
+    "meaning": "to share gossip or revealing information",
+    "tags": [
+      "gossip",
+      "sharing"
+    ]
+  },
+  {
+    "id": "id-square-one",
+    "text": "back at square one",
+    "meaning": "right back where one started",
+    "tags": [
+      "restart",
+      "start"
+    ]
+  },
+  {
+    "id": "id-cut-long",
+    "text": "to cut a long story short",
+    "meaning": "to summarize the key point of a longer tale",
+    "tags": [
+      "brevity",
+      "summary"
+    ]
+  },
+  {
+    "id": "id-walk-mile",
+    "text": "walk a mile in someone's shoes",
+    "meaning": "to try to see things from another's perspective",
+    "tags": [
+      "empathy",
+      "perspective"
+    ]
+  },
+  {
+    "id": "id-cross-line",
+    "text": "cross the line",
+    "meaning": "to behave unacceptably",
+    "tags": [
+      "offense",
+      "boundary"
+    ]
+  },
+  {
+    "id": "id-fine-line",
+    "text": "a fine line between",
+    "meaning": "a small but important distinction",
+    "tags": [
+      "distinction",
+      "subtlety"
+    ]
+  },
+  {
+    "id": "id-creme-creme",
+    "text": "the crème de la crème",
+    "meaning": "the finest of all",
+    "tags": [
+      "best",
+      "excellence"
+    ]
+  },
+  {
+    "id": "id-bottom-barrel",
+    "text": "scrape the bottom of the barrel",
+    "meaning": "to use the least desirable option because nothing else is left",
+    "tags": [
+      "last-resort",
+      "poor"
+    ]
+  },
+  {
+    "id": "id-no-piece-cake",
+    "text": "no piece of cake",
+    "meaning": "not easy at all",
+    "tags": [
+      "difficulty",
+      "challenge"
+    ]
+  },
+  {
+    "id": "id-bread-butter",
+    "text": "bread and butter",
+    "meaning": "one's main source of income",
+    "tags": [
+      "money",
+      "work"
+    ]
+  },
+  {
+    "id": "id-best-bread",
+    "text": "the best thing since sliced bread",
+    "meaning": "an exceptionally good innovation",
+    "tags": [
+      "praise",
+      "innovation"
+    ]
+  },
+  {
+    "id": "id-bread-winner",
+    "text": "the breadwinner",
+    "meaning": "the person whose income supports the family",
+    "tags": [
+      "money",
+      "family"
+    ]
+  },
+  {
+    "id": "id-bring-bacon",
+    "text": "save someone's bacon",
+    "meaning": "to rescue someone from trouble",
+    "tags": [
+      "rescue",
+      "help"
+    ]
+  },
+  {
+    "id": "id-cold-turkey",
+    "text": "go cold turkey",
+    "meaning": "to quit something addictive abruptly",
+    "tags": [
+      "quitting",
+      "health"
+    ]
+  },
+  {
+    "id": "id-talk-turkey",
+    "text": "talk turkey",
+    "meaning": "to discuss something seriously and frankly",
+    "tags": [
+      "honesty",
+      "business"
+    ]
+  },
+  {
+    "id": "id-egg-someone-on",
+    "text": "egg someone on",
+    "meaning": "to encourage someone to do something foolish",
+    "tags": [
+      "encouragement",
+      "mischief"
+    ]
+  },
+  {
+    "id": "id-piping-hot",
+    "text": "piping hot",
+    "meaning": "extremely hot, freshly cooked",
+    "tags": [
+      "food",
+      "hot"
+    ]
+  },
+  {
+    "id": "id-deep-pockets",
+    "text": "deep pockets",
+    "meaning": "having plenty of money",
+    "tags": [
+      "wealth",
+      "money"
+    ]
+  },
+  {
+    "id": "id-chew-fat",
+    "text": "chew the fat",
+    "meaning": "to talk informally about random topics",
+    "tags": [
+      "conversation",
+      "relaxed"
+    ]
+  },
+  {
+    "id": "id-side-tracked",
+    "text": "get sidetracked",
+    "meaning": "to be distracted from the main task",
+    "tags": [
+      "distraction",
+      "focus"
+    ]
+  },
+  {
+    "id": "id-end-tether",
+    "text": "at the end of my tether",
+    "meaning": "no longer able to cope",
+    "tags": [
+      "exhaustion",
+      "frustration"
+    ]
+  },
+  {
+    "id": "id-living-edge",
+    "text": "living on the edge",
+    "meaning": "taking many risks in life",
+    "tags": [
+      "risk",
+      "adventure"
+    ]
+  },
+  {
+    "id": "id-pin-down",
+    "text": "pin someone down",
+    "meaning": "to get someone to commit definitely",
+    "tags": [
+      "commitment",
+      "specifics"
+    ]
+  },
+  {
+    "id": "id-toe-line",
+    "text": "toe the line",
+    "meaning": "to follow rules and meet expectations",
+    "tags": [
+      "obedience",
+      "conformity"
+    ]
+  },
+  {
+    "id": "id-by-book",
+    "text": "by the book",
+    "meaning": "exactly according to the rules",
+    "tags": [
+      "rules",
+      "strict"
+    ]
+  },
+  {
+    "id": "id-pull-plug",
+    "text": "pull the plug",
+    "meaning": "to terminate or end something",
+    "tags": [
+      "ending",
+      "cancel"
+    ]
+  },
+  {
+    "id": "id-down-count",
+    "text": "down for the count",
+    "meaning": "defeated or out of action",
+    "tags": [
+      "defeat",
+      "failure"
+    ]
+  },
+  {
+    "id": "id-skin-teeth",
+    "text": "by the skin of one's teeth",
+    "meaning": "just barely; by a narrow margin",
+    "tags": [
+      "narrow",
+      "escape"
+    ]
+  },
+  {
+    "id": "id-hair-trigger",
+    "text": "on a hair trigger",
+    "meaning": "ready to react explosively at the slightest provocation",
+    "tags": [
+      "sensitive",
+      "reaction"
+    ]
+  },
+  {
+    "id": "id-toothpaste-tube",
+    "text": "you can't put toothpaste back in the tube",
+    "meaning": "some things, once done or said, cannot be undone",
+    "tags": [
+      "finality",
+      "regret"
+    ]
   }
 ]
