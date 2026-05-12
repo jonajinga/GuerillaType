@@ -243,6 +243,13 @@ body:not(:has(#tt-stage[data-state="running"])) .practice-bar__action--stop:hove
   .practice-bar .live-stats{gap:.7rem !important}
   .practice-bar .live-stats__value{font-size:.95rem !important}
   .practice-bar .live-stats__label{font-size:.55rem !important}
+  /* Hide the time-metric label on mobile. In zen / adaptive
+     modes the engine sets it to "seconds elapsed" -- once the
+     count crosses 100 the 3-digit value plus the long label
+     overflowed into the action buttons. The leading numeric
+     stat is self-explanatory beside the wpm and accuracy
+     counters; the long label is dropped. */
+  .practice-bar .live-stats__label[data-live-label="time"]{display:none !important}
 }
 
 /* ── Mode bar inside the toolbar (desktop only) ────────────────── */

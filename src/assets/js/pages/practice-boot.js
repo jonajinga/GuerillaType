@@ -634,30 +634,39 @@ function startEngine(target) {
 }
 
 function renderChallengeHud() {
-  // Tear down any old banner left over from previous versions.
+  // Tear down any old banner / toolbar pill left over from prior
+  // versions. The challenge HUD now renders as a stage-attribution
+  // header above the typing surface (same shelf as the book title
+  // / quote author header) so the toolbar stays narrow.
   const oldBanner = document.getElementById("tt-challenge-hud");
   if (oldBanner) oldBanner.remove();
+  const oldPill = document.getElementById("tt-challenge-pill");
+  if (oldPill) oldPill.remove();
 
-  const pill = document.getElementById("tt-challenge-pill");
-  if (!pill) return;
+  const id = "tt-challenge-header";
+  const existing = document.getElementById(id);
   if (!activeChallenge) {
-    pill.hidden = true;
-    pill.innerHTML = "";
-    pill.removeAttribute("data-tip");
+    if (existing) existing.remove();
     return;
   }
   const goalParts = [];
   if (activeChallenge.goal && activeChallenge.goal.wpm) goalParts.push(`${activeChallenge.goal.wpm} wpm`);
   if (activeChallenge.goal && activeChallenge.goal.acc) goalParts.push(`${activeChallenge.goal.acc}% accuracy`);
-  pill.hidden = false;
-  pill.innerHTML = `
-    <span class="practice-bar__challenge-eyebrow">Challenge</span>
-    <span class="practice-bar__challenge-name">${htmlEscape(activeChallenge.name)}</span>
-    ${goalParts.length ? `<span class="practice-bar__challenge-goal">${goalParts.join(" · ")}</span>` : ""}
-  `;
-  // Surface the long blurb on hover via the existing tooltip system.
-  if (activeChallenge.blurb) pill.setAttribute("data-tip", htmlEscape(activeChallenge.blurb));
-  else pill.removeAttribute("data-tip");
+  const html = `
+    <p class="tt-attribution__eyebrow">Challenge</p>
+    <h2 class="tt-attribution__title">${htmlEscape(activeChallenge.name)}</h2>
+    ${goalParts.length ? `<p class="tt-attribution__cite">Goal: ${goalParts.join(" · ")}</p>` : ""}
+    ${activeChallenge.blurb ? `<p class="tt-attribution__source">${htmlEscape(activeChallenge.blurb)}</p>` : ""}
+  `.trim();
+  if (existing) {
+    existing.innerHTML = html;
+  } else {
+    const wrap = document.createElement("header");
+    wrap.id = id;
+    wrap.className = "tt-attribution tt-attribution--challenge";
+    wrap.innerHTML = html;
+    stage.parentNode.insertBefore(wrap, stage);
+  }
 }
 
 function handleFinish(result) {

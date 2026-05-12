@@ -74,8 +74,12 @@
    prose typography. */
 .tt-text--reader{
   font-family:var(--font-display);
-  font-size:var(--fs-400);
-  line-height:1.75;
+  /* Doubled from --fs-400 -- users were squinting at literary
+     content (books, poems, idioms, quotes). Reader text now lands
+     in the display-size range so a sentence reads like a printed
+     book page, not body copy. */
+  font-size:var(--fs-600);
+  line-height:1.55;
   color:var(--fg-1);
   max-width:780px;margin-inline:auto;
   background:var(--bg-1);
@@ -249,7 +253,9 @@
 }
 
 @media (max-width:768px){
-  .tt-text--reader{padding:var(--space-4) var(--space-4);font-size:var(--fs-300)}
+  /* Mobile reader keeps the doubled-up scale, just trimmed one
+     stop so the lines don't break too short on a phone column. */
+  .tt-text--reader{padding:var(--space-4) var(--space-4);font-size:var(--fs-500)}
 }
 
 .tt-text__inner{display:block;will-change:transform}
