@@ -436,9 +436,9 @@
     "title": "The Secret Garden",
     "author": "Frances Hodgson Burnett",
     "year": "December 26, 2005",
-    "chapterCount": 28,
-    "paragraphCount": 2381,
-    "charCount": 424162
+    "chapterCount": 27,
+    "paragraphCount": 2379,
+    "charCount": 424045
   },
   {
     "slug": "metamorphosis",
@@ -1495,8 +1495,8 @@
   },
   {
     "slug": "aeneid",
-    "title": "Aeneid",
-    "author": "Unknown",
+    "title": "The Aeneid",
+    "author": "Virgil",
     "year": null,
     "chapterCount": 11,
     "paragraphCount": 1529,
@@ -1504,8 +1504,8 @@
   },
   {
     "slug": "age-of-innocence",
-    "title": "Age Of Innocence",
-    "author": "Unknown",
+    "title": "The Age of Innocence",
+    "author": "Edith Wharton",
     "year": null,
     "chapterCount": 34,
     "paragraphCount": 2517,
@@ -1514,7 +1514,7 @@
   {
     "slug": "anna-karenina",
     "title": "Anna Karenina",
-    "author": "Unknown",
+    "author": "Leo Tolstoy",
     "year": null,
     "chapterCount": 35,
     "paragraphCount": 6528,
@@ -1522,8 +1522,8 @@
   },
   {
     "slug": "anne-of-avonlea",
-    "title": "Anne Of Avonlea",
-    "author": "Unknown",
+    "title": "Anne of Avonlea",
+    "author": "L. M. Montgomery",
     "year": null,
     "chapterCount": 30,
     "paragraphCount": 2064,
@@ -1532,7 +1532,7 @@
   {
     "slug": "beowulf",
     "title": "Beowulf",
-    "author": "Unknown",
+    "author": "Anonymous",
     "year": null,
     "chapterCount": 51,
     "paragraphCount": 1493,
@@ -1540,8 +1540,8 @@
   },
   {
     "slug": "black-tulip",
-    "title": "Black Tulip",
-    "author": "Unknown",
+    "title": "The Black Tulip",
+    "author": "Alexandre Dumas",
     "year": null,
     "chapterCount": 33,
     "paragraphCount": 2864,
@@ -1550,7 +1550,7 @@
   {
     "slug": "bleak-house",
     "title": "Bleak House",
-    "author": "Unknown",
+    "author": "Charles Dickens",
     "year": null,
     "chapterCount": 70,
     "paragraphCount": 8781,
@@ -1558,8 +1558,8 @@
   },
   {
     "slug": "brothers-karamazov",
-    "title": "Brothers Karamazov",
-    "author": "Unknown",
+    "title": "The Brothers Karamazov",
+    "author": "Fyodor Dostoyevsky",
     "year": null,
     "chapterCount": 27,
     "paragraphCount": 7942,
@@ -1567,8 +1567,8 @@
   },
   {
     "slug": "connecticut-yankee",
-    "title": "Connecticut Yankee",
-    "author": "Unknown",
+    "title": "A Connecticut Yankee in King Arthur's Court",
+    "author": "Mark Twain",
     "year": null,
     "chapterCount": 53,
     "paragraphCount": 2673,
@@ -1576,8 +1576,8 @@
   },
   {
     "slug": "country-of-blind-wells",
-    "title": "Country Of Blind Wells",
-    "author": "Unknown",
+    "title": "The Country of the Blind, and Other Stories",
+    "author": "H. G. Wells",
     "year": null,
     "chapterCount": 26,
     "paragraphCount": 3784,
@@ -1586,7 +1586,7 @@
   {
     "slug": "david-copperfield",
     "title": "David Copperfield",
-    "author": "Unknown",
+    "author": "Charles Dickens",
     "year": null,
     "chapterCount": 66,
     "paragraphCount": 8596,
@@ -1594,8 +1594,8 @@
   },
   {
     "slug": "doctor-moreau",
-    "title": "Doctor Moreau",
-    "author": "Unknown",
+    "title": "The Island of Doctor Moreau",
+    "author": "H. G. Wells",
     "year": null,
     "chapterCount": 18,
     "paragraphCount": 989,
@@ -1603,8 +1603,8 @@
   },
   {
     "slug": "earth-to-moon",
-    "title": "Earth To Moon",
-    "author": "Unknown",
+    "title": "From the Earth to the Moon",
+    "author": "Jules Verne",
     "year": null,
     "chapterCount": 51,
     "paragraphCount": 2580,
@@ -1613,7 +1613,7 @@
   {
     "slug": "emma",
     "title": "Emma",
-    "author": "Unknown",
+    "author": "Jane Austen",
     "year": null,
     "chapterCount": 19,
     "paragraphCount": 1141,
@@ -1622,7 +1622,7 @@
   {
     "slug": "ethan-frome",
     "title": "Ethan Frome",
-    "author": "Unknown",
+    "author": "Edith Wharton",
     "year": null,
     "chapterCount": 10,
     "paragraphCount": 781,
@@ -1631,7 +1631,7 @@
   {
     "slug": "faust",
     "title": "Faust",
-    "author": "Unknown",
+    "author": "Johann Wolfgang von Goethe",
     "year": null,
     "chapterCount": 82,
     "paragraphCount": 2194,
@@ -1639,8 +1639,8 @@
   },
   {
     "slug": "food-of-the-gods",
-    "title": "Food Of The Gods",
-    "author": "Unknown",
+    "title": "The Food of the Gods",
+    "author": "H. G. Wells",
     "year": null,
     "chapterCount": 12,
     "paragraphCount": 2307,
@@ -1648,8 +1648,8 @@
   },
   {
     "slug": "golden-bowl",
-    "title": "Golden Bowl",
-    "author": "Unknown",
+    "title": "The Golden Bowl",
+    "author": "Henry James",
     "year": null,
     "chapterCount": 9,
     "paragraphCount": 893,
@@ -1658,7 +1658,7 @@
   {
     "slug": "hard-times",
     "title": "Hard Times",
-    "author": "Unknown",
+    "author": "Charles Dickens",
     "year": null,
     "chapterCount": 37,
     "paragraphCount": 2614,
@@ -1666,8 +1666,8 @@
   },
   {
     "slug": "herodotus-histories",
-    "title": "Herodotus Histories",
-    "author": "Unknown",
+    "title": "The Histories",
+    "author": "Herodotus",
     "year": null,
     "chapterCount": 11,
     "paragraphCount": 2999,
@@ -1675,8 +1675,8 @@
   },
   {
     "slug": "hound-of-the-baskervilles",
-    "title": "Hound Of The Baskervilles",
-    "author": "Unknown",
+    "title": "The Hound of the Baskervilles",
+    "author": "Arthur Conan Doyle",
     "year": null,
     "chapterCount": 15,
     "paragraphCount": 1749,
@@ -1684,8 +1684,8 @@
   },
   {
     "slug": "innocents-abroad",
-    "title": "Innocents Abroad",
-    "author": "Unknown",
+    "title": "The Innocents Abroad",
+    "author": "Mark Twain",
     "year": null,
     "chapterCount": 79,
     "paragraphCount": 3474,
@@ -1694,7 +1694,7 @@
   {
     "slug": "john-barleycorn",
     "title": "John Barleycorn",
-    "author": "Unknown",
+    "author": "Jack London",
     "year": null,
     "chapterCount": 18,
     "paragraphCount": 1092,
@@ -1703,7 +1703,7 @@
   {
     "slug": "julius-caesar",
     "title": "Julius Caesar",
-    "author": "Unknown",
+    "author": "William Shakespeare",
     "year": null,
     "chapterCount": 1,
     "paragraphCount": 1071,
@@ -1712,7 +1712,7 @@
   {
     "slug": "kidnapped",
     "title": "Kidnapped",
-    "author": "Unknown",
+    "author": "Robert Louis Stevenson",
     "year": null,
     "chapterCount": 32,
     "paragraphCount": 1856,
@@ -1721,7 +1721,7 @@
   {
     "slug": "kim",
     "title": "Kim",
-    "author": "Unknown",
+    "author": "Rudyard Kipling",
     "year": null,
     "chapterCount": 14,
     "paragraphCount": 2697,
@@ -1730,7 +1730,7 @@
   {
     "slug": "king-lear",
     "title": "King Lear",
-    "author": "Unknown",
+    "author": "William Shakespeare",
     "year": null,
     "chapterCount": 1,
     "paragraphCount": 1399,
@@ -1738,8 +1738,8 @@
   },
   {
     "slug": "land-time-forgot",
-    "title": "Land Time Forgot",
-    "author": "Unknown",
+    "title": "The Land That Time Forgot",
+    "author": "Edgar Rice Burroughs",
     "year": null,
     "chapterCount": 9,
     "paragraphCount": 607,
@@ -1747,8 +1747,8 @@
   },
   {
     "slug": "last-of-the-mohicans",
-    "title": "Last Of The Mohicans",
-    "author": "Unknown",
+    "title": "The Last of the Mohicans",
+    "author": "James Fenimore Cooper",
     "year": null,
     "chapterCount": 33,
     "paragraphCount": 3068,
@@ -1756,8 +1756,8 @@
   },
   {
     "slug": "legend-sleepy-hollow",
-    "title": "Legend Sleepy Hollow",
-    "author": "Unknown",
+    "title": "The Legend of Sleepy Hollow",
+    "author": "Washington Irving",
     "year": null,
     "chapterCount": 3,
     "paragraphCount": 194,
@@ -1765,8 +1765,8 @@
   },
   {
     "slug": "les-miserables",
-    "title": "Les Miserables",
-    "author": "Unknown",
+    "title": "Les Misérables",
+    "author": "Victor Hugo",
     "year": null,
     "chapterCount": 373,
     "paragraphCount": 16054,
@@ -1775,7 +1775,7 @@
   {
     "slug": "little-dorrit",
     "title": "Little Dorrit",
-    "author": "Unknown",
+    "author": "Charles Dickens",
     "year": null,
     "chapterCount": 70,
     "paragraphCount": 8176,
@@ -1784,7 +1784,7 @@
   {
     "slug": "little-lord-fauntleroy",
     "title": "Little Lord Fauntleroy",
-    "author": "Unknown",
+    "author": "Frances Hodgson Burnett",
     "year": null,
     "chapterCount": 15,
     "paragraphCount": 1480,
@@ -1792,8 +1792,8 @@
   },
   {
     "slug": "little-princess",
-    "title": "Little Princess",
-    "author": "Unknown",
+    "title": "A Little Princess",
+    "author": "Frances Hodgson Burnett",
     "year": null,
     "chapterCount": 2,
     "paragraphCount": 1945,
@@ -1801,8 +1801,8 @@
   },
   {
     "slug": "man-iron-mask",
-    "title": "Man Iron Mask",
-    "author": "Unknown",
+    "title": "The Man in the Iron Mask",
+    "author": "Alexandre Dumas",
     "year": null,
     "chapterCount": 60,
     "paragraphCount": 6179,
@@ -1811,7 +1811,7 @@
   {
     "slug": "mansfield-park",
     "title": "Mansfield Park",
-    "author": "Unknown",
+    "author": "Jane Austen",
     "year": null,
     "chapterCount": 47,
     "paragraphCount": 2865,
@@ -1820,7 +1820,7 @@
   {
     "slug": "martin-eden",
     "title": "Martin Eden",
-    "author": "Unknown",
+    "author": "Jack London",
     "year": null,
     "chapterCount": 46,
     "paragraphCount": 3100,
@@ -1828,8 +1828,8 @@
   },
   {
     "slug": "merchant-of-venice",
-    "title": "Merchant Of Venice",
-    "author": "Unknown",
+    "title": "The Merchant of Venice",
+    "author": "William Shakespeare",
     "year": null,
     "chapterCount": 4,
     "paragraphCount": 863,
@@ -1838,7 +1838,7 @@
   {
     "slug": "middlemarch",
     "title": "Middlemarch",
-    "author": "Unknown",
+    "author": "George Eliot",
     "year": null,
     "chapterCount": 86,
     "paragraphCount": 6623,
@@ -1846,8 +1846,8 @@
   },
   {
     "slug": "midsummer-nights-dream",
-    "title": "Midsummer Nights Dream",
-    "author": "Unknown",
+    "title": "A Midsummer Night's Dream",
+    "author": "William Shakespeare",
     "year": null,
     "chapterCount": 1,
     "paragraphCount": 717,
@@ -1855,8 +1855,8 @@
   },
   {
     "slug": "mrs-warrens-profession",
-    "title": "Mrs Warrens Profession",
-    "author": "Unknown",
+    "title": "Mrs Warren's Profession",
+    "author": "George Bernard Shaw",
     "year": null,
     "chapterCount": 2,
     "paragraphCount": 1068,
@@ -1864,8 +1864,8 @@
   },
   {
     "slug": "mysterious-affair-styles",
-    "title": "Mysterious Affair Styles",
-    "author": "Unknown",
+    "title": "The Mysterious Affair at Styles",
+    "author": "Agatha Christie",
     "year": null,
     "chapterCount": 12,
     "paragraphCount": 2477,
@@ -1873,8 +1873,8 @@
   },
   {
     "slug": "mysterious-island",
-    "title": "Mysterious Island",
-    "author": "Unknown",
+    "title": "The Mysterious Island",
+    "author": "Jules Verne",
     "year": null,
     "chapterCount": 25,
     "paragraphCount": 5513,
@@ -1883,7 +1883,7 @@
   {
     "slug": "northanger-abbey",
     "title": "Northanger Abbey",
-    "author": "Unknown",
+    "author": "Jane Austen",
     "year": null,
     "chapterCount": 31,
     "paragraphCount": 1593,
@@ -1891,8 +1891,8 @@
   },
   {
     "slug": "o-pioneers",
-    "title": "O Pioneers",
-    "author": "Unknown",
+    "title": "O Pioneers!",
+    "author": "Willa Cather",
     "year": null,
     "chapterCount": 30,
     "paragraphCount": 1119,
@@ -1900,8 +1900,8 @@
   },
   {
     "slug": "oliver-goldsmith-vicar",
-    "title": "Oliver Goldsmith Vicar",
-    "author": "Unknown",
+    "title": "The Vicar of Wakefield",
+    "author": "Oliver Goldsmith",
     "year": null,
     "chapterCount": 32,
     "paragraphCount": 1017,
@@ -1909,8 +1909,8 @@
   },
   {
     "slug": "oresteia",
-    "title": "Oresteia",
-    "author": "Unknown",
+    "title": "The Oresteia",
+    "author": "Aeschylus",
     "year": null,
     "chapterCount": 6,
     "paragraphCount": 560,
@@ -1919,7 +1919,7 @@
   {
     "slug": "othello",
     "title": "Othello",
-    "author": "Unknown",
+    "author": "William Shakespeare",
     "year": null,
     "chapterCount": 1,
     "paragraphCount": 1484,
@@ -1928,7 +1928,7 @@
   {
     "slug": "our-mutual-friend",
     "title": "Our Mutual Friend",
-    "author": "Unknown",
+    "author": "Charles Dickens",
     "year": null,
     "chapterCount": 71,
     "paragraphCount": 9545,
@@ -1937,7 +1937,7 @@
   {
     "slug": "paradise-lost",
     "title": "Paradise Lost",
-    "author": "Unknown",
+    "author": "John Milton",
     "year": null,
     "chapterCount": 10,
     "paragraphCount": 1099,
@@ -1946,7 +1946,7 @@
   {
     "slug": "persuasion",
     "title": "Persuasion",
-    "author": "Unknown",
+    "author": "Jane Austen",
     "year": null,
     "chapterCount": 23,
     "paragraphCount": 1482,
@@ -1954,8 +1954,8 @@
   },
   {
     "slug": "phantom-of-opera",
-    "title": "Phantom Of Opera",
-    "author": "Unknown",
+    "title": "The Phantom of the Opera",
+    "author": "Gaston Leroux",
     "year": null,
     "chapterCount": 29,
     "paragraphCount": 2655,
@@ -1963,8 +1963,8 @@
   },
   {
     "slug": "pickwick-papers",
-    "title": "Pickwick Papers",
-    "author": "Unknown",
+    "title": "The Pickwick Papers",
+    "author": "Charles Dickens",
     "year": null,
     "chapterCount": 65,
     "paragraphCount": 9174,
@@ -1972,8 +1972,8 @@
   },
   {
     "slug": "plutarchs-lives",
-    "title": "Plutarchs Lives",
-    "author": "Unknown",
+    "title": "Plutarch's Lives",
+    "author": "Plutarch",
     "year": null,
     "chapterCount": 15,
     "paragraphCount": 3275,
@@ -1982,7 +1982,7 @@
   {
     "slug": "pollyanna",
     "title": "Pollyanna",
-    "author": "Unknown",
+    "author": "Eleanor H. Porter",
     "year": null,
     "chapterCount": 32,
     "paragraphCount": 2017,
@@ -1990,8 +1990,8 @@
   },
   {
     "slug": "portrait-artist",
-    "title": "Portrait Artist",
-    "author": "Unknown",
+    "title": "A Portrait of the Artist as a Young Man",
+    "author": "James Joyce",
     "year": null,
     "chapterCount": 5,
     "paragraphCount": 2506,
@@ -1999,8 +1999,8 @@
   },
   {
     "slug": "princess-of-mars",
-    "title": "Princess Of Mars",
-    "author": "Unknown",
+    "title": "A Princess of Mars",
+    "author": "Edgar Rice Burroughs",
     "year": null,
     "chapterCount": 29,
     "paragraphCount": 1300,
@@ -2008,8 +2008,8 @@
   },
   {
     "slug": "red-badge-of-courage",
-    "title": "Red Badge Of Courage",
-    "author": "Unknown",
+    "title": "The Red Badge of Courage",
+    "author": "Stephen Crane",
     "year": null,
     "chapterCount": 23,
     "paragraphCount": 990,
@@ -2017,8 +2017,8 @@
   },
   {
     "slug": "return-of-sherlock-holmes",
-    "title": "Return Of Sherlock Holmes",
-    "author": "Unknown",
+    "title": "The Return of Sherlock Holmes",
+    "author": "Arthur Conan Doyle",
     "year": null,
     "chapterCount": 21,
     "paragraphCount": 3079,
@@ -2027,7 +2027,7 @@
   {
     "slug": "roughing-it",
     "title": "Roughing It",
-    "author": "Unknown",
+    "author": "Mark Twain",
     "year": null,
     "chapterCount": 136,
     "paragraphCount": 3692,
@@ -2035,8 +2035,8 @@
   },
   {
     "slug": "sherlock-his-last-bow",
-    "title": "Sherlock His Last Bow",
-    "author": "Unknown",
+    "title": "His Last Bow",
+    "author": "Arthur Conan Doyle",
     "year": null,
     "chapterCount": 5,
     "paragraphCount": 1658,
@@ -2044,8 +2044,8 @@
   },
   {
     "slug": "short-stories-poe",
-    "title": "Short Stories Poe",
-    "author": "Unknown",
+    "title": "Short Stories",
+    "author": "Edgar Allan Poe",
     "year": null,
     "chapterCount": 7,
     "paragraphCount": 1598,
@@ -2053,8 +2053,8 @@
   },
   {
     "slug": "sign-of-four",
-    "title": "Sign Of Four",
-    "author": "Unknown",
+    "title": "The Sign of the Four",
+    "author": "Arthur Conan Doyle",
     "year": null,
     "chapterCount": 11,
     "paragraphCount": 917,
@@ -2063,7 +2063,7 @@
   {
     "slug": "silas-marner",
     "title": "Silas Marner",
-    "author": "Unknown",
+    "author": "George Eliot",
     "year": null,
     "chapterCount": 21,
     "paragraphCount": 1254,
@@ -2072,7 +2072,7 @@
   {
     "slug": "sister-carrie",
     "title": "Sister Carrie",
-    "author": "Unknown",
+    "author": "Theodore Dreiser",
     "year": null,
     "chapterCount": 47,
     "paragraphCount": 5293,
@@ -2080,8 +2080,8 @@
   },
   {
     "slug": "star-rover",
-    "title": "Star Rover",
-    "author": "Unknown",
+    "title": "The Star Rover",
+    "author": "Jack London",
     "year": null,
     "chapterCount": 22,
     "paragraphCount": 2157,
@@ -2089,8 +2089,8 @@
   },
   {
     "slug": "study-in-scarlet",
-    "title": "Study In Scarlet",
-    "author": "Unknown",
+    "title": "A Study in Scarlet",
+    "author": "Arthur Conan Doyle",
     "year": null,
     "chapterCount": 15,
     "paragraphCount": 1015,
@@ -2098,8 +2098,8 @@
   },
   {
     "slug": "tales-from-shakespeare",
-    "title": "Tales From Shakespeare",
-    "author": "Unknown",
+    "title": "Tales from Shakespeare",
+    "author": "Charles and Mary Lamb",
     "year": null,
     "chapterCount": 17,
     "paragraphCount": 1590,
@@ -2107,8 +2107,8 @@
   },
   {
     "slug": "tarzan-of-the-apes",
-    "title": "Tarzan Of The Apes",
-    "author": "Unknown",
+    "title": "Tarzan of the Apes",
+    "author": "Edgar Rice Burroughs",
     "year": null,
     "chapterCount": 29,
     "paragraphCount": 2598,
@@ -2116,8 +2116,8 @@
   },
   {
     "slug": "tess-dubervilles",
-    "title": "Tess Dubervilles",
-    "author": "Unknown",
+    "title": "Tess of the d'Urbervilles",
+    "author": "Thomas Hardy",
     "year": null,
     "chapterCount": 62,
     "paragraphCount": 3858,
@@ -2125,8 +2125,8 @@
   },
   {
     "slug": "the-call-of-cthulhu",
-    "title": "The Call Of Cthulhu",
-    "author": "Unknown",
+    "title": "The Call of Cthulhu",
+    "author": "H. P. Lovecraft",
     "year": null,
     "chapterCount": 4,
     "paragraphCount": 208,
@@ -2135,7 +2135,7 @@
   {
     "slug": "the-good-soldier",
     "title": "The Good Soldier",
-    "author": "Unknown",
+    "author": "Ford Madox Ford",
     "year": null,
     "chapterCount": 19,
     "paragraphCount": 1315,
@@ -2144,7 +2144,7 @@
   {
     "slug": "the-iliad",
     "title": "The Iliad",
-    "author": "Unknown",
+    "author": "Homer",
     "year": null,
     "chapterCount": 27,
     "paragraphCount": 3355,
@@ -2153,7 +2153,7 @@
   {
     "slug": "the-iron-heel",
     "title": "The Iron Heel",
-    "author": "Unknown",
+    "author": "Jack London",
     "year": null,
     "chapterCount": 26,
     "paragraphCount": 1900,
@@ -2162,7 +2162,7 @@
   {
     "slug": "the-jungle",
     "title": "The Jungle",
-    "author": "Unknown",
+    "author": "Upton Sinclair",
     "year": null,
     "chapterCount": 33,
     "paragraphCount": 2598,
@@ -2171,7 +2171,7 @@
   {
     "slug": "the-lost-world",
     "title": "The Lost World",
-    "author": "Unknown",
+    "author": "Arthur Conan Doyle",
     "year": null,
     "chapterCount": 18,
     "paragraphCount": 1706,
@@ -2180,7 +2180,7 @@
   {
     "slug": "the-moonstone",
     "title": "The Moonstone",
-    "author": "Unknown",
+    "author": "Wilkie Collins",
     "year": null,
     "chapterCount": 35,
     "paragraphCount": 4585,
@@ -2189,7 +2189,7 @@
   {
     "slug": "the-prophet",
     "title": "The Prophet",
-    "author": "Unknown",
+    "author": "Kahlil Gibran",
     "year": null,
     "chapterCount": 2,
     "paragraphCount": 906,
@@ -2198,7 +2198,7 @@
   {
     "slug": "the-republic",
     "title": "The Republic",
-    "author": "Unknown",
+    "author": "Plato",
     "year": null,
     "chapterCount": 23,
     "paragraphCount": 6036,
@@ -2207,7 +2207,7 @@
   {
     "slug": "the-scarlet-letter",
     "title": "The Scarlet Letter",
-    "author": "Unknown",
+    "author": "Nathaniel Hawthorne",
     "year": null,
     "chapterCount": 28,
     "paragraphCount": 1624,
@@ -2216,7 +2216,7 @@
   {
     "slug": "the-tempest",
     "title": "The Tempest",
-    "author": "Unknown",
+    "author": "William Shakespeare",
     "year": null,
     "chapterCount": 1,
     "paragraphCount": 807,
@@ -2224,8 +2224,8 @@
   },
   {
     "slug": "through-the-looking-glass",
-    "title": "Through The Looking Glass",
-    "author": "Unknown",
+    "title": "Through the Looking-Glass",
+    "author": "Lewis Carroll",
     "year": null,
     "chapterCount": 12,
     "paragraphCount": 1016,
@@ -2233,8 +2233,8 @@
   },
   {
     "slug": "turn-of-screw",
-    "title": "Turn Of Screw",
-    "author": "Unknown",
+    "title": "The Turn of the Screw",
+    "author": "Henry James",
     "year": null,
     "chapterCount": 24,
     "paragraphCount": 1024,
@@ -2243,7 +2243,7 @@
   {
     "slug": "twelfth-night",
     "title": "Twelfth Night",
-    "author": "Unknown",
+    "author": "William Shakespeare",
     "year": null,
     "chapterCount": 1,
     "paragraphCount": 1123,
@@ -2252,7 +2252,7 @@
   {
     "slug": "twenty-years-after",
     "title": "Twenty Years After",
-    "author": "Unknown",
+    "author": "Alexandre Dumas",
     "year": null,
     "chapterCount": 87,
     "paragraphCount": 10357,
@@ -2261,7 +2261,7 @@
   {
     "slug": "typhoon",
     "title": "Typhoon",
-    "author": "Unknown",
+    "author": "Joseph Conrad",
     "year": null,
     "chapterCount": 7,
     "paragraphCount": 699,
@@ -2270,7 +2270,7 @@
   {
     "slug": "ulysses",
     "title": "Ulysses",
-    "author": "Unknown",
+    "author": "James Joyce",
     "year": null,
     "chapterCount": 43,
     "paragraphCount": 7376,
@@ -2278,8 +2278,8 @@
   },
   {
     "slug": "up-from-slavery",
-    "title": "Up From Slavery",
-    "author": "Unknown",
+    "title": "Up from Slavery",
+    "author": "Booker T. Washington",
     "year": null,
     "chapterCount": 18,
     "paragraphCount": 1261,
@@ -2287,8 +2287,8 @@
   },
   {
     "slug": "valley-of-fear",
-    "title": "Valley Of Fear",
-    "author": "Unknown",
+    "title": "The Valley of Fear",
+    "author": "Arthur Conan Doyle",
     "year": null,
     "chapterCount": 8,
     "paragraphCount": 1711,
@@ -2297,7 +2297,7 @@
   {
     "slug": "vanity-fair",
     "title": "Vanity Fair",
-    "author": "Unknown",
+    "author": "William Makepeace Thackeray",
     "year": null,
     "chapterCount": 72,
     "paragraphCount": 5623,
@@ -2305,8 +2305,8 @@
   },
   {
     "slug": "vicomte-bragelonne",
-    "title": "Vicomte Bragelonne",
-    "author": "Unknown",
+    "title": "The Vicomte de Bragelonne",
+    "author": "Alexandre Dumas",
     "year": null,
     "chapterCount": 75,
     "paragraphCount": 7147,
@@ -2315,7 +2315,7 @@
   {
     "slug": "white-fang",
     "title": "White Fang",
-    "author": "Unknown",
+    "author": "Jack London",
     "year": null,
     "chapterCount": 24,
     "paragraphCount": 1376,
@@ -2323,8 +2323,8 @@
   },
   {
     "slug": "wings-of-dove",
-    "title": "Wings Of Dove",
-    "author": "Unknown",
+    "title": "The Wings of the Dove",
+    "author": "Henry James",
     "year": null,
     "chapterCount": 21,
     "paragraphCount": 2593,

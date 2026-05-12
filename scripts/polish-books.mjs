@@ -112,6 +112,9 @@ const FRONT_BACK_MATTER = [
   /^chronology\b/i,
   /^chronological\s+table\b/i,
   /^critical\s+(note|essay|introduction)\b/i,
+  // Publisher imprint pages -- "The Phillips Publishing Co", "Chatto & Windus",
+  // "Macmillan Publishers", etc. Catch the common shape.
+  /\b(publishing\s+co\.?|publishers?\s+(inc|ltd|llc)|publications?\s+inc|book\s+company|& windus|& sons)\b/i,
 ];
 
 function isFrontBackMatter(title) {
