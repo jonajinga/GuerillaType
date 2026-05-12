@@ -5,32 +5,7 @@
   "year": "1903",
   "chapters": [
     {
-      "title": "Preface",
-      "paragraphs": [
-        {
-          "id": "p0",
-          "text": "Samuel Butler began to write \"The Way of All Flesh\" about the year 1872, and was engaged upon it intermittently until 1884. It is therefore, to a great extent, contemporaneous with \"Life and Habit,\" and may be taken as a practical illustration of the theory of heredity embodied in that book. He did not work at it after 1884, but for various reasons he postponed its publication."
-        },
-        {
-          "id": "p1",
-          "text": "He was occupied in other ways, and he professed himself dissatisfied with it as a whole, and always intended to rewrite or at any rate to revise it. His death in 1902 prevented him from doing this, and on his death-bed he gave me clearly to understand that he wished it to be published in its present form. I found that the MS."
-        },
-        {
-          "id": "p2",
-          "text": "of the fourth and fifth chapters had disappeared, but by consulting and comparing various notes and sketches, which remained among his papers, I have been able to supply the missing chapters in a form which I believe does not differ materially from that which he finally adopted."
-        },
-        {
-          "id": "p3",
-          "text": "With regard to the chronology of the events recorded, the reader will do well to bear in mind that the main body of the novel is supposed to have been written in the year 1867, and the last chapter added as a postscript in 1882."
-        },
-        {
-          "id": "p4",
-          "text": "R. A. STREATFEILD."
-        }
-      ]
-    },
-    {
-      "title": "",
+      "title": "Chapter 1",
       "paragraphs": [
         {
           "id": "p0",
@@ -155,7 +130,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 2",
       "paragraphs": [
         {
           "id": "p0",
@@ -260,7 +235,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 3",
       "paragraphs": [
         {
           "id": "p0",
@@ -450,7 +425,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 5",
       "paragraphs": [
         {
           "id": "p0",
@@ -599,7 +574,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 6",
       "paragraphs": [
         {
           "id": "p0",
@@ -720,7 +695,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 7",
       "paragraphs": [
         {
           "id": "p0",
@@ -821,7 +796,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 8",
       "paragraphs": [
         {
           "id": "p0",
@@ -950,7 +925,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 9",
       "paragraphs": [
         {
           "id": "p0",
@@ -1035,7 +1010,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 10",
       "paragraphs": [
         {
           "id": "p0",
@@ -1112,7 +1087,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 11",
       "paragraphs": [
         {
           "id": "p0",
@@ -1241,7 +1216,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 12",
       "paragraphs": [
         {
           "id": "p0",
@@ -1410,7 +1385,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 13",
       "paragraphs": [
         {
           "id": "p0",
@@ -1599,7 +1574,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 14",
       "paragraphs": [
         {
           "id": "p0",
@@ -1704,7 +1679,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 15",
       "paragraphs": [
         {
           "id": "p0",
@@ -1769,7 +1744,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 16",
       "paragraphs": [
         {
           "id": "p0",
@@ -1922,7 +1897,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 17",
       "paragraphs": [
         {
           "id": "p0",
@@ -2003,7 +1978,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 18",
       "paragraphs": [
         {
           "id": "p0",
@@ -2280,7 +2255,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 19",
       "paragraphs": [
         {
           "id": "p0",
@@ -2361,7 +2336,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 20",
       "paragraphs": [
         {
           "id": "p0",
@@ -2438,7 +2413,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 21",
       "paragraphs": [
         {
           "id": "p0",
@@ -2571,7 +2546,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 22",
       "paragraphs": [
         {
           "id": "p0",
@@ -2728,7 +2703,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 23",
       "paragraphs": [
         {
           "id": "p0",
@@ -2821,7 +2796,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 24",
       "paragraphs": [
         {
           "id": "p0",
@@ -2890,7 +2865,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 25",
       "paragraphs": [
         {
           "id": "p0",
@@ -2975,7 +2950,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 26",
       "paragraphs": [
         {
           "id": "p0",
@@ -3132,7 +3107,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 27",
       "paragraphs": [
         {
           "id": "p0",
@@ -3277,7 +3252,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 28",
       "paragraphs": [
         {
           "id": "p0",
@@ -3414,7 +3389,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 29",
       "paragraphs": [
         {
           "id": "p0",
@@ -3503,7 +3478,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 30",
       "paragraphs": [
         {
           "id": "p0",
@@ -3584,7 +3559,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 31",
       "paragraphs": [
         {
           "id": "p0",
@@ -3697,7 +3672,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 32",
       "paragraphs": [
         {
           "id": "p0",
@@ -3830,7 +3805,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 33",
       "paragraphs": [
         {
           "id": "p0",
@@ -3971,7 +3946,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 34",
       "paragraphs": [
         {
           "id": "p0",
@@ -4084,7 +4059,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 35",
       "paragraphs": [
         {
           "id": "p0",
@@ -4169,7 +4144,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 36",
       "paragraphs": [
         {
           "id": "p0",
@@ -4326,7 +4301,7 @@
       ]
     },
     {
-      "title": "Report of the Conduct and Progress of Ernest Pontifex. Upper Fifth Form, Half Year Ending Midsummer 1851",
+      "title": "Report of the Conduct and Progress of Ernest Pontifex",
       "paragraphs": [
         {
           "id": "p0",
@@ -4339,7 +4314,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 38",
       "paragraphs": [
         {
           "id": "p0",
@@ -4444,7 +4419,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 39",
       "paragraphs": [
         {
           "id": "p0",
@@ -4565,7 +4540,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 40",
       "paragraphs": [
         {
           "id": "p0",
@@ -4730,7 +4705,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 41",
       "paragraphs": [
         {
           "id": "p0",
@@ -4907,7 +4882,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 42",
       "paragraphs": [
         {
           "id": "p0",
@@ -5024,7 +4999,7 @@
       ]
     },
     {
-      "title": "And Thus Through the Whole School.",
+      "title": "And Thus Through the Whole School",
       "paragraphs": [
         {
           "id": "p0",
@@ -5033,7 +5008,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 44",
       "paragraphs": [
         {
           "id": "p0",
@@ -5126,7 +5101,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 45",
       "paragraphs": [
         {
           "id": "p0",
@@ -5255,7 +5230,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 46",
       "paragraphs": [
         {
           "id": "p0",
@@ -5376,7 +5351,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 47",
       "paragraphs": [
         {
           "id": "p0",
@@ -5501,7 +5476,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 48",
       "paragraphs": [
         {
           "id": "p0",
@@ -5614,7 +5589,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 49",
       "paragraphs": [
         {
           "id": "p0",
@@ -5819,7 +5794,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 50",
       "paragraphs": [
         {
           "id": "p0",
@@ -6016,7 +5991,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 51",
       "paragraphs": [
         {
           "id": "p0",
@@ -6153,7 +6128,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 52",
       "paragraphs": [
         {
           "id": "p0",
@@ -6242,7 +6217,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 53",
       "paragraphs": [
         {
           "id": "p0",
@@ -6399,7 +6374,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 54",
       "paragraphs": [
         {
           "id": "p0",
@@ -6524,7 +6499,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 55",
       "paragraphs": [
         {
           "id": "p0",
@@ -6597,7 +6572,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 56",
       "paragraphs": [
         {
           "id": "p0",
@@ -6754,7 +6729,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 57",
       "paragraphs": [
         {
           "id": "p0",
@@ -6827,7 +6802,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 58",
       "paragraphs": [
         {
           "id": "p0",
@@ -6900,7 +6875,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 59",
       "paragraphs": [
         {
           "id": "p0",
@@ -6989,7 +6964,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 60",
       "paragraphs": [
         {
           "id": "p0",
@@ -7118,7 +7093,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 61",
       "paragraphs": [
         {
           "id": "p0",
@@ -7191,7 +7166,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 62",
       "paragraphs": [
         {
           "id": "p0",
@@ -7308,7 +7283,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 63",
       "paragraphs": [
         {
           "id": "p0",
@@ -7373,7 +7348,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 64",
       "paragraphs": [
         {
           "id": "p0",
@@ -7458,7 +7433,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 65",
       "paragraphs": [
         {
           "id": "p0",
@@ -7563,7 +7538,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 66",
       "paragraphs": [
         {
           "id": "p0",
@@ -7688,7 +7663,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 67",
       "paragraphs": [
         {
           "id": "p0",
@@ -7829,7 +7804,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 68",
       "paragraphs": [
         {
           "id": "p0",
@@ -7970,7 +7945,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 69",
       "paragraphs": [
         {
           "id": "p0",
@@ -8107,7 +8082,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 70",
       "paragraphs": [
         {
           "id": "p0",
@@ -8272,7 +8247,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 71",
       "paragraphs": [
         {
           "id": "p0",
@@ -8405,7 +8380,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 72",
       "paragraphs": [
         {
           "id": "p0",
@@ -8574,7 +8549,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 73",
       "paragraphs": [
         {
           "id": "p0",
@@ -8847,7 +8822,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 74",
       "paragraphs": [
         {
           "id": "p0",
@@ -8956,7 +8931,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 75",
       "paragraphs": [
         {
           "id": "p0",
@@ -9021,7 +8996,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 76",
       "paragraphs": [
         {
           "id": "p0",
@@ -9174,7 +9149,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 77",
       "paragraphs": [
         {
           "id": "p0",
@@ -9243,7 +9218,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 78",
       "paragraphs": [
         {
           "id": "p0",
@@ -9352,7 +9327,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 79",
       "paragraphs": [
         {
           "id": "p0",
@@ -9497,7 +9472,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 80",
       "paragraphs": [
         {
           "id": "p0",
@@ -9638,7 +9613,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 81",
       "paragraphs": [
         {
           "id": "p0",
@@ -9815,7 +9790,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 82",
       "paragraphs": [
         {
           "id": "p0",
@@ -9956,7 +9931,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 83",
       "paragraphs": [
         {
           "id": "p0",
@@ -10113,7 +10088,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 84",
       "paragraphs": [
         {
           "id": "p0",
@@ -10498,7 +10473,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 85",
       "paragraphs": [
         {
           "id": "p0",
@@ -10683,7 +10658,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 86",
       "paragraphs": [
         {
           "id": "p0",
@@ -10832,7 +10807,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 87",
       "paragraphs": [
         {
           "id": "p0",
@@ -11217,7 +11192,7 @@
       ]
     }
   ],
-  "chapterCount": 88,
-  "paragraphCount": 2693,
-  "charCount": 867627
+  "chapterCount": 87,
+  "paragraphCount": 2688,
+  "charCount": 866395
 }

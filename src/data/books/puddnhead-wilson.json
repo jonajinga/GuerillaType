@@ -5,64 +5,7 @@
   "year": "1894",
   "chapters": [
     {
-      "title": "American Publishing Company",
-      "paragraphs": [
-        {
-          "id": "p0",
-          "text": "Copyright, 1894, by OLIVIA L. CLEMENS All Rights Reserved The right of dramatization and translation reserved."
-        },
-        {
-          "id": "p1",
-          "text": "Copyright, 1893-1894, by the Century Company, in the Century Magazine. Copyright, 1894, by Olivia L. Clemens (All Rights Reserved)"
-        },
-        {
-          "id": "p2",
-          "text": "Contents"
-        },
-        {
-          "id": "p3",
-          "text": "Pudd'nhead Wilson Chapter Chapter Title Page A Whisper to the Reader 15 I. Pudd'nhead Wins His Name 17 II. Driscoll Spares His Slaves 27 III. Roxy Plays a Shrewd Trick 41 IV. The Ways of the Changelings 52 V. The Twins Thrill Dawson's Landing 67 VI. Swimming in Glory 77 VII. The Unknown Nymph 86 VIII. Marse Tom Tramples His Chance 93 IX. Tom Practises Sycophancy 111 X. The Nymph Revealed 121 XI. Pudd'nhead's Startling Discovery 130 XII. The Shame of Judge Driscoll 155 XIII."
-        },
-        {
-          "id": "p4",
-          "text": "Tom Stares at Ruin 166 XIV. Roxana Insists Upon Reform 179 XV. The Robber Robbed 197 XVI. Sold Down the River 214 XVII. The Judge Utters Dire Prophecy 221 XVIII. Roxana Commands 225 XIX. The Prophecy Realized 246 XX. The Murderer Chuckles 263 XXI. Doom 278 Conclusion 300"
-        },
-        {
-          "id": "p5",
-          "text": "A Whisper"
-        },
-        {
-          "id": "p6",
-          "text": "to the Reader."
-        },
-        {
-          "id": "p7",
-          "text": "There is no character, howsoever good and fine, but it can be destroyed by ridicule, howsoever poor and witless. Observe the ass, for instance: his character is about perfect, he is the choicest spirit among all the humbler animals, yet see what ridicule has brought him to. Instead of feeling complimented when we are called an ass, we are left in doubt.--Pudd'nhead Wilson's Calendar."
-        },
-        {
-          "id": "p8",
-          "text": "A person who is ignorant of legal matters is always liable to make mistakes when he tries to photograph a court scene with his pen; and so I was not willing to let the law chapters in this book go to press without first subjecting them to rigid and exhausting revision and correction by a trained barrister--if that is what they are called."
-        },
-        {
-          "id": "p9",
-          "text": "These chapters are right, now, in every detail, for they were rewritten under the immediate eye of William Hicks, who studied law part of a while in southwest Missouri thirty-five years ago and then came over here to Florence for his health and is still helping for exercise and board in Macaroni Vermicelli's horse-feed shed which is up the back alley as you turn around the corner out of the Piazza del Duomo just beyond the house where that stone that Dante used to sit on six hundred years ago is let into the wall when he let on to be watching them build Giotto's campanile and yet always got tired looking as soon as Beatrice passed along on her way to get a chunk of chestnut cake to defend herself with in case of a Ghibelline outbreak before she got to school, at the same old stand where they sell the same old cake to this day and it is just as light and good as it was then, too, and this is not flattery, far from it."
-        },
-        {
-          "id": "p10",
-          "text": "He was a little rusty on his law, but he rubbed up for this book, and those two or three legal chapters are right and straight, now. He told me so himself."
-        },
-        {
-          "id": "p11",
-          "text": "Given under my hand this second day of January, 1893, at the Villa Viviani, village of Settignano, three miles back of Florence, on the hills--the same certainly affording the most charming view to be found on this planet, and with it the most dreamlike and enchanting sunsets to be found in any planet or even in any solar system--and given, too, in the swell room of the house, with the busts of Cerretani senators and other grandees of this line looking approvingly down upon me as they used to look down upon Dante, and mutely asking me to adopt them into my family, which I do with pleasure, for my remotest ancestors are but spring chickens compared with these robed and stately antiques, and it will be a great and satisfying lift for me, that six hundred years will."
-        },
-        {
-          "id": "p12",
-          "text": "Mark Twain."
-        }
-      ]
-    },
-    {
-      "title": "",
+      "title": "Chapter 1",
       "paragraphs": [
         {
           "id": "p0",
@@ -231,7 +174,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 2",
       "paragraphs": [
         {
           "id": "p0",
@@ -252,7 +195,7 @@
       ]
     },
     {
-      "title": "Attorney and Counselor-At-Law. Surveying, Conveyancing, Etc.",
+      "title": "Attorney and Counselor-At-Law. Surveying, Conveyancing, Etc",
       "paragraphs": [
         {
           "id": "p0",
@@ -481,7 +424,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 4",
       "paragraphs": [
         {
           "id": "p0",
@@ -642,7 +585,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 5",
       "paragraphs": [
         {
           "id": "p0",
@@ -855,7 +798,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 6",
       "paragraphs": [
         {
           "id": "p0",
@@ -992,7 +935,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 7",
       "paragraphs": [
         {
           "id": "p0",
@@ -1129,7 +1072,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 8",
       "paragraphs": [
         {
           "id": "p0",
@@ -1206,7 +1149,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 9",
       "paragraphs": [
         {
           "id": "p0",
@@ -1603,7 +1546,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 10",
       "paragraphs": [
         {
           "id": "p0",
@@ -1844,7 +1787,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 11",
       "paragraphs": [
         {
           "id": "p0",
@@ -1977,7 +1920,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 12",
       "paragraphs": [
         {
           "id": "p0",
@@ -2458,7 +2401,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 13",
       "paragraphs": [
         {
           "id": "p0",
@@ -2687,7 +2630,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 14",
       "paragraphs": [
         {
           "id": "p0",
@@ -2992,7 +2935,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 15",
       "paragraphs": [
         {
           "id": "p0",
@@ -3389,7 +3332,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 16",
       "paragraphs": [
         {
           "id": "p0",
@@ -3778,7 +3721,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 17",
       "paragraphs": [
         {
           "id": "p0",
@@ -3887,7 +3830,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 18",
       "paragraphs": [
         {
           "id": "p0",
@@ -3948,7 +3891,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 19",
       "paragraphs": [
         {
           "id": "p0",
@@ -4377,7 +4320,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 20",
       "paragraphs": [
         {
           "id": "p0",
@@ -4610,7 +4553,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 21",
       "paragraphs": [
         {
           "id": "p0",
@@ -4835,7 +4778,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 22",
       "paragraphs": [
         {
           "id": "p0",
@@ -5388,7 +5331,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 23",
       "paragraphs": [
         {
           "id": "p0",
@@ -5397,7 +5340,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 24",
       "paragraphs": [
         {
           "id": "p0",
@@ -5406,7 +5349,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 25",
       "paragraphs": [
         {
           "id": "p0",
@@ -5415,7 +5358,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 26",
       "paragraphs": [
         {
           "id": "p0",
@@ -5424,7 +5367,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 27",
       "paragraphs": [
         {
           "id": "p0",
@@ -5433,7 +5376,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 28",
       "paragraphs": [
         {
           "id": "p0",
@@ -5450,7 +5393,7 @@
       ]
     },
     {
-      "title": "Chapter 13.",
+      "title": "Chapter 13",
       "paragraphs": [
         {
           "id": "p0",
@@ -5463,7 +5406,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 30",
       "paragraphs": [
         {
           "id": "p0",
@@ -5476,7 +5419,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 31",
       "paragraphs": [
         {
           "id": "p0",
@@ -5497,7 +5440,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 32",
       "paragraphs": [
         {
           "id": "p0",
@@ -5506,7 +5449,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 33",
       "paragraphs": [
         {
           "id": "p0",
@@ -5515,7 +5458,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 34",
       "paragraphs": [
         {
           "id": "p0",
@@ -5536,7 +5479,7 @@
       ]
     }
   ],
-  "chapterCount": 35,
-  "paragraphCount": 1339,
-  "charCount": 290819
+  "chapterCount": 34,
+  "paragraphCount": 1326,
+  "charCount": 287203
 }

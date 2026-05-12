@@ -5,20 +5,7 @@
   "year": "1872",
   "chapters": [
     {
-      "title": "Contents",
-      "paragraphs": [
-        {
-          "id": "p0",
-          "text": "1. Why the Princess Has a Story About Her 2. The Princess Loses Herself 3. The Princess and--We Shall See Who 4. What the Nurse Thought of It 5. The Princess Lets Well Alone 6. The Little Miner 7. The Mines 8. The Goblins 9. The Hall of the Goblin Palace 10. The Princess's King-Papa 11. The Old Lady's Bedroom 12. A Short Chapter About Curdie 13. The Cobs' Creatures 14. That Night Week 15. Woven and then Spun 16. The Ring 17. Springtime 18. Curdie's Clue 19. Goblin Counsels 20. Irene's Clue 21."
-        },
-        {
-          "id": "p1",
-          "text": "The Escape 22. The Old Lady and Curdie 23. Curdie and His Mother 24. Irene Behaves Like a Princess 25. Curdie Comes to Grief 26. The Goblin-Miners 27. The Goblins in the King's House 28. Curdie's Guide 29. Masonwork 30. The King and the Kiss 31. The Subterranean Waters 32. The Last Chapter"
-        }
-      ]
-    },
-    {
-      "title": "",
+      "title": "Chapter 1",
       "paragraphs": [
         {
           "id": "p0",
@@ -79,7 +66,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 2",
       "paragraphs": [
         {
           "id": "p0",
@@ -136,7 +123,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 3",
       "paragraphs": [
         {
           "id": "p0",
@@ -517,7 +504,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 4",
       "paragraphs": [
         {
           "id": "p0",
@@ -742,7 +729,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 5",
       "paragraphs": [
         {
           "id": "p0",
@@ -819,7 +806,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 6",
       "paragraphs": [
         {
           "id": "p0",
@@ -1308,7 +1295,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 7",
       "paragraphs": [
         {
           "id": "p0",
@@ -1421,7 +1408,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 8",
       "paragraphs": [
         {
           "id": "p0",
@@ -1790,7 +1777,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 9",
       "paragraphs": [
         {
           "id": "p0",
@@ -1987,7 +1974,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 10",
       "paragraphs": [
         {
           "id": "p0",
@@ -2152,7 +2139,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 11",
       "paragraphs": [
         {
           "id": "p0",
@@ -2465,7 +2452,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 12",
       "paragraphs": [
         {
           "id": "p0",
@@ -2522,7 +2509,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 13",
       "paragraphs": [
         {
           "id": "p0",
@@ -2611,7 +2598,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 14",
       "paragraphs": [
         {
           "id": "p0",
@@ -2708,7 +2695,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 15",
       "paragraphs": [
         {
           "id": "p0",
@@ -3145,7 +3132,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 16",
       "paragraphs": [
         {
           "id": "p0",
@@ -3214,7 +3201,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 17",
       "paragraphs": [
         {
           "id": "p0",
@@ -3311,7 +3298,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 18",
       "paragraphs": [
         {
           "id": "p0",
@@ -3556,7 +3543,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 19",
       "paragraphs": [
         {
           "id": "p0",
@@ -3797,7 +3784,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 20",
       "paragraphs": [
         {
           "id": "p0",
@@ -3902,7 +3889,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 21",
       "paragraphs": [
         {
           "id": "p0",
@@ -4407,7 +4394,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 22",
       "paragraphs": [
         {
           "id": "p0",
@@ -4696,7 +4683,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 23",
       "paragraphs": [
         {
           "id": "p0",
@@ -4985,7 +4972,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 24",
       "paragraphs": [
         {
           "id": "p0",
@@ -5098,7 +5085,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 25",
       "paragraphs": [
         {
           "id": "p0",
@@ -5243,7 +5230,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 26",
       "paragraphs": [
         {
           "id": "p0",
@@ -5324,7 +5311,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 27",
       "paragraphs": [
         {
           "id": "p0",
@@ -5501,7 +5488,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 28",
       "paragraphs": [
         {
           "id": "p0",
@@ -5706,7 +5693,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 29",
       "paragraphs": [
         {
           "id": "p0",
@@ -5779,7 +5766,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 30",
       "paragraphs": [
         {
           "id": "p0",
@@ -5876,7 +5863,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 31",
       "paragraphs": [
         {
           "id": "p0",
@@ -6089,7 +6076,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 32",
       "paragraphs": [
         {
           "id": "p0",
@@ -6130,7 +6117,7 @@
       ]
     }
   ],
-  "chapterCount": 33,
-  "paragraphCount": 1490,
-  "charCount": 270171
+  "chapterCount": 32,
+  "paragraphCount": 1488,
+  "charCount": 269383
 }

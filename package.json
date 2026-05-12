@@ -20,6 +20,7 @@
     "clean": "npx rimraf _site",
     "audit": "node scripts/audit-viewports.mjs",
     "stats": "node scripts/fetch-umami-stats.mjs",
+    "polish-books": "node scripts/polish-books.mjs",
     "postbuild": "node scripts/version-js-imports.mjs",
     "version-imports": "node scripts/version-js-imports.mjs"
   },

@@ -166,88 +166,7 @@
       ]
     },
     {
-      "title": "Preface",
-      "paragraphs": [
-        {
-          "id": "p0",
-          "text": "1. Going online will make me rich, right? Knowledge is Power. A larger personal network gives you a stronger punch. The value of information, and of having a great time. . ."
-        },
-        {
-          "id": "p1",
-          "text": "2. The online world The structure and content of the online offerings. About Bulletin Board systems, discussion lists, conferencing systems, and online data bases. About packet data services, and network services like FidoNet, i-Com, Infonet, Internet, and others. A constantly changing environment."
-        },
-        {
-          "id": "p2",
-          "text": "3. How to use online services Short introduction. How to use menus, and how to navigate like an expert. Tailoring online services to your interests and needs."
-        },
-        {
-          "id": "p3",
-          "text": "4. Hobbies, games, and fun About computer programs, online adventure games, threatening viruses, planning holidays, collecting coins and stamps, genealogy, music, shopping and other leisure activities."
-        },
-        {
-          "id": "p4",
-          "text": "5. Home, education, and work Tips for house owners, for those more concerned about money, about education and the exchange of knowledge, electronic conferences. Building a personal network. Job hunting by modem, and about working from home."
-        },
-        {
-          "id": "p5",
-          "text": "6. Your personal healthnet About support for diseases like AIDS, cancer, and kidney diseases. Forums for people with physical or mental disabilities, like hearing impairments, learning disabilities, vision impairment, mobility problems."
-        },
-        {
-          "id": "p6",
-          "text": "7. Electronic mail, telex, and fax How to communicate globally at a ridiculously low cost, with notes about how to address your global electronic mail."
-        },
-        {
-          "id": "p7",
-          "text": "8. Free expert assistance How to get free advice about your computer, software and other things."
-        },
-        {
-          "id": "p8",
-          "text": "9. Your electronic daily news Read national and global news before getting it through the traditional media. Get those interesting background facts. Read special interest news that the media never bother to print."
-        },
-        {
-          "id": "p9",
-          "text": "10. Looking for a needle in a bottle of hay Notes about searching data bases. How to locate interesting books and articles."
-        },
-        {
-          "id": "p10",
-          "text": "11. Getting an edge over your competitor Using the networks to manage projects. Monitor competitors, prospects, suppliers, markets, technologies, and trends. Marketing and sales by modem."
-        },
-        {
-          "id": "p11",
-          "text": "12. Practical tips How to get more out of the time spent online."
-        },
-        {
-          "id": "p12",
-          "text": "13. Cheaper and better communications Using packet data services or competing data transport services like Tymnet Outdial, Infonet, Internet, PC Pursuit, and others."
-        },
-        {
-          "id": "p13",
-          "text": "14. Keep what you find. Build your local personal data base. Strategies for locating interesting information. What separates good from bad information."
-        },
-        {
-          "id": "p14",
-          "text": "15. You pay little for a lot! How to figure out costs."
-        },
-        {
-          "id": "p15",
-          "text": "16. Automatic communication Get a lead on your competitors. Avoid duplication of effort. Reduce costs. Reduce boring repetitive work. No need to remember all the \"tricks\" of communications anymore."
-        },
-        {
-          "id": "p16",
-          "text": "17. Gazing into the future. Thoughts about things to come."
-        },
-        {
-          "id": "p17",
-          "text": "--------------------------- Appendices:"
-        },
-        {
-          "id": "p18",
-          "text": "1. List of selected online services 2. How to get started About your personal computer, modem and communications program. 3. Your first online trip Getting started. Typical pitfalls and simple solutions. Down- and uploading. 4. Explanation of some frequently used terms 5. Books and articles for further reading 6. International standard country codes 7. About the author 8. How to register ---------------------------"
-        }
-      ]
-    },
-    {
-      "title": "Chapter 1: Going Online Will Make Me Rich, Right?",
+      "title": "Going Online Will Make Me Rich, Right?",
       "paragraphs": [
         {
           "id": "p0",
@@ -432,7 +351,7 @@
       ]
     },
     {
-      "title": "Chapter 2: the Online World",
+      "title": "the Online World",
       "paragraphs": [
         {
           "id": "p0",
@@ -965,7 +884,7 @@
       ]
     },
     {
-      "title": "Chapter 13.)",
+      "title": "Chapter 13",
       "paragraphs": [
         {
           "id": "p0",
@@ -974,7 +893,7 @@
       ]
     },
     {
-      "title": "Chapter 3: How to Use the Online Services",
+      "title": "How to Use the Online Services",
       "paragraphs": [
         {
           "id": "p0",
@@ -1228,7 +1147,7 @@
       ]
     },
     {
-      "title": "Chapter 4: Hobby, Games and Fun",
+      "title": "Hobby, Games and Fun",
       "paragraphs": [
         {
           "id": "p0",
@@ -1669,7 +1588,7 @@
       ]
     },
     {
-      "title": "Chapter 5: Home, Education and Work",
+      "title": "Home, Education and Work",
       "paragraphs": [
         {
           "id": "p0",
@@ -1931,7 +1850,7 @@
       ]
     },
     {
-      "title": "Chapter 6: Your Personal Healthnet",
+      "title": "Your Personal Healthnet",
       "paragraphs": [
         {
           "id": "p0",
@@ -2242,7 +2161,7 @@
       ]
     },
     {
-      "title": "Chapter 7: Electronic Mail, Telex, and Fax",
+      "title": "Electronic Mail, Telex, and Fax",
       "paragraphs": [
         {
           "id": "p0",
@@ -2844,7 +2763,7 @@
       ]
     },
     {
-      "title": "Chapter 8: Free Expert Assistance",
+      "title": "Free Expert Assistance",
       "paragraphs": [
         {
           "id": "p0",
@@ -3018,7 +2937,7 @@
       ]
     },
     {
-      "title": "Chapter 9: Your Electronic Daily News",
+      "title": "Your Electronic Daily News",
       "paragraphs": [
         {
           "id": "p0",
@@ -3281,15 +3200,6 @@
       ]
     },
     {
-      "title": "Prf Professional Fields",
-      "paragraphs": [
-        {
-          "id": "p0",
-          "text": "BUS Business & Management COM Communications PFO Other Professional Fields"
-        }
-      ]
-    },
-    {
       "title": "Oth Other Fields",
       "paragraphs": [
         {
@@ -3388,7 +3298,7 @@
       ]
     },
     {
-      "title": "Chapter 10: Looking for a Needle in a Bottle of Hay",
+      "title": "Looking for a Needle in a Bottle of Hay",
       "paragraphs": [
         {
           "id": "p0",
@@ -3944,7 +3854,7 @@
       ]
     },
     {
-      "title": "Chapter 11: Getting an Edge Over Your Competitor",
+      "title": "Getting an Edge Over Your Competitor",
       "paragraphs": [
         {
           "id": "p0",
@@ -4169,7 +4079,7 @@
       ]
     },
     {
-      "title": "Update (Fi82)",
+      "title": "Update (Fi82",
       "paragraphs": [
         {
           "id": "p0",
@@ -4569,7 +4479,7 @@
       ]
     },
     {
-      "title": "Chapter 12: Practical Tips",
+      "title": "Practical Tips",
       "paragraphs": [
         {
           "id": "p0",
@@ -4867,7 +4777,7 @@
       ]
     },
     {
-      "title": "Chapter 13: Cheaper and Better Communication",
+      "title": "Cheaper and Better Communication",
       "paragraphs": [
         {
           "id": "p0",
@@ -5122,7 +5032,7 @@
       ]
     },
     {
-      "title": "Chapter 14: Keep What You Find",
+      "title": "Keep What You Find",
       "paragraphs": [
         {
           "id": "p0",
@@ -5295,7 +5205,7 @@
       ]
     },
     {
-      "title": "Chapter 15: You Pay Little for a Lot!",
+      "title": "You Pay Little for a Lot!",
       "paragraphs": [
         {
           "id": "p0",
@@ -5472,7 +5382,7 @@
       ]
     },
     {
-      "title": "Chapter 16: Automatic Communication",
+      "title": "Automatic Communication",
       "paragraphs": [
         {
           "id": "p0",
@@ -5781,7 +5691,7 @@
       ]
     },
     {
-      "title": "Chapter 17: Gazing Into the Future",
+      "title": "Gazing Into the Future",
       "paragraphs": [
         {
           "id": "p0",
@@ -6355,7 +6265,7 @@
       ]
     },
     {
-      "title": "For More About How to Get These Files.)",
+      "title": "For More About How to Get These Files",
       "paragraphs": [
         {
           "id": "p0",
@@ -6512,7 +6422,7 @@
       ]
     },
     {
-      "title": "",
+      "title": "Chapter 42",
       "paragraphs": [
         {
           "id": "p0",
@@ -8671,7 +8581,7 @@
       ]
     }
   ],
-  "chapterCount": 46,
-  "paragraphCount": 2109,
-  "charCount": 568362
+  "chapterCount": 44,
+  "paragraphCount": 2089,
+  "charCount": 565065
 }

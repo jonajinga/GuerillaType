@@ -5,7 +5,7 @@
   "year": "1759",
   "chapters": [
     {
-      "title": "To the Right Honourable",
+      "title": "Chapter 1",
       "paragraphs": [
         {
           "id": "p0",
@@ -946,7 +946,7 @@
       ]
     },
     {
-      "title": "De Romigny. De Marcilly.",
+      "title": "De Romigny. De Marcilly",
       "paragraphs": [
         {
           "id": "p0",
@@ -3172,7 +3172,7 @@
       ]
     },
     {
-      "title": "C A P. III Excommunicatio.[6]",
+      "title": "C A P. III Excommunicatio.[6",
       "paragraphs": [
         {
           "id": "p0",
@@ -6684,7 +6684,7 @@
       ]
     },
     {
-      "title": "Lord Viscount Spencer My Lord,",
+      "title": "Lord Viscount Spencer My Lord",
       "paragraphs": [
         {
           "id": "p0",
@@ -9569,7 +9569,7 @@
       ]
     },
     {
-      "title": "My Brother Toby's Justification of His Own Principles and Conduct in Wishing to Continue the War.",
+      "title": "My Brother Toby's Justification of His Own Principles and Conduct in Wishing to...",
       "paragraphs": [
         {
           "id": "p0",
@@ -10687,35 +10687,6 @@
         {
           "id": "p3",
           "text": "I should lament from my soul, if this exposed me to the jealousy of their Reverences; because a posteriori, in Court-latin, signifies the kissing hands for preferment-or any thing else-in order to get it."
-        }
-      ]
-    },
-    {
-      "title": "Dedication",
-      "paragraphs": [
-        {
-          "id": "p0",
-          "text": "My opinion of Lord ******* is neither better nor worse, than it was of Mr. ***. Honours, like impressions upon coin, may give an ideal and local value to a bit of base metal; but Gold and Silver will pass all the world over without any other recommendation than their own weight."
-        },
-        {
-          "id": "p1",
-          "text": "The same good-will that made me think of offering up half an hour's amusement to Mr. *** when out of place-operates more forcibly at present, as half an hour's amusement will be more serviceable and refreshing after labour and sorrow, than after a philosophical repast."
-        },
-        {
-          "id": "p2",
-          "text": "Nothing is so perfectly amusement as a total change of ideas; no ideas are so totally different as those of Ministers, and innocent Lovers: for which reason, when I come to talk of Statesmen and Patriots, and set such marks upon them as will prevent confusion and mistakes concerning them for the future-I propose to dedicate that Volume to some gentle Shepherd,"
-        },
-        {
-          "id": "p3",
-          "text": "Whose thoughts proud Science never taught to stray, Far as the Statesman's walk or Patriot-way; Yet simple Nature to his hopes had given Out of a cloud-capp'd head a humbler heaven; Some untam'd World in depths of wood embraced- Some happier Island in the wat'ry-waste- And where admitted to that equal sky, His faithful Dogs should bear him company."
-        },
-        {
-          "id": "p4",
-          "text": "In a word, by thus introducing an entire new set of objects to his Imagination, I shall unavoidably give a Diversion to his passionate and love-sick Contemplations. In the mean time,"
-        },
-        {
-          "id": "p5",
-          "text": "I am THE AUTHOR."
         }
       ]
     },
@@ -15098,7 +15069,7 @@
       ]
     }
   ],
-  "chapterCount": 117,
-  "paragraphCount": 3627,
-  "charCount": 1016934
+  "chapterCount": 116,
+  "paragraphCount": 3621,
+  "charCount": 1015476
 }

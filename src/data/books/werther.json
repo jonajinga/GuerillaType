@@ -26,19 +26,6 @@
       ]
     },
     {
-      "title": "Preface",
-      "paragraphs": [
-        {
-          "id": "p0",
-          "text": "I have carefully collected whatever I have been able to learn of the story of poor Werther, and here present it to you, knowing that you will thank me for it. To his spirit and character you cannot refuse your admiration and love: to his fate you will not deny your tears."
-        },
-        {
-          "id": "p1",
-          "text": "And thou, good soul, who sufferest the same distress as he endured once, draw comfort from his sorrows; and let this little book be thy friend, if, owing to fortune or through thine own fault, thou canst not find a dearer companion."
-        }
-      ]
-    },
-    {
       "title": "Book I",
       "paragraphs": [
         {
@@ -996,7 +983,7 @@
       ]
     },
     {
-      "title": "The Same Evening.",
+      "title": "The Same Evening",
       "paragraphs": [
         {
           "id": "p0",
@@ -1389,7 +1376,7 @@
       ]
     },
     {
-      "title": "Book II.",
+      "title": "Book II",
       "paragraphs": [
         {
           "id": "p0",
@@ -2310,7 +2297,7 @@
       ]
     },
     {
-      "title": "The Editor to the Reader.",
+      "title": "The Editor to the Reader",
       "paragraphs": [
         {
           "id": "p0",
@@ -3119,7 +3106,7 @@
       ]
     }
   ],
-  "chapterCount": 6,
-  "paragraphCount": 771,
-  "charCount": 233931
+  "chapterCount": 5,
+  "paragraphCount": 769,
+  "charCount": 233427
 }
