@@ -72,15 +72,6 @@
     "charCount": 284200
   },
   {
-    "slug": "romola",
-    "title": "Relics of General Chasse",
-    "author": "Anthony Trollope",
-    "year": null,
-    "chapterCount": 1,
-    "paragraphCount": 180,
-    "charCount": 43832
-  },
-  {
     "slug": "seagull-chekhov",
     "title": "The Seagull",
     "author": "Anton Chekhov",
@@ -142,15 +133,6 @@
     "chapterCount": 30,
     "paragraphCount": 2202,
     "charCount": 463988
-  },
-  {
-    "slug": "green-mansions",
-    "title": "A Theological-Political Treatise [Part Iv]",
-    "author": "Benedict of Spinoza",
-    "year": null,
-    "chapterCount": 9,
-    "paragraphCount": 494,
-    "charCount": 159062
   },
   {
     "slug": "heartbreak-house",
@@ -349,15 +331,6 @@
     "chapterCount": 20,
     "paragraphCount": 2222,
     "charCount": 320251
-  },
-  {
-    "slug": "fall-of-house-usher",
-    "title": "The Raven",
-    "author": "Edgar Allan Poe",
-    "year": "November 30, 2005",
-    "chapterCount": 4,
-    "paragraphCount": 194,
-    "charCount": 41593
   },
   {
     "slug": "spoon-river-anthology",
@@ -774,15 +747,6 @@
     "charCount": 852587
   },
   {
-    "slug": "the-bostonians",
-    "title": "The Bostonians, Vol. II (Of Ii)",
-    "author": "Henry James",
-    "year": "November 5, 2006",
-    "chapterCount": 19,
-    "paragraphCount": 1750,
-    "charCount": 453296
-  },
-  {
     "slug": "portrait-of-a-lady",
     "title": "The Portrait of a Lady",
     "author": "Henry James",
@@ -871,15 +835,6 @@
     "chapterCount": 16,
     "paragraphCount": 1803,
     "charCount": 370082
-  },
-  {
-    "slug": "pere-goriot",
-    "title": "Père Goriot",
-    "author": "Honoré de Balzac",
-    "year": "1835",
-    "chapterCount": 1,
-    "paragraphCount": 36,
-    "charCount": 3880
   },
   {
     "slug": "fathers-and-sons",
@@ -1557,15 +1512,6 @@
     "charCount": 571270
   },
   {
-    "slug": "antigone",
-    "title": "Aladdin and the Magic Lamp",
-    "author": "Unknown",
-    "year": null,
-    "chapterCount": 1,
-    "paragraphCount": 76,
-    "charCount": 28227
-  },
-  {
     "slug": "anna-karenina",
     "title": "Anna Karenina",
     "author": "Unknown",
@@ -1852,15 +1798,6 @@
     "chapterCount": 2,
     "paragraphCount": 1945,
     "charCount": 358245
-  },
-  {
-    "slug": "major-barbara",
-    "title": "Major Barbara",
-    "author": "Unknown",
-    "year": null,
-    "chapterCount": 1,
-    "paragraphCount": 162,
-    "charCount": 26701
   },
   {
     "slug": "man-iron-mask",
@@ -2187,15 +2124,6 @@
     "charCount": 819806
   },
   {
-    "slug": "arabian-nights",
-    "title": "The Arabian Nights Entertainments - Volume 04",
-    "author": "Unknown",
-    "year": "May 1, 2004",
-    "chapterCount": 21,
-    "paragraphCount": 2231,
-    "charCount": 771660
-  },
-  {
     "slug": "the-call-of-cthulhu",
     "title": "The Call Of Cthulhu",
     "author": "Unknown",
@@ -2509,14 +2437,5 @@
     "chapterCount": 1,
     "paragraphCount": 643,
     "charCount": 106992
-  },
-  {
-    "slug": "felix-holt",
-    "title": "Mr. Crewe's Career - Volume 3",
-    "author": "Winston Churchill",
-    "year": "October 16, 2004",
-    "chapterCount": 9,
-    "paragraphCount": 1388,
-    "charCount": 260889
   }
 ]
