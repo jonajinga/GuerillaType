@@ -299,6 +299,10 @@ document.querySelectorAll(".game-mode-switch__btn").forEach((b) => {
     document.querySelectorAll(".game-mode-switch__btn").forEach((x) => x.classList.toggle("is-active", x === b));
     if (running) reset();
     paintStats();
+    // The track HUD shows the current AI WPM at the bottom; without
+    // a re-paint here the label kept showing the previous tier
+    // until Start was clicked.
+    paintTrack();
   });
 });
 

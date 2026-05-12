@@ -258,22 +258,23 @@ function spawn() {
   }
 
   if (gameMode === "stroop") {
-    // Single word at a time. Word is colored in a NON-matching color;
-    // the user must type the literal word (ignoring the color).
+    // Stroop effect: the word is ALWAYS a color name, rendered in a
+    // DIFFERENT color. The user types the literal letters of the
+    // word (e.g. type "blue" when the word "blue" is painted red).
+    // The classic Stroop interference -- your brain wants to name
+    // the visible color, but the task is to read the literal word.
     if (falling.length) return;
-    // Pick a color from the palette that's NOT the literal word
-    // (when the word IS a color name). Otherwise any color works.
-    let color = STROOP_PALETTE[Math.floor(Math.random() * STROOP_PALETTE.length)];
-    if (STROOP_PALETTE.includes(w.toLowerCase())) {
-      const filtered = STROOP_PALETTE.filter((c) => c !== w.toLowerCase());
-      color = filtered[Math.floor(Math.random() * filtered.length)];
-    }
-    stroopCurrentColor = color;
+    const literal = STROOP_PALETTE[Math.floor(Math.random() * STROOP_PALETTE.length)];
+    // Render color must NOT match the literal word.
+    const otherColors = STROOP_PALETTE.filter((c) => c !== literal);
+    const renderColor = otherColors[Math.floor(Math.random() * otherColors.length)];
+    stroopCurrentColor = renderColor;
     falling.push({
-      id, word: w,
+      id,
+      word: literal,             // literal word the user types
       x: stageW / 2, y: stageH / 2,
       vx: 0, vy: 0, mode: "stroop",
-      stroopColor: color,
+      stroopColor: renderColor,  // visual color of the rendered text
     });
     return;
   }
@@ -404,25 +405,18 @@ function paintFalling() {
         .attr("stroke-linecap", "round")
         .attr("transform", "rotate(-90)");
     }
-    // Stroop mode: render a colored swatch as backdrop -- mismatched.
-    if (d.mode === "stroop") {
-      sel.append("rect")
-        .attr("class", "fall__stroop-bg")
-        .attr("x", -120).attr("y", -32)
-        .attr("width", 240).attr("height", 64)
-        .attr("rx", 8).attr("ry", 8)
-        .attr("fill", STROOP_COLOR_HEX[d.stroopColor] || "#888")
-        .attr("opacity", .85);
-    }
     const t = sel.append("text")
       .attr("text-anchor", "middle")
       .attr("font-family", "var(--font-mono)")
-      .attr("font-size", d.mode === "stroop" ? 32 : (d.mode === "bomb" ? 26 : 22))
-      .attr("font-weight", d.mode === "stroop" ? "600" : "500");
-    // Stroop: write text in WHITE on the colored backdrop so the
-    // user reads the LITERAL letters; the color is the distractor.
+      .attr("font-size", d.mode === "stroop" ? 64 : (d.mode === "bomb" ? 26 : 22))
+      .attr("font-weight", d.mode === "stroop" ? "800" : "500");
+    // Stroop: render the literal word's letters in the MISMATCHED
+    // color directly. No backdrop -- the conflict is the readable
+    // word on one hand and the visible color of its ink on the
+    // other. Underline-stroke helps the colored text stay legible
+    // against the stage's gradient background.
     if (d.mode === "stroop") {
-      t.attr("y", 10).attr("fill", "#ffffff").attr("stroke", "rgba(0,0,0,.4)").attr("stroke-width", 0.5);
+      t.attr("y", 16);
     }
     const chars = d.word.split("");
     chars.forEach((c, i) => {
@@ -439,16 +433,20 @@ function paintFalling() {
     .each(function(d) {
       const matchLen = (typed && d.word.startsWith(typed)) ? typed.length : 0;
       const sel = d3.select(this);
-      // Stroop keeps everything white (typed = brighter via opacity).
       sel.selectAll("tspan").attr("fill", function() {
-        if (d.mode === "stroop") return "#ffffff";
+        if (d.mode === "stroop") {
+          // Every letter painted in the mismatched render-color.
+          // Typed prefix dims slightly so the user sees their
+          // progress, but the color stays consistent across the word.
+          return STROOP_COLOR_HEX[d.stroopColor] || "#888";
+        }
         const i = +this.getAttribute("data-i");
         if (i < matchLen) return "var(--accent)";
         return "var(--fg-0)";
       }).attr("opacity", function() {
         if (d.mode !== "stroop") return null;
         const i = +this.getAttribute("data-i");
-        return i < matchLen ? 1 : 0.7;
+        return i < matchLen ? 0.45 : 1;
       });
       // Bomb countdown ring (stroke-dasharray to draw % left).
       if (d.mode === "bomb") {
@@ -1031,14 +1029,14 @@ const MODE_COPY = {
   },
   stroop: {
     title: "Stroop Type",
-    subtitle: "Words are painted in colors that don't match the word. Type the LITERAL word; ignore the color. Brain-training meets typing.",
-    hint: "Tap Start. A word appears in a color-mismatched swatch (e.g. the word RED in blue paint). Type the literal letters — the color is the distractor.",
+    subtitle: "A color name appears, painted in a different color. Type the WORD; ignore the color it's painted in. The classic Stroop effect, typing-flavored.",
+    hint: "Tap Start. A color word (red / blue / green / yellow / purple / orange) appears, painted in a different color. Type the WORD; ignore the color of the ink.",
     howtoTitle: "How to play — Stroop Type",
     howto: [
-      "A word appears in a colored swatch. The swatch color is chosen to <strong>NOT match</strong> the literal word.",
-      "Type the <strong>literal word</strong>, ignoring the color. (The classic Stroop effect: your brain wants to name the color instead.)",
-      "There's no movement and no miss timer — go at your own pace. Score = 1 per correct word, with the streak multiplier still applied.",
-      "Brain-training crossover: useful for sharpening focus and resisting visual distractors while typing.",
+      "A color name appears in large letters — but the letters are painted in a <strong>different</strong> color. Example: the word <code>blue</code> rendered in red ink.",
+      "Type the <strong>literal word</strong> (the letters you read), ignoring the color of the ink. Your brain instinctively wants to name the visible color — resist it and read the word.",
+      "There's no timer and no movement — go at your own pace. Score is +1 per correct word; the streak multiplier still applies.",
+      "Classic Stroop interference: useful for sharpening focus and resisting visual distractors. The harder the word/color conflict, the more rep you build.",
     ],
   },
 };
