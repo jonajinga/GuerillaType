@@ -81,15 +81,6 @@
     "charCount": 43832
   },
   {
-    "slug": "cherry-orchard",
-    "title": "The Cherry Orchard",
-    "author": "Anton Chekhov",
-    "year": "1904",
-    "chapterCount": 14,
-    "paragraphCount": 2767,
-    "charCount": 375236
-  },
-  {
     "slug": "seagull-chekhov",
     "title": "The Seagull",
     "author": "Anton Chekhov",
@@ -97,15 +88,6 @@
     "chapterCount": 1,
     "paragraphCount": 770,
     "charCount": 100651
-  },
-  {
-    "slug": "three-sisters-chekhov",
-    "title": "Three Sisters",
-    "author": "Anton Chekhov",
-    "year": "1900",
-    "chapterCount": 15,
-    "paragraphCount": 1586,
-    "charCount": 346225
   },
   {
     "slug": "uncle-vanya",
@@ -360,15 +342,6 @@
     "charCount": 605119
   },
   {
-    "slug": "five-children-and-it",
-    "title": "Five Children and It",
-    "author": "E. Nesbit",
-    "year": "1902",
-    "chapterCount": 43,
-    "paragraphCount": 2471,
-    "charCount": 272341
-  },
-  {
     "slug": "railway-children",
     "title": "The Railway Children",
     "author": "E. Nesbit",
@@ -441,15 +414,6 @@
     "charCount": 307966
   },
   {
-    "slug": "thuvia-maid-mars",
-    "title": "Thuvia, Maid of Mars",
-    "author": "Edgar Rice Burroughs",
-    "year": "1916",
-    "chapterCount": 13,
-    "paragraphCount": 631,
-    "charCount": 180444
-  },
-  {
     "slug": "house-of-mirth",
     "title": "The House of Mirth",
     "author": "Edith Wharton",
@@ -457,15 +421,6 @@
     "chapterCount": 15,
     "paragraphCount": 1279,
     "charCount": 358444
-  },
-  {
-    "slug": "germinal",
-    "title": "Germinal",
-    "author": "Émile Zola",
-    "year": "1885",
-    "chapterCount": 5,
-    "paragraphCount": 367,
-    "charCount": 110113
   },
   {
     "slug": "therese-raquin",
@@ -819,15 +774,6 @@
     "charCount": 852587
   },
   {
-    "slug": "emma-mcteague",
-    "title": "The Ambassadors",
-    "author": "Henry James",
-    "year": null,
-    "chapterCount": 35,
-    "paragraphCount": 3835,
-    "charCount": 852587
-  },
-  {
     "slug": "the-bostonians",
     "title": "The Bostonians, Vol. II (Of Ii)",
     "author": "Henry James",
@@ -844,15 +790,6 @@
     "chapterCount": 28,
     "paragraphCount": 3154,
     "charCount": 650838
-  },
-  {
-    "slug": "princess-casamassima",
-    "title": "The Princess Casamassima",
-    "author": "Henry James",
-    "year": "1886",
-    "chapterCount": 1,
-    "paragraphCount": 184,
-    "charCount": 24459
   },
   {
     "slug": "turn-of-the-screw",
@@ -1053,15 +990,6 @@
     "charCount": 211709
   },
   {
-    "slug": "forsyte-saga",
-    "title": "The Forsyte Saga",
-    "author": "John Galsworthy",
-    "year": "1922",
-    "chapterCount": 35,
-    "paragraphCount": 890,
-    "charCount": 248163
-  },
-  {
     "slug": "on-liberty-mill",
     "title": "On Liberty",
     "author": "John Stuart Mill",
@@ -1177,15 +1105,6 @@
     "chapterCount": 14,
     "paragraphCount": 1115,
     "charCount": 297588
-  },
-  {
-    "slug": "ozma-of-oz",
-    "title": "Ozma of Oz",
-    "author": "L. Frank Baum",
-    "year": "1907",
-    "chapterCount": 16,
-    "paragraphCount": 1301,
-    "charCount": 391294
   },
   {
     "slug": "land-of-oz",
