@@ -1,0 +1,50 @@
+---
+layout: layouts/base.njk
+permalink: /practice/snake/
+title: "Word Snake — Type to steer"
+description: "Classic snake, but you steer by typing direction words. Eat the food, grow longer, don't crash."
+hideBreadcrumbs: true
+hidePageHeader: true
+pageSlug: practice-snake
+---
+
+<div class="game-page" data-game-root>
+  <header class="game-header">
+    <div class="game-header__brand">
+      <h1 id="game-title">Word Snake</h1>
+      <p class="muted" id="game-subtitle">Steer the snake by typing direction words. Eat food to grow longer. Hit wall or self = game over.</p>
+    </div>
+    <div class="game-header__stats" id="game-stats">
+      <div class="game-stat game-stat--score"><span class="game-stat__label">Score</span><span class="game-stat__value" data-score>0</span></div>
+      <div class="game-stat"><span class="game-stat__label">Length</span><span class="game-stat__value" data-length>3</span></div>
+      <div class="game-stat"><span class="game-stat__label">Food</span><span class="game-stat__value" data-food>0</span></div>
+      <div class="game-stat game-stat--best"><span class="game-stat__label">Best</span><span class="game-stat__value" data-best>0</span></div>
+    </div>
+  </header>
+
+  <section class="snake-stage">
+    <svg id="snake-svg" class="snake-svg" viewBox="0 0 600 450" preserveAspectRatio="xMidYMid meet" aria-label="Snake grid"></svg>
+    <div class="game-input-wrap">
+      <input id="game-input" class="game-input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="text" enterkeyhint="done" aria-label="Type a direction" placeholder="Type: up · down · left · right (or u/d/l/r)…">
+    </div>
+  </section>
+
+  <section class="game-actions">
+    <button type="button" class="btn btn--primary" id="game-start">Start</button>
+    <button type="button" class="btn" id="game-pause" hidden>Pause</button>
+    <button type="button" class="btn" id="game-reset" hidden>Reset</button>
+    <a href="/games/" class="btn btn--ghost">Back to games</a>
+  </section>
+
+  <section class="game-howto" aria-label="How to play">
+    <h2>How to play — Word Snake</h2>
+    <ul>
+      <li>Type a direction word (<code>up</code>, <code>down</code>, <code>left</code>, <code>right</code>) or its first letter (<code>u</code>, <code>d</code>, <code>l</code>, <code>r</code>) to steer the snake.</li>
+      <li>Press <kbd>space</kbd> or <kbd>Enter</kbd> after typing to commit the direction. The snake moves continuously; commit the new direction before the next tick.</li>
+      <li>Eat food to grow longer and score +10 per food. Each food eaten speeds the snake up slightly.</li>
+      <li>Hit a wall or your own tail and the round ends. High score saves to your profile.</li>
+    </ul>
+  </section>
+</div>
+
+<script type="module" src="/assets/js/pages/snake-boot.js?v={{ cssVersion }}"></script>

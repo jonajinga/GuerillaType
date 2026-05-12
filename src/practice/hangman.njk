@@ -1,0 +1,51 @@
+---
+layout: layouts/base.njk
+permalink: /practice/hangman/
+title: "Hangman Speedrun — Race the noose"
+description: "Type letters to reveal the target word before the hangman is complete. Faster word = bigger score. Series of puzzles, harder words as score climbs."
+hideBreadcrumbs: true
+hidePageHeader: true
+pageSlug: practice-hangman
+---
+
+<div class="game-page" data-game-root>
+  <header class="game-header">
+    <div class="game-header__brand">
+      <h1 id="game-title">Hangman Speedrun</h1>
+      <p class="muted" id="game-subtitle">Type single letters to guess the word. 15 seconds per puzzle. Six wrong = hangman complete = round over.</p>
+    </div>
+    <div class="game-header__stats" id="game-stats">
+      <div class="game-stat game-stat--score"><span class="game-stat__label">Score</span><span class="game-stat__value" data-score>0</span></div>
+      <div class="game-stat"><span class="game-stat__label">Solved</span><span class="game-stat__value" data-solved>0</span></div>
+      <div class="game-stat"><span class="game-stat__label">Wrong</span><span class="game-stat__value" data-wrong>0</span></div>
+      <div class="game-stat game-stat--best"><span class="game-stat__label">Best</span><span class="game-stat__value" data-best>0</span></div>
+    </div>
+  </header>
+
+  <section class="hangman-stage">
+    <svg id="hangman-svg" class="hangman-svg" viewBox="0 0 600 360" preserveAspectRatio="xMidYMid meet" aria-label="Hangman"></svg>
+    <div class="hangman-letters" id="hangman-letters" aria-live="polite"></div>
+    <p class="hangman-tried" id="hangman-tried"></p>
+    <div class="game-input-wrap">
+      <input id="game-input" class="game-input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="text" enterkeyhint="done" maxlength="1" aria-label="Guess a letter" placeholder="Type a single letter…">
+    </div>
+  </section>
+
+  <section class="game-actions">
+    <button type="button" class="btn btn--primary" id="game-start">Start</button>
+    <button type="button" class="btn" id="game-reset" hidden>Reset</button>
+    <a href="/games/" class="btn btn--ghost">Back to games</a>
+  </section>
+
+  <section class="game-howto" aria-label="How to play">
+    <h2>How to play — Hangman Speedrun</h2>
+    <ul>
+      <li>A target word appears as blanks. Type one letter at a time to guess. Correct letters reveal positions.</li>
+      <li>Each puzzle has a <strong>15-second timer</strong>. Solve before time runs out to score; the faster you solve, the bigger the bonus.</li>
+      <li>You can be wrong up to <strong>five times</strong> per puzzle. Six wrong guesses completes the hangman and ends the round.</li>
+      <li>Words get harder as your score climbs. Words come from your missed-words list when available.</li>
+    </ul>
+  </section>
+</div>
+
+<script type="module" src="/assets/js/pages/hangman-boot.js?v={{ cssVersion }}"></script>

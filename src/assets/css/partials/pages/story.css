@@ -1,0 +1,38 @@
+/* /practice/story/ -- Story Mode */
+
+.story-stage{
+  background:var(--bg-1);
+  border:1px solid var(--rule);
+  border-radius:var(--radius);
+  padding:var(--space-5) var(--space-4) 0;
+}
+.story-source{
+  font-family:var(--font-mono);font-size:.7rem;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--fg-3);
+  margin:0 0 var(--space-3);
+}
+.story-prompt{
+  font-family:var(--font-display);
+  display:block;
+  font-size:1.25rem;line-height:1.65;color:var(--fg-2);
+  min-height:9rem;
+  text-align:left;
+}
+.story-prompt__prev{color:var(--fg-3);opacity:.65;display:inline}
+.story-prompt__cur{
+  display:inline;color:var(--accent);font-weight:600;
+  padding:.1em .35em;
+  background:color-mix(in oklab, var(--accent) 14%, transparent);
+  border-radius:var(--radius);
+  margin:0 .15em;
+}
+.story-prompt__next{color:var(--fg-1);opacity:.95;display:inline}
+.story-stage .game-input-wrap{
+  margin-top:var(--space-4);
+  padding:var(--space-3) 0;
+  border-top:1px solid var(--rule);
+}
+
+@media (max-width:600px){
+  .story-prompt{font-size:1.05rem;line-height:1.55;min-height:8rem}
+}

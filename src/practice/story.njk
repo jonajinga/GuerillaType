@@ -1,0 +1,56 @@
+---
+layout: layouts/base.njk
+permalink: /practice/story/
+title: "Story Mode — Type your way through a passage"
+description: "A public-domain passage appears word by word. Type each word to reveal the next. Reading flow practice with live WPM."
+hideBreadcrumbs: true
+hidePageHeader: true
+pageSlug: practice-story
+---
+
+<div class="game-page" data-game-root>
+  <header class="game-header">
+    <div class="game-header__brand">
+      <h1 id="game-title">Story Mode</h1>
+      <p class="muted" id="game-subtitle">A passage appears word by word. Type each word to reveal the next; finish to clear the story.</p>
+    </div>
+    <div class="game-header__stats" id="game-stats">
+      <div class="game-stat game-stat--score"><span class="game-stat__label">Progress</span><span class="game-stat__value" data-progress>0%</span></div>
+      <div class="game-stat"><span class="game-stat__label">WPM</span><span class="game-stat__value" data-wpm>0</span></div>
+      <div class="game-stat"><span class="game-stat__label">Acc</span><span class="game-stat__value" data-acc>100%</span></div>
+      <div class="game-stat"><span class="game-stat__label">Words</span><span class="game-stat__value" data-words>0</span></div>
+      <div class="game-stat game-stat--best"><span class="game-stat__label">Best WPM</span><span class="game-stat__value" data-best>0</span></div>
+    </div>
+  </header>
+
+  <section class="story-stage">
+    <p class="story-source" id="story-source">Choose a passage and start typing.</p>
+    <div class="story-prompt" id="story-prompt" aria-live="polite">
+      <span class="story-prompt__prev" id="story-prev"></span>
+      <span class="story-prompt__cur" id="story-cur">Tap Start to begin.</span>
+      <span class="story-prompt__next" id="story-next"></span>
+    </div>
+    <div class="game-input-wrap">
+      <input id="game-input" class="game-input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="text" enterkeyhint="done" aria-label="Type the highlighted word" placeholder="Type each word, then press space…">
+    </div>
+  </section>
+
+  <section class="game-actions">
+    <button type="button" class="btn btn--primary" id="game-start">Start</button>
+    <button type="button" class="btn" id="game-skip" hidden>Skip passage</button>
+    <button type="button" class="btn" id="game-reset" hidden>Reset</button>
+    <a href="/games/" class="btn btn--ghost">Back to games</a>
+  </section>
+
+  <section class="game-howto" aria-label="How to play">
+    <h2>How to play — Story Mode</h2>
+    <ul>
+      <li>A short public-domain passage appears one word at a time. Type each word to advance.</li>
+      <li>Press space to commit. Wrong word? The input clears; try again.</li>
+      <li>Finish the passage to score it as a complete read. Your fastest WPM across passages saves to your profile.</li>
+      <li>Pure reading-flow practice. No timer, no game-over — just type until you reach the end.</li>
+    </ul>
+  </section>
+</div>
+
+<script type="module" src="/assets/js/pages/story-boot.js?v={{ cssVersion }}"></script>

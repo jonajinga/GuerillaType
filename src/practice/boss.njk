@@ -1,0 +1,52 @@
+---
+layout: layouts/base.njk
+permalink: /practice/boss/
+title: "Boss Battle — Type to defeat the boss"
+description: "An HP-bar boss appears. Every correctly typed word deals damage; misses heal the boss. Defeat them to advance to a tougher boss."
+hideBreadcrumbs: true
+hidePageHeader: true
+pageSlug: practice-boss
+---
+
+<div class="game-page" data-game-root>
+  <header class="game-header">
+    <div class="game-header__brand">
+      <h1 id="game-title">Boss Battle</h1>
+      <p class="muted" id="game-subtitle">Type words to deal damage. Misses heal the boss. Defeat them to advance.</p>
+    </div>
+    <div class="game-header__stats" id="game-stats">
+      <div class="game-stat game-stat--score"><span class="game-stat__label">Score</span><span class="game-stat__value" data-score>0</span></div>
+      <div class="game-stat"><span class="game-stat__label">Level</span><span class="game-stat__value" data-level>1</span></div>
+      <div class="game-stat"><span class="game-stat__label">Defeats</span><span class="game-stat__value" data-defeats>0</span></div>
+      <div class="game-stat"><span class="game-stat__label">Streak</span><span class="game-stat__value" data-streak>0</span></div>
+      <div class="game-stat game-stat--best"><span class="game-stat__label">Best</span><span class="game-stat__value" data-best>0</span></div>
+    </div>
+  </header>
+
+  <section class="boss-stage">
+    <svg id="boss-svg" class="boss-svg" viewBox="0 0 800 360" preserveAspectRatio="xMidYMid meet" aria-label="Boss arena"></svg>
+    <div class="game-input-wrap">
+      <input id="game-input" class="game-input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="text" enterkeyhint="done" aria-label="Type to attack" placeholder="Type the word to attack…">
+    </div>
+  </section>
+
+  <section class="game-actions">
+    <button type="button" class="btn btn--primary" id="game-start">Start battle</button>
+    <button type="button" class="btn" id="game-pause" hidden>Pause</button>
+    <button type="button" class="btn" id="game-reset" hidden>Reset</button>
+    <a href="/games/" class="btn btn--ghost">Back to games</a>
+  </section>
+
+  <section class="game-howto" aria-label="How to play">
+    <h2>How to play — Boss Battle</h2>
+    <ul>
+      <li>A boss appears with an HP bar. A word floats above their head — type it to attack.</li>
+      <li>Each correct word deals <strong>length × streak-multiplier</strong> damage. Long words = big damage.</li>
+      <li>If you type a wrong word or let the prompt timeout (8 seconds), the boss heals 8 HP and your streak resets.</li>
+      <li>Defeat a boss → advance a level. Boss HP grows 50% each level; word timers shrink slightly. Defeat as many as you can.</li>
+      <li>Score per fight = total damage dealt. Saved per profile.</li>
+    </ul>
+  </section>
+</div>
+
+<script type="module" src="/assets/js/pages/boss-boot.js?v={{ cssVersion }}"></script>

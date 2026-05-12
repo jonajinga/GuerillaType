@@ -1,0 +1,51 @@
+---
+layout: layouts/base.njk
+permalink: /practice/bigrams/
+title: "Bigram Drill — Burst-speed muscle memory"
+description: "Short letter combos appear (the, ing, str, etc). Type each as fast as you can. Adaptive: weights toward your weakest bigrams."
+hideBreadcrumbs: true
+hidePageHeader: true
+pageSlug: practice-bigrams
+---
+
+<div class="game-page" data-game-root>
+  <header class="game-header">
+    <div class="game-header__brand">
+      <h1 id="game-title">Bigram Drill</h1>
+      <p class="muted" id="game-subtitle">Short 2-3 letter combos appear in rapid succession. Type each as fast as you can. Adaptive — biased toward your weakest combos.</p>
+    </div>
+    <div class="game-header__stats" id="game-stats">
+      <div class="game-stat game-stat--score"><span class="game-stat__label">Score</span><span class="game-stat__value" data-score>0</span></div>
+      <div class="game-stat"><span class="game-stat__label">Cleared</span><span class="game-stat__value" data-cleared>0</span></div>
+      <div class="game-stat"><span class="game-stat__label">WPM</span><span class="game-stat__value" data-wpm>0</span></div>
+      <div class="game-stat"><span class="game-stat__label">Streak</span><span class="game-stat__value" data-streak>0</span></div>
+      <div class="game-stat game-stat--best"><span class="game-stat__label">Best</span><span class="game-stat__value" data-best>0</span></div>
+    </div>
+  </header>
+
+  <section class="bigrams-stage">
+    <div class="bigrams-display" id="bigrams-display">Press Start.</div>
+    <div class="bigrams-timer" id="bigrams-timer"></div>
+    <div class="game-input-wrap">
+      <input id="game-input" class="game-input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="text" enterkeyhint="done" aria-label="Type the bigram" placeholder="Type the letters and press space…">
+    </div>
+  </section>
+
+  <section class="game-actions">
+    <button type="button" class="btn btn--primary" id="game-start">Start 60s</button>
+    <button type="button" class="btn" id="game-reset" hidden>Reset</button>
+    <a href="/games/" class="btn btn--ghost">Back to games</a>
+  </section>
+
+  <section class="game-howto" aria-label="How to play">
+    <h2>How to play — Bigram Drill</h2>
+    <ul>
+      <li>A 2-3 letter combo (a "bigram" or "trigram") appears. Type it and press space. Next combo appears immediately.</li>
+      <li>You have <strong>60 seconds</strong>. Score = (cleared × 5) + WPM bonus. Streak grows with each correct in a row.</li>
+      <li>Pool draws from common English letter pairs: <code>th</code>, <code>he</code>, <code>in</code>, <code>er</code>, <code>an</code>, <code>str</code>, <code>ing</code>, <code>ion</code>, <code>tion</code>, etc.</li>
+      <li>Pure speed + muscle memory drill. Best for warming up before a longer typing session.</li>
+    </ul>
+  </section>
+</div>
+
+<script type="module" src="/assets/js/pages/bigrams-boot.js?v={{ cssVersion }}"></script>

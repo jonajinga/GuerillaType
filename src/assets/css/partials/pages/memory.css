@@ -1,0 +1,49 @@
+/* /practice/memory/ -- Memory Type */
+
+.memory-stage{
+  background:var(--bg-1);
+  border:1px solid var(--rule);
+  border-radius:var(--radius);
+  padding:var(--space-5) var(--space-4) 0;
+  min-height:340px;
+  display:flex;flex-direction:column;
+}
+.memory-phase{
+  font-family:var(--font-mono);font-size:.7rem;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--accent);
+  margin:0 0 var(--space-3);text-align:center;
+}
+.memory-display{
+  font-family:var(--font-display);
+  font-size:3.6rem;font-weight:500;
+  color:var(--accent);
+  text-align:center;
+  min-height:5rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.memory-summary{
+  font-family:var(--font-mono);font-size:1rem;color:var(--fg-1);
+}
+.memory-slots{
+  display:flex;justify-content:center;flex-wrap:wrap;gap:.5em;
+  padding:var(--space-3) 0;
+}
+.memory-slot{
+  display:inline-block;
+  font-family:var(--font-mono);
+  padding:.35em .9em;
+  background:var(--bg-2);border:1px solid var(--rule);
+  border-radius:var(--radius);
+  color:var(--fg-3);font-size:.95rem;
+}
+.memory-slot.is-hidden{color:var(--fg-3);opacity:.3}
+.memory-slot.is-typed{color:var(--accent);border-color:var(--accent);background:color-mix(in oklab, var(--accent) 12%, transparent)}
+.memory-stage .game-input-wrap{
+  margin-top:auto;
+  padding:var(--space-3) 0;
+  border-top:1px solid var(--rule);
+}
+
+@media (max-width:600px){
+  .memory-display{font-size:2.4rem;min-height:3.5rem}
+}

@@ -1,0 +1,51 @@
+---
+layout: layouts/base.njk
+permalink: /practice/memory/
+title: "Memory Type — Sequences from working memory"
+description: "A short sequence of words flashes one at a time. Reproduce it from memory by typing. Get longer each round."
+hideBreadcrumbs: true
+hidePageHeader: true
+pageSlug: practice-memory
+---
+
+<div class="game-page" data-game-root>
+  <header class="game-header">
+    <div class="game-header__brand">
+      <h1 id="game-title">Memory Type</h1>
+      <p class="muted" id="game-subtitle">Watch a sequence of words flash. When the prompt switches to "Type the sequence," reproduce it in order. Each round adds one word.</p>
+    </div>
+    <div class="game-header__stats" id="game-stats">
+      <div class="game-stat game-stat--score"><span class="game-stat__label">Score</span><span class="game-stat__value" data-score>0</span></div>
+      <div class="game-stat"><span class="game-stat__label">Round</span><span class="game-stat__value" data-round>1</span></div>
+      <div class="game-stat"><span class="game-stat__label">Length</span><span class="game-stat__value" data-length>3</span></div>
+      <div class="game-stat game-stat--best"><span class="game-stat__label">Best round</span><span class="game-stat__value" data-best>0</span></div>
+    </div>
+  </header>
+
+  <section class="memory-stage">
+    <div class="memory-phase" id="memory-phase">Press Start to watch the first sequence.</div>
+    <div class="memory-display" id="memory-display"></div>
+    <div class="memory-slots" id="memory-slots"></div>
+    <div class="game-input-wrap">
+      <input id="game-input" class="game-input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="text" enterkeyhint="done" aria-label="Type the sequence" placeholder="When prompted, type each word and press space…" disabled>
+    </div>
+  </section>
+
+  <section class="game-actions">
+    <button type="button" class="btn btn--primary" id="game-start">Start</button>
+    <button type="button" class="btn" id="game-reset" hidden>Reset</button>
+    <a href="/games/" class="btn btn--ghost">Back to games</a>
+  </section>
+
+  <section class="game-howto" aria-label="How to play">
+    <h2>How to play — Memory Type</h2>
+    <ul>
+      <li>A sequence of words flashes one at a time, ~800ms each. Watch and remember the order.</li>
+      <li>When the prompt switches to <strong>"Type the sequence"</strong>, the input enables. Type each word and press space.</li>
+      <li>Get all words right → next round adds one word. Round 1 has 3 words; round N has N+2.</li>
+      <li>One wrong word ends the round. Best round and best score save to your profile.</li>
+    </ul>
+  </section>
+</div>
+
+<script type="module" src="/assets/js/pages/memory-boot.js?v={{ cssVersion }}"></script>

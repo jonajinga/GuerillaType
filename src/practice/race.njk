@@ -1,0 +1,62 @@
+---
+layout: layouts/base.njk
+permalink: /practice/race/
+title: "Typing Race — Type to win"
+description: "Race a ghost AI by typing words faster than it does. Pick your difficulty, hit start, type to finish the track first."
+hideBreadcrumbs: true
+hidePageHeader: true
+pageSlug: practice-race
+---
+
+<div class="game-page" data-game-root>
+  <header class="game-header">
+    <div class="game-header__brand">
+      <h1 id="game-title">Typing Race</h1>
+      <p class="muted" id="game-subtitle">Race a ghost AI to the finish line. Every correctly-typed word moves your car forward; the AI moves at a steady WPM.</p>
+    </div>
+    <div class="game-header__stats" id="game-stats">
+      <div class="game-stat game-stat--score"><span class="game-stat__label">Words</span><span class="game-stat__value" data-words>0</span></div>
+      <div class="game-stat"><span class="game-stat__label">WPM</span><span class="game-stat__value" data-wpm>0</span></div>
+      <div class="game-stat"><span class="game-stat__label">Acc</span><span class="game-stat__value" data-acc>100%</span></div>
+      <div class="game-stat"><span class="game-stat__label">Streak</span><span class="game-stat__value" data-streak>0</span></div>
+      <div class="game-stat game-stat--best"><span class="game-stat__label">Best WPM</span><span class="game-stat__value" data-best>0</span></div>
+    </div>
+  </header>
+
+  <nav class="game-mode-switch" aria-label="Difficulty">
+    <button type="button" class="game-mode-switch__btn is-active" data-difficulty="easy" data-tip="AI runs at 40 WPM. Beginner-friendly.">Easy 40 WPM</button>
+    <button type="button" class="game-mode-switch__btn" data-difficulty="medium" data-tip="AI runs at 60 WPM. Average typist.">Medium 60 WPM</button>
+    <button type="button" class="game-mode-switch__btn" data-difficulty="hard" data-tip="AI runs at 80 WPM. Trained typist.">Hard 80 WPM</button>
+    <button type="button" class="game-mode-switch__btn" data-difficulty="pro" data-tip="AI runs at 100 WPM. Pro level.">Pro 100 WPM</button>
+  </nav>
+
+  <section class="race-stage">
+    <svg id="race-svg" class="race-svg" viewBox="0 0 800 320" preserveAspectRatio="xMidYMid meet" aria-label="Race track"></svg>
+    <div class="race-prompt" id="race-prompt" aria-live="polite">
+      <span class="race-prompt__prev" id="race-prev"></span>
+      <span class="race-prompt__cur" id="race-cur"></span>
+      <span class="race-prompt__next" id="race-next"></span>
+    </div>
+    <div class="game-input-wrap">
+      <input id="game-input" class="game-input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="text" enterkeyhint="done" aria-label="Type the word" placeholder="Type the highlighted word…">
+    </div>
+  </section>
+
+  <section class="game-actions">
+    <button type="button" class="btn btn--primary" id="game-start">Start race</button>
+    <button type="button" class="btn" id="game-reset" hidden>Reset</button>
+    <a href="/games/" class="btn btn--ghost">Back to games</a>
+  </section>
+
+  <section class="game-howto" aria-label="How to play">
+    <h2>How to play — Typing Race</h2>
+    <ul>
+      <li>Type each word as it highlights in the prompt. A correct word advances your car along the track.</li>
+      <li>The ghost AI car moves at a steady speed based on the difficulty you choose: 40, 60, 80, or 100 WPM.</li>
+      <li>First car to the finish line (60 words) wins. Your final speed is recorded as a personal-best WPM per difficulty.</li>
+      <li>Typos clear the input; just try again. Streak grows with each clean word and feeds the score multiplier.</li>
+    </ul>
+  </section>
+</div>
+
+<script type="module" src="/assets/js/pages/race-boot.js?v={{ cssVersion }}"></script>

@@ -1,0 +1,50 @@
+---
+layout: layouts/base.njk
+permalink: /practice/tetris/
+title: "Word Tetris — Letters stack, words clear"
+description: "Letters fall in columns. Type a word that matches the top letters of consecutive columns to clear them. Don't let the grid fill up."
+hideBreadcrumbs: true
+hidePageHeader: true
+pageSlug: practice-tetris
+---
+
+<div class="game-page" data-game-root>
+  <header class="game-header">
+    <div class="game-header__brand">
+      <h1 id="game-title">Word Tetris</h1>
+      <p class="muted" id="game-subtitle">Letters drop in columns. Type a 3+ letter word matching the top letters of adjacent columns to clear them. Grid fills up = game over.</p>
+    </div>
+    <div class="game-header__stats" id="game-stats">
+      <div class="game-stat game-stat--score"><span class="game-stat__label">Score</span><span class="game-stat__value" data-score>0</span></div>
+      <div class="game-stat"><span class="game-stat__label">Cleared</span><span class="game-stat__value" data-cleared>0</span></div>
+      <div class="game-stat"><span class="game-stat__label">Level</span><span class="game-stat__value" data-level>1</span></div>
+      <div class="game-stat game-stat--best"><span class="game-stat__label">Best</span><span class="game-stat__value" data-best>0</span></div>
+    </div>
+  </header>
+
+  <section class="tetris-stage">
+    <svg id="tetris-svg" class="tetris-svg" viewBox="0 0 400 600" preserveAspectRatio="xMidYMid meet" aria-label="Letter grid"></svg>
+    <div class="game-input-wrap">
+      <input id="game-input" class="game-input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="text" enterkeyhint="done" aria-label="Type a word" placeholder="Type a word (3+ letters) and press space…">
+    </div>
+  </section>
+
+  <section class="game-actions">
+    <button type="button" class="btn btn--primary" id="game-start">Start</button>
+    <button type="button" class="btn" id="game-pause" hidden>Pause</button>
+    <button type="button" class="btn" id="game-reset" hidden>Reset</button>
+    <a href="/games/" class="btn btn--ghost">Back to games</a>
+  </section>
+
+  <section class="game-howto" aria-label="How to play">
+    <h2>How to play — Word Tetris</h2>
+    <ul>
+      <li>Letters drop one at a time into random columns. The grid is 8 columns × 15 rows.</li>
+      <li>Type a 3+ letter word and press space. If the word matches the <strong>top letters of three or more adjacent columns</strong> (left to right), those letters vanish.</li>
+      <li>Each clear scores <strong>word length × column count</strong>. Levels speed up the letter drop rate.</li>
+      <li>If any column fills to the top of the grid, the round ends.</li>
+    </ul>
+  </section>
+</div>
+
+<script type="module" src="/assets/js/pages/tetris-boot.js?v={{ cssVersion }}"></script>

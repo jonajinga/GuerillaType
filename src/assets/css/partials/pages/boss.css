@@ -1,0 +1,22 @@
+/* /practice/boss/ -- Boss Battle */
+
+.boss-stage{
+  position:relative;
+  background:var(--bg-1);
+  border:1px solid var(--rule);
+  border-radius:var(--radius);
+  overflow:hidden;
+}
+.boss-svg{
+  display:block;width:100%;height:360px;
+}
+.boss-stage .game-input-wrap{
+  position:absolute;left:0;right:0;bottom:0;
+  padding:var(--space-3) var(--space-4);
+  background:color-mix(in oklab, var(--bg-0) 88%, transparent);
+  border-top:1px solid var(--rule);
+}
+
+@media (max-width:600px){
+  .boss-svg{height:280px}
+}

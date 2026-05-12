@@ -34,7 +34,24 @@ let speedMult = 1.0;
 // Mode flags. URL ?mode=endless | shooter sets the initial mode;
 // the user can switch via the in-page mode switch buttons too.
 const _gameParams = new URLSearchParams(location.search);
-let gameMode = ({ endless: "endless", shooter: "shooter", classic: "classic" })[_gameParams.get("mode")] || "classic";
+const ALL_MODES = ["classic","endless","shooter","asteroids","bomb","tower","combo-sprint","stroop"];
+let gameMode = ALL_MODES.includes(_gameParams.get("mode")) ? _gameParams.get("mode") : "classic";
+// Tower mode runs a defensive base HP bar instead of the miss-counter.
+let baseHP = 100;
+const BASE_HP_MAX = 100;
+// Tower lane Y-coordinates (3 horizontal lanes).
+const TOWER_LANES = [stageH * 0.28, stageH * 0.50, stageH * 0.72];
+// Stroop color palette. The chosen color is RENDERED on the word
+// but the user must type the LITERAL word, ignoring the color.
+const STROOP_PALETTE = ["red","blue","green","yellow","purple","orange"];
+const STROOP_COLOR_HEX = {
+  red: "#d76050", blue: "#5b8bd6", green: "#76c893",
+  yellow: "#e3b873", purple: "#9b6bd6", orange: "#e58060",
+};
+let stroopCurrentColor = null;
+// Combo Sprint: chain timer. Resets on idle.
+let lastCatchTs = 0;
+const COMBO_CHAIN_IDLE_MS = 2200;
 const initialSpeed = parseFloat(_gameParams.get("speed")) || 1.0;
 speedMult = initialSpeed;
 
@@ -125,8 +142,11 @@ function reset() {
   running = false;
   falling = [];
   stats = { score: 0, caught: 0, missed: 0, streak: 0, bestStreak: 0 };
+  baseHP = BASE_HP_MAX;
+  lastCatchTs = 0;
+  stroopCurrentColor = null;
   paintStats();
-  if (svgSel) svgSel.selectAll("g.fall").remove();
+  if (svgSel) svgSel.selectAll("g.fall, g.fall-hud").remove();
   if (input) input.value = "";
 }
 
@@ -163,47 +183,108 @@ function paintStats() {
 function spawn() {
   const w = pickWord();
   if (!w) return;
-  // Approximate half-width of the word at 22px monospace. A
-  // little wider than mono-precise to leave breathing room on the
-  // sides so the word's edges never visibly kiss the stage walls.
   const halfW = Math.max(20, Math.ceil(w.length * 7));
   const margin = 16;
+  const id = Math.random().toString(36).slice(2);
+
   if (gameMode === "shooter") {
-    // Shooter: word enters fully off-screen to the LEFT, drifts
-    // right. Vertical band stops above the input box (which
-    // overlays the bottom ~80 px of the stage) AND clears the
-    // top edge by enough to fit the font's ascent (~22 px).
     const minY = 28;
     const maxY = Math.max(minY + 1, stageH - 110);
     const y = minY + Math.random() * (maxY - minY);
     const vx = 40 + Math.random() * 30 + stats.caught * 0.8;
+    falling.push({ id, word: w, x: -halfW - 6, y, vx: vx * speedMult, vy: 0, mode: "shooter" });
+    return;
+  }
+
+  if (gameMode === "asteroids") {
+    // Place the word on a circle around the center, velocity toward center.
+    const cx = stageW / 2, cy = stageH / 2;
+    const angle = Math.random() * Math.PI * 2;
+    const radius = Math.max(stageW, stageH) / 2 + 90;
+    const startX = cx + Math.cos(angle) * radius;
+    const startY = cy + Math.sin(angle) * radius;
+    const baseSpeed = 55 + Math.random() * 35 + stats.caught * 0.9;
+    const speed = baseSpeed * speedMult;
     falling.push({
-      id: Math.random().toString(36).slice(2),
-      word: w,
-      // Start fully off-screen so the word slides in cleanly
-      // instead of popping in mid-glyph.
-      x: -halfW - 6,
-      y, vx: vx * speedMult, vy: 0, mode: "shooter",
+      id, word: w, x: startX, y: startY,
+      vx: -Math.cos(angle) * speed,
+      vy: -Math.sin(angle) * speed,
+      mode: "asteroids",
     });
     return;
   }
-  // Classic / endless: word falls from the top. Clamp the x so
-  // the ENTIRE word stays inside the stage (text-anchor:middle
-  // means the word extends halfW px to each side of f.x). Long
-  // words used to clip both edges because the spawn range
-  // assumed a fixed 60 px margin regardless of word length.
+
+  if (gameMode === "bomb") {
+    // Single bomb at a time. Center the word, attach a countdown.
+    // Timer floors at 4s after every successful defuse.
+    if (falling.length) return;
+    const timer = Math.max(4, 10 - stats.caught * 0.4);  // 10s -> 4s
+    falling.push({
+      id, word: w,
+      x: stageW / 2, y: stageH / 2 - 20,
+      vx: 0, vy: 0, mode: "bomb",
+      timerStart: timer * 1000,
+      timerLeft: timer * 1000,
+    });
+    return;
+  }
+
+  if (gameMode === "tower") {
+    // Pick one of three lanes; words march right -> left toward base.
+    const lane = Math.floor(Math.random() * TOWER_LANES.length);
+    const baseSpeed = 50 + Math.random() * 30 + stats.caught * 0.8;
+    falling.push({
+      id, word: w,
+      x: stageW + halfW + 8,
+      y: TOWER_LANES[lane],
+      vx: -baseSpeed * speedMult, vy: 0, mode: "tower",
+      lane,
+    });
+    return;
+  }
+
+  if (gameMode === "combo-sprint") {
+    // High-velocity horizontal stream. Y placed in a randomized band.
+    const minY = 60;
+    const maxY = stageH - 130;
+    const y = minY + Math.random() * (maxY - minY);
+    // Speed ramps fast -- the "sprint" is genuine.
+    const vx = 140 + Math.random() * 40 + stats.caught * 1.4;
+    falling.push({
+      id, word: w, x: -halfW - 6, y,
+      vx: vx * speedMult, vy: 0, mode: "combo-sprint",
+    });
+    return;
+  }
+
+  if (gameMode === "stroop") {
+    // Single word at a time. Word is colored in a NON-matching color;
+    // the user must type the literal word (ignoring the color).
+    if (falling.length) return;
+    // Pick a color from the palette that's NOT the literal word
+    // (when the word IS a color name). Otherwise any color works.
+    let color = STROOP_PALETTE[Math.floor(Math.random() * STROOP_PALETTE.length)];
+    if (STROOP_PALETTE.includes(w.toLowerCase())) {
+      const filtered = STROOP_PALETTE.filter((c) => c !== w.toLowerCase());
+      color = filtered[Math.floor(Math.random() * filtered.length)];
+    }
+    stroopCurrentColor = color;
+    falling.push({
+      id, word: w,
+      x: stageW / 2, y: stageH / 2,
+      vx: 0, vy: 0, mode: "stroop",
+      stroopColor: color,
+    });
+    return;
+  }
+
+  // Classic / endless: word falls from the top.
   const minX = halfW + margin;
   const maxX = Math.max(minX + 1, stageW - halfW - margin);
   const x = minX + Math.random() * (maxX - minX);
   const rampPerCatch = gameMode === "endless" ? 1.5 : 0.6;
   const baseSpeed = 50 + Math.random() * 30 + stats.caught * rampPerCatch;
-  // Start the word JUST above the stage so the top of the glyph
-  // is at -22 (cap height) and the word slides into view rather
-  // than appearing already 20 px deep.
-  falling.push({
-    id: Math.random().toString(36).slice(2),
-    word: w, x, y: -22, vx: 0, vy: baseSpeed * speedMult, mode: "fall",
-  });
+  falling.push({ id, word: w, x, y: -22, vx: 0, vy: baseSpeed * speedMult, mode: "fall" });
 }
 
 function frame(elapsed) {
@@ -211,50 +292,90 @@ function frame(elapsed) {
   const now = performance.now();
   const dt = Math.min(0.05, (now - lastFrameTs) / 1000 || 0);
   lastFrameTs = now;
-  // Spawn pacing. Classic: floor at 700 ms. Endless: floor at
-  // 350 ms so the screen actually fills up at late stages.
-  const minSpawn = gameMode === "endless" ? 350 : 700;
-  const rampPerCatch = gameMode === "endless" ? 60 : 40;
-  const spawnEvery = Math.max(minSpawn, 1400 - stats.caught * rampPerCatch);
-  if (now - lastSpawnTs > spawnEvery) {
+
+  // Per-mode spawn pacing. Single-target modes (bomb, stroop)
+  // only spawn one item; the spawn() guard handles the cap.
+  let spawnEvery;
+  if (gameMode === "endless")             spawnEvery = Math.max(350, 1400 - stats.caught * 60);
+  else if (gameMode === "asteroids")      spawnEvery = Math.max(550, 1300 - stats.caught * 45);
+  else if (gameMode === "tower")          spawnEvery = Math.max(900, 1700 - stats.caught * 30);
+  else if (gameMode === "combo-sprint")   spawnEvery = Math.max(280, 900  - stats.caught * 30);
+  else if (gameMode === "bomb")           spawnEvery = 0;      // single-target, spawn() self-gates
+  else if (gameMode === "stroop")         spawnEvery = 0;
+  else                                    spawnEvery = Math.max(700, 1400 - stats.caught * 40);
+
+  if (gameMode === "bomb" || gameMode === "stroop") {
+    if (!falling.length) spawn();
+  } else if (now - lastSpawnTs > spawnEvery) {
     spawn();
     lastSpawnTs = now;
   }
-  // Advance each word along its axis. Older entries use f.speed
-  // (vertical only); newer entries carry vx + vy so shooter mode
-  // can drift horizontally.
+
+  // Combo-sprint chain decay: if no catch within COMBO_CHAIN_IDLE_MS, reset.
+  if (gameMode === "combo-sprint" && stats.streak > 0
+      && lastCatchTs > 0 && now - lastCatchTs > COMBO_CHAIN_IDLE_MS) {
+    stats.streak = 0;
+    paintStats();
+  }
+
+  // Advance per word.
   for (const f of falling) {
-    if (f.vx == null && f.vy == null) {
-      // Legacy fall path -- always vertical.
+    if (f.mode === "bomb") {
+      f.timerLeft = Math.max(0, (f.timerLeft || 0) - dt * 1000);
+    } else if (f.mode === "stroop") {
+      // No movement; stays centered until typed.
+    } else if (f.vx == null && f.vy == null) {
       f.y += (f.speed || 0) * dt;
     } else {
       f.x += (f.vx || 0) * dt;
       f.y += (f.vy || 0) * dt;
     }
   }
-  // Miss check: falling words past bottom, shooter words past
-  // the right edge.
-  // FLOOR_Y leaves room for the typing input box that sits over
-  // the bottom of the stage in screen flow. Without this margin
-  // words would visually slide INTO the input box before the
-  // miss-check fired, which read as a bug.
+
+  // Miss check per mode.
   const FLOOR_Y = stageH - 80;
+  let towerHit = 0;
   const before = falling.length;
   falling = falling.filter((f) => {
+    let missed = false;
     if (f.mode === "shooter") {
-      if (f.x < stageW + 80) return true;
+      if (f.x >= stageW + 80) missed = true;
+    } else if (f.mode === "combo-sprint") {
+      if (f.x >= stageW + 80) missed = true;
+    } else if (f.mode === "asteroids") {
+      // Impact at the center -- once within 14 px of center, it hit.
+      const dx = f.x - stageW / 2, dy = f.y - stageH / 2;
+      if (dx * dx + dy * dy < 14 * 14) missed = true;
+    } else if (f.mode === "bomb") {
+      if ((f.timerLeft || 0) <= 0) missed = true;
+    } else if (f.mode === "tower") {
+      // Reaches the left base (x = 50).
+      if (f.x < 60) missed = true;
+    } else if (f.mode === "stroop") {
+      // Never times out -- the user can take their time.
     } else {
-      if (f.y < FLOOR_Y) return true;
+      if (f.y >= FLOOR_Y) missed = true;
     }
+    if (!missed) return true;
     stats.missed++;
-    stats.streak = 0;
+    if (f.mode === "tower") {
+      // Each breach damages the base instead of incrementing a counter.
+      towerHit += 12 + Math.floor(f.word.length * 1.4);
+    }
+    if (gameMode !== "combo-sprint") stats.streak = 0;
+    else stats.streak = 0; // combo-sprint also resets streak on miss
     return false;
   });
   if (falling.length !== before) {
+    if (gameMode === "tower") baseHP = Math.max(0, baseHP - towerHit);
     paintStats();
-    // Endless never ends on missed count; only caught -> stale
-    // never triggers endRound. Classic + shooter end at 3.
-    if (gameMode !== "endless" && stats.missed >= 3) {
+    // End-of-round conditions per mode.
+    if (gameMode === "tower" && baseHP <= 0) { endRound(); return; }
+    else if (gameMode === "asteroids" && stats.missed >= 3) { endRound(); return; }
+    else if (gameMode === "bomb" && stats.missed >= 1) { endRound(); return; }
+    else if (gameMode !== "endless" && gameMode !== "combo-sprint" && gameMode !== "tower"
+             && gameMode !== "stroop"
+             && stats.missed >= 3) {
       endRound();
       return;
     }
@@ -265,27 +386,44 @@ function frame(elapsed) {
 function paintFalling() {
   if (!svgSel) return;
   const typed = (input.value || "").trim();
-  // Only select live falling groups -- exclude dying groups (mid-
-  // dissolve) and score popups. Both lack a datum and would throw
-  // when the key function evaluates d.id, freezing the game.
   const groups = svgSel.selectAll("g.fall:not(.fall--dying):not(.fall-popup)").data(falling, (d) => d && d.id);
   groups.exit().remove();
-  // New words enter with one <tspan> per char so we can color
-  // each char independently (typed prefix = accent, rest =
-  // neutral). The text is rebuilt only on enter; per-frame we
-  // just update transform and tspan colors.
   const enter = groups.enter().append("g").attr("class", "fall");
   enter.each(function(d) {
-    const t = d3.select(this).append("text")
+    const sel = d3.select(this);
+    // Bomb mode: render a countdown ring behind the word.
+    if (d.mode === "bomb") {
+      sel.append("circle")
+        .attr("class", "fall__bomb-ring-bg")
+        .attr("r", 60).attr("fill", "none")
+        .attr("stroke", "var(--rule)").attr("stroke-width", 4);
+      sel.append("circle")
+        .attr("class", "fall__bomb-ring")
+        .attr("r", 60).attr("fill", "none")
+        .attr("stroke", "var(--bad, #d76050)").attr("stroke-width", 4)
+        .attr("stroke-linecap", "round")
+        .attr("transform", "rotate(-90)");
+    }
+    // Stroop mode: render a colored swatch as backdrop -- mismatched.
+    if (d.mode === "stroop") {
+      sel.append("rect")
+        .attr("class", "fall__stroop-bg")
+        .attr("x", -120).attr("y", -32)
+        .attr("width", 240).attr("height", 64)
+        .attr("rx", 8).attr("ry", 8)
+        .attr("fill", STROOP_COLOR_HEX[d.stroopColor] || "#888")
+        .attr("opacity", .85);
+    }
+    const t = sel.append("text")
       .attr("text-anchor", "middle")
       .attr("font-family", "var(--font-mono)")
-      .attr("font-size", "22")
-      .attr("font-weight", "500");
-    // Estimate char width by drawing the full word once to measure.
-    // Simpler: lay out tspans with even spacing using the word
-    // length. SVG tspan dx is relative; we use absolute x via
-    // text-anchor:middle on the text + setting each tspan as
-    // monospace.
+      .attr("font-size", d.mode === "stroop" ? 32 : (d.mode === "bomb" ? 26 : 22))
+      .attr("font-weight", d.mode === "stroop" ? "600" : "500");
+    // Stroop: write text in WHITE on the colored backdrop so the
+    // user reads the LITERAL letters; the color is the distractor.
+    if (d.mode === "stroop") {
+      t.attr("y", 10).attr("fill", "#ffffff").attr("stroke", "rgba(0,0,0,.4)").attr("stroke-width", 0.5);
+    }
     const chars = d.word.split("");
     chars.forEach((c, i) => {
       t.append("tspan")
@@ -294,45 +432,121 @@ function paintFalling() {
         .text(c);
     });
   });
+
   // Update position + per-char fill on every frame.
-  svgSel.selectAll("g.fall")
+  svgSel.selectAll("g.fall:not(.fall--dying)")
     .attr("transform", (d) => `translate(${d.x}, ${d.y})`)
     .each(function(d) {
       const matchLen = (typed && d.word.startsWith(typed)) ? typed.length : 0;
-      d3.select(this).selectAll("tspan")
-        .attr("fill", function() {
-          const i = +this.getAttribute("data-i");
-          if (i < matchLen) return "var(--accent)";
-          return "var(--fg-0)";
-        });
+      const sel = d3.select(this);
+      // Stroop keeps everything white (typed = brighter via opacity).
+      sel.selectAll("tspan").attr("fill", function() {
+        if (d.mode === "stroop") return "#ffffff";
+        const i = +this.getAttribute("data-i");
+        if (i < matchLen) return "var(--accent)";
+        return "var(--fg-0)";
+      }).attr("opacity", function() {
+        if (d.mode !== "stroop") return null;
+        const i = +this.getAttribute("data-i");
+        return i < matchLen ? 1 : 0.7;
+      });
+      // Bomb countdown ring (stroke-dasharray to draw % left).
+      if (d.mode === "bomb") {
+        const C = 2 * Math.PI * 60;
+        const pct = (d.timerLeft || 0) / (d.timerStart || 1);
+        sel.select("circle.fall__bomb-ring")
+          .attr("stroke-dasharray", C)
+          .attr("stroke-dashoffset", C * (1 - pct))
+          .attr("stroke", pct < 0.3 ? "var(--bad, #d76050)" : "var(--warn, #e3b873)");
+      }
     });
+
+  // Tower base HP bar -- repainted every frame on its own HUD group.
+  paintTowerHUD();
+}
+
+function paintTowerHUD() {
+  if (!svgSel) return;
+  if (gameMode !== "tower") {
+    svgSel.selectAll("g.fall-hud").remove();
+    return;
+  }
+  let hud = svgSel.selectAll("g.fall-hud").data([null]);
+  hud = hud.enter().append("g").attr("class", "fall-hud").merge(hud);
+  hud.selectAll("*").remove();
+  // Vertical base column on the left.
+  hud.append("rect")
+    .attr("x", 0).attr("y", 0)
+    .attr("width", 50).attr("height", stageH)
+    .attr("fill", "rgba(20, 22, 30, 0.55)")
+    .attr("stroke", "var(--accent)").attr("stroke-width", 2)
+    .attr("stroke-dasharray", "4 4");
+  // HP fill.
+  const hpRatio = baseHP / BASE_HP_MAX;
+  hud.append("rect")
+    .attr("x", 4).attr("y", stageH * (1 - hpRatio) + 4)
+    .attr("width", 42).attr("height", stageH * hpRatio - 8)
+    .attr("fill", hpRatio > 0.5 ? "var(--good, #76c893)"
+      : hpRatio > 0.25 ? "var(--warn, #e3b873)"
+      : "var(--bad, #d76050)")
+    .attr("opacity", 0.85);
+  // HP label.
+  hud.append("text")
+    .attr("x", 25).attr("y", 22)
+    .attr("text-anchor", "middle")
+    .attr("fill", "var(--fg-0)")
+    .attr("font-family", "var(--font-mono)")
+    .attr("font-size", "12").attr("font-weight", "600")
+    .text("BASE");
+  hud.append("text")
+    .attr("x", 25).attr("y", stageH - 14)
+    .attr("text-anchor", "middle")
+    .attr("fill", "var(--fg-1)")
+    .attr("font-family", "var(--font-mono)")
+    .attr("font-size", "14").attr("font-weight", "500")
+    .text(baseHP + " HP");
 }
 
 function tryCatch(typed) {
   if (!typed) return false;
-  // No scoring once the round has ended. Without this guard the
-  // user could keep typing after the Game-over overlay and rack
-  // up points on stale entries left in the falling array.
   if (!running) return false;
-  // Match the first falling word whose text equals typed AND is
-  // visibly on the stage above the input box. Same FLOOR_Y as
-  // the miss-check so a word inside the input area can't be
-  // caught either (it should already be flagged missed).
-  const i = falling.findIndex((f) => f.word === typed && f.y > 0 && f.y < stageH - 80);
+  // Match first falling word whose text equals typed. For modes
+  // where words stay on-stage (bomb, stroop, tower, asteroids,
+  // combo-sprint) the FLOOR_Y check would wrongly reject mid-stage
+  // matches, so the visibility predicate is mode-aware.
+  const i = falling.findIndex((f) => {
+    if (f.word !== typed) return false;
+    if (f.mode === "bomb" || f.mode === "stroop") return true;
+    if (f.mode === "tower") return f.x > 50;
+    if (f.mode === "asteroids") return true;
+    if (f.mode === "combo-sprint") return f.x > -80 && f.x < stageW + 80;
+    return f.y > 0 && f.y < stageH - 80;
+  });
   if (i === -1) return false;
   const f = falling[i];
-  // Remove from the active array immediately so the frame loop
-  // stops advancing the word -- but DON'T remove the DOM node yet.
-  // Spawn a dissolve animation on its <g> in-place, then drop the
-  // node when it finishes.
   falling.splice(i, 1);
   dissolveCaughtWord(f);
   const base = 10 + f.word.length * 2;
-  const bonus = multiplierFor(stats.streak);
+  // Combo-sprint awards a multiplier scaled by streak directly
+  // -- 5x cap kicks in fast.
+  let bonus = multiplierFor(stats.streak);
+  if (f.mode === "combo-sprint") {
+    bonus = Math.min(5, 1 + stats.streak * 0.1);
+  }
+  // Bomb mode pays out faster the LESS time was left on the timer.
+  if (f.mode === "bomb") {
+    const urgency = 1 + (1 - (f.timerLeft || 0) / (f.timerStart || 1));
+    bonus *= urgency;
+  }
+  // Tower mode: a small base-repair heal on the catch -- caps at MAX.
+  if (f.mode === "tower") {
+    baseHP = Math.min(BASE_HP_MAX, baseHP + Math.max(1, Math.floor(f.word.length * 0.3)));
+  }
   stats.score += Math.round(base * bonus);
   stats.caught++;
   stats.streak++;
   if (stats.streak > stats.bestStreak) stats.bestStreak = stats.streak;
+  lastCatchTs = performance.now();
   paintStats();
   paintFalling();
   return true;
@@ -765,6 +979,66 @@ const MODE_COPY = {
       "A catch sends the word nosediving in a <strong>pixel-shrapnel explosion</strong> at the bottom of the stage — the visual reward is the point.",
       "Three exits = three misses = round ends. Streak multiplier still applies; long runs hit 5× quickly.",
       "Words come from your <strong>missed-words list</strong> first, then fall back to high-error keys. Same pool as Classic — same targeted practice.",
+    ],
+  },
+  asteroids: {
+    title: "Word Asteroids",
+    subtitle: "Words approach the center from every direction. Type each one before it impacts. Three impacts ends the round.",
+    hint: "Tap Start. Asteroids enter from all around the edge and converge on the center. Type each word before it reaches the impact zone. Three impacts end the round.",
+    howtoTitle: "How to play — Asteroids",
+    howto: [
+      "Words enter from a random direction around the stage and move <strong>toward the center</strong>.",
+      "Type a word to destroy that asteroid before it reaches the impact zone (a small radius at the center of the stage).",
+      "<strong>Three impacts</strong> end the round. The streak multiplier compounds with every consecutive destroy.",
+      "Words come from your <strong>missed-words list</strong>. Wide spawn pattern means you'll get practice on the same words from many angles.",
+    ],
+  },
+  bomb: {
+    title: "Bomb Defuse",
+    subtitle: "One bomb at a time, one shrinking timer. Defuse to spawn the next bomb with less time. One miss ends the round.",
+    hint: "Tap Start. Defuse the bomb by typing the word correctly before the ring runs out. Each defuse cuts a little off the next timer. One miss ends the run.",
+    howtoTitle: "How to play — Bomb Defuse",
+    howto: [
+      "A single bomb spawns at center with a <strong>countdown ring</strong>. Defuse it by typing the word before the ring depletes.",
+      "Each successful defuse spawns the next bomb with a shorter timer (10 s → floor at 4 s).",
+      "<strong>One miss</strong> ends the round — the bomb went off. Score scales by urgency: less time left = bigger bonus.",
+      "Streak multiplier still applies; chains of defuses rack up huge multipliers.",
+    ],
+  },
+  tower: {
+    title: "Tower Defense",
+    subtitle: "Words march toward your base in three lanes. Type to stop them. Your base has 100 HP — protect it as long as you can.",
+    hint: "Tap Start. Words march right-to-left in three lanes. Type to destroy. Each word that reaches your base on the left damages it; HP runs out, round ends.",
+    howtoTitle: "How to play — Tower Defense",
+    howto: [
+      "Words march <strong>right → left</strong> in three lanes toward your base on the left side of the stage.",
+      "Type a word to destroy it. Each catch slightly <strong>repairs</strong> your base (the longer the word, the bigger the patch).",
+      "Words that reach the base <strong>damage</strong> it: 12 HP + word length × 1.4. Base starts at 100 HP.",
+      "The round ends when the base hits 0 HP. Score = points scored before the base falls.",
+    ],
+  },
+  "combo-sprint": {
+    title: "Combo Sprint",
+    subtitle: "Words zoom past horizontally fast. No miss cap. Score is your chain length × base — build the longest streak you can.",
+    hint: "Tap Start. Words sprint across the screen quickly. Catch them in a long chain — your streak feeds the multiplier directly. Miss or idle for 2 seconds and the chain resets.",
+    howtoTitle: "How to play — Combo Sprint",
+    howto: [
+      "Words sprint left → right at <strong>high velocity</strong>. The pace ramps every catch.",
+      "<strong>No miss cap</strong>. The round only ends when you click Reset — score is your peak.",
+      "The streak multiplier scales linearly with chain length: 1× → 5× (cap). Every catch grows it; <strong>missing or idling for 2 seconds breaks the chain</strong>.",
+      "Pure chase-the-multiplier mode. The longer you can keep a chain alive, the bigger every catch becomes.",
+    ],
+  },
+  stroop: {
+    title: "Stroop Type",
+    subtitle: "Words are painted in colors that don't match the word. Type the LITERAL word; ignore the color. Brain-training meets typing.",
+    hint: "Tap Start. A word appears in a color-mismatched swatch (e.g. the word RED in blue paint). Type the literal letters — the color is the distractor.",
+    howtoTitle: "How to play — Stroop Type",
+    howto: [
+      "A word appears in a colored swatch. The swatch color is chosen to <strong>NOT match</strong> the literal word.",
+      "Type the <strong>literal word</strong>, ignoring the color. (The classic Stroop effect: your brain wants to name the color instead.)",
+      "There's no movement and no miss timer — go at your own pace. Score = 1 per correct word, with the streak multiplier still applied.",
+      "Brain-training crossover: useful for sharpening focus and resisting visual distractors while typing.",
     ],
   },
 };

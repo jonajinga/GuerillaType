@@ -1,0 +1,38 @@
+/* /practice/bigrams/ -- Bigram Drill */
+
+.bigrams-stage{
+  background:var(--bg-1);
+  border:1px solid var(--rule);
+  border-radius:var(--radius);
+  padding:var(--space-6) var(--space-4) 0;
+  min-height:280px;
+  display:flex;flex-direction:column;align-items:center;
+}
+.bigrams-display{
+  font-family:var(--font-mono);
+  font-size:5rem;font-weight:600;color:var(--accent);
+  letter-spacing:.08em;
+  min-height:6rem;
+  display:flex;align-items:center;justify-content:center;
+  text-align:center;
+}
+.bigrams-char{display:inline-block;padding:0 .04em}
+.bigrams-timer{
+  font-family:var(--font-mono);font-size:1rem;color:var(--fg-2);
+  letter-spacing:.12em;
+  margin:var(--space-3) 0;
+}
+.bigrams-summary{
+  font-family:var(--font-mono);font-size:1rem;color:var(--fg-1);
+  font-weight:500;text-transform:none;letter-spacing:0;
+}
+.bigrams-stage .game-input-wrap{
+  width:100%;
+  margin-top:auto;
+  padding:var(--space-3) 0;
+  border-top:1px solid var(--rule);
+}
+
+@media (max-width:600px){
+  .bigrams-display{font-size:3.2rem;min-height:4rem}
+}

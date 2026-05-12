@@ -1,0 +1,37 @@
+/* /practice/race/ — Typing Race game */
+
+.race-stage{
+  position:relative;
+  background:var(--bg-1);
+  border:1px solid var(--rule);
+  border-radius:var(--radius);
+  overflow:hidden;
+  padding:0 0 64px 0;
+}
+.race-svg{
+  display:block;width:100%;height:320px;
+  background:linear-gradient(to bottom,
+    color-mix(in oklab, var(--bg-0) 78%, var(--accent)) 0%,
+    var(--bg-1) 100%);
+}
+.race-prompt{
+  display:flex;align-items:baseline;justify-content:center;gap:.6em;
+  padding:var(--space-3) var(--space-4) 0;
+  font-family:var(--font-mono);font-size:1.1rem;
+  color:var(--fg-2);
+  min-height:2em;
+}
+.race-prompt__prev{color:var(--fg-3);opacity:.6}
+.race-prompt__cur{
+  color:var(--accent);font-weight:600;font-size:1.4rem;
+  padding:.1em .4em;
+  background:color-mix(in oklab, var(--accent) 12%, transparent);
+  border-radius:var(--radius);
+}
+.race-prompt__next{color:var(--fg-2);opacity:.85}
+
+@media (max-width:600px){
+  .race-svg{height:240px}
+  .race-prompt{font-size:.95rem}
+  .race-prompt__cur{font-size:1.2rem}
+}

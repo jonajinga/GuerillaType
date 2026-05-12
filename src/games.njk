@@ -1,101 +1,88 @@
 ---
 layout: layouts/base.njk
 title: "Games"
-description: "Typing mini-games built on your practice data. Catch the Word turns your missed-words list into a falling-word arcade."
+description: "Typing mini-games built on your practice data. Sixteen modes across falling-words, race, combat, puzzle, and memory."
 permalink: /games/
 pageSlug: games
 ---
 <header class="page__head">
   <p class="page__eyebrow">Play</p>
   <h1>Games</h1>
-  <p class="page__subtitle">Mini-games built on your practice data. Each one targets a specific habit — speed, accuracy, the words you keep missing.</p>
+  <p class="page__subtitle">Sixteen typing games across five mechanics. Each one is built around your practice data — missed-words, weak keys, reading flow.</p>
+  <div class="page__head-actions">
+    <button type="button" class="btn btn--primary" id="games-random">🎲 Play a random game</button>
+  </div>
 </header>
 
-<div class="game-grid">
-  <article class="game-card">
-    <div class="game-card__icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 2v6"/>
-        <path d="M6 8 12 14 18 8"/>
-        <path d="M3 20h18"/>
-      </svg>
-    </div>
-    <h2 class="game-card__title">Catch the Word</h2>
-    <p class="game-card__desc">Words fall from the top. Type each one before it hits the bottom. The picker biases toward words you've mistyped in past sessions, so playing is also targeted practice.</p>
-    <ul class="game-card__meta">
-      <li><strong>Source</strong> Your missed-words list</li>
-      <li><strong>Length</strong> Until 3 misses</li>
-      <li><strong>Difficulty</strong> Slider, 0.5x – 2.5x</li>
-    </ul>
-    <div class="game-card__best" data-game-best="classic" hidden>
-      <span class="game-card__best-label">Your best</span>
-      <span class="game-card__best-score" data-game-best-score>0</span>
-      <span class="game-card__best-streak" data-game-best-streak></span>
-    </div>
-    <a class="btn btn--primary" href="/practice/game/">Play Catch the Word →</a>
-  </article>
+{% set games = [
+  { slug: "catch-classic", title: "Catch the Word", hook: "Words fall from the top. Type each one before it hits the bottom.", url: "/practice/game/", icon: "🎮", bestKey: "classic", section: "catch" },
+  { slug: "catch-endless", title: "Endless", hook: "No miss cap. Words spawn forever and accelerate.", url: "/practice/game/?mode=endless", icon: "∞", bestKey: "endless", section: "catch" },
+  { slug: "catch-shooter", title: "Word Shooter", hook: "Words drift sideways. Shoot them down by typing.", url: "/practice/game/?mode=shooter", icon: "🎯", bestKey: "shooter", section: "catch" },
+  { slug: "catch-asteroids", title: "Asteroids", hook: "Words approach from every direction. Type to destroy.", url: "/practice/game/?mode=asteroids", icon: "☄", bestKey: "asteroids", section: "catch" },
+  { slug: "catch-bomb", title: "Bomb Defuse", hook: "One bomb at a time. Defuse before the timer runs out.", url: "/practice/game/?mode=bomb", icon: "💣", bestKey: "bomb", section: "catch" },
+  { slug: "catch-tower", title: "Tower Defense", hook: "Three lanes. Words march your base. Protect 100 HP.", url: "/practice/game/?mode=tower", icon: "🏰", bestKey: "tower", section: "catch" },
+  { slug: "catch-combo", title: "Combo Sprint", hook: "Fast horizontal stream. Chain length × base score.", url: "/practice/game/?mode=combo-sprint", icon: "⚡", bestKey: "combo-sprint", section: "catch" },
+  { slug: "catch-stroop", title: "Stroop Type", hook: "Words painted in mismatched colors. Type the literal word.", url: "/practice/game/?mode=stroop", icon: "🎨", bestKey: "stroop", section: "catch" },
+  { slug: "race", title: "Typing Race", hook: "Race a ghost AI. Pick your difficulty (40–100 WPM).", url: "/practice/race/", icon: "🏎", bestKey: "race-medium", section: "combat" },
+  { slug: "boss", title: "Boss Battle", hook: "Boss HP bar. Damage per word. Level up after each defeat.", url: "/practice/boss/", icon: "🐲", bestKey: "boss", section: "combat" },
+  { slug: "hangman", title: "Hangman Speedrun", hook: "15-second puzzles. Type letters to solve.", url: "/practice/hangman/", icon: "🪢", bestKey: "hangman", section: "combat" },
+  { slug: "snake", title: "Word Snake", hook: "Steer by typing direction words. Grow, score, don't crash.", url: "/practice/snake/", icon: "🐍", bestKey: "snake", section: "puzzle" },
+  { slug: "story", title: "Story Mode", hook: "Public-domain passages, word by word. Live WPM through the read.", url: "/practice/story/", icon: "📚", bestKey: "story", section: "puzzle" },
+  { slug: "tetris", title: "Word Tetris", hook: "Letters drop in columns. Type words to clear them.", url: "/practice/tetris/", icon: "🟩", bestKey: "tetris", section: "puzzle" },
+  { slug: "memory", title: "Memory Type", hook: "Watch a sequence flash. Reproduce it by typing.", url: "/practice/memory/", icon: "🧠", bestKey: "memory", section: "puzzle" },
+  { slug: "bigrams", title: "Bigram Drill", hook: "60-second burst on short letter combos. Pure speed warm-up.", url: "/practice/bigrams/", icon: "⚡", bestKey: "bigrams", section: "puzzle" }
+] %}
 
-  <article class="game-card" id="shooter">
-    <div class="game-card__icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="9"/>
-        <circle cx="12" cy="12" r="3"/>
-        <line x1="12" y1="2" x2="12" y2="6"/>
-        <line x1="12" y1="18" x2="12" y2="22"/>
-        <line x1="2" y1="12" x2="6" y2="12"/>
-        <line x1="18" y1="12" x2="22" y2="12"/>
-      </svg>
-    </div>
-    <h2 class="game-card__title">Word Shooter</h2>
-    <p class="game-card__desc">Words drift across the screen from left to right. Type each one to shoot it before it leaves the frame. Tests target acquisition alongside typing speed.</p>
-    <ul class="game-card__meta">
-      <li><strong>Source</strong> Your missed-words list</li>
-      <li><strong>Length</strong> Until 3 misses</li>
-      <li><strong>Direction</strong> Horizontal drift</li>
-    </ul>
-    <div class="game-card__best" data-game-best="shooter" hidden>
+{% macro gamecard(g) %}
+  <article class="game-card" data-game-slug="{{ g.slug }}">
+    <div class="game-card__icon" aria-hidden="true">{{ g.icon }}</div>
+    <h3 class="game-card__title">{{ g.title }}</h3>
+    <p class="game-card__desc">{{ g.hook }}</p>
+    <div class="game-card__best" data-game-best="{{ g.bestKey }}" hidden>
       <span class="game-card__best-label">Your best</span>
       <span class="game-card__best-score" data-game-best-score>0</span>
       <span class="game-card__best-streak" data-game-best-streak></span>
     </div>
-    <a class="btn btn--primary" href="/practice/game/?mode=shooter">Play Shooter →</a>
+    <a class="btn btn--primary" href="{{ g.url }}">Play →</a>
   </article>
+{% endmacro %}
 
-  <article class="game-card" id="endless">
-    <div class="game-card__icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 4v16"/>
-        <path d="m8 8 4-4 4 4"/>
-        <path d="m8 16 4 4 4-4"/>
-      </svg>
-    </div>
-    <h2 class="game-card__title">Endless</h2>
-    <p class="game-card__desc">Words spawn forever, faster each catch. No three-miss cap — keep typing as long as you can stand it. Persistent high score per profile.</p>
-    <ul class="game-card__meta">
-      <li><strong>Source</strong> Your missed-words list</li>
-      <li><strong>Length</strong> Until you stop</li>
-      <li><strong>Difficulty</strong> Ramps faster than Classic</li>
-    </ul>
-    <div class="game-card__best" data-game-best="endless" hidden>
-      <span class="game-card__best-label">Your best</span>
-      <span class="game-card__best-score" data-game-best-score>0</span>
-      <span class="game-card__best-streak" data-game-best-streak></span>
-    </div>
-    <a class="btn btn--primary" href="/practice/game/?mode=endless">Play Endless →</a>
-  </article>
-</div>
+<section class="games-section">
+  <h2>Catch the Word family</h2>
+  <p class="muted">One stage, eight modes. Mode switcher inside the game lets you swap freely without leaving the page.</p>
+  <div class="game-grid">
+    {% for g in games %}{% if g.section == "catch" %}{{ gamecard(g) }}{% endif %}{% endfor %}
+  </div>
+</section>
+
+<section class="games-section">
+  <h2>Race & combat</h2>
+  <p class="muted">Games with a clear win condition or HP bar — beat the AI, beat the boss, beat the timer.</p>
+  <div class="game-grid">
+    {% for g in games %}{% if g.section == "combat" %}{{ gamecard(g) }}{% endif %}{% endfor %}
+  </div>
+</section>
+
+<section class="games-section">
+  <h2>Puzzle & memory</h2>
+  <p class="muted">Brain-side games — pattern matching, working memory, reading flow, pure muscle-memory drills.</p>
+  <div class="game-grid">
+    {% for g in games %}{% if g.section == "puzzle" %}{{ gamecard(g) }}{% endif %}{% endfor %}
+  </div>
+</section>
+
+<section class="games-footer" id="why">
+  <h2>Why games?</h2>
+  <p>The practice surface is great for deliberate work — settle in, type a quote, watch your accuracy climb. Games solve a different problem: <strong>sustained engagement</strong>. They keep you typing when you're tired or bored, and they bend the practice toward weaknesses you'd otherwise avoid (the falling-word picker is weighted by your miss count; bigrams biases toward your weakest pairs).</p>
+  <p>If you have an idea for a game you'd play, <a href="/contribute/game/">pitch it via the suggestion form</a>. One round, why it's fun, what habit it builds — that's all I need.</p>
+</section>
 
 <script type="module">
-/* Paint per-mode high scores from the active profile. Falls back
-   silently to the hidden state if the profile / gameStats / byMode
-   key isn't there yet (new user, never played). */
 import { getActive } from "/assets/js/profiles.js?v={{ cssVersion }}";
-(function(){
+(function() {
   const p = getActive();
   const gs = (p && p.gameStats) || {};
   const byMode = gs.byMode || {};
-  // Legacy migration: pre-byMode profiles only had a flat
-  // gameStats.highScore -- which we treat as classic-mode.
   const legacyClassic = { highScore: gs.highScore || 0, bestStreak: gs.bestStreak || 0 };
   document.querySelectorAll(".game-card__best").forEach((el) => {
     const mode = el.dataset.gameBest;
@@ -107,11 +94,14 @@ import { getActive } from "/assets/js/profiles.js?v={{ cssVersion }}";
     if (score) score.textContent = m.highScore.toLocaleString();
     if (streak && m.bestStreak) streak.textContent = "best streak " + m.bestStreak;
   });
+  // Random game button
+  const cards = Array.from(document.querySelectorAll(".game-card a.btn"));
+  const btn = document.getElementById("games-random");
+  if (btn && cards.length) {
+    btn.addEventListener("click", () => {
+      const pick = cards[Math.floor(Math.random() * cards.length)];
+      window.location.href = pick.getAttribute("href");
+    });
+  }
 })();
 </script>
-
-<section class="games-footer" id="why">
-  <h2>Why games?</h2>
-  <p>The practice surface is great for deliberate work — settle in, type a quote, watch your accuracy climb. Games solve a different problem: <strong>sustained engagement</strong>. They keep you typing when you're tired or bored, and they bend the practice toward weaknesses you'd otherwise avoid (the falling-word picker is weighted by your miss count).</p>
-  <p>If you have an idea for a game you'd play, <a href="/contribute/game/">pitch it via the suggestion form</a>. One round, why it's fun, what habit it builds — that's all I need.</p>
-</section>

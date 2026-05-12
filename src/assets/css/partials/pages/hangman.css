@@ -1,0 +1,36 @@
+/* /practice/hangman/ -- Hangman Speedrun */
+
+.hangman-stage{
+  background:var(--bg-1);
+  border:1px solid var(--rule);
+  border-radius:var(--radius);
+  padding:0 0 var(--space-3);
+}
+.hangman-svg{display:block;width:100%;height:360px;max-width:600px;margin:0 auto;background:var(--bg-2)}
+.hangman-letters{
+  display:flex;justify-content:center;flex-wrap:wrap;gap:.5em;
+  padding:var(--space-4) var(--space-3);
+  font-family:var(--font-mono);
+}
+.hangman-slot{
+  display:inline-block;min-width:1.4em;text-align:center;
+  font-size:1.8rem;font-weight:600;
+  color:var(--fg-3);
+  border-bottom:3px solid var(--fg-3);
+  padding:0 .1em;
+}
+.hangman-slot.is-revealed{color:var(--accent);border-color:var(--accent)}
+.hangman-tried{
+  text-align:center;font-family:var(--font-mono);font-size:.78rem;
+  color:var(--fg-3);margin:0 0 var(--space-3);
+  letter-spacing:.08em;
+}
+.hangman-stage .game-input-wrap{
+  padding:var(--space-3) var(--space-4);
+  border-top:1px solid var(--rule);
+}
+
+@media (max-width:600px){
+  .hangman-svg{height:280px}
+  .hangman-slot{font-size:1.4rem}
+}
