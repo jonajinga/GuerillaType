@@ -115,27 +115,33 @@ function attemptWord(word) {
   const w = (word || "").toLowerCase();
   if (w.length < 3 || !/^[a-z]+$/.test(w)) { playMistake(); return false; }
   if (!COMMON_WORDS.has(w)) { playMistake(); return false; }
-  // Match the typed word against the TOP letters of consecutive columns.
-  // Slide the word across all starting positions.
-  for (let start = 0; start + w.length <= COLS; start++) {
-    let ok = true;
-    for (let i = 0; i < w.length; i++) {
-      const stack = cols[start + i];
-      const top = stack.length ? stack[stack.length - 1] : null;
-      if (top !== w[i]) { ok = false; break; }
+  // Match each letter of the typed word against the TOP letter of
+  // some column. Columns can be in ANY order -- the original
+  // "must be consecutive adjacent columns" rule was too strict to
+  // ever satisfy with random drops, so the game felt frozen.
+  // Greedy by letter order: for letter i, find the first unused
+  // column whose top letter matches.
+  const usedCols = new Set();
+  const colMap = [];
+  for (let i = 0; i < w.length; i++) {
+    let foundCol = -1;
+    for (let c = 0; c < COLS; c++) {
+      if (usedCols.has(c)) continue;
+      const stack = cols[c];
+      if (!stack.length) continue;
+      if (stack[stack.length - 1] === w[i]) { foundCol = c; break; }
     }
-    if (ok) {
-      // Pop the top letter off each matched column.
-      for (let i = 0; i < w.length; i++) cols[start + i].pop();
-      const gain = w.length * w.length;
-      score += gain;
-      cleared++;
-      playKey();
-      return true;
-    }
+    if (foundCol === -1) { playMistake(); return false; }
+    usedCols.add(foundCol);
+    colMap.push(foundCol);
   }
-  playMistake();
-  return false;
+  // Match found -- pop the top letter off each matched column.
+  for (const c of colMap) cols[c].pop();
+  const gain = w.length * w.length;
+  score += gain;
+  cleared++;
+  playKey();
+  return true;
 }
 
 function loop(now) {

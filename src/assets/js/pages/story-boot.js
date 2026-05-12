@@ -195,13 +195,25 @@ function reset() {
   paintStats();
 }
 
+/* Comparison is case-insensitive and strips leading / trailing
+   punctuation off the target word. Without this, users had to
+   reproduce the exact capitalization + punctuation of the source
+   ("Alice's", "do:", quoted text), which made the very first word
+   of most passages unmatchable. */
+function normalize(s) {
+  return String(s || "").trim()
+    .replace(/^[^a-zA-Z0-9']+|[^a-zA-Z0-9']+$/g, "")
+    .toLowerCase();
+}
+
 input.addEventListener("input", () => {
   if (!running) return;
   const v = input.value;
   const target = words[cursor] || "";
+  const targetN = normalize(target);
   if (v.endsWith(" ")) {
-    const typed = v.trim();
-    if (typed === target) {
+    const typedN = normalize(v);
+    if (typedN === targetN && typedN.length > 0) {
       correctChars += target.length + 1;
       totalChars += target.length + 1;
       cursor++;
@@ -218,8 +230,10 @@ input.addEventListener("input", () => {
     }
     return;
   }
-  if (v && !target.startsWith(v)) {
-    // Soft mistake: clear input but DON'T advance.
+  // Live prefix check, also normalized so partial lower-case
+  // typing keeps building toward the match.
+  const partN = normalize(v);
+  if (partN && !targetN.startsWith(partN)) {
     totalChars += v.length;
     playMistake();
     input.value = "";
@@ -229,7 +243,7 @@ input.addEventListener("input", () => {
 input.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     const target = words[cursor] || "";
-    if (input.value.trim() === target) {
+    if (normalize(input.value) === normalize(target)) {
       correctChars += target.length + 1;
       totalChars += target.length + 1;
       cursor++;
