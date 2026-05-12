@@ -1,17 +1,5 @@
 [
   {
-    "id": "po-frost-road",
-    "title": "The Road Not Taken",
-    "author": "Robert Frost",
-    "year": 1916,
-    "source": "Public domain",
-    "tags": [
-      "nature",
-      "choice"
-    ],
-    "text": "Two roads diverged in a yellow wood,\nAnd sorry I could not travel both\nAnd be one traveler, long I stood\nAnd looked down one as far as I could\nTo where it bent in the undergrowth;\n\nThen took the other, as just as fair,\nAnd having perhaps the better claim,\nBecause it was grassy and wanted wear;\nThough as for that the passing there\nHad worn them really about the same."
-  },
-  {
     "id": "po-dickinson-hope",
     "title": "Hope is the thing with feathers",
     "author": "Emily Dickinson",
@@ -56,18 +44,6 @@
       "beauty"
     ],
     "text": "A thing of beauty is a joy for ever:\nIts loveliness increases; it will never\nPass into nothingness; but still will keep\nA bower quiet for us, and a sleep\nFull of sweet dreams, and health, and quiet breathing."
-  },
-  {
-    "id": "po-thomas-night",
-    "title": "Do Not Go Gentle Into That Good Night",
-    "author": "Dylan Thomas",
-    "year": 1947,
-    "source": "Public domain in some jurisdictions; verify before commercial use",
-    "tags": [
-      "courage",
-      "mortality"
-    ],
-    "text": "Do not go gentle into that good night,\nOld age should burn and rave at close of day;\nRage, rage against the dying of the light.\n\nThough wise men at their end know dark is right,\nBecause their words had forked no lightning they\nDo not go gentle into that good night."
   },
   {
     "id": "po-blake-tyger",
@@ -312,42 +288,6 @@
     "text": "Because I could not stop for Death --\nHe kindly stopped for me --\nThe Carriage held but just Ourselves --\nAnd Immortality.\n\nWe slowly drove -- He knew no haste\nAnd I had put away\nMy labor and my leisure too,\nFor His Civility --\n\nWe passed the School, where Children strove\nAt Recess -- in the Ring --\nWe passed the Fields of Gazing Grain --\nWe passed the Setting Sun --"
   },
   {
-    "id": "po-frost-stopping",
-    "title": "Stopping by Woods on a Snowy Evening",
-    "author": "Robert Frost",
-    "year": "1923",
-    "source": "Public domain",
-    "tags": [
-      "nature",
-      "winter"
-    ],
-    "text": "Whose woods these are I think I know.\nHis house is in the village though;\nHe will not see me stopping here\nTo watch his woods fill up with snow.\n\nMy little horse must think it queer\nTo stop without a farmhouse near\nBetween the woods and frozen lake\nThe darkest evening of the year.\n\nHe gives his harness bells a shake\nTo ask if there is some mistake.\nThe only other sound's the sweep\nOf easy wind and downy flake.\n\nThe woods are lovely, dark and deep,\nBut I have promises to keep,\nAnd miles to go before I sleep,\nAnd miles to go before I sleep."
-  },
-  {
-    "id": "po-frost-fire",
-    "title": "Fire and Ice",
-    "author": "Robert Frost",
-    "year": "1920",
-    "source": "Public domain",
-    "tags": [
-      "short",
-      "destruction"
-    ],
-    "text": "Some say the world will end in fire,\nSome say in ice.\nFrom what I've tasted of desire\nI hold with those who favor fire.\nBut if it had to perish twice,\nI think I know enough of hate\nTo say that for destruction ice\nIs also great\nAnd would suffice."
-  },
-  {
-    "id": "po-frost-mending",
-    "title": "Mending Wall (opening)",
-    "author": "Robert Frost",
-    "year": "1914",
-    "source": "Public domain",
-    "tags": [
-      "neighbors",
-      "tradition"
-    ],
-    "text": "Something there is that doesn't love a wall,\nThat sends the frozen-ground-swell under it,\nAnd spills the upper boulders in the sun;\nAnd makes gaps even two can pass abreast.\nThe work of hunters is another thing:\nI have come after them and made repair\nWhere they have left not one stone on a stone,\nBut they would have the rabbit out of hiding,\nTo please the yelping dogs."
-  },
-  {
     "id": "po-yeats-innisfree",
     "title": "The Lake Isle of Innisfree",
     "author": "William Butler Yeats",
@@ -370,18 +310,6 @@
       "modern"
     ],
     "text": "Turning and turning in the widening gyre\nThe falcon cannot hear the falconer;\nThings fall apart; the centre cannot hold;\nMere anarchy is loosed upon the world,\nThe blood-dimmed tide is loosed, and everywhere\nThe ceremony of innocence is drowned;\nThe best lack all conviction, while the worst\nAre full of passionate intensity."
-  },
-  {
-    "id": "po-eliot-prufrock",
-    "title": "The Love Song of J. Alfred Prufrock (opening)",
-    "author": "T. S. Eliot",
-    "year": "1915",
-    "source": "Public domain",
-    "tags": [
-      "modern",
-      "alienation"
-    ],
-    "text": "Let us go then, you and I,\nWhen the evening is spread out against the sky\nLike a patient etherized upon a table;\nLet us go, through certain half-deserted streets,\nThe muttering retreats\nOf restless nights in one-night cheap hotels\nAnd sawdust restaurants with oyster-shells:\nStreets that follow like a tedious argument\nOf insidious intent\nTo lead you to an overwhelming question. . . .\nOh, do not ask, \"What is it?\"\nLet us go and make our visit."
   },
   {
     "id": "po-hopkins-pied",
@@ -624,30 +552,6 @@
     "text": "When you are old and grey and full of sleep,\nAnd nodding by the fire, take down this book,\nAnd slowly read, and dream of the soft look\nYour eyes had once, and of their shadows deep;\n\nHow many loved your moments of glad grace,\nAnd loved your beauty with love false or true,\nBut one man loved the pilgrim soul in you,\nAnd loved the sorrows of your changing face;\n\nAnd bending down beside the glowing bars,\nMurmur, a little sadly, how Love fled\nAnd paced upon the mountains overhead\nAnd hid his face amid a crowd of stars."
   },
   {
-    "id": "po-frost-acquainted",
-    "title": "Acquainted with the Night",
-    "author": "Robert Frost",
-    "year": "1928",
-    "source": "Public domain",
-    "tags": [
-      "solitude",
-      "night"
-    ],
-    "text": "I have been one acquainted with the night.\nI have walked out in rain -- and back in rain.\nI have outwalked the furthest city light.\n\nI have looked down the saddest city lane.\nI have passed by the watchman on his beat\nAnd dropped my eyes, unwilling to explain.\n\nI have stood still and stopped the sound of feet\nWhen far away an interrupted cry\nCame over houses from another street,\n\nBut not to call me back or say good-bye;\nAnd further still at an unearthly height,\nOne luminary clock against the sky\n\nProclaimed the time was neither wrong nor right.\nI have been one acquainted with the night."
-  },
-  {
-    "id": "po-frost-nothing-gold",
-    "title": "Nothing Gold Can Stay",
-    "author": "Robert Frost",
-    "year": "1923",
-    "source": "Public domain",
-    "tags": [
-      "nature",
-      "time"
-    ],
-    "text": "Nature's first green is gold,\nHer hardest hue to hold.\nHer early leaf's a flower;\nBut only so an hour.\nThen leaf subsides to leaf.\nSo Eden sank to grief,\nSo dawn goes down to day.\nNothing gold can stay."
-  },
-  {
     "id": "po-yeats-aedh",
     "title": "Aedh Wishes for the Cloths of Heaven",
     "author": "William Butler Yeats",
@@ -670,54 +574,6 @@
       "race"
     ],
     "text": "We wear the mask that grins and lies,\nIt hides our cheeks and shades our eyes, --\nThis debt we pay to human guile;\nWith torn and bleeding hearts we smile,\nAnd mouth with myriad subtleties.\n\nWhy should the world be over-wise,\nIn counting all our tears and sighs?\nNay, let them only see us, while\n      We wear the mask.\n\nWe smile, but, O great Christ, our cries\nTo thee from tortured souls arise.\nWe sing, but oh the clay is vile\nBeneath our feet, and long the mile;\nBut let the world dream otherwise,\n      We wear the mask!"
-  },
-  {
-    "id": "po-hughes-i-too",
-    "title": "I, Too (excerpt)",
-    "author": "Langston Hughes",
-    "year": "1926",
-    "source": "Public domain",
-    "tags": [
-      "identity",
-      "hope"
-    ],
-    "text": "I, too, sing America.\n\nI am the darker brother.\nThey send me to eat in the kitchen\nWhen company comes,\nBut I laugh,\nAnd eat well,\nAnd grow strong.\n\nTomorrow,\nI'll be at the table\nWhen company comes.\nNobody'll dare\nSay to me,\n\"Eat in the kitchen,\"\nThen.\n\nBesides,\nThey'll see how beautiful I am\nAnd be ashamed --\n\nI, too, am America."
-  },
-  {
-    "id": "po-hughes-mother",
-    "title": "Mother to Son",
-    "author": "Langston Hughes",
-    "year": "1922",
-    "source": "Public domain",
-    "tags": [
-      "family",
-      "perseverance"
-    ],
-    "text": "Well, son, I'll tell you:\nLife for me ain't been no crystal stair.\nIt's had tacks in it,\nAnd splinters,\nAnd boards torn up,\nAnd places with no carpet on the floor --\nBare.\nBut all the time\nI'se been a-climbin' on,\nAnd reachin' landin's,\nAnd turnin' corners,\nAnd sometimes goin' in the dark\nWhere there ain't been no light.\nSo boy, don't you turn back.\nDon't you set down on the steps\n'Cause you finds it's kinder hard.\nDon't you fall now --\nFor I'se still goin', honey,\nI'se still climbin',\nAnd life for me ain't been no crystal stair."
-  },
-  {
-    "id": "po-sandburg-fog",
-    "title": "Fog",
-    "author": "Carl Sandburg",
-    "year": "1916",
-    "source": "Public domain",
-    "tags": [
-      "nature",
-      "short"
-    ],
-    "text": "The fog comes\non little cat feet.\n\nIt sits looking\nover harbor and city\non silent haunches\nand then moves on."
-  },
-  {
-    "id": "po-sandburg-chicago",
-    "title": "Chicago (opening)",
-    "author": "Carl Sandburg",
-    "year": "1914",
-    "source": "Public domain",
-    "tags": [
-      "city",
-      "industry"
-    ],
-    "text": "Hog Butcher for the World,\n   Tool Maker, Stacker of Wheat,\n   Player with Railroads and the Nation's Freight Handler;\n   Stormy, husky, brawling,\n   City of the Big Shoulders:\n\nThey tell me you are wicked and I believe them, for I have seen your\npainted women under the gas lamps luring the farm boys.\nAnd they tell me you are crooked and I answer: Yes, it is true I have\nseen the gunman kill and go free to kill again."
   },
   {
     "id": "po-millay-first-fig",
@@ -778,18 +634,6 @@
       "memory"
     ],
     "text": "When I am dead, my dearest,\n   Sing no sad songs for me;\nPlant thou no roses at my head,\n   Nor shady cypress tree:\nBe the green grass above me\n   With showers and dewdrops wet;\nAnd if thou wilt, remember,\n   And if thou wilt, forget."
-  },
-  {
-    "id": "po-eliot-hollow-men",
-    "title": "The Hollow Men (opening)",
-    "author": "T. S. Eliot",
-    "year": "1925",
-    "source": "Public domain",
-    "tags": [
-      "modern",
-      "despair"
-    ],
-    "text": "We are the hollow men\nWe are the stuffed men\nLeaning together\nHeadpiece filled with straw. Alas!\nOur dried voices, when\nWe whisper together\nAre quiet and meaningless\nAs wind in dry grass\nOr rats' feet over broken glass\nIn our dry cellar"
   },
   {
     "id": "po-stevenson-requiem",
@@ -874,18 +718,6 @@
     "text": "And did those feet in ancient time\nWalk upon England's mountains green:\nAnd was the holy Lamb of God,\nOn England's pleasant pastures seen!\n\nAnd did the Countenance Divine,\nShine forth upon our clouded hills?\nAnd was Jerusalem builded here,\nAmong these dark Satanic Mills?\n\nBring me my Bow of burning gold;\nBring me my Arrows of desire:\nBring me my Spear: O clouds unfold!\nBring me my Chariot of fire!"
   },
   {
-    "id": "po-eliot-journey",
-    "title": "Journey of the Magi (opening)",
-    "author": "T. S. Eliot",
-    "year": "1927",
-    "source": "Public domain",
-    "tags": [
-      "narrative",
-      "modern"
-    ],
-    "text": "A cold coming we had of it,\nJust the worst time of the year\nFor a journey, and such a long journey:\nThe ways deep and the weather sharp,\nThe very dead of winter.\nAnd the camels galled, sore-footed, refractory,\nLying down in the melting snow."
-  },
-  {
     "id": "po-yeats-sailing",
     "title": "Sailing to Byzantium (opening)",
     "author": "William Butler Yeats",
@@ -896,30 +728,6 @@
       "art"
     ],
     "text": "That is no country for old men. The young\nIn one another's arms, birds in the trees\n-- Those dying generations -- at their song,\nThe salmon-falls, the mackerel-crowded seas,\nFish, flesh, or fowl, commend all summer long\nWhatever is begotten, born, and dies.\nCaught in that sensual music all neglect\nMonuments of unageing intellect."
-  },
-  {
-    "id": "po-frost-birches",
-    "title": "Birches (opening)",
-    "author": "Robert Frost",
-    "year": "1916",
-    "source": "Public domain",
-    "tags": [
-      "nature",
-      "memory"
-    ],
-    "text": "When I see birches bend to left and right\nAcross the lines of straighter darker trees,\nI like to think some boy's been swinging them.\nBut swinging doesn't bend them down to stay\nAs ice-storms do."
-  },
-  {
-    "id": "po-frost-pasture",
-    "title": "The Pasture",
-    "author": "Robert Frost",
-    "year": "1914",
-    "source": "Public domain",
-    "tags": [
-      "nature",
-      "invitation"
-    ],
-    "text": "I'm going out to clean the pasture spring;\nI'll only stop to rake the leaves away\n(And wait to watch the water clear, I may):\nI sha'n't be gone long. -- You come too.\n\nI'm going out to fetch the little calf\nThat's standing by the mother. It's so young,\nIt totters when she licks it with her tongue.\nI sha'n't be gone long. -- You come too."
   },
   {
     "id": "po-dickinson-success",
@@ -1077,65 +885,6 @@
     "text": "Hail to thee, blithe Spirit!\n   Bird thou never wert,\nThat from Heaven, or near it,\n   Pourest thy full heart\nIn profuse strains of unpremeditated art.\n\nHigher still and higher\n   From the earth thou springest\nLike a cloud of fire;\n   The blue deep thou wingest,\nAnd singing still dost soar, and soaring ever singest."
   },
   {
-    "id": "po-cummings-anyone",
-    "title": "anyone lived in a pretty how town (opening)",
-    "author": "E. E. Cummings",
-    "year": "1940",
-    "source": "Public domain",
-    "tags": [
-      "modern",
-      "experimental"
-    ],
-    "text": "anyone lived in a pretty how town\n(with up so floating many bells down)\nspring summer autumn winter\nhe sang his didn't he danced his did.\n\nWomen and men (both little and small)\ncared for anyone not at all\nthey sowed their isn't they reaped their same\nsun moon stars rain"
-  },
-  {
-    "id": "po-cummings-i-carry",
-    "title": "i carry your heart with me",
-    "author": "E. E. Cummings",
-    "year": "1952",
-    "source": "Public domain",
-    "tags": [
-      "love"
-    ],
-    "text": "i carry your heart with me (i carry it in\nmy heart) i am never without it (anywhere\ni go you go, my dear; and whatever is done\nby only me is your doing, my darling)\n                                          i fear\nno fate (for you are my fate, my sweet) i want\nno world (for beautiful you are my world, my true)\nand it's you are whatever a moon has always meant\nand whatever a sun will always sing is you"
-  },
-  {
-    "id": "po-pound-station",
-    "title": "In a Station of the Metro",
-    "author": "Ezra Pound",
-    "year": "1913",
-    "source": "Public domain",
-    "tags": [
-      "short",
-      "imagism"
-    ],
-    "text": "The apparition of these faces in the crowd;\nPetals on a wet, black bough."
-  },
-  {
-    "id": "po-williams-red-wheelbarrow",
-    "title": "The Red Wheelbarrow",
-    "author": "William Carlos Williams",
-    "year": "1923",
-    "source": "Public domain",
-    "tags": [
-      "short",
-      "imagism"
-    ],
-    "text": "so much depends\nupon\n\na red wheel\nbarrow\n\nglazed with rain\nwater\n\nbeside the white\nchickens"
-  },
-  {
-    "id": "po-williams-this-is-just",
-    "title": "This Is Just to Say",
-    "author": "William Carlos Williams",
-    "year": "1934",
-    "source": "Public domain",
-    "tags": [
-      "short",
-      "domestic"
-    ],
-    "text": "I have eaten\nthe plums\nthat were in\nthe icebox\n\nand which\nyou were probably\nsaving\nfor breakfast\n\nForgive me\nthey were delicious\nso sweet\nand so cold"
-  },
-  {
     "id": "po-stevens-snow-man",
     "title": "The Snow Man",
     "author": "Wallace Stevens",
@@ -1146,18 +895,6 @@
       "modern"
     ],
     "text": "One must have a mind of winter\nTo regard the frost and the boughs\nOf the pine-trees crusted with snow;\n\nAnd have been cold a long time\nTo behold the junipers shagged with ice,\nThe spruces rough in the distant glitter\n\nOf the January sun; and not to think\nOf any misery in the sound of the wind,\nIn the sound of a few leaves,\n\nWhich is the sound of the land\nFull of the same wind\nThat is blowing in the same bare place\n\nFor the listener, who listens in the snow,\nAnd, nothing himself, beholds\nNothing that is not there and the nothing that is."
-  },
-  {
-    "id": "po-frost-after-apple",
-    "title": "After Apple-Picking (opening)",
-    "author": "Robert Frost",
-    "year": "1914",
-    "source": "Public domain",
-    "tags": [
-      "nature",
-      "work"
-    ],
-    "text": "My long two-pointed ladder's sticking through a tree\nToward heaven still,\nAnd there's a barrel that I didn't fill\nBeside it, and there may be two or three\nApples I didn't pick upon some bough.\nBut I am done with apple-picking now.\nEssence of winter sleep is on the night,\nThe scent of apples: I am drowsing off."
   },
   {
     "id": "po-rossetti-when-i-am-dead",
@@ -1242,18 +979,6 @@
       "memory"
     ],
     "text": "Tears, idle tears, I know not what they mean,\nTears from the depth of some divine despair\nRise in the heart, and gather to the eyes,\nIn looking on the happy Autumn-fields,\nAnd thinking of the days that are no more.\n\nFresh as the first beam glittering on a sail,\nThat brings our friends up from the underworld,\nSad as the last which reddens over one\nThat sinks with all we love below the verge;\nSo sad, so fresh, the days that are no more."
-  },
-  {
-    "id": "po-frost-design",
-    "title": "Design",
-    "author": "Robert Frost",
-    "year": "1936",
-    "source": "Public domain",
-    "tags": [
-      "nature",
-      "sonnet"
-    ],
-    "text": "I found a dimpled spider, fat and white,\nOn a white heal-all, holding up a moth\nLike a white piece of rigid satin cloth --\nAssorted characters of death and blight\nMixed ready to begin the morning right,\nLike the ingredients of a witches' broth --\nA snow-drop spider, a flower like a froth,\nAnd dead wings carried like a paper kite.\n\nWhat had that flower to do with being white,\nThe wayside blue and innocent heal-all?\nWhat brought the kindred spider to that height,\nThen steered the white moth thither in the night?\nWhat but design of darkness to appall? --\nIf design govern in a thing so small."
   },
   {
     "id": "po-millay-love-not-all",
@@ -1350,18 +1075,6 @@
       "sonnet"
     ],
     "text": "Nothing is so beautiful as Spring --\n   When weeds, in wheels, shoot long and lovely and lush;\n   Thrush's eggs look little low heavens, and thrush\nThrough the echoing timber does so rinse and wring\nThe ear, it strikes like lightnings to hear him sing;\n   The glassy peartree leaves and blooms, they brush\n   The descending blue; that blue is all in a rush\nWith richness; the racing lambs too have fair their fling."
-  },
-  {
-    "id": "po-hopkins-gods-grandeur",
-    "title": "God's Grandeur",
-    "author": "Gerard Manley Hopkins",
-    "year": "1877",
-    "source": "Public domain",
-    "tags": [
-      "nature",
-      "sonnet"
-    ],
-    "text": "The world is charged with the grandeur of God.\n   It will flame out, like shining from shook foil;\n   It gathers to a greatness, like the ooze of oil\nCrushed. Why do men then now not reck his rod?\nGenerations have trod, have trod, have trod;\n   And all is seared with trade; bleared, smeared with toil;\n   And wears man's smudge and shares man's smell: the soil\nIs bare now, nor can foot feel, being shod."
   },
   {
     "id": "po-bryant-thanatopsis",
@@ -1496,30 +1209,6 @@
     "text": "Morning and evening\nMaids heard the goblins cry:\n\"Come buy our orchard fruits,\nCome buy, come buy:\nApples and quinces,\nLemons and oranges,\nPlump unpecked cherries,\nMelons and raspberries,\nBloom-down-cheeked peaches,\nSwart-headed mulberries.\""
   },
   {
-    "id": "po-frost-out-out",
-    "title": "'Out, Out--' (opening)",
-    "author": "Robert Frost",
-    "year": "1916",
-    "source": "Public domain",
-    "tags": [
-      "narrative",
-      "tragedy"
-    ],
-    "text": "The buzz-saw snarled and rattled in the yard\nAnd made dust and dropped stove-length sticks of wood,\nSweet-scented stuff when the breeze drew across it.\nAnd from there those that lifted eyes could count\nFive mountain ranges one behind the other\nUnder the sunset far into Vermont."
-  },
-  {
-    "id": "po-frost-tuft-flowers",
-    "title": "The Tuft of Flowers (excerpt)",
-    "author": "Robert Frost",
-    "year": "1913",
-    "source": "Public domain",
-    "tags": [
-      "nature",
-      "work"
-    ],
-    "text": "I went to turn the grass once after one\nWho mowed it in the dew before the sun.\n\nThe dew was gone that made his blade so keen\nBefore I came to view the levelled scene.\n\nI looked for him behind an isle of trees;\nI listened for his whetstone on the breeze."
-  },
-  {
     "id": "po-dickinson-i-heard-fly",
     "title": "I heard a Fly buzz when I died",
     "author": "Emily Dickinson",
@@ -1579,42 +1268,6 @@
     "text": "The trees are in their autumn beauty,\nThe woodland paths are dry,\nUnder the October twilight the water\nMirrors a still sky;\nUpon the brimming water among the stones\nAre nine-and-fifty swans."
   },
   {
-    "id": "po-eliot-preludes",
-    "title": "Preludes (excerpt)",
-    "author": "T. S. Eliot",
-    "year": "1917",
-    "source": "Public domain",
-    "tags": [
-      "modern",
-      "city"
-    ],
-    "text": "The winter evening settles down\nWith smell of steaks in passageways.\nSix o'clock.\nThe burnt-out ends of smoky days.\nAnd now a gusty shower wraps\nThe grimy scraps\nOf withered leaves about your feet\nAnd newspapers from vacant lots."
-  },
-  {
-    "id": "po-pound-canto-1",
-    "title": "Canto I (opening)",
-    "author": "Ezra Pound",
-    "year": "1917",
-    "source": "Public domain",
-    "tags": [
-      "modern",
-      "epic"
-    ],
-    "text": "And then went down to the ship,\nSet keel to breakers, forth on the godly sea, and\nWe set up mast and sail on that swart ship,\nBore sheep aboard her, and our bodies also\nHeavy with weeping, and winds from sternward\nBore us out onward with bellying canvas."
-  },
-  {
-    "id": "po-cummings-spring",
-    "title": "in Just-",
-    "author": "E. E. Cummings",
-    "year": "1923",
-    "source": "Public domain",
-    "tags": [
-      "spring",
-      "children"
-    ],
-    "text": "in Just-\nspring          when the world is mud-\nluscious the little\nlame balloonman\n\nwhistles          far          and wee\n\nand eddieandbill come\nrunning from marbles and\npiracies and it's\nspring"
-  },
-  {
     "id": "po-stevens-emperor",
     "title": "The Emperor of Ice-Cream",
     "author": "Wallace Stevens",
@@ -1625,18 +1278,6 @@
       "death"
     ],
     "text": "Call the roller of big cigars,\nThe muscular one, and bid him whip\nIn kitchen cups concupiscent curds.\nLet the wenches dawdle in such dress\nAs they are used to wear, and let the boys\nBring flowers in last month's newspapers.\nLet be be finale of seem.\nThe only emperor is the emperor of ice-cream."
-  },
-  {
-    "id": "po-williams-asphodel",
-    "title": "Landscape with the Fall of Icarus",
-    "author": "William Carlos Williams",
-    "year": "1962",
-    "source": "Public domain",
-    "tags": [
-      "art",
-      "myth"
-    ],
-    "text": "According to Brueghel\nwhen Icarus fell\nit was spring\n\na farmer was ploughing\nhis field\nthe whole pageantry\n\nof the year was\nawake tingling\nnear\n\nthe edge of the sea\nconcerned\nwith itself"
   },
   {
     "id": "po-millay-pity",
@@ -1766,32 +1407,6 @@
       "wedding"
     ],
     "text": "Calm was the day, and through the trembling air\nSweet breathing Zephyrus did softly play,\nA gentle spirit, that lightly did delay\nHot Titan's beams, which then did glister fair;\nWhen I (whom sullen care,\nThrough discontent of my long fruitless stay\nIn princes' court, and expectation vain\nOf idle hopes, which still do fly away,\nLike empty shadows, did afflict my brain)\nWalked forth to ease my pain."
-  },
-  {
-    "id": "p-frost-the-road-not-taken",
-    "title": "The Road Not Taken",
-    "author": "Robert Frost",
-    "year": 1916,
-    "source": "Mountain Interval",
-    "tags": [
-      "choice",
-      "journey",
-      "reflection"
-    ],
-    "text": "Two roads diverged in a yellow wood,\nAnd sorry I could not travel both\nAnd be one traveler, long I stood\nAnd looked down one as far as I could\nTo where it bent in the undergrowth;\n\nThen took the other, as just as fair,\nAnd having perhaps the better claim,\nBecause it was grassy and wanted wear;\nThough as for that the passing there\nHad worn them really about the same,\n\nAnd both that morning equally lay\nIn leaves no step had trodden black.\nOh, I kept the first for another day!\nYet knowing how way leads on to way,\nI doubted if I should ever come back.\n\nI shall be telling this with a sigh\nSomewhere ages and ages hence:\nTwo roads diverged in a wood, and I —\nI took the one less traveled by,\nAnd that has made all the difference."
-  },
-  {
-    "id": "p-frost-stopping-by-woods",
-    "title": "Stopping by Woods on a Snowy Evening",
-    "author": "Robert Frost",
-    "year": 1923,
-    "source": "New Hampshire",
-    "tags": [
-      "nature",
-      "quiet",
-      "duty"
-    ],
-    "text": "Whose woods these are I think I know.\nHis house is in the village though;\nHe will not see me stopping here\nTo watch his woods fill up with snow.\n\nMy little horse must think it queer\nTo stop without a farmhouse near\nBetween the woods and frozen lake\nThe darkest evening of the year.\n\nHe gives his harness bells a shake\nTo ask if there is some mistake.\nThe only other sound's the sweep\nOf easy wind and downy flake.\n\nThe woods are lovely, dark and deep,\nBut I have promises to keep,\nAnd miles to go before I sleep,\nAnd miles to go before I sleep."
   },
   {
     "id": "p-dickinson-hope-is-thing-with-feathers",
@@ -2067,45 +1682,6 @@
     "text": "Glory be to God for dappled things —\n  For skies of couple-colour as a brinded cow;\n    For rose-moles all in stipple upon trout that swim;\nFresh-firecoal chestnut-falls; finches' wings;\n  Landscape plotted and pieced — fold, fallow, and plough;\n    And áll trádes, their gear and tackle and trim.\n\nAll things counter, original, spare, strange;\n  Whatever is fickle, freckled (who knows how?)\n    With swift, slow; sweet, sour; adazzle, dim;\nHe fathers-forth whose beauty is past change:\n                                Praise him."
   },
   {
-    "id": "p-hughes-dreams",
-    "title": "Dreams",
-    "author": "Langston Hughes",
-    "year": 1922,
-    "source": "The Crisis",
-    "tags": [
-      "dreams",
-      "hope",
-      "resilience"
-    ],
-    "text": "Hold fast to dreams\nFor if dreams die\nLife is a broken-winged bird\nThat cannot fly.\n\nHold fast to dreams\nFor when dreams go\nLife is a barren field\nFrozen with snow."
-  },
-  {
-    "id": "p-hughes-mother-to-son",
-    "title": "Mother to Son",
-    "author": "Langston Hughes",
-    "year": 1922,
-    "source": "The Crisis",
-    "tags": [
-      "perseverance",
-      "family",
-      "wisdom"
-    ],
-    "text": "Well, son, I'll tell you:\nLife for me ain't been no crystal stair.\nIt's had tacks in it,\nAnd splinters,\nAnd boards torn up,\nAnd places with no carpet on the floor —\nBare.\nBut all the time\nI'se been a-climbin' on,\nAnd reachin' landin's,\nAnd turnin' corners,\nAnd sometimes goin' in the dark\nWhere there ain't been no light.\nSo boy, don't you turn back.\nDon't you set down on the steps\n'Cause you finds it's kinder hard.\nDon't you fall now —\nFor I'se still goin', honey,\nI'se still climbin',\nAnd life for me ain't been no crystal stair."
-  },
-  {
-    "id": "p-cummings-i-carry-your-heart",
-    "title": "i carry your heart with me",
-    "author": "E.E. Cummings",
-    "year": 1952,
-    "source": "Complete Poems",
-    "tags": [
-      "love",
-      "unity",
-      "modern"
-    ],
-    "text": "i carry your heart with me(i carry it in\nmy heart)i am never without it(anywhere\ni go you go,my dear;and whatever is done\nby only me is your doing,my darling)\n                                      i fear\nno fate(for you are my fate,my sweet)i want\nno world(for beautiful you are my world,my true)\nand it's you are whatever a moon has always meant\nand whatever a sun will always sing is you\n\nhere is the deepest secret nobody knows\n(here is the root of the root and the bud of the bud\nand the sky of the sky of a tree called life;which grows\nhigher than soul can hope or mind can hide)\nand this is the wonder that's keeping the stars apart\n\ni carry your heart(i carry it in my heart)"
-  },
-  {
     "id": "p-millay-first-fig",
     "title": "First Fig",
     "author": "Edna St. Vincent Millay",
@@ -2130,18 +1706,5 @@
       "nature"
     ],
     "text": "I\n\nAmong twenty snowy mountains,\nThe only moving thing\nWas the eye of the blackbird.\n\nII\n\nI was of three minds,\nLike a tree\nIn which there are three blackbirds.\n\nIII\n\nThe blackbird whirled in the autumn winds.\nIt was a small part of the pantomime.\n\nIV\n\nA man and a woman\nAre one.\nA man and a woman and a blackbird\nAre one."
-  },
-  {
-    "id": "p-eliot-prufrock-excerpt",
-    "title": "The Love Song of J. Alfred Prufrock (opening)",
-    "author": "T.S. Eliot",
-    "year": 1915,
-    "source": "Poetry: A Magazine of Verse",
-    "tags": [
-      "modernism",
-      "time",
-      "existence"
-    ],
-    "text": "Let us go then, you and I,\nWhen the evening is spread out against the sky\nLike a patient etherized upon a table;\nLet us go, through certain half-deserted streets,\nThe muttering retreats\nOf restless nights in one-night cheap hotels\nAnd sawdust restaurants with oyster-shells:\nStreets that follow like a tedious argument\nOf insidious intent\nTo lead you to an overwhelming question . . .\nOh, do not ask, \"What is it?\"\nLet us go and make our visit."
   }
 ]
