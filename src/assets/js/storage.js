@@ -37,6 +37,9 @@ export const SYNCABLE_PREFIXES = [NS + "lesson-best-"];
 const DEVICE_PREFIXES = [NS + "contribute-draft-", NS + "toc-collapsed:"];
 const DEVICE_KEYS = [
   KEY_ACTIVE, KEY_META, KEY_DEVICE,
+  // Cached sign-in state. Device-local by definition, and holds no token
+  // -- the session itself is an HttpOnly cookie JS cannot read.
+  NS + "session.v1",
   NS + "active-collection", NS + "active-collection-index",
   NS + "feedback-draft", NS + "testimonial-prompt-dismissed",
   NS + "pwa-install-dismissed", NS + "pwa-installed",
