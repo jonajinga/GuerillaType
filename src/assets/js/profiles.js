@@ -1,4 +1,4 @@
-import { read, write, KEY_PROFILES, KEY_ACTIVE } from "./storage.js";
+import { read, write, KEY_PROFILES, KEY_ACTIVE, SCHEMA_VERSION } from "./storage.js";
 
 const DEFAULT_SETTINGS = {
   layout: "qwerty",
@@ -32,8 +32,12 @@ const DEFAULT_PREFERENCES = {
 
 export function newProfile(name = "Default") {
   return {
-    version: 2,
-    id: "p_" + Math.random().toString(36).slice(2, 8),
+    version: SCHEMA_VERSION,
+    // crypto.randomUUID so two devices used anonymously can't mint the
+    // same id. The old "p_" + 6 base36 chars was only ~2e9 wide and
+    // non-crypto, which is a real collision risk once profiles from
+    // several devices land in one account.
+    id: newProfileId(),
     name,
     createdAt: new Date().toISOString(),
     settings: { ...DEFAULT_SETTINGS },
@@ -56,7 +60,24 @@ export function newProfile(name = "Default") {
     sessionsByLesson: {},
     bookProgress: {},
     corpusProgress: {},
+    // These three used to be created lazily at their write sites
+    // (session-recorder for the first two, the game boots for the
+    // third) and were absent here, so every reader defended with
+    // `|| {}`. Merging can't reason about a field that may or may not
+    // exist, so the shape is declared in one place. See storage.js
+    // migrateV4ToV5, which backfills them for existing profiles.
+    modeBests: {},
+    missedWordsPeak: 0,
+    gameStats: { rounds: 0, totalCaught: 0, highScore: 0, bestStreak: 0, byMode: {} },
   };
+}
+
+/* Profile ids cross device boundaries once accounts exist, so they need
+   to be globally unique rather than merely unique within one array. */
+export function newProfileId() {
+  return (crypto && crypto.randomUUID)
+    ? crypto.randomUUID()
+    : "p_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
 }
 
 export function getProfiles() {
@@ -122,7 +143,10 @@ export function deleteProfile(id) {
 
 export function exportJson() {
   const ps = getProfiles();
-  const blob = new Blob([JSON.stringify({ version: 1, profiles: ps }, null, 2)], { type: "application/json" });
+  // The envelope version tracks SCHEMA_VERSION. It used to be a hardcoded
+  // 1 while the schema was on 4, so any importer that branched on it would
+  // have mis-migrated the payload.
+  const blob = new Blob([JSON.stringify({ version: SCHEMA_VERSION, profiles: ps }, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;

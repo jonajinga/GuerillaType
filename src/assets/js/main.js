@@ -357,7 +357,11 @@ function paintNavProfileCard() {
     if (!raw) return;
     const ps = JSON.parse(raw);
     if (!Array.isArray(ps) || !ps.length) return;
-    const activeId = localStorage.getItem("tt:active") || (ps[0] && ps[0].id);
+    // NB: the key is "tt:active-profile". Reading "tt:active" always
+    // missed, and the `|| ps[0].id` fallback hid it whenever there was
+    // one profile -- but with several, the card showed profile[0]'s
+    // streak/sessions/bestWpm instead of the active profile's.
+    const activeId = localStorage.getItem("tt:active-profile") || (ps[0] && ps[0].id);
     const p = ps.find((x) => x && x.id === activeId) || ps[0];
     lt = p && p.lifetime;
   } catch { return; }

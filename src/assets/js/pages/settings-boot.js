@@ -1,7 +1,7 @@
 /* Settings page boot. Profile CRUD, preferences, danger zone. */
 
 import { getProfiles, getActive, getActiveId, setActiveId, addProfile, renameProfile, deleteProfile, exportJson, importJson, updateActive } from "../profiles.js";
-import { quotaUsed, KEY_PROFILES, KEY_ACTIVE, KEY_SETTINGS, KEY_CUSTOM, KEY_META, remove } from "../storage.js";
+import { quotaUsed, clearAllAppData } from "../storage.js";
 import { $, toast } from "../util/dom.js";
 import { confirmModal, promptModal } from "../util/modal.js";
 import { Analytics } from "../analytics.js";
@@ -257,7 +257,10 @@ $("#reset-all").addEventListener("click", async () => {
     danger: true,
   });
   if (!ok) return;
-  remove(KEY_PROFILES); remove(KEY_ACTIVE); remove(KEY_SETTINGS); remove(KEY_CUSTOM); remove(KEY_META);
+  // Removing five named keys left tt:theme, ~500 tt:lesson-best-*,
+  // collections, drafts and flags behind -- so a "wiped" browser still
+  // showed mastered lessons and could re-unlock lesson achievements.
+  clearAllAppData();
   location.reload();
 });
 
