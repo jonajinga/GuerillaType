@@ -13,6 +13,13 @@
   font-size:var(--fs-700);color:var(--accent);font-variant-numeric:tabular-nums;
   font-family:var(--font-display);font-weight:500;letter-spacing:-.02em;
   font-feature-settings:"tnum";
+  /* tabular-nums equalizes DIGIT widths but not digit COUNT, so a wpm
+     climbing 9 -> 10 -> 100 still changes this box's width and nudges
+     its neighbours in the centred flex row. Reserve the widest realistic
+     reading ("100%") so the row is pinned for the whole test. */
+  min-width:4ch;
+  display:block;
+  text-align:center;
 }
 .live-stats__label{
   font-size:var(--fs-200);color:var(--fg-2);
