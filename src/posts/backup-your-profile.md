@@ -51,6 +51,8 @@ The risk is not high. Most browsers do not clear local storage unless you ask th
 
 ## Why no cloud
 
-The site has no accounts and stores nothing on its servers. This is a deliberate design choice. The trade-off is yours: you keep full control of your data, but you have to handle backups yourself.
+The site stores nothing on its servers unless you ask it to. The trade-off is yours: you keep full control of your data, but you have to handle backups yourself.
+
+**Update:** optional accounts have since shipped. Sign in with Google or GitHub and your progress syncs across your devices automatically, which is a backup in itself. Everything below still applies if you'd rather stay signed out — and exporting is still worth doing either way.
 
 If you want cloud-synced profiles, the site is not for you. There are paid typing tutors that offer that. This is the one that does not.

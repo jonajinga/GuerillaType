@@ -27,6 +27,7 @@ async function route(request: Request, env: Env, ctx: ExecutionContext): Promise
   if (m === "GET" && pathname === "/auth/me") return auth.me(request, env, ctx);
   if (m === "POST" && pathname === "/auth/logout") return auth.logout(request, env);
   if (m === "POST" && pathname === "/auth/logout-all") return auth.logoutAll(request, env, ctx);
+  if (m === "DELETE" && pathname === "/auth/account") return auth.deleteAccount(request, env, ctx);
 
   const cb = match(pathname, "/auth/callback/:provider");
   if (cb && m === "GET") return auth.callback(request, env, cb.provider!);

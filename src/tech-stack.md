@@ -3,7 +3,7 @@ layout: layouts/article.njk
 title: "Tech stack"
 eyebrow: "Under the hood"
 lede: "How GuerillaType is built. A static site, vanilla JavaScript, no frameworks, no backend, no database. Open source under MIT."
-description: "Tech stack: Eleventy v3, Nunjucks, vanilla CSS, vanilla JS, Cloudflare Pages, Bunny Fonts. No frameworks, no build tooling beyond Eleventy itself."
+description: "Tech stack: Eleventy v3, Nunjucks, vanilla CSS, vanilla JS, Cloudflare Pages, Workers, D1 and R2. No frameworks, no build tooling beyond Eleventy itself."
 cta:
   title: "Source on GitHub"
   body: "Fork it, host your own copy, contribute back. MIT licensed."
@@ -73,6 +73,10 @@ Five hand-rolled SVG components, no chart library:
 ## Hosting
 
 - **Cloudflare Pages** — static asset hosting, free tier covers more bandwidth than this site will ever need.
+- **Cloudflare Workers** — a small API for optional accounts and sync. No framework, no Node compatibility layer; just Web Crypto and `fetch`, which keeps cold starts cheap.
+- **Cloudflare D1** — identity: users, sign-in links, sessions. One row per device per profile for the sync index, never one row per typing test.
+- **Cloudflare R2** — the synced practice data itself, one compressed blob per device.
+- **Google + GitHub OAuth** — sign-in, so there is no password for anyone to lose.
 - **Cloudflare DNS** — already free.
 - **Cloudflare Web Analytics** — optional, privacy-friendly, no cookies.
 - **Umami** — optional self-hosted alternative if you bring your own.

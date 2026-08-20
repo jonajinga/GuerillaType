@@ -103,3 +103,31 @@ describe("routes", () => {
     expect((await r.json<any>()).error).toBe("forbidden_origin");
   });
 });
+
+describe("account deletion", () => {
+  it("erases the user, their identities, sessions and sync index", async () => {
+    const u = await resolveUser(env, "google", { providerUserId: "1", email: "a@example.com", name: null, avatarUrl: null });
+    const { token } = await mintSession(env, u.id, "test");
+    const h = { Authorization: `Bearer ${token}`, Origin: "https://guerillatype.com" };
+
+    await SELF.fetch(`https://api.test/sync/11111111-2222-4333-8444-555555555555?device=aaaaaaaa-1111-4222-8333-444444444444`,
+      { method: "PUT", headers: h, body: "bytes" });
+
+    const del = await SELF.fetch("https://api.test/auth/account", { method: "DELETE", headers: h });
+    expect(del.status).toBe(200);
+
+    for (const t of ["users", "identities", "sessions", "profile_blobs"]) {
+      const { results } = await env.DB.prepare(`SELECT * FROM ${t}`).all();
+      expect(results, `${t} should be empty`).toHaveLength(0);
+    }
+    // And the session is dead immediately.
+    expect((await SELF.fetch("https://api.test/auth/me", { headers: h })).status).toBe(401);
+  });
+
+  it("requires a session", async () => {
+    const r = await SELF.fetch("https://api.test/auth/account", {
+      method: "DELETE", headers: { Origin: "https://guerillatype.com" },
+    });
+    expect(r.status).toBe(401);
+  });
+});

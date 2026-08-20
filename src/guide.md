@@ -340,7 +340,7 @@ To move profiles between devices: Export JSON on device A → Import JSON on dev
 
 Nothing leaves your device unless the site operator has enabled optional aggregate analytics, and even those don't carry personal data.
 
-- No accounts. No signup. No email collection.
+- Accounts are optional. Signed out, there's no signup and no email collected; signed in, your progress syncs across your devices and nothing is ever public.
 - No cookies for tracking, sessions, or fingerprinting.
 - No third-party tracking scripts.
 - Optional Umami / Cloudflare Web Analytics (page-views only, no personal data, disabled by default).

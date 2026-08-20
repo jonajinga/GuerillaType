@@ -29,7 +29,9 @@ Use the [Contribute hub](/contribute/). Eight forms cover quotes, books, parable
 
 ## Where is my data stored?
 
-In your browser's `localStorage` on this device only. Nothing is sent to a server. Clearing browser storage clears your data — export to JSON first if you want a backup. See the [Analytics page](/analytics/) for the full data story.
+In your browser's `localStorage`, always. That's the working copy, and the editor never waits on the network — it's why typing stays instant and why the site works on a plane.
+
+If you sign in, a copy also syncs to your account so a lost laptop isn't a lost year of practice. If you don't, nothing leaves the device. Either way, clearing browser storage clears the local copy — signed in, signing in again restores it. See [Privacy](/privacy/) for exactly what the server holds.
 
 ## Why does the heatmap show wrong keys for Dvorak / Colemak?
 
@@ -41,7 +43,11 @@ Pasting would let you "type" thousands of words instantly and skew your stats. T
 
 ## Can I sync between devices?
 
-No, by design. Use Settings → Export JSON, then Import JSON on the other device.
+Yes — sign in from Settings → Account, with Google or GitHub. Your profiles, stats, adaptive model, achievements and settings follow you to any device you sign in on.
+
+Signing in is optional and always will be. Everything works signed out exactly as before, and Export/Import JSON still works if you'd rather move your data by hand.
+
+The first time you sign in we'll offer to move this device's existing progress into your account. Nothing is deleted either way — the local copy stays put.
 
 ## What's the maximum custom text size?
 
@@ -65,7 +71,9 @@ Once loaded, mostly yes — the engine, all stats, and saved custom texts work w
 
 ## Why no leaderboards?
 
-Two reasons: (1) leaderboards require accounts, which require a backend, which breaks the privacy model; (2) leaderboards reward a different game than what helps you actually type better. The local "personal best" tracking does the same job without the noise.
+Accounts exist now, so the old answer ("they'd require a backend") no longer holds. The remaining reason still does: a global leaderboard rewards a different game than the one that makes you type better. Chasing a number on a 15-second burst is not practice.
+
+If leaderboards do land, they'll be scoped to a **daily seeded challenge** — everyone gets the same text, the board resets tomorrow, and the server can verify the result. That's a fair contest rather than an all-time table nobody can catch. Your own personal bests will always work without any of it.
 
 ## Can I contribute?
 

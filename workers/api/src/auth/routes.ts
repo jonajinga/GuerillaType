@@ -96,6 +96,35 @@ export async function logout(request: Request, env: Env): Promise<Response> {
   return json({ ok: true }, request, env, { headers: { "Set-Cookie": clearCookie(env) } });
 }
 
+/* DELETE /auth/account -- erase the account and everything in it.
+
+   The privacy page promises this, so it has to actually be complete: R2
+   objects first (they are not covered by any foreign key), then the user
+   row, whose ON DELETE CASCADE takes identities, sessions and the sync
+   index with it.
+
+   R2 before D1 on purpose. If the delete fails halfway, orphaned bytes
+   nobody can reach are recoverable; a live account pointing at bytes that
+   are already gone is not. */
+export async function deleteAccount(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+  assertTrustedOrigin(request, env);
+  const { user } = await requireUser(request, env, ctx);
+
+  // R2 has no cascade, so enumerate and remove explicitly.
+  let cursor: string | undefined;
+  do {
+    const listed = await env.SYNC.list({ prefix: `u/${user.id}/`, cursor });
+    if (listed.objects.length) {
+      await env.SYNC.delete(listed.objects.map((o) => o.key));
+    }
+    cursor = listed.truncated ? listed.cursor : undefined;
+  } while (cursor);
+
+  await env.DB.prepare(`DELETE FROM users WHERE id = ?`).bind(user.id).run();
+
+  return json({ ok: true }, request, env, { headers: { "Set-Cookie": clearCookie(env) } });
+}
+
 /* POST /auth/logout-all — the payoff of opaque sessions. */
 export async function logoutAll(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
   assertTrustedOrigin(request, env);

@@ -1,7 +1,7 @@
 export default {
   title: "GuerillaType",
   shortTitle: "GuerillaType",
-  description: "A free, open-source typing tutor for everyone — beginners learning home row, pros chasing 100 wpm, writers warming up. Lessons, drills, challenges, adaptive practice, custom text. No accounts.",
+  description: "A free, open-source typing tutor for everyone — beginners learning home row, pros chasing 100 wpm, writers warming up. Lessons, drills, challenges, adaptive practice, custom text. No signup needed.",
   url: process.env.SITE_URL || "https://guerillatype.com",
   author: "Pikes Peak Web Designs",
   email: "hello@guerillatype.com",

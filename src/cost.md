@@ -36,13 +36,23 @@ The site is pre-rendered to plain HTML at build time. Cloudflare Pages serves th
 - 500 builds/month (I use ~20)
 - Free TLS, free DNS, free DDoS protection
 
-### No database
+### A database, but a small one
 
-There is no database. Every user's data lives in their browser's `localStorage`. I never touch it, never store it, never have to back it up. The cost of "user data" is zero because I don't have any.
+Accounts changed this line, so here's the honest version.
 
-### No backend
+There is a database now — Cloudflare D1 — but it holds almost nothing. One row per person, one per sign-in link, one per active session, and **one row per device per profile** for the sync index. Not one row per typing test. That distinction is the whole cost model: a user who types every day for a year adds no more rows than one who signs in and stops, because row count tracks how many devices you own, not how much you practise.
 
-There's no API server, no auth service, no queue, no cache layer. Every interactive feature — typing, stats, adaptive learning — runs in the visitor's browser using vanilla JavaScript.
+The practice data itself lives in Cloudflare R2 as one compressed blob per device. Storage scales with people, not with sessions.
+
+D1's free tier allows 5 GB and 100,000 row writes a day. This design doesn't come close.
+
+### A backend, but a thin one
+
+There's a small Cloudflare Worker handling sign-in and sync. It has no framework and no Node compatibility layer — just Web Crypto and `fetch` — which keeps cold starts cheap and the whole thing under about 1,500 lines.
+
+Everything that makes the site work still runs in your browser. Typing, stats, the adaptive engine: all local, all instant, all fine with the network switched off. The server is where your work is *kept*; the browser is where it is *used*. Nothing waits on it.
+
+The Workers free tier allows 100,000 requests a day. Sync costs a handful of requests per session — not per keystroke, and not per test — so that ceiling is thousands of daily users away.
 
 ### Free fonts
 

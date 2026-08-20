@@ -2,7 +2,7 @@
 layout: layouts/article.njk
 title: "About"
 eyebrow: "What this is"
-lede: "A free, open-source typing tutor for the rest of us. No accounts, no cookies, no premium tier — just a clean place to practice typing."
+lede: "A free, open-source typing tutor for the rest of us. No ads, no premium tier, no login wall — just a clean place to practice typing."
 description: "About GuerillaType: what it is, why it exists, who built it, how it's made."
 cta:
   title: "Start typing"
@@ -24,7 +24,7 @@ The site doesn't ask who you are or what you're working toward. Pick a mode, typ
 
 Typing is one of the most-used skills in modern life and one of the least-taught. Most of the free tools that exist are either dated and unloved or tied to platforms that collect data they do not need.
 
-GuerillaType is the typing tutor I wanted to use: instant practice, structured lessons, a real adaptive engine, and the ability to type through any text I bring in. It is calm, it is fast, and nothing leaves the device.
+GuerillaType is the typing tutor I wanted to use: instant practice, structured lessons, a real adaptive engine, and the ability to type through any text I bring in. It is calm, it is fast, and nothing about it is trying to extract anything from you. Sign in if you want your progress on more than one machine; don't, and it works exactly the same.
 
 ## How it works
 
@@ -38,7 +38,7 @@ GuerillaType is the typing tutor I wanted to use: instant practice, structured l
 
 ## Privacy
 
-Nothing leaves your device. Profiles, sessions, daily activity, custom texts — all in your browser's localStorage. There are no accounts. There are no cookies. Optional, privacy-friendly Umami and Cloudflare Web Analytics are wired in but disabled by default.
+Your browser holds the working copy — profiles, sessions, daily activity, custom texts — so typing never waits on the network and the site works offline. Signing in is optional: do it and that data syncs to your own account so a new laptop isn't a fresh start; don't and nothing leaves the device. Either way nothing you type is ever public, and there are no ads or trackers. Aggregate, cookieless Umami analytics run site-wide and are never linked to your account.
 
 See [Analytics](/analytics/) for the full breakdown.
 

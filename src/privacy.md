@@ -3,25 +3,51 @@ layout: layouts/article.njk
 title: "Privacy"
 eyebrow: "Your data"
 lede: "What I collect (almost nothing), what stays on your device (everything else), what your rights are."
-description: "Privacy policy for GuerillaType — privacy-first by design, no accounts, no cookies, no third-party tracking."
+description: "Privacy policy for GuerillaType — local-first by design. Sign-in is optional; no tracking, no ads, no third parties."
 ---
 
 ## Privacy at a glance
 
-- No accounts. No signup. No email collection.
-- No cookies for tracking, sessions, or anything else.
-- No third-party trackers (no Google Analytics, Facebook Pixel, Hotjar, Segment).
-- No data leaves your device, except optional aggregate page-view analytics if the site operator has enabled them.
+- **Signing in is optional.** Everything works signed out, exactly as it always has. There is no wall, no trial, no locked feature.
+- If you don't sign in: no account, no email, no session cookie. Nothing about your typing leaves the device.
+- If you do sign in: your own progress syncs to your own account so you can practise on more than one machine. Nobody else can see it.
+- No third-party trackers. No Google Analytics, no Facebook Pixel, no Hotjar, no Segment. No ads, ever.
+- Nothing you type is ever public. There are no public profiles and no shared text.
 
 ## What stays on your device
 
-All of it:
+Whether or not you sign in, your browser holds the working copy:
 
 - Profiles, settings, sessions, daily activity, custom texts.
 - Per-key and per-bigram timing data used by the adaptive engine.
 - Theme preference, keyboard layout selection.
 
-This is in your browser's `localStorage` under keys prefixed `tt:`. Open dev tools → Application → Local Storage to see it. Clearing browser storage clears it.
+This is in your browser's `localStorage` under keys prefixed `tt:`. Open dev tools → Application → Local Storage to see it. Clearing browser storage clears the local copy — and if you're signed in, signing in again brings it back.
+
+## If you sign in
+
+Sign-in exists for one reason: so a new laptop doesn't mean starting over, and clearing your browser doesn't lose a year of practice.
+
+**How you sign in.** Google or GitHub. There is no password to choose, forget, or leak, because we never handle one. We ask your provider for your email address, your display name and your avatar URL — nothing else. We never receive your password, and we have no access to anything else in your Google or GitHub account.
+
+**What the server stores.**
+
+- Your email address, used to recognise you and to link a Google and a GitHub sign-in to the same account.
+- A **generated** display handle, like `BrassKestrel482`. You can reroll it; you cannot type one. That's deliberate — see below.
+- Your display name and avatar URL, as your provider reported them.
+- Your practice data: profiles, session history, the adaptive model, achievements, settings and saved custom texts. Stored as compressed blobs, one per device, and readable only by you.
+
+**One cookie.** A session cookie named `__Host-gt_session`. It is `HttpOnly`, so no script can read it, and it exists only to keep you signed in. It is not used for tracking and is not shared with anyone. That's the only cookie the site sets.
+
+**Why handles are generated.** A username you can type is a username someone has to moderate — impersonation, slurs, harassment. Generating them removes that whole category rather than policing it. It also means there's no name of yours on our server that you didn't choose from a list.
+
+## Your data, your call
+
+- **Export** — Settings → Export JSON gives you your full profile, signed in or not.
+- **Import** — Settings → Import JSON brings it back on another device.
+- **Sign out everywhere** — Settings → Account. Ends every session on every device at once.
+- **Delete your account** — removes your account, your sign-in links, every session, and every byte of practice data on the server. It is immediate and it is not recoverable. The copy in your browser is untouched, so you can carry on signed out.
+- **Clear this device** — Settings → Clear all data wipes every `tt:` key from this browser.
 
 ## Optional aggregate analytics — currently active
 
@@ -41,6 +67,7 @@ This site runs **[Umami](https://umami.is/)** — a privacy-friendly, cookieless
 - Cookies (none — Umami uses anonymous hash-based session keys).
 - IP address (discarded after country lookup).
 - Name, email, account, or any persistent identifier.
+- **Any link to your account.** Signing in does not change what analytics sees. Your account and your page views are never joined up — that was a deliberate decision when accounts were added, not an oversight.
 - Cross-site tracking. Nothing follows you off this domain.
 - Keystroke content or accuracy of individual characters.
 
@@ -50,10 +77,7 @@ Cloudflare Web Analytics is wired in but disabled by default.
 
 ## Cookies
 
-This site uses no cookies. Your settings live in `localStorage`, which is functionally similar but stays on your device and is not sent with HTTP requests.
+Signed out, this site sets no cookies at all. Your settings live in `localStorage`, which is functionally similar but stays on your device and is not sent with HTTP requests.
 
-## Your data, your call
+Signed in, there is exactly one: the `__Host-gt_session` cookie described above. It keeps you signed in and does nothing else. No tracking cookies, no third-party cookies, no advertising cookies — signed in or out.
 
-- **Export** — Settings → Export JSON gives you your full profile.
-- **Import** — Settings → Import JSON brings it back on another device.
-- **Delete** — Settings → Clear all data wipes everything from this device.

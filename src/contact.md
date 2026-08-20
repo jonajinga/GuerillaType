@@ -76,4 +76,4 @@ I read everything and reply when I can — usually within a few days. Bug report
 - Multiplayer / leaderboards.
 - Paid tiers.
 
-If your idea fits within "free, open source, runs in the browser, no accounts" — it's probably welcome.
+If your idea fits within "free, open source, runs in the browser, no login wall" — it's probably welcome.

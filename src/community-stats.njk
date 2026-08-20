@@ -190,7 +190,7 @@ pageSlug: community-stats
 <section class="prose community-stats__methodology">
   <h2>Methodology + disclaimers</h2>
   <ul>
-    <li><strong>Source</strong> &mdash; anonymized event data fired by the GuerillaType practice surface at session finish. No accounts, no cookies, no IP retained beyond country lookup. Data lives in <a href="https://umami.is" target="_blank" rel="noopener">Umami Cloud</a>.</li>
+    <li><strong>Source</strong> &mdash; anonymized event data fired by the GuerillaType practice surface at session finish. No cookies, no IP retained beyond country lookup, and never linked to a user account even when someone is signed in. Data lives in <a href="https://umami.is" target="_blank" rel="noopener">Umami Cloud</a>.</li>
     <li><strong>Window</strong> &mdash; trailing 365 days. Umami Cloud's free tier retains roughly that range.</li>
     <li><strong>Sample</strong> &mdash; every visitor who completes at least one session contributes. No outlier filtering on this view.</li>
     <li><strong>Bucketing</strong> &mdash; WPM and accuracy are bucketed client-side at session finish (see <code>src/assets/js/pages/practice-boot.js</code> for the exact thresholds). Umami stores the bucket label as a categorical property.</li>

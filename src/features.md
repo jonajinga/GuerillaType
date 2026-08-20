@@ -2,7 +2,7 @@
 layout: layouts/article.njk
 title: "Features"
 eyebrow: "What ships"
-lede: "Everything that's built into GuerillaType today. No paywalls, no premium tier — every feature is available to every visitor on every device."
+lede: "Everything that's built into GuerillaType today. No paywalls, no premium tier — every feature is available to every visitor, signed in or not."
 description: "Complete feature list: practice modes, adaptive engine, custom text, stats dashboard, profiles, themes, keyboard layouts."
 cta:
   title: "Try it now"
@@ -102,7 +102,7 @@ Light + dark + system preference, with a no-flash inline script in `<head>`. Fou
 
 ## Privacy by default
 
-No accounts. No backend. No cookies. Everything lives in your browser's localStorage on this device. The site runs [Umami](https://umami.is/) for cookieless aggregate analytics — the full dashboard is public at [/analytics/](/analytics/). What's typed never leaves your browser.
+Everything lives in your browser's localStorage, so the site is fast and works offline. Accounts are optional: sign in with Google or GitHub and your progress follows you between devices; stay signed out and nothing leaves this one. Nothing you type is ever public either way. The site runs [Umami](https://umami.is/) for cookieless aggregate analytics — the full dashboard is public at [/analytics/](/analytics/) — and it is never linked to your account.
 
 ## Mobile
 
