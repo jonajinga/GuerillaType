@@ -158,6 +158,42 @@ for (const c of [CASES[0], LONG_CASE]) {
   }
 }
 
+console.log("\nlayout stability — a test that jumps reads as cheap");
+/* CLS during typing must be effectively zero. The char states only change
+   colour/decoration/background (none of which reflow), so the realistic
+   source is the HUD: tabular-nums equalizes digit WIDTH but not digit
+   COUNT, so a wpm climbing 9 -> 10 -> 100 changes its box and nudges
+   neighbours in the centred row. live-stats__value reserves 4ch for that. */
+for (const c of [CASES[0], CASES[1], CASES[2]]) {
+  try {
+    const page = await browser.newPage({ viewport: { width: 1366, height: 900 } });
+    await page.goto(BASE + c.url, { waitUntil: "networkidle" });
+    await page.waitForSelector(".tt-char", { timeout: 10000 });
+    await page.click(".tt-stage").catch(() => {});
+    await page.waitForTimeout(500);
+    // Observe AFTER load settles so we measure typing, not first paint.
+    await page.evaluate(() => {
+      window.__cls = 0;
+      new PerformanceObserver((l) => {
+        for (const e of l.getEntries()) if (!e.hadRecentInput) window.__cls += e.value;
+      }).observe({ type: "layout-shift", buffered: false });
+    });
+    const target = await page.$$eval(".tt-char", (els) =>
+      els.slice(0, 400).map((e) => (e.classList.contains("tt-char--space") ? " " : e.textContent)).join(""));
+    for (const ch of target.slice(0, c.type)) await page.keyboard.type(ch, { delay: 5 });
+    await page.waitForTimeout(500);
+    const cls = await page.evaluate(() => window.__cls);
+    // 0.1 is Google's "good" threshold; we hold two orders tighter.
+    const ok = cls < 0.001;
+    console.log(`  ${ok ? "PASS" : "FAIL"}  ${c.name}  CLS=${cls.toFixed(5)} (must be < 0.00100)`);
+    ok ? pass++ : fail++;
+    await page.close();
+  } catch (e) {
+    console.log(`  FAIL  ${c.name}  ${e.message.split("\n")[0]}`);
+    fail++;
+  }
+}
+
 await browser.close();
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
