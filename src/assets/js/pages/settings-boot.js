@@ -2,6 +2,8 @@
 
 import { getProfiles, getActive, getActiveId, setActiveId, addProfile, renameProfile, deleteProfile, exportJson, importJson, updateActive } from "../profiles.js";
 import { quotaUsed, clearAllAppData } from "../storage.js";
+import { beginLogin, getMe, logout as apiLogout, logoutAll as apiLogoutAll } from "../net/api.js";
+import { readSession, writeSession, clearSession, isWithinGrace } from "../auth/session.js";
 import { $, toast } from "../util/dom.js";
 import { confirmModal, promptModal } from "../util/modal.js";
 import { Analytics } from "../analytics.js";
@@ -266,3 +268,104 @@ $("#reset-all").addEventListener("click", async () => {
 
 syncProfileSelect();
 syncSettings();
+
+/* ---------------------------------------------------------------
+   Account panel.
+
+   Sign-in is OPTIONAL here and always will be -- anonymous typing is the
+   full product, not a trial. So this panel never blocks anything; it just
+   reflects state and offers the upgrade.
+   --------------------------------------------------------------- */
+{
+  const card = $("#account-card");
+  if (card) {
+    const signedOut = $("#account-signed-out");
+    const signedIn = $("#account-signed-in");
+    const errBox = $("#account-error");
+
+    const paint = (session) => {
+      const on = !!(session && session.user);
+      signedIn.hidden = !on;
+      signedOut.hidden = on;
+      if (on) {
+        $("#account-handle").textContent = session.user.handle || "";
+        $("#account-email").textContent = session.user.email || "";
+        // Be honest when we're running on a cached session rather than a
+        // freshly confirmed one.
+        const offline = $("#account-offline");
+        if (!isWithinGrace(session)) {
+          offline.hidden = false;
+          offline.textContent = "Couldn't reach the server to confirm your session.";
+        } else {
+          offline.hidden = true;
+        }
+      }
+    };
+
+    /* The Worker bounces failures back as ?auth_error=<reason> rather than
+       rendering its own error page, so the message lands in the app's
+       voice and on the page the user was already on. */
+    const params = new URLSearchParams(location.search);
+    const authError = params.get("auth_error");
+    if (authError) {
+      errBox.hidden = false;
+      errBox.textContent = ({
+        email_unverified: "That account's email address isn't verified. Verify it with your provider, then try again.",
+        expired_state: "That sign-in link timed out. Please try again.",
+        state_mismatch: "Something went wrong with that sign-in. Please try again.",
+        missing_code: "The provider didn't complete sign-in. Please try again.",
+      })[authError] || "Sign-in didn't complete. Please try again.";
+      // Strip it so a refresh doesn't replay the error.
+      params.delete("auth_error");
+      history.replaceState({}, "", location.pathname + (params.toString() ? "?" + params : ""));
+    }
+
+    paint(readSession());
+
+    $("#signin-google").addEventListener("click", () => beginLogin("google", "/settings/"));
+    $("#signin-github").addEventListener("click", () => beginLogin("github", "/settings/"));
+
+    $("#signout").addEventListener("click", async () => {
+      try { await apiLogout(); } catch { /* revoke best-effort; clear locally regardless */ }
+      clearSession();
+      paint(null);
+      toast("Signed out. Your progress stays on this device.");
+    });
+
+    $("#signout-all").addEventListener("click", async () => {
+      const ok = await confirmModal({
+        title: "Sign out everywhere?",
+        message: "Ends your session on every device you've signed in from. Your progress is not affected.",
+        confirmLabel: "Sign out everywhere",
+        danger: true,
+      });
+      if (!ok) return;
+      try { await apiLogoutAll(); } catch { /* as above */ }
+      clearSession();
+      paint(null);
+      toast("Signed out on all devices.");
+    });
+
+    /* Confirm the cached session against the server when we can. Runs
+       after paint so it never delays the page, and a network failure is
+       ignored on purpose -- that is exactly what the grace window is for. */
+    (async () => {
+      const cached = readSession();
+      if (!cached) return;
+      try {
+        const me = await getMe({ quiet: true });
+        writeSession(me.user, me.expiresAt);
+        paint(readSession());
+      } catch (e) {
+        /* Only a 401 actually means "this session is no longer valid".
+           A dead network, a 404 from a misconfigured API base, or a 5xx
+           all mean we COULDN'T ASK -- and signing someone out because
+           their server hiccuped is the worst available response. Fall
+           back to the grace window, which exists for exactly this. */
+        if (!e || e.status !== 401) return;
+        clearSession();
+        paint(null);
+      }
+    })();
+  }
+}

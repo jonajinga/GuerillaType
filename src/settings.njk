@@ -11,6 +11,37 @@ description: "Tune the typing experience, manage profiles, export or import your
 </header>
 
 <section class="settings">
+  <div class="settings__group settings-card" id="account-card">
+    <header class="settings-card__head">
+      <h2>Account</h2>
+      <p class="settings-card__sub">Optional. Sign in to carry your progress, adaptive model and settings to any device. Everything keeps working signed out.</p>
+    </header>
+
+    <div id="account-error" class="settings-card__notice" hidden role="alert"></div>
+
+    <!-- Signed out -->
+    <div id="account-signed-out">
+      <div class="settings-card__actions" role="group" aria-label="Sign in">
+        <button type="button" class="btn btn--small" id="signin-google">Continue with Google</button>
+        <button type="button" class="btn btn--small" id="signin-github">Continue with GitHub</button>
+      </div>
+      <p class="settings-card__sub">Your existing progress on this device isn&rsquo;t lost &mdash; the first time you sign in we&rsquo;ll offer to move it into your account. Nothing is deleted either way.</p>
+    </div>
+
+    <!-- Signed in -->
+    <div id="account-signed-in" hidden>
+      <div class="settings-card__field">
+        <span class="settings-card__label">Signed in as</span>
+        <p class="settings-card__sub"><strong id="account-handle"></strong> &middot; <span id="account-email"></span></p>
+      </div>
+      <div class="settings-card__actions" role="group" aria-label="Account actions">
+        <button type="button" class="btn btn--small" id="signout">Sign out</button>
+        <button type="button" class="btn btn--small" id="signout-all">Sign out everywhere</button>
+      </div>
+      <p class="settings-card__sub" id="account-offline" hidden></p>
+    </div>
+  </div>
+
   <div class="settings__group settings-card">
     <header class="settings-card__head">
       <h2>Profile</h2>

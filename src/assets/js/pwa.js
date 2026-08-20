@@ -27,12 +27,24 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
         document.addEventListener("visibilitychange", () => {
           if (document.visibilityState === "visible") reg.update().catch(() => {});
         });
-        // When a new SW takes over, reload once so the page picks
-        // up the freshly-cached HTML / CSS / JS the new worker
-        // just installed.
+        // When a new SW REPLACES an existing one, reload once so the page
+        // picks up the freshly-cached HTML / CSS / JS it just installed.
+        //
+        // Only when it replaces one. sw.njk calls skipWaiting() on install
+        // and clients.claim() on activate, so controllerchange also fires
+        // on a first-time visitor's very first page view -- and reloading
+        // there is both pointless (the page already has the current
+        // assets, it just fetched them) and actively harmful: the reload
+        // discards the URL's query string.
+        //
+        // That is how the auth callback reports itself. A failed sign-in
+        // comes back as /settings/?auth_error=email_unverified, and a
+        // first-visit reload silently threw the reason away before the
+        // page could show it.
+        const hadController = !!navigator.serviceWorker.controller;
         let didReload = false;
         navigator.serviceWorker.addEventListener("controllerchange", () => {
-          if (didReload) return;
+          if (!hadController || didReload) return;
           didReload = true;
           location.reload();
         });
