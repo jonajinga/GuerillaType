@@ -64,6 +64,18 @@ self.addEventListener("fetch", (event) => {
   // Skip cross-origin (Bunny Fonts, Web3Forms, esm.sh, Tippy CDN, instant.page).
   if (url.origin !== self.location.origin) return;
 
+  // Never cache the API. The catch-all at the bottom of this handler is
+  // cache-first, so without this a GET /auth/me or GET /sync would be
+  // served from cache indefinitely -- stale account state, and cached
+  // responses that outlive a sign-out. Non-GET already returns above, so
+  // sign-in and push were never at risk; reads were.
+  //
+  // In production the API is on api.guerillatype.com and the cross-origin
+  // check above already covers it. This guards the same-origin case,
+  // which is what a Pages Function or a local dev proxy looks like.
+  if (url.pathname === "/auth" || url.pathname.startsWith("/auth/") ||
+      url.pathname === "/sync" || url.pathname.startsWith("/sync/")) return;
+
   // Network-first for HTML so live content stays fresh online.
   if (req.mode === "navigate" || (req.headers.get("accept") || "").includes("text/html")) {
     event.respondWith((async () => {

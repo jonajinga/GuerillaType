@@ -18,6 +18,12 @@
     { "binding": "DB", "database_name": "guerillatype", "database_id": "TBD", "migrations_dir": "migrations" }
   ],
 
+  "r2_buckets": [
+    // Per-device profile blobs. R2 rather than D1 because these are bytes,
+    // not rows -- and one object per device means writes never collide.
+    { "binding": "SYNC", "bucket_name": "guerillatype-sync", "preview_bucket_name": "guerillatype-sync-preview" }
+  ],
+
   "kv_namespaces": [
     // Short-lived OAuth `state` only. NOT user data -- the KV free tier
     // allows just 1k writes/day, which a sync workload would exhaust.

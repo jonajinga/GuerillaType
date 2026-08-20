@@ -1,5 +1,6 @@
 import { errorResponse, json, preflight, HttpError } from "./http.js";
 import * as auth from "./auth/routes.js";
+import * as sync from "./sync/routes.js";
 import type { Env } from "./env.js";
 
 /* Tiny matcher: ":name" segments capture. Enough for this surface, and
@@ -29,6 +30,15 @@ async function route(request: Request, env: Env, ctx: ExecutionContext): Promise
 
   const cb = match(pathname, "/auth/callback/:provider");
   if (cb && m === "GET") return auth.callback(request, env, cb.provider!);
+
+  if (m === "GET" && pathname === "/sync") return sync.manifest(request, env, ctx);
+
+  const one = match(pathname, "/sync/:profileId");
+  if (one && m === "PUT") return sync.push(request, env, ctx, one.profileId!);
+  if (one && m === "DELETE") return sync.forget(request, env, ctx, one.profileId!);
+
+  const blob = match(pathname, "/sync/:profileId/:deviceId");
+  if (blob && m === "GET") return sync.pull(request, env, ctx, blob.profileId!, blob.deviceId!);
 
   throw new HttpError(404, "not_found", "No such endpoint.");
 }

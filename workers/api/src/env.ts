@@ -1,6 +1,7 @@
 export interface Env {
   DB: D1Database;
   OAUTH_STATE: KVNamespace;
+  SYNC: R2Bucket;
   AUTH_LIMIT?: RateLimit;
 
   APP_ORIGIN: string;
