@@ -22,7 +22,9 @@
     "stats": "node scripts/fetch-umami-stats.mjs",
     "polish-books": "node scripts/polish-books.mjs",
     "postbuild": "node scripts/version-js-imports.mjs",
-    "version-imports": "node scripts/version-js-imports.mjs"
+    "version-imports": "node scripts/version-js-imports.mjs",
+    "typing-perf": "node scripts/check-typing-perf.mjs",
+    "test": "node --test \"test/**/*.test.mjs\""
   },
   "dependencies": {
     "@11ty/eleventy": "^3.0.0",
