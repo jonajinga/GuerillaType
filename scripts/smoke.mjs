@@ -21,13 +21,36 @@ function check(label, ok, detail) {
   else { console.log(`  FAIL  ${label}${detail ? " — " + detail : ""}`); fail++; }
 }
 
+// Any unhandled throw used to end the run early with whatever exit code node
+// felt like. A smoke test that stops halfway must be LOUD about it, or the
+// checks it never reached look like checks that passed.
+process.on("unhandledRejection", (err) => {
+  console.log(`  FAIL  unhandled rejection — ${err?.message ?? err}`);
+  console.log("\nSMOKE ABORTED — the run did not reach the end, so the counts below are partial.");
+  process.exit(1);
+});
+
 // 1. Home loads with hero + daily quote + typing surface
 await page.goto(BASE + "/");
 await page.waitForTimeout(1200);
 const heroTitle = await page.$(".hero__title");
 check("home: editorial hero present", !!heroTitle);
-const dailyQuote = await page.$eval("#daily-quote", (el) => el.textContent);
-check("home: daily quote loaded", dailyQuote && !dailyQuote.includes("Loading"), `got "${dailyQuote.slice(0, 40)}..."`);
+// `#daily-quote` has not existed for some time. This line used `$eval`, which
+// THROWS when its selector matches nothing — so instead of recording one
+// failure it killed the whole run at step 2, and every check below it has been
+// dead ever since. Nobody noticed, because a crashed smoke test and a passing
+// one both end with the shell prompt back.
+//
+// The daily quote now loads into the hero typing surface: `#tt-text` gets the
+// characters, `#daily-cite` gets the attribution. Both are populated by JS, so
+// both are worth asserting — and both use `$`, which returns null rather than
+// throwing.
+const citeEl = await page.$("#daily-cite");
+check("home: daily-cite element present", !!citeEl);
+const citeText = citeEl ? (await citeEl.textContent())?.trim() ?? "" : "";
+check("home: daily quote attribution populated", citeText.length > 0, `got "${citeText.slice(0, 40)}"`);
+const quoteChars = await page.$$eval("#tt-text .tt-char", (els) => els.length).catch(() => 0);
+check("home: daily quote text loaded into the typing surface", quoteChars > 0, `${quoteChars} chars`);
 const stage = await page.$("#tt-stage");
 check("home: typing surface present", !!stage);
 

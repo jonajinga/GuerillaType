@@ -6,3 +6,7 @@ _site/
 .env
 .env.local
 .norvig-1m.txt
+
+# `npm run audit` writes 65 PNGs here. Untracked output from the project's
+# own gate should never be a trap that ends up in someone's commit.
+audit/
