@@ -206,3 +206,18 @@
 .challenge-hud__name{font-family:var(--font-display);font-weight:600;color:var(--fg-0);font-size:var(--fs-500)}
 .challenge-hud__goal{font-family:var(--font-mono);font-size:var(--fs-200);color:var(--fg-2)}
 .challenge-hud__blurb{font-family:var(--font-display);font-style:italic;color:var(--fg-1);font-size:var(--fs-300);flex-basis:100%;margin-top:.2rem}
+
+/* Segment position for long custom texts ("Segment 12 of 481"). Sits
+   above the action row so the reader can see where they are in a book
+   without counting. */
+.results__progress{
+  width:100%;
+  margin:0 0 var(--space-2);
+  font-family:var(--font-mono);
+  font-size:var(--fs-200);
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--fg-2);
+  text-align:center;
+  font-variant-numeric:tabular-nums;
+}

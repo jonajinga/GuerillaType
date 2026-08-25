@@ -6,6 +6,7 @@ import { TypingEngine } from "../engine/typing-engine.js";
 import { AdaptiveModel } from "../engine/adaptive.js";
 import { buildPicker, uniformText } from "../engine/wordpicker.js";
 import { recordSession } from "../engine/session-recorder.js";
+import { setSegProgress } from "../engine/custom-text.js";
 import { byId as achievementById } from "../engine/achievements.js";
 import { fingerForKey } from "../engine/layouts.js";
 import { setSoundPrefs, playKey, playMistake, playFinish } from "../engine/sounds.js";
@@ -431,8 +432,14 @@ async function buildText() {
       }
       return body;
     }
-    const seg = item.segments[state.customSeg % item.segments.length];
-    return seg;
+    // Remember the shape of this text so the results screen can offer
+    // "Next segment" and show progress. Without these, a 481-segment
+    // import was navigable only by hand-editing ?seg= in the URL.
+    state._customSegCount = item.segments.length;
+    state._customLastSeg = item.segments.length - 1;
+    const idx = Math.min(Math.max(0, state.customSeg), item.segments.length - 1);
+    state.customSeg = idx;
+    return item.segments[idx];
   }
   if (state.mode === "lesson") {
     const lesson = await getLesson(state.lessonId);
@@ -816,7 +823,14 @@ function handleFinish(result) {
       mode: state.mode,
       volume: volumeBucket,
     });
-    if (state.bookSlug) {
+  // Bookmark where the reader got to in a long custom text, so returning
+  // to a 481-segment import resumes rather than restarting. Best-effort:
+  // losing a bookmark must never cost someone the session that earned it.
+  if (state.mode === "custom" && state.customId && (state._customSegCount || 0) > 1) {
+    try { setSegProgress(state.customId, (state.customSeg || 0) + 1); } catch {}
+  }
+
+  if (state.bookSlug) {
       const completed = (result.endCursor || 0) >= (result.targetLen || 0) && acc >= 80;
       emit("bookCompletion", { book: state.bookSlug, event: completed ? "finished" : "started" });
     }
@@ -1117,6 +1131,17 @@ function renderBookReaderHeader() {
 /* Compute the URL of the next page in the active book, wrapping
    chapter to chapter and bottoming out on the book index when the
    whole book is done. Returns "" when not in book mode. */
+/* Next segment of a custom text, or null at the end. Mirrors
+   nextBookUrl -- long imports need the same "keep going" affordance a
+   book does, and previously had none at all. */
+function nextCustomUrl() {
+  if (state.mode !== "custom" || !state.customId) return null;
+  const count = state._customSegCount || 0;
+  const next = (state.customSeg || 0) + 1;
+  if (count <= 1 || next >= count) return null;
+  return `/practice/?mode=custom&custom=${encodeURIComponent(state.customId)}&seg=${next}`;
+}
+
 function nextBookUrl() {
   if (!state.bookSlug) return "";
   const book = state._book;
@@ -1213,6 +1238,7 @@ function renderResults(r) {
         // are stroke-based feather-style for visual consistency.
         const ICONS = {
           next:    `<svg class="results__btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`,
+          check:   `<svg class="results__btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>`,
           retry:   `<svg class="results__btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>`,
           list:    `<svg class="results__btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/></svg>`,
           adaptive:`<svg class="results__btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 4 6v6c0 5 3.4 9.5 8 10 4.6-.5 8-5 8-10V6l-8-4z"/></svg>`,
@@ -1231,6 +1257,21 @@ function renderResults(r) {
           return wrap(ICONS.next, "Next page →", { tag: "a", attrs: `id="tt-next-page" href="${nextBookUrl()}"` }, "Move on to the next paragraph in this book.", true)
             + wrap(ICONS.retry, "Type page again", { attrs: `type="button" onclick="window.ttRestart && window.ttRestart()"` }, "Retype this same page from the start.")
             + wrap(ICONS.book, "Back to chapter list", { tag: "a", attrs: `href="/library/${encodeURIComponent(state.bookSlug)}/"` }, "Return to the book's chapter index.");
+        }
+        // Custom text with more than one segment: offer the next one.
+        // "Next test" alone just restarted the SAME segment, which is why
+        // a 481-segment PDF looked like it only had a first page.
+        if (state.mode === "custom" && (state._customSegCount || 0) > 1) {
+          const nextUrl = nextCustomUrl();
+          const pos = (state.customSeg || 0) + 1;
+          const total = state._customSegCount;
+          const progress = `<p class="results__progress">Segment ${pos} of ${total}</p>`;
+          const first = nextUrl
+            ? wrap(ICONS.next, "Next segment →", { tag: "a", attrs: `id="tt-next-seg" href="${nextUrl}"` }, "Continue with the next part of this text.", true)
+            : wrap(ICONS.check, "Text finished", { tag: "a", attrs: `href="/custom/"` }, "You have typed every segment of this text.", true);
+          return progress + first
+            + wrap(ICONS.retry, "Type this segment again", { attrs: `type="button" onclick="window.ttRestart && window.ttRestart()"` }, "Retype this same segment from the start.")
+            + wrap(ICONS.list, "All saved texts", { tag: "a", attrs: `href="/custom/"` }, "Back to your saved custom texts.");
         }
         // Daily-quote mode: "Next test" -> fresh random quote.
         const isDaily = state.mode === "quote" && state.quote === "daily";

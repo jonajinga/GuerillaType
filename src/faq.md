@@ -45,7 +45,11 @@ No, by design. Use Settings → Export JSON, then Import JSON on the other devic
 
 ## What's the maximum custom text size?
 
-200 KB total per profile. Long files are chunked into ~500-character segments at sentence boundaries so you can practice in pieces.
+512 KB of text per item, 1 MB across everything you've saved. That's the extracted text, not the file — a 6 MB PDF full of fonts and images is often only a few hundred KB of actual prose.
+
+Long files are chunked into ~500-character segments at sentence boundaries. When you finish one, **Next segment →** takes you to the following one, and the site remembers where you stopped so you can come back to a long book later.
+
+If a text is too long it gets trimmed at a sentence boundary and you'll be told by how much, rather than it quietly happening. The ceiling exists because browser `localStorage` is a shared ~5 MB budget that also holds your practice history — moving custom text to a bigger store is on the roadmap.
 
 ## Why an editorial style instead of pure mono?
 

@@ -48,7 +48,19 @@ saveBtn.addEventListener("click", () => {
   if (!raw.trim()) { toast("Paste or upload some text first.", "bad"); return; }
   try {
     const item = saveText({ title: title || "Untitled", raw });
-    toast(`Saved "${item.title}" — ${item.segments.length} segments`);
+    // Truncation and eviction used to happen in silence. If someone's
+    // 900 KB book became 512 KB, they need to hear it now rather than
+    // discover it two hours of typing later.
+    if (item.truncatedFrom) {
+      const kept = (item.bytes / 1024).toFixed(0);
+      const orig = (item.truncatedFrom / 1024).toFixed(0);
+      toast(`Saved "${item.title}" — ${item.segments.length} segments. Trimmed to ${kept} KB of ${orig} KB to fit this browser's storage.`, "bad");
+    } else {
+      toast(`Saved "${item.title}" — ${item.segments.length} segments`);
+    }
+    if (item.evicted && item.evicted.length) {
+      toast(`Removed ${item.evicted.length} older saved text${item.evicted.length === 1 ? "" : "s"} to make room: ${item.evicted.join(", ")}`, "bad");
+    }
     titleEl.value = "";
     textEl.value = "";
     render();
@@ -66,9 +78,17 @@ function render() {
   list.innerHTML = saved.map((it) => `
     <article class="saved-item${it.forLesson ? " is-pinned" : ""}">
       <h3 class="saved-item__title">${htmlEscape(it.title)}<span class="muted">${(it.bytes / 1024).toFixed(1)} KB</span>${it.forLesson ? '<span class="saved-item__pin">★ pinned as lesson</span>' : ''}</h3>
-      <span class="saved-item__meta">${it.segments.length} segments · ${new Date(it.createdAt).toLocaleDateString()}</span>
+      <span class="saved-item__meta">${it.segments.length} segment${it.segments.length === 1 ? "" : "s"}${
+        (it.lastSeg | 0) > 0 && it.segments.length > 1
+          ? ` · resuming at ${Math.min((it.lastSeg | 0) + 1, it.segments.length)} of ${it.segments.length}`
+          : ""
+      } · ${new Date(it.createdAt).toLocaleDateString()}</span>
       <div class="saved-item__actions">
-        <a class="btn btn--small btn--primary" href="/practice/?mode=custom&custom=${encodeURIComponent(it.id)}&seg=0">Type</a>
+        <a class="btn btn--small btn--primary" href="/practice/?mode=custom&custom=${encodeURIComponent(it.id)}&seg=${Math.min(it.lastSeg | 0, Math.max(0, it.segments.length - 1))}">${(it.lastSeg | 0) > 0 && it.segments.length > 1 ? "Resume" : "Type"}</a>${
+        (it.lastSeg | 0) > 0 && it.segments.length > 1
+          ? `\n        <a class="btn btn--small" href="/practice/?mode=custom&custom=${encodeURIComponent(it.id)}&seg=0">Start over</a>`
+          : ""
+      }
         <button class="btn btn--small" data-id="${it.id}" data-action="pin">${it.forLesson ? "Unpin" : "Save as lesson"}</button>
         <button class="btn btn--small" data-id="${it.id}" data-action="delete">Delete</button>
       </div>
