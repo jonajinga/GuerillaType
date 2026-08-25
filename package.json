@@ -25,7 +25,8 @@
     "version-imports": "node scripts/version-js-imports.mjs",
     "typing-perf": "node scripts/check-typing-perf.mjs",
     "test": "node --test \"test/**/*.test.mjs\"",
-    "account-ui": "node scripts/check-account-ui.mjs"
+    "account-ui": "node scripts/check-account-ui.mjs",
+    "custom-segments": "node scripts/check-custom-segments.mjs"
   },
   "dependencies": {
     "@11ty/eleventy": "^3.0.0",
