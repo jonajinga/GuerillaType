@@ -1,7 +1,7 @@
 /* Keyboard heatmap — renders an SVG keyboard and colors each key by
    error-rate or avg key time. Toggle via the `metric` arg. */
 
-import { LAYOUTS } from "../engine/layouts.js";
+import { LAYOUTS, NUMPAD_KEYS } from "../engine/layouts.js";
 
 const KEY_W = 38;
 const KEY_H = 38;
@@ -12,8 +12,13 @@ export function renderKeyboard(svg, perKey, opts = {}) {
   const metric = opts.metric || "errorRate"; // errorRate | avgMs
   const rows = LAYOUTS[layout] || LAYOUTS.qwerty;
 
-  const W = Math.max(...rows.map((r) => r.length)) * (KEY_W + GAP) + 2 * KEY_W + GAP;
-  const H = rows.length * (KEY_H + GAP) + (KEY_H + GAP) /* space row */ + GAP;
+  const isNumpad = layout === "numpad";
+  const W = isNumpad
+    ? 4 * (KEY_W + GAP) - GAP + 2 * GAP
+    : Math.max(...rows.map((r) => r.length)) * (KEY_W + GAP) + 2 * KEY_W + GAP;
+  const H = isNumpad
+    ? 5 * (KEY_H + GAP) - GAP + 2 * GAP
+    : rows.length * (KEY_H + GAP) + (KEY_H + GAP) /* space row */ + GAP;
 
   // Compute scores. Threshold drops to 2 samples for visualization (the
   // adaptive engine still uses ≥5 for scoring decisions).
@@ -36,10 +41,34 @@ export function renderKeyboard(svg, perKey, opts = {}) {
   svg.dataset.keysWithData = String(keysWithData);
 
   svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
-  svg.setAttribute("class", "kb__svg");
+  svg.setAttribute("class", isNumpad ? "kb__svg kb__svg--numpad" : "kb__svg");
   svg.setAttribute("role", "img");
   svg.setAttribute("aria-label", "Per-key " + (metric === "errorRate" ? "error rate" : "speed") + " heatmap");
   svg.innerHTML = "";
+
+  if (isNumpad) {
+    // The pad is drawn from its physical geometry rather than from the
+    // derived row strings: the 0 cap is two columns wide, + and Enter
+    // are two rows tall, and the top row starts in column 1. A numpad
+    // has no spacebar, so none is drawn.
+    for (const k of NUMPAD_KEYS) {
+      const w = (k.w || 1) * (KEY_W + GAP) - GAP;
+      const h = (k.h || 1) * (KEY_H + GAP) - GAP;
+      const x = GAP + k.col * (KEY_W + GAP);
+      const y = GAP + k.row * (KEY_H + GAP);
+      const v = scores[k.ch];
+      const g = el("g");
+      const rect = el("rect", { x, y, width: w, height: h, class: "kb__key", "data-ch": k.ch });
+      if (v != null) rect.style.fill = mix(max > 0 ? Math.min(1, v / max) : 0);
+      const lbl = el("text", { x: x + w / 2, y: y + h / 2, class: "kb__keylabel" });
+      lbl.textContent = k.label || k.ch;
+      g.appendChild(rect);
+      g.appendChild(lbl);
+      g.setAttribute("data-tip", tipFor(k.label || k.ch, perKey[k.ch]));
+      svg.appendChild(g);
+    }
+    return;
+  }
 
   rows.forEach((row, ri) => {
     const indent = ri * (KEY_W * 0.4);
@@ -69,11 +98,7 @@ export function renderKeyboard(svg, perKey, opts = {}) {
       g.appendChild(lbl);
       // Tooltip via data-tip so the site's tippy.js layer renders
       // it instead of the browser's native SVG <title> chrome.
-      const e = perKey[ch];
-      const tipText = e
-        ? `<strong>${ch === " " ? "space" : ch}</strong><br>${e.n} samples · ${e.errors} errors · avg ${(e.sumMs / Math.max(1, e.n)).toFixed(0)} ms`
-        : `<strong>${ch === " " ? "space" : ch}</strong><br>No samples yet`;
-      g.setAttribute("data-tip", tipText);
+      g.setAttribute("data-tip", tipFor(ch === " " ? "space" : ch, perKey[ch]));
       svg.appendChild(g);
     });
   });
@@ -86,14 +111,17 @@ export function renderKeyboard(svg, perKey, opts = {}) {
   const spaceFill = spV != null && max > 0 ? mix(Math.min(1, spV / max)) : null;
   const sp = el("rect", { x: spaceX, y: spaceY, width: spaceW, height: KEY_H, class: "kb__key" });
   if (spaceFill) sp.style.fill = spaceFill;
-  const spE = perKey[" "];
-  sp.setAttribute("data-tip", spE
-    ? `<strong>space</strong><br>${spE.n} samples · ${spE.errors} errors · avg ${(spE.sumMs / Math.max(1, spE.n)).toFixed(0)} ms`
-    : "<strong>space</strong><br>No samples yet");
+  sp.setAttribute("data-tip", tipFor("space", perKey[" "]));
   svg.appendChild(sp);
   const splbl = el("text", { x: spaceX + spaceW / 2, y: spaceY + KEY_H / 2, class: "kb__keylabel" });
   splbl.textContent = "space";
   svg.appendChild(splbl);
+}
+
+function tipFor(label, e) {
+  return e
+    ? `<strong>${label}</strong><br>${e.n} samples · ${e.errors} errors · avg ${(e.sumMs / Math.max(1, e.n)).toFixed(0)} ms`
+    : `<strong>${label}</strong><br>No samples yet`;
 }
 
 function mix(t) {

@@ -2,7 +2,7 @@
    typing surface and highlights the next-expected key in the accent
    color. Below the keyboard, names the finger that should press it. */
 
-import { keyMap, fingerForKey, bucketLabel, LAYOUTS } from "../engine/layouts.js";
+import { keyMap, fingerForKey, bucketLabel, LAYOUTS, NUMPAD_KEYS } from "../engine/layouts.js";
 
 const NS = "http://www.w3.org/2000/svg";
 
@@ -35,7 +35,9 @@ export function highlightChar(ch) {
     return;
   }
   currentChar = ch;
-  const target = ch === " " ? "_space" : ch.toLowerCase();
+  // Space and Enter have no printable glyph, so their caps carry token
+  // ids instead of the raw character.
+  const target = ch === " " ? "_space" : ch === "\n" ? "_enter" : ch.toLowerCase();
   const keyEl = svg.querySelector(`[data-key="${cssEscape(target)}"]`);
   if (keyEl) keyEl.classList.add("is-next");
   if (fingerEl) {
@@ -49,10 +51,11 @@ export function highlightChar(ch) {
 function buildSvg(layoutName) {
   if (!svg) return;
   svg.innerHTML = "";
-  const rows = LAYOUTS[layoutName] || LAYOUTS.qwerty;
+  svg.classList.toggle("live-kb__svg--numpad", layoutName === "numpad");
   if (layoutName === "numpad") {
-    return buildNumpad(rows);
+    return buildNumpad();
   }
+  const rows = LAYOUTS[layoutName] || LAYOUTS.qwerty;
   const map = keyMap(layoutName);
   keyMapByChar = map;
 
@@ -87,25 +90,32 @@ function buildSvg(layoutName) {
   svg.appendChild(sg);
 }
 
-function buildNumpad(rows) {
-  const cellW = 60, cellH = 60, gap = 6;
-  const W = 3 * (cellW + gap) + 24;
-  const H = rows.length * (cellH + gap) + 24;
+/* The 10-key pad, drawn from the NUMPAD_KEYS geometry table so the
+   caps, the char inventory and the finger map all come from one source.
+   Every cap gets data-finger so the highlight styling can key off the
+   finger the same way the main-board keyboard does. There is no
+   spacebar on a numpad, so none is drawn. */
+function buildNumpad() {
+  const cellW = 60, cellH = 52, gap = 6, pad = 12;
+  const cols = 4, rowCount = 5;
+  const W = cols * (cellW + gap) - gap + pad * 2;
+  const H = rowCount * (cellH + gap) - gap + pad * 2;
   svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
-  rows.forEach((row, ri) => {
-    Array.from(row).forEach((ch, ci) => {
-      if (ch === ".") return;
-      const x = ci * (cellW + gap) + 12;
-      const y = ri * (cellH + gap) + 12;
-      const g = el("g", { class: "live-kb__key", "data-key": ch });
-      const w = (ri === 3 && ci === 0) ? cellW * 2 + gap : cellW;
-      g.appendChild(el("rect", { x, y, width: w, height: cellH, rx: 3, ry: 3, class: "live-kb__cap" }));
-      const t = el("text", { x: x + w / 2, y: y + cellH / 2 + 7, "text-anchor": "middle", class: "live-kb__lbl live-kb__lbl--big" });
-      t.textContent = ch;
-      g.appendChild(t);
-      svg.appendChild(g);
-    });
-  });
+
+  for (const k of NUMPAD_KEYS) {
+    const w = (k.w || 1) * (cellW + gap) - gap;
+    const h = (k.h || 1) * (cellH + gap) - gap;
+    const x = pad + k.col * (cellW + gap);
+    const y = pad + k.row * (cellH + gap);
+    const finger = fingerForKey(k.ch, "numpad");
+    const id = k.ch === "\n" ? "_enter" : k.ch;
+    const g = el("g", { class: "live-kb__key", "data-key": id, "data-finger": finger || "" });
+    g.appendChild(el("rect", { x, y, width: w, height: h, rx: 3, ry: 3, class: "live-kb__cap" }));
+    const t = el("text", { x: x + w / 2, y: y + h / 2 + 7, "text-anchor": "middle", class: "live-kb__lbl live-kb__lbl--big" });
+    t.textContent = k.label || k.ch;
+    g.appendChild(t);
+    svg.appendChild(g);
+  }
 }
 
 function el(tag, attrs = {}) {

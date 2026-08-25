@@ -49,6 +49,7 @@ const PAGES = [
   { title: "Numpad decimals", url: "/practice/?drill=numpad-decimals", section: "Library" },
   { title: "Numpad phone numbers", url: "/practice/?drill=numpad-phone", section: "Library" },
   { title: "Numpad math operators", url: "/practice/?drill=numpad-math", section: "Library" },
+  { title: "Numpad operator column", url: "/practice/?drill=numpad-operators", section: "Library" },
   { title: "All challenges", url: "/challenges/", section: "Compete" },
   { title: "Sprint challenge", url: "/practice/?mode=time&duration=60&challenge=sprint", section: "Compete" },
   { title: "Marathon challenge", url: "/practice/?mode=time&duration=300&challenge=marathon", section: "Compete" },

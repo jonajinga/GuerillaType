@@ -85,36 +85,6 @@ export default [
     words: ["z", "y", "x", "w", "v", "u", "t", "s", "r", "q", "p", "o", "n", "m", "l", "k", "j", "i", "h", "g", "f", "e", "d", "c", "b", "a"],
   },
 
-  // ── Numpad (10-key) drills ──────────────────────────────────────
-  {
-    id: "numpad-rows",
-    name: "Numpad: rows",
-    keys: "0123456789",
-    desc: "Each numpad row in turn -- 7-8-9, 4-5-6, 1-2-3, 0. Trains anchor.",
-    words: ["789", "456", "123", "0", "789", "456", "123", "0"],
-  },
-  {
-    id: "numpad-mixed",
-    name: "Numpad: mixed",
-    keys: "0123456789",
-    desc: "Random 3- and 4-digit groups across the whole pad.",
-    words: ["123", "456", "789", "0", "147", "258", "369", "159", "753", "264", "8013", "9275", "4108", "6024", "5170", "3692", "8047"],
-  },
-  {
-    id: "numpad-decimals",
-    name: "Numpad: decimals",
-    keys: "0123456789.",
-    desc: "Decimal numbers -- practice the period key on the pad.",
-    words: ["3.14", "2.71", "1.41", "0.5", "12.5", "99.9", "100.01", "0.001", "42.42", "365.25", "9.81", "6.022", "1.618"],
-  },
-  {
-    id: "numpad-phone",
-    name: "Numpad: phone numbers",
-    keys: "0123456789-",
-    desc: "Phone-format groupings with hyphens.",
-    words: ["555-1234", "800-555-0199", "212-555-0140", "415-555-0193", "303-555-0118", "917-555-0102", "646-555-0144", "615-555-0173"],
-  },
-
   // ── Source-code micro-drills ─────────────────────────────────────
   {
     id: "code-brackets",
@@ -168,11 +138,20 @@ export default [
 
   /* ── Numpad drills ──────────────────────────────────────────────
      Right-hand numeric keypad practice. Each drill keeps the home
-     position on 4-5-6 and exercises the digit grid in different
-     patterns. The "keys" field reflects the numpad layout (digits
-     + . , / * - +). The standard layout viz on /stats/ shows
-     these as the QWERTY top-row digits since most users practice
-     the numpad mentally mapped to that row anyway. */
+     position on 4-5-6 and exercises the pad in a different pattern.
+
+     HARD CONSTRAINT: every character below must exist on a physical
+     PC numeric keypad, i.e. it must appear in NUMPAD_KEYS in
+     src/assets/js/engine/layouts.js. That inventory is exactly:
+     0-9 . / * - + and Enter. In particular there is NO comma and NO
+     equals key on a numpad — grouping separators and "= result" belong
+     to the number row, not the pad (see the numbers-prices drill).
+     Enter exists on the pad and is finger-mapped, but the drill format
+     is space-separated words with no newline support, so no drill word
+     contains it.
+
+     Set the keyboard layout to "Numpad" in /settings/ to get the pad
+     drawn under the typing surface and on the /stats/ heatmap. */
   {
     id: "numpad-rows",
     name: "Numpad: row drills",
@@ -189,10 +168,10 @@ export default [
   },
   {
     id: "numpad-decimals",
-    name: "Numpad: decimals + comma",
-    keys: "0123456789.,",
-    desc: "Currency and measurement style. Drills the period and comma alongside digits -- common in spreadsheet entry.",
-    words: ["12.50", "1,000", "3.14", "99.99", "1,234", "0.05", "10,500", "2.718", "65.40", "1,001", "0.001", "150.75", "8,400", "9.99", "23.45", "100,000"],
+    name: "Numpad: decimals",
+    keys: "0123456789.",
+    desc: "Currency and measurement style. Drills the decimal point under the ring finger alongside the digit grid -- the core spreadsheet-entry pattern.",
+    words: ["12.50", "3.14", "99.99", "0.05", "2.718", "65.40", "0.001", "150.75", "9.99", "23.45", "1.618", "0.5", "100.01", "42.42", "365.25", "7.25", "18.75", "0.125"],
   },
   {
     id: "numpad-phone",
@@ -204,9 +183,16 @@ export default [
   {
     id: "numpad-math",
     name: "Numpad: math operators",
-    keys: "0123456789+-*/=.",
-    desc: "Arithmetic expressions with +, -, *, / and =. Trains the operator column on the right edge of the numpad.",
-    words: ["2+2=4", "10/2=5", "7*8=56", "100-25=75", "9+1=10", "12/4=3", "6*6=36", "50+50=100", "81/9=9", "11*11=121", "20-7=13", "3.14*2=6.28"],
+    keys: "0123456789+-*/.",
+    desc: "Arithmetic expressions mixing the digit grid with +, - , * and /. On a real pad Enter is the equals key, so the expressions stop at the second operand.",
+    words: ["2+2", "10/2", "7*8", "100-25", "9+1", "12/4", "6*6", "50+50", "81/9", "11*11", "20-7", "3.14*2", "144/12", "15+85", "250-75", "8*7", "0.5*4", "36/6"],
+  },
+  {
+    id: "numpad-operators",
+    name: "Numpad: operator column",
+    keys: "0123456789+-*/",
+    desc: "Isolates the right-pinky stretch to the / * - + column on the pad's outer edge -- the reach that costs 10-key beginners the most accuracy.",
+    words: ["+-", "*/", "-+", "/*", "+*", "-/", "4+4", "6-2", "8*3", "9/3", "1+2-3", "5*2/5", "7-4+1", "0+0", "2*2*2", "9/9+9", "10-5+5", "3*3/9"],
   },
 
   // ── Per-finger isolation drills
