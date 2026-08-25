@@ -116,6 +116,12 @@ export default function (eleventyConfig) {
   // Passthrough
   eleventyConfig.addPassthroughCopy("src/assets/img");
   eleventyConfig.addPassthroughCopy("src/assets/fonts");
+  // The vendored-font provenance note is a .md file living inside a
+  // passthrough directory. Passthrough copies it verbatim (which is
+  // what we want -- the OFL wants the notice shipped next to the
+  // fonts), but 11ty ALSO globs it as a Markdown template and would
+  // render /assets/fonts/README/index.html. Ignore it as a template.
+  eleventyConfig.ignores.add("src/assets/fonts/README.md");
   eleventyConfig.addPassthroughCopy("src/assets/js");
   // src/data -> _site/data. The default 11ty passthrough uses
   // @11ty/recursive-copy which races against OneDrive's sync locks

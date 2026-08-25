@@ -55,6 +55,14 @@
      on <html>. Defaults to JetBrains Mono. Each preset just rebinds
      --font-typing. Surface CSS reads var(--font-typing). */
   --font-typing: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* Advance width of one character cell in the CURRENT typing font,
+     as a fraction of the em. Monospace fonts do not agree on this:
+     JetBrains Mono / Fira Code / IBM Plex Mono are .6em, Cascadia
+     Code is .586em (1200/2048 upm), Iosevka is a narrow .5em. The
+     block + underline carets are drawn as a character-cell-sized
+     rectangle, so they have to scale with the font or they sit a
+     visible fraction of a cell too wide. See typing-surface.css. */
+  --typing-advance: .6em;
 
   /* Type scale — calmer rhythm, larger display sizes */
   --fs-200: clamp(.8125rem, .76rem + .25vw, .9rem);
@@ -198,11 +206,22 @@
 }
 
 /* ── Typing-font presets ─────────────────────────────────────────
-   Each binding only redefines --font-typing; the surface CSS picks
-   it up. Bunny Fonts loads all faces — they're cached after first
-   selection. Default (no attribute) keeps JetBrains Mono. */
-[data-typing-font="fira-code"]      { --font-typing: "Fira Code", ui-monospace, monospace; }
-[data-typing-font="ibm-plex-mono"]  { --font-typing: "IBM Plex Mono", ui-monospace, monospace; }
+   Each binding redefines --font-typing (and --typing-advance where
+   the font's character cell is not .6em); the surface CSS picks both
+   up. Default (no attribute) keeps JetBrains Mono. */
+/* Self-hosted (see fonts.css). These four ship from /assets/fonts/,
+   not from Bunny -- no third-party request, and the only typing
+   fonts the service worker is able to cache (it skips cross-origin
+   responses). */
+[data-typing-font="fira-code"]      { --font-typing: "Fira Code", ui-monospace, monospace; --typing-advance: .6em; }
+[data-typing-font="ibm-plex-mono"]  { --font-typing: "IBM Plex Mono", ui-monospace, monospace; --typing-advance: .6em; }
+[data-typing-font="iosevka"]        { --font-typing: "Iosevka", ui-monospace, monospace; --typing-advance: .5em; }
+[data-typing-font="cascadia-code"]  { --font-typing: "Cascadia Code", ui-monospace, monospace; --typing-advance: .586em; }
+/* Bunny-hosted presets. These do not set --typing-advance, so they
+   inherit the .6em default -- correct for Roboto Mono, Source Code
+   Pro, Space Mono and Cousine, slightly wide for Ubuntu Mono and
+   Inconsolata (both nearer .5em). Left as-is deliberately: changing
+   them would alter the caret for users who already picked one. */
 [data-typing-font="roboto-mono"]    { --font-typing: "Roboto Mono", ui-monospace, monospace; }
 [data-typing-font="source-code-pro"]{ --font-typing: "Source Code Pro", ui-monospace, monospace; }
 [data-typing-font="ubuntu-mono"]    { --font-typing: "Ubuntu Mono", ui-monospace, monospace; }

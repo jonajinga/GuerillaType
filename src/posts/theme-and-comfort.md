@@ -6,7 +6,7 @@ tags: [features]
 eyebrow: "Features"
 ---
 
-The site ships with twelve themes and ten typing fonts. The defaults are good. The other choices are good for some people. Here is when to change them.
+The site ships with twelve themes and eleven typing fonts. The defaults are good. The other choices are good for some people. Here is when to change them.
 
 ## Light or dark
 
@@ -34,15 +34,19 @@ Use the builder if the preset palettes do not suit you. Skip it if they do.
 
 The typing surface uses JetBrains Mono by default. The other fonts in [Settings → Typing font](/settings/) are:
 
-- **Fira Code** -- ligatures (`==` becomes `≡`, `=>` becomes `⇒`, etc.). Some typists love them, some hate them. Try and see.
+- **Fira Code** -- the popular coding face. Its programming ligatures are deliberately switched off here: the typing surface has to be able to point a caret at every character individually, and a ligature fuses two characters into one glyph.
 - **IBM Plex Mono** -- humanist, warmer.
-- **Roboto Mono** -- neutral, narrow.
-- **Source Code Pro** -- Adobe's classic, conservative.
+- **Iosevka** -- very narrow and dense, so more words fit on a line.
 - **Cascadia Code** -- Microsoft's terminal font.
+- **Roboto Mono** -- neutral, familiar.
+- **Source Code Pro** -- Adobe's classic, conservative.
 - **Ubuntu Mono** -- softer geometry.
-- **Comic Mono** -- Comic Sans in monospace. Surprisingly readable.
-- **Iosevka** -- very narrow, dense.
-- **System** -- whatever your OS provides as a default monospace.
+- **Space Mono** -- quirky, geometric.
+- **Inconsolata** -- slim, elegant.
+- **Cousine** -- a Courier successor.
+- **System mono** -- whatever your OS provides as a default monospace. Downloads nothing at all.
+
+The first four are served from this site rather than from a font CDN, so choosing one makes no third-party request at all.
 
 The choice does not affect speed. It affects how long you can sit and type without the screen feeling cramped. If you find yourself squinting, your font is too narrow or too small. If letters blur together, your font is too dense.
 
