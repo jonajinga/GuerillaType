@@ -103,6 +103,7 @@ const megamenu = [
           { chip: "Np", label: "Numpad rows", url: "/practice/?drill=numpad-rows", desc: "789 / 456 / 123 -- right-hand keypad." },
           { chip: "$", label: "Numpad decimals", url: "/practice/?drill=numpad-decimals", desc: "Currency and measurement style." },
           { chip: "☎", label: "Numpad phone", url: "/practice/?drill=numpad-phone", desc: "Phone-number digit + dash patterns." },
+          { chip: "+", label: "Numpad math", url: "/practice/?drill=numpad-math", desc: "Digits mixed with + - * / operators." },
           { chip: "JS", label: "Code: JS keywords", url: "/practice/?drill=code-js-keywords", desc: "function, const, return -- core syntax." },
           { chip: "Py", label: "Code: Python", url: "/practice/?drill=code-py-decorators", desc: "def, lambda, decorators, dunders." },
           { chip: "&lt;&gt;", label: "Code: HTML tags", url: "/practice/?drill=code-html-tags", desc: "Common element tags and attributes." },

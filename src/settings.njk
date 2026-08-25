@@ -66,14 +66,15 @@ description: "Tune the typing experience, manage profiles, export or import your
     </div>
     <div class="settings__row">
       <div class="field">
-        <label for="set-layout">Keyboard layout (heatmap only)</label>
+        <label for="set-layout">Keyboard layout (key visuals only)</label>
+        {# Options come from src/_data/layouts.js so this list can't drift
+           out of sync with the LAYOUTS table the visualisations read. #}
         <select id="set-layout">
-          <option value="qwerty">QWERTY</option>
-          <option value="dvorak">Dvorak</option>
-          <option value="colemak">Colemak</option>
-          <option value="workman">Workman</option>
+          {% for l in layouts %}
+          <option value="{{ l.id }}">{{ l.name }}{% if l.note %} — {{ l.note }}{% endif %}</option>
+          {% endfor %}
         </select>
-        <span class="field__hint">Only changes the visual layout of the heatmap on the stats page. The engine reads <code>KeyboardEvent.key</code> directly from your OS, so typing already uses your real layout — no need to tell it.</span>
+        <span class="field__hint">Only changes the key visuals: the heatmap on the stats page and the live keyboard under the typing surface. The engine reads <code>KeyboardEvent.key</code> directly from your OS, so typing already uses your real layout — no need to tell it. Pick <strong>Numpad</strong> alongside the <a href="/drills/">numpad drills</a> to see the 10-key pad and its right-hand finger assignments instead of the main board.</span>
       </div>
     </div>
     <div class="settings__row">

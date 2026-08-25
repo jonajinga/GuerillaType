@@ -1,5 +1,8 @@
 .kb{display:block;width:100%;max-width:760px;margin-inline:auto}
 .kb__svg{width:100%;height:auto;display:block}
+/* Same reason as .live-kb__svg--numpad: the 10-key pad is a
+   compact near-square block, not a wide board. */
+.kb__svg--numpad{max-width:220px;margin:0 auto}
 .kb__key{stroke:var(--rule);stroke-width:1;fill:var(--bg-2);transition:fill var(--t-fast) var(--ease)}
 .kb__keylabel{font-family:var(--font-mono);font-size:11px;fill:var(--fg-1);text-anchor:middle;dominant-baseline:central;pointer-events:none}
 .kb__finger{font-family:var(--font-mono);font-size:8px;fill:var(--fg-3);text-anchor:middle;dominant-baseline:hanging;pointer-events:none}

@@ -11,6 +11,10 @@
 }
 .live-kb[hidden]{display:none}
 .live-kb__svg{display:block;width:100%;height:auto;margin:0 auto}
+/* The numpad viewBox is nearly square, so the main board's
+   width:100% would stretch it to a full-width, ~1200px-tall slab.
+   Cap it at the pad's natural size and keep it centred. */
+.live-kb__svg--numpad{max-width:282px}
 /* On mobile (≤640px wide OR coarse-pointer touch devices), force-hide
    the virtual keyboard regardless of the user's preference. There is
    no physical keyboard for it to mirror -- the user is typing on a
