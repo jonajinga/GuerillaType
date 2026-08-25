@@ -34,7 +34,7 @@ Use the builder if the preset palettes do not suit you. Skip it if they do.
 
 The typing surface uses JetBrains Mono by default. The other fonts in [Settings → Typing font](/settings/) are:
 
-- **Fira Code** -- the popular coding face. Its programming ligatures are deliberately switched off here: the typing surface has to be able to point a caret at every character individually, and a ligature fuses two characters into one glyph.
+- **Fira Code** -- the popular coding face. Its programming ligatures (`->` drawn as a single arrow, and so on) do not appear on the typing surface: every character sits in its own box so the caret can point at it, and a ligature would have to span two boxes to form. You get the letterforms, not the ligatures.
 - **IBM Plex Mono** -- humanist, warmer.
 - **Iosevka** -- very narrow and dense, so more words fit on a line.
 - **Cascadia Code** -- Microsoft's terminal font.
@@ -46,7 +46,7 @@ The typing surface uses JetBrains Mono by default. The other fonts in [Settings 
 - **Cousine** -- a Courier successor.
 - **System mono** -- whatever your OS provides as a default monospace. Downloads nothing at all.
 
-The first four are served from this site rather than from a font CDN, so choosing one makes no third-party request at all.
+All of these are served by Bunny Fonts except Iosevka, which Bunny doesn't carry and which this site hosts itself. You don't need to care which is which — it changes nothing about how they look or behave.
 
 The choice does not affect speed. It affects how long you can sit and type without the screen feeling cramped. If you find yourself squinting, your font is too narrow or too small. If letters blur together, your font is too dense.
 

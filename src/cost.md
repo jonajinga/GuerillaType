@@ -46,7 +46,7 @@ There's no API server, no auth service, no queue, no cache layer. Every interact
 
 ### Free fonts
 
-[Bunny Fonts](https://fonts.bunny.net) hosts the site's display and body faces at no charge. They're a privacy-friendly Google Fonts mirror — same fonts, different (and better) hosting policy. Four of the opt-in typing fonts (Fira Code, IBM Plex Mono, Iosevka, Cascadia Code) are self-hosted instead; at 82 KB total, subset and lazily fetched only when someone actually picks one, they cost nothing worth measuring on Cloudflare's free tier.
+[Bunny Fonts](https://fonts.bunny.net) hosts the site's display and body faces, and all but one of the typing fonts, at no charge. They're a privacy-friendly Google Fonts mirror — same fonts, different (and better) hosting policy. The exception is Iosevka, which Bunny doesn't carry, so it's self-hosted; at 35 KB, subset and fetched only when someone actually picks it, it costs nothing worth measuring on Cloudflare's free tier.
 
 ### Privacy-friendly analytics
 

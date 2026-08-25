@@ -209,19 +209,18 @@
    Each binding redefines --font-typing (and --typing-advance where
    the font's character cell is not .6em); the surface CSS picks both
    up. Default (no attribute) keeps JetBrains Mono. */
-/* Self-hosted (see fonts.css). These four ship from /assets/fonts/,
-   not from Bunny -- no third-party request, and the only typing
-   fonts the service worker is able to cache (it skips cross-origin
-   responses). */
 [data-typing-font="fira-code"]      { --font-typing: "Fira Code", ui-monospace, monospace; --typing-advance: .6em; }
 [data-typing-font="ibm-plex-mono"]  { --font-typing: "IBM Plex Mono", ui-monospace, monospace; --typing-advance: .6em; }
+/* Iosevka is the one self-hosted family (see fonts.css) -- Bunny
+   does not carry it. Its cell is a narrow .5em, which is why
+   --typing-advance exists at all. */
 [data-typing-font="iosevka"]        { --font-typing: "Iosevka", ui-monospace, monospace; --typing-advance: .5em; }
 [data-typing-font="cascadia-code"]  { --font-typing: "Cascadia Code", ui-monospace, monospace; --typing-advance: .586em; }
-/* Bunny-hosted presets. These do not set --typing-advance, so they
-   inherit the .6em default -- correct for Roboto Mono, Source Code
-   Pro, Space Mono and Cousine, slightly wide for Ubuntu Mono and
-   Inconsolata (both nearer .5em). Left as-is deliberately: changing
-   them would alter the caret for users who already picked one. */
+/* The presets below do not set --typing-advance, so they inherit the
+   .6em default -- correct for Roboto Mono, Source Code Pro, Space
+   Mono and Cousine, slightly wide for Ubuntu Mono and Inconsolata
+   (both nearer .5em). Left as-is deliberately: changing them would
+   alter the caret for users who already picked one. */
 [data-typing-font="roboto-mono"]    { --font-typing: "Roboto Mono", ui-monospace, monospace; }
 [data-typing-font="source-code-pro"]{ --font-typing: "Source Code Pro", ui-monospace, monospace; }
 [data-typing-font="ubuntu-mono"]    { --font-typing: "Ubuntu Mono", ui-monospace, monospace; }
