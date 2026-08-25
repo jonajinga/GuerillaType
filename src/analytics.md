@@ -1,7 +1,7 @@
 ---
 layout: layouts/base.njk
 title: "Analytics"
-description: "GuerillaType's analytics dashboard. Pageviews, sessions, top pages, geography, devices, browsers, and tracked events — all baked from the Umami API at build time."
+description: "GuerillaType's analytics dashboard. Pageviews, sessions, top pages, geography, devices, browsers, and tracked events."
 pageSlug: analytics
 ---
 
