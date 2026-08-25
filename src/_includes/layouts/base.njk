@@ -37,9 +37,15 @@ document.documentElement.setAttribute("data-theme", t);
 }catch(e){}})();
 </script>
 
-{# Bunny Fonts — privacy-friendly, no cookies. #}
+{# Bunny Fonts — privacy-friendly, no cookies. Every typing font in
+   the Settings picker is served from here EXCEPT Iosevka, which
+   Bunny does not carry (its API answers "Please specify a valid icon
+   font on the 'family' parameter" for family=iosevka). Iosevka is
+   therefore the one self-hosted family — see css/partials/fonts.css
+   and assets/fonts/README.md. Everything else, Cascadia Code
+   included, comes from Bunny. #}
 <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
-<link rel="stylesheet" href="https://fonts.bunny.net/css?family=lora:400,500,600,700|inter:400,500,600,700|jetbrains-mono:400,500|fira-code:400,500|ibm-plex-mono:400,500|roboto-mono:400,500|source-code-pro:400,500|ubuntu-mono:400|space-mono:400,700|inconsolata:400,500,700|cousine:400,700&display=swap">
+<link rel="stylesheet" href="https://fonts.bunny.net/css?family=lora:400,500,600,700|inter:400,500,600,700|jetbrains-mono:400,500|fira-code:400,500|ibm-plex-mono:400,500|cascadia-code:400|roboto-mono:400,500|source-code-pro:400,500|ubuntu-mono:400|space-mono:400,700|inconsolata:400,500,700|cousine:400,700&display=swap">
 
 <link rel="stylesheet" href="/assets/css/global.css?v={{ cssVersion }}">
 

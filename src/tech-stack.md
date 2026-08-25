@@ -27,6 +27,7 @@ cta:
 - **[instant.page](https://instant.page)** — ~1 KB script that preloads internal links on hover/touchstart so in-site navigation feels instant. No config; loaded once in `base.njk`.
 - **CSS** — Vanilla, custom properties, no frameworks. ~37 partials concatenated into a single `global.css`. Tokens defined in [`tokens.css`](#); all themeable values land there.
 - **Typography** — [Lora](https://fonts.bunny.net/fonts/fraunces) for display, [Inter](https://fonts.bunny.net/fonts/inter) for body, [JetBrains Mono](https://fonts.bunny.net/fonts/jetbrains-mono) for the typing surface and code. Served by [Bunny Fonts](https://fonts.bunny.net) (privacy-friendly Google Fonts mirror, GDPR-compliant, cookieless).
+- **Iosevka** — the one font not on Bunny (its API returns an error for `family=iosevka`), so it is self-hosted from `/assets/fonts/`. Weight 400 only, subset to latin + latin-ext, 35 KB across two `woff2` files, SIL Open Font License 1.1 with the licence text alongside. Provenance and the exact `pyftsubset` command are in [`src/assets/fonts/README.md`](#). Every other typing font, Cascadia Code included, comes from Bunny.
 - **JavaScript** — Native ES modules. No bundler. Imported directly via `<script type="module">`.
 - **No frameworks** — no React, Vue, Svelte, Tailwind, jQuery. The total runtime JS is ~24 modules totaling under 30 KB before compression.
 
