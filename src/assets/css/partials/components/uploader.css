@@ -9,4 +9,25 @@
 .saved-item{display:flex;flex-direction:column;gap:.4rem;padding:var(--space-3);background:var(--bg-1);border:1px solid var(--rule)}
 .saved-item__title{font-weight:600;display:flex;justify-content:space-between;align-items:baseline}
 .saved-item__meta{color:var(--fg-2);font-size:var(--fs-200);font-family:var(--font-mono)}
-.saved-item__actions{display:flex;gap:.4rem;margin-top:.4rem}
+.saved-item__actions{display:flex;gap:.4rem;margin-top:.4rem;flex-wrap:wrap}
+
+/* Segment picker. A 600-page import is thousands of segments, so the
+   open card takes the full grid width and pages through them rather
+   than rendering the lot. */
+.saved-item[data-picking="true"]{grid-column:1 / -1}
+.seg-picker{margin-top:var(--space-3);padding-top:var(--space-3);border-top:1px solid var(--rule);display:flex;flex-direction:column;gap:var(--space-2)}
+.seg-picker[hidden]{display:none}
+.seg-picker__bar{display:flex;gap:.4rem;align-items:center;flex-wrap:wrap}
+.seg-picker__filter{flex:1 1 12rem;min-width:0}
+.seg-picker__jump{display:flex;gap:.4rem;align-items:center;color:var(--fg-2);font-size:var(--fs-200)}
+.seg-picker__jumpnum{width:7rem}
+.seg-picker__count{margin:0;color:var(--fg-2);font-size:var(--fs-200);font-family:var(--font-mono)}
+.seg-picker__list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;max-height:26rem;overflow-y:auto}
+.seg-picker__item{display:flex;gap:var(--space-2);align-items:baseline;padding:.4rem .5rem;border:1px solid transparent;color:var(--fg-1);text-decoration:none;background:var(--bg-0)}
+.seg-picker__item:hover,.seg-picker__item:focus-visible{border-color:var(--accent);background:color-mix(in oklab, var(--accent) 8%, var(--bg-0));color:var(--fg-0)}
+.seg-picker__item.is-current{border-color:var(--accent)}
+.seg-picker__item.is-current .seg-picker__n{color:var(--accent)}
+.seg-picker__n{flex:0 0 4.5rem;font-family:var(--font-mono);font-size:var(--fs-200);color:var(--fg-2);text-align:right}
+.seg-picker__preview{flex:1 1 auto;min-width:0;font-size:var(--fs-200);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seg-picker__pager{display:flex;gap:var(--space-2);align-items:center;justify-content:space-between;flex-wrap:wrap}
+.seg-picker__page{color:var(--fg-2);font-size:var(--fs-200);font-family:var(--font-mono)}

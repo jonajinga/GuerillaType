@@ -1,36 +1,50 @@
 /* Custom text ingestion. Sanitizes user-supplied content and chunks it
-   into ~500-char segments at sentence boundaries. */
+   into ~500-char segments at sentence boundaries.
+
+   Where the text lives (changed 2026-08-26):
+
+     - the SEGMENT BODIES go to IndexedDB (see custom-store.js), which
+       is measured in hundreds of megabytes;
+     - a small INDEX RECORD per text stays in localStorage: id, title,
+       created date, character count, segment count, bookmark, and the
+       optional source metadata.
+
+   Before this split, whole books sat in localStorage -- a shared ~5 MB
+   origin budget that also holds profiles, sessions, the adaptive model
+   and every stats bucket, stored as UTF-16 so each character costs
+   about two bytes. The per-text ceiling that fell out of that was 512k
+   characters, so a 600-page PDF was cut off roughly a third of the way
+   in. The index record is a couple of hundred bytes, so localStorage is
+   now back to holding only what it is good at.
+
+   For scale: the plain text of a full novel averages ~610 KB across the
+   271 books bundled with this site, and War and Peace -- the longest --
+   is 3.2 MB. The ceiling below is about four times that, and exists
+   only so a pathological paste cannot lock the browser up in chunk().
+
+   If IndexedDB is unavailable (a locked-down private window, an ancient
+   browser), saving falls back to the old inline-in-localStorage path
+   with the old small ceiling, and says so rather than pretending. */
 
 import { read, write, KEY_CUSTOM } from "../storage.js";
+import {
+  idbSupported,
+  putSegments as idbPut,
+  getSegments as idbGet,
+  deleteSegments as idbDelete,
+  clearAll as idbClearAll,
+} from "./custom-store.js";
 
-/* Size limits, in CHARACTERS -- not file bytes.
+/* Limits, in CHARACTERS -- not file bytes. What gets stored is the
+   extracted, sanitized text, so a 6 MB PDF full of fonts and images is
+   often only a few hundred KB of actual prose; measuring the file would
+   reject things that fit comfortably. */
+const MAX_TEXT_CHARS = 12 * 1000 * 1000;   // one saved text, IndexedDB path
+const MAX_TOTAL_CHARS = 60 * 1000 * 1000;  // everything saved, combined
 
-   What gets stored is the extracted, sanitized text, so a 6 MB PDF full
-   of fonts and images might be 400 KB of actual prose. Measuring the file
-   would reject things that fit comfortably.
-
-   Why not simply raise this to "a whole book": localStorage is a shared
-   ~5 MB budget per origin, and it holds the user's ACTUAL practice
-   history too -- profiles, sessions, the adaptive model, daily and hourly
-   buckets. Custom text competing with that is how someone loses a year of
-   stats to a novel they typed once.
-
-   Worse, most browsers store localStorage as UTF-16, so a character costs
-   roughly two bytes. The numbers below are chosen against that: 512k
-   chars is about 1 MB of real quota, and 1M chars total is about 2 MB --
-   leaving room for everything else.
-
-   For reference, the plain text of a full novel averages ~610 KB across
-   the 271 books bundled with this site, and War and Peace is 3.2 MB. So
-   this ceiling still cuts a long book short. Supporting whole books
-   properly means moving custom text to IndexedDB, which is measured in
-   hundreds of megabytes rather than five. That is the real fix; this is
-   an honest interim raise. */
-const MAX_TEXT_BYTES = 512 * 1024;    // one saved text
-const MAX_TOTAL_BYTES = 1024 * 1024;  // everything saved, combined
-
-// Kept for older imports.
-const MAX_BYTES = MAX_TEXT_BYTES;
+/* The old ceilings. Only reachable now when IndexedDB refuses us. */
+const FALLBACK_TEXT_CHARS = 512 * 1024;
+const FALLBACK_TOTAL_CHARS = 1024 * 1024;
 
 export function sanitize(raw) {
   let s = String(raw || "");
@@ -90,21 +104,68 @@ export function listSaved() {
   return read(KEY_CUSTOM, []);
 }
 
-export function saveText({ title, raw, meta }) {
+/* How many segments a saved item has, whether it is a new index record
+   (segCount) or a legacy one with the bodies still inline (segments). */
+export function segCountOf(item) {
+  if (!item) return 0;
+  if (typeof item.segCount === "number") return item.segCount;
+  return Array.isArray(item.segments) ? item.segments.length : 0;
+}
+
+/* The segment bodies for one saved text. Legacy records still carry
+   them inline; everything saved since the IndexedDB split reads from
+   there. Returns [] rather than throwing -- the caller renders a
+   message, it does not crash the practice page. */
+export async function getSegments(id) {
+  const item = getSaved(id);
+  if (item && Array.isArray(item.segments) && item.segments.length) return item.segments;
+  if (!idbSupported()) return [];
+  try {
+    const segs = await idbGet(id);
+    return Array.isArray(segs) ? segs : [];
+  } catch {
+    return [];
+  }
+}
+
+export async function saveText({ title, raw, meta }) {
   const content = sanitize(raw);
   if (!content) throw new Error("Empty after sanitization");
 
-  // Truncate here rather than in sanitize, so the result can say so.
-  const truncatedFrom = content.length > MAX_TEXT_BYTES ? content.length : 0;
-  const body = truncatedFrom ? clipToSentence(content, MAX_TEXT_BYTES) : content;
+  const useIdb = idbSupported();
+  const perText = useIdb ? MAX_TEXT_CHARS : FALLBACK_TEXT_CHARS;
 
-  const segments = chunk(body);
+  // Truncate here rather than in sanitize, so the result can say so.
+  let truncatedFrom = content.length > perText ? content.length : 0;
+  let body = truncatedFrom ? clipToSentence(content, perText) : content;
+  let segments = chunk(body);
+
+  const id = "c_" + Math.random().toString(36).slice(2, 8);
+
+  // Try IndexedDB first. A rejection here is a real event -- quota,
+  // private mode, a corrupt database -- so fall back to the old inline
+  // path at the old ceiling and let the caller say the text was cut.
+  let storedInIdb = false;
+  if (useIdb) {
+    try {
+      await idbPut(id, segments);
+      storedInIdb = true;
+    } catch {
+      storedInIdb = false;
+    }
+  }
+  if (!storedInIdb && body.length > FALLBACK_TEXT_CHARS) {
+    truncatedFrom = content.length;
+    body = clipToSentence(body, FALLBACK_TEXT_CHARS);
+    segments = chunk(body);
+  }
+
   const item = {
-    id: "c_" + Math.random().toString(36).slice(2, 8),
+    id,
     title: (title || "Untitled").slice(0, 80),
     createdAt: new Date().toISOString(),
     bytes: body.length,
-    segments,
+    segCount: segments.length,
     // Where the reader got to. Without this, coming back to a 481-segment
     // import drops you at segment 1 every time.
     lastSeg: 0,
@@ -113,6 +174,8 @@ export function saveText({ title, raw, meta }) {
     // imported corpus items.
     meta: meta || null,
   };
+  // Only the fallback path keeps bodies in the index record.
+  if (!storedInIdb) item.segments = segments;
 
   const previous = listSaved();
   const list = [item, ...previous];
@@ -120,12 +183,15 @@ export function saveText({ title, raw, meta }) {
   // Evicting the oldest saved texts to make room used to happen in
   // silence. Report it -- deleting something the user saved is not a
   // detail they should discover later.
+  const perTotal = useIdb ? MAX_TOTAL_CHARS : FALLBACK_TOTAL_CHARS;
   const evicted = [];
-  let total = list.reduce((s, x) => s + x.bytes, 0);
-  while (total > MAX_TOTAL_BYTES && list.length > 1) {
+  const evictedIds = [];
+  let total = list.reduce((s, x) => s + (x.bytes || 0), 0);
+  while (total > perTotal && list.length > 1) {
     const drop = list.pop();
-    total -= drop.bytes;
+    total -= drop.bytes || 0;
     evicted.push(drop.title);
+    evictedIds.push(drop.id);
   }
 
   // write() returns false when the browser refuses the quota, and the
@@ -133,10 +199,46 @@ export function saveText({ title, raw, meta }) {
   // anything had been. Put the previous list back and say what happened.
   if (!write(KEY_CUSTOM, list)) {
     write(KEY_CUSTOM, previous);
+    if (storedInIdb) idbDelete(id).catch(() => {});
     throw new Error("Your browser is out of storage for this site. Delete a saved text and try again.");
   }
 
-  return { ...item, truncatedFrom, evicted };
+  // The index is committed, so the evicted bodies are now unreachable.
+  for (const dead of evictedIds) idbDelete(dead).catch(() => {});
+
+  return { ...item, truncatedFrom, evicted, storedInIdb };
+}
+
+/* Move legacy records -- bodies inline in localStorage -- into
+   IndexedDB, and drop the inline copies so the quota comes back.
+   Best-effort per item: a text that fails to move keeps its inline
+   segments and stays readable. Safe to call on every page load. */
+export async function migrateInlineToIdb() {
+  if (!idbSupported()) return 0;
+  const list = listSaved();
+  const stale = list.filter((x) => x && Array.isArray(x.segments) && x.segments.length);
+  if (!stale.length) return 0;
+
+  const moved = new Set();
+  for (const item of stale) {
+    try {
+      await idbPut(item.id, item.segments);
+      moved.add(item.id);
+    } catch {
+      // Leave this one inline; it still works, it just still costs quota.
+    }
+  }
+  if (!moved.size) return 0;
+
+  // Re-read rather than reusing `list`: another handler on this page may
+  // have pinned or deleted something while the writes were in flight.
+  const fresh = listSaved().map((x) => {
+    if (!x || !moved.has(x.id)) return x;
+    const { segments, ...rest } = x;
+    return { ...rest, segCount: rest.segCount != null ? rest.segCount : segments.length };
+  });
+  write(KEY_CUSTOM, fresh);
+  return moved.size;
 }
 
 /* Remember where the reader got to, so returning to a long import
@@ -155,11 +257,24 @@ export function getSegProgress(id) {
   return item ? (item.lastSeg | 0) : 0;
 }
 
-export const LIMITS = { perText: MAX_TEXT_BYTES, total: MAX_TOTAL_BYTES };
+export const LIMITS = {
+  perText: MAX_TEXT_CHARS,
+  total: MAX_TOTAL_CHARS,
+  fallbackPerText: FALLBACK_TEXT_CHARS,
+  fallbackTotal: FALLBACK_TOTAL_CHARS,
+};
 
 export function deleteSaved(id) {
   const list = listSaved().filter((x) => x.id !== id);
   write(KEY_CUSTOM, list);
+  if (idbSupported()) idbDelete(id).catch(() => {});
+}
+
+/* Used by the settings "wipe everything" button -- clearing the
+   localStorage keys alone would leave every imported book on disk. */
+export async function deleteAllSaved() {
+  if (!idbSupported()) return;
+  try { await idbClearAll(); } catch {}
 }
 
 export function getSaved(id) {

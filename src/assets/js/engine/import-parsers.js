@@ -41,18 +41,27 @@ function asciify(s) {
     .replace(/…/g, "...");
 }
 
-/* parseFile(file): { title, text } — works for .txt, .md, .epub, .pdf.
-   Throws on parse failure; caller renders the message. */
-export async function parseFile(file) {
+/* parseFile(file, onProgress): { title, text } — works for .txt, .md,
+   .epub, .pdf. Throws on parse failure; caller renders the message.
+
+   onProgress(done, total, unit) is optional and fires while a long
+   document is being walked. A 600-page PDF takes a while, and "Parsing
+   PDF…" sitting still for a minute is indistinguishable from a hang. */
+export async function parseFile(file, onProgress) {
   const name = (file.name || "").toLowerCase();
   let result;
-  if (name.endsWith(".epub")) result = await parseEpub(file);
-  else if (name.endsWith(".pdf")) result = await parsePdf(file);
+  if (name.endsWith(".epub")) result = await parseEpub(file, onProgress);
+  else if (name.endsWith(".pdf")) result = await parsePdf(file, onProgress);
   else result = { title: file.name.replace(/\.[^.]+$/, ""), text: await file.text() };
   return { title: asciify(result.title), text: asciify(result.text) };
 }
 
-async function parseEpub(file) {
+/* Hand the main thread back so a progress message can actually paint.
+   Without this the whole parse runs in one task and the UI is frozen
+   until it finishes. */
+const breathe = () => new Promise((r) => setTimeout(r, 0));
+
+async function parseEpub(file, onProgress) {
   const buf = new Uint8Array(await file.arrayBuffer());
   const { unzipSync, strFromU8 } = await fflate();
   const files = unzipSync(buf);
@@ -93,18 +102,20 @@ async function parseEpub(file) {
 
   // Concatenate chapter text.
   const chunks = [];
-  for (const path of spine) {
-    const bytes = files[path];
-    if (!bytes) continue;
-    const html = strFromU8(bytes);
-    chunks.push(htmlToText(html));
+  for (let i = 0; i < spine.length; i++) {
+    const bytes = files[spine[i]];
+    if (bytes) chunks.push(htmlToText(strFromU8(bytes)));
+    if (onProgress && (i === 0 || i % 5 === 4 || i === spine.length - 1)) {
+      onProgress(i + 1, spine.length, "chapter");
+      await breathe();
+    }
   }
   const text = chunks.filter(Boolean).join("\n\n");
   if (!text.trim()) throw new Error("EPUB had no readable text content.");
   return { title, text };
 }
 
-async function parsePdf(file) {
+async function parsePdf(file, onProgress) {
   const buf = new Uint8Array(await file.arrayBuffer());
   let lib;
   try {
@@ -117,8 +128,15 @@ async function parsePdf(file) {
   for (let i = 1; i <= doc.numPages; i++) {
     const p = await doc.getPage(i);
     const tc = await p.getTextContent();
-    const pageText = tc.items.map((it) => it.str || "").join(" ");
-    pages.push(pageText);
+    pages.push(tc.items.map((it) => it.str || "").join(" "));
+    // Release the page's operator list and font data. Holding all 600
+    // pages of a large PDF resident is how the tab runs out of memory
+    // partway through and the import comes back short.
+    if (typeof p.cleanup === "function") p.cleanup();
+    if (onProgress && (i === 1 || i % 10 === 0 || i === doc.numPages)) {
+      onProgress(i, doc.numPages, "page");
+      await breathe();
+    }
   }
   const text = pages.join("\n\n").replace(/\s+\n/g, "\n").trim();
   if (!text) {

@@ -2,6 +2,7 @@
 
 import { getProfiles, getActive, getActiveId, setActiveId, addProfile, renameProfile, deleteProfile, exportJson, importJson, updateActive } from "../profiles.js";
 import { quotaUsed, KEY_PROFILES, KEY_ACTIVE, KEY_SETTINGS, KEY_CUSTOM, KEY_META, remove } from "../storage.js";
+import { deleteAllSaved } from "../engine/custom-text.js";
 import { $, toast } from "../util/dom.js";
 import { confirmModal, promptModal } from "../util/modal.js";
 import { Analytics } from "../analytics.js";
@@ -258,6 +259,10 @@ $("#reset-all").addEventListener("click", async () => {
   });
   if (!ok) return;
   remove(KEY_PROFILES); remove(KEY_ACTIVE); remove(KEY_SETTINGS); remove(KEY_CUSTOM); remove(KEY_META);
+  // Imported book bodies live in IndexedDB, not localStorage. Clearing
+  // only the tt:* keys would leave every uploaded text on disk after a
+  // wipe that promised to erase them.
+  await deleteAllSaved();
   location.reload();
 });
 

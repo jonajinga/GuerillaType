@@ -61,16 +61,21 @@ function render() {
   list.querySelectorAll("[data-action]").forEach((btn) => btn.addEventListener("click", onAction));
 }
 
-function onAction(e) {
+async function onAction(e) {
   const btn = e.currentTarget;
   const book = books.find((b) => b.id === btn.closest(".lib-book").dataset.id);
   const passage = book.passages[parseInt(btn.dataset.passage, 10)];
-  if (btn.dataset.action === "type") {
-    // Save into custom-texts under a temporary handle, then redirect.
-    const item = saveText({ title: `${book.title} — passage ${parseInt(btn.dataset.passage, 10) + 1}`, raw: passage });
-    window.location.href = `/practice/?mode=custom&custom=${encodeURIComponent(item.id)}&seg=0`;
-  } else if (btn.dataset.action === "save") {
-    saveText({ title: `${book.title} — passage ${parseInt(btn.dataset.passage, 10) + 1}`, raw: passage });
-    toast(`Saved "${book.title}" to your texts`);
+  const title = `${book.title} — passage ${parseInt(btn.dataset.passage, 10) + 1}`;
+  try {
+    if (btn.dataset.action === "type") {
+      // Save into custom-texts under a temporary handle, then redirect.
+      const item = await saveText({ title, raw: passage });
+      window.location.href = `/practice/?mode=custom&custom=${encodeURIComponent(item.id)}&seg=0`;
+    } else if (btn.dataset.action === "save") {
+      await saveText({ title, raw: passage });
+      toast(`Saved "${book.title}" to your texts`);
+    }
+  } catch (err) {
+    toast(err.message || "Couldn't save that passage.", "bad");
   }
 }
