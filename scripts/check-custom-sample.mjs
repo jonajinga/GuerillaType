@@ -150,7 +150,8 @@ chk(full.length > 100000 && smart.length === 0, "the sample carries no smart pun
   `${full.length.toLocaleString()} chars, ${smart.length} smart`);
 // Licence boilerplate would be shipped as something to type.
 const leaked = /PROJECT GUTENBERG|MILLENNIUM FULCRUM|gutenberg\.org/i.exec(full);
-chk(!leaked, "no Project Gutenberg boilerplate in the text", leaked ? leaked[0] : "");
+chk(full.length > 100000 && !leaked, "no Project Gutenberg boilerplate in the text",
+  leaked ? leaked[0] : `${full.length.toLocaleString()} chars checked`);
 const chapters = (full.match(/CHAPTER [IVX]+\./g) || []).length;
 chk(chapters === 12, "all twelve chapters are present", `${chapters} chapter headings`);
 

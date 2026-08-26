@@ -40,10 +40,6 @@ export function sampleDismissed() {
   return read(KEY_CUSTOM_SAMPLE, null) === "dismissed";
 }
 
-export function dismissSample() {
-  write(KEY_CUSTOM_SAMPLE, "dismissed");
-}
-
 /* Seed the sample, or replace an out-of-date copy of it.
 
    Three rules, in this order:
@@ -67,8 +63,13 @@ export async function ensureSample() {
     // deletion. Without this the user is left with a text they deleted
     // and no visit ever cleans it up, because this function returns on
     // the line above.
-    const stray = listSaved().find((x) => x && x.sample);
-    if (stray) deleteSaved(stray.id, { remember: false });
+    // filter, not find: clearing one per visit would need three visits
+    // to recover from three strays. Nothing can currently produce more
+    // than one, which is exactly why this should not be the thing that
+    // has to be right.
+    for (const stray of listSaved().filter((x) => x && x.sample)) {
+      deleteSaved(stray.id, { remember: false });
+    }
     return null;
   }
 

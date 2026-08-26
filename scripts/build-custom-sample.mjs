@@ -24,10 +24,16 @@ import { resolve } from "node:path";
 const SRC = resolve("src/content/books/alice-in-wonderland.txt");
 const OUT = resolve("src/data/custom-sample.json");
 
-/* Same fold the site's own book pipeline uses (ingest-books.mjs), so the
-   sample and the library's copy of this book agree. The typing engine
-   compares characters exactly -- no folding at type time -- so a single
-   accented letter is a wall a US-keyboard user cannot get past. */
+/* Same accent fold the site's own book pipeline uses (ingest-books.mjs),
+   entry for entry. The typing engine compares characters exactly -- no
+   folding at type time -- so one accented letter is a wall a US-keyboard
+   user cannot get past.
+
+   Letters only. The two pipelines still disagree on dashes: this one
+   follows the import path and renders an em dash as "--", while
+   ingest-books.mjs renders it as "-". Both are typeable, so neither
+   harms anyone, but do not read this as "the sample and the library are
+   byte-identical" -- they are not. */
 const ACCENT_MAP = {
   "À":"A","Á":"A","Â":"A","Ã":"A","Ä":"A","Å":"A",
   "à":"a","á":"a","â":"a","ã":"a","ä":"a","å":"a",
@@ -41,7 +47,12 @@ const ACCENT_MAP = {
   "ò":"o","ó":"o","ô":"o","õ":"o","ö":"o","ø":"o",
   "Ù":"U","Ú":"U","Û":"U","Ü":"U",
   "ù":"u","ú":"u","û":"u","ü":"u",
-  "Ý":"Y","ý":"y","ÿ":"y","Æ":"AE","æ":"ae","Œ":"OE","œ":"oe","ß":"ss",
+  "Ý":"Y","ý":"y","ÿ":"y",
+  "Ž":"Z","ž":"z",
+  "ß":"ss",
+  "Æ":"AE","æ":"ae",
+  "Œ":"OE","œ":"oe",
+  "Ŭ":"U","ŭ":"u","Ŏ":"O","ŏ":"o",
 };
 
 /* Site-wide rule: typeable content has no smart punctuation, so the
