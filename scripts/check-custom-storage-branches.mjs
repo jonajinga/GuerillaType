@@ -10,6 +10,22 @@ let pass = 0, fail = 0;
 const chk = (ok, n, x = "") => { console.log(`  ${ok ? "PASS" : "FAIL"}  ${n}${x ? "  " + x : ""}`); ok ? pass++ : fail++; };
 const b = await chromium.launch();
 
+/* Bodies in the IndexedDB store, or -1 when the store does not exist.
+   -1 is what a build that never uses IndexedDB looks like, so this is
+   what separates "fell back after trying" from "never tried". */
+const bodyCount = (page) => page.evaluate(() => new Promise((res) => {
+  let req;
+  try { req = indexedDB.open("tt-custom"); } catch { res(-1); return; }
+  req.onerror = req.onblocked = () => res(-1);
+  req.onsuccess = () => {
+    try {
+      const g = req.result.transaction("segments", "readonly").objectStore("segments").getAllKeys();
+      g.onsuccess = () => res(g.result.length);
+      g.onerror = () => res(-1);
+    } catch { res(-1); }
+  };
+}));
+
 // ── 1. IndexedDB refused: must fall back and SAY it trimmed ──────
 {
   const ctx = await b.newContext({ viewport: { width: 1366, height: 900 } });
@@ -30,6 +46,11 @@ const b = await chromium.launch();
   await p.waitForSelector(".saved-item", { timeout: 60000 });
   const t = await p.textContent("#toast");
   chk(/Trimmed/i.test(t || ""), "no-IndexedDB browser is TOLD the text was trimmed", JSON.stringify((t || "").slice(0, 90)));
+  // Trimming and saying so is what the OLD build did too. What is new is
+  // naming the reason, so assert that -- otherwise this whole section
+  // passes with the fix reverted and proves nothing.
+  chk(/does not give the site a database/i.test(t || ""),
+    "...and told WHY, not just that it happened", JSON.stringify((t || "").slice(0, 110)));
   const it = await p.evaluate(() => JSON.parse(localStorage.getItem("tt:custom-texts") || "[]")[0]);
   chk(!!it && Array.isArray(it.segments) && it.segments.length > 0, "fallback keeps segments inline in localStorage",
     it ? `${(it.segments || []).length} segments` : "(none)");
@@ -41,6 +62,15 @@ const b = await chromium.launch();
   const target = (await p.$$eval(".tt-char", (els) => els.slice(0, 30).map((e) => e.textContent).join("")))
     .replace(/\s+/g, " ");
   chk(/Fallback sentence/.test(target), "fallback text still types", JSON.stringify(target.slice(0, 40)));
+  // New-shape index record, and the picker exists at all — neither is
+  // true of the old build.
+  chk(typeof it.segCount === "number" && it.segCount === it.segments.length,
+    "fallback record still carries segCount", `segCount=${it.segCount}`);
+  await p.goto(B + "/custom/", { waitUntil: "networkidle" });
+  await p.click('[data-action="segments"]');
+  await p.waitForSelector(".seg-picker__item", { timeout: 30000 }).catch(() => {});
+  const fbRows = await p.$$eval(".seg-picker__item", (e) => e.length).catch(() => 0);
+  chk(fbRows > 0, "a fallback text is still segment-pickable", `${fbRows} rows`);
   await ctx.close();
 }
 
@@ -76,11 +106,52 @@ const b = await chromium.launch();
   chk(!!it && Array.isArray(it.segments) && it.segments.length > 0,
     "refused write falls back to inline storage", it ? `${(it.segments || []).length} segments` : "(none)");
   chk(!!it && it.bytes <= 512 * 1024, "refused write respects the old ceiling", it ? `${it.bytes} chars` : "");
+  // The store must EXIST and be EMPTY: the code opened the database,
+  // was turned down, and fell back. A build that never touches
+  // IndexedDB has no store at all and scores -1 here.
+  const refusedBodies = await bodyCount(p);
+  chk(refusedBodies === 0, "the database was opened and then refused, not skipped",
+    refusedBodies === -1 ? "no segments store — IndexedDB was never used" : `${refusedBodies} bodies`);
+  chk(/refused to store it/i.test(t || ""), "the refusal is named as a refusal, not a missing database",
+    JSON.stringify((t || "").slice(0, 110)));
   await p.goto(`${B}/practice/?mode=custom&custom=${it.id}&seg=2`, { waitUntil: "networkidle" });
   await p.waitForSelector(".tt-char", { timeout: 30000 });
   const target = (await p.$$eval(".tt-char", (els) => els.slice(0, 30).map((e) => e.textContent).join("")))
     .replace(/\s+/g, " ");
   chk(/Refused sentence/.test(target), "the fallback copy still types", JSON.stringify(target.slice(0, 40)));
+  await ctx.close();
+}
+
+// ── 2b. Body stored, then the index write fails: no orphan left ──
+{
+  const ctx = await b.newContext({ viewport: { width: 1366, height: 900 } });
+  const p = await ctx.newPage();
+  p.on("pageerror", (e) => console.log("  PAGEERROR(orphan):", String(e).slice(0, 160)));
+  await p.goto(B + "/custom/", { waitUntil: "networkidle" });
+  await p.evaluate(async () => {
+    localStorage.clear();
+    await new Promise((r) => { const q = indexedDB.deleteDatabase("tt-custom"); q.onsuccess = q.onerror = q.onblocked = () => r(); });
+  });
+  // localStorage full: the body reaches IndexedDB, the index record
+  // cannot be written. Without the rollback the body is orphaned --
+  // storage consumed forever by a text no page can list.
+  await p.addInitScript(() => {
+    const orig = Storage.prototype.setItem;
+    Storage.prototype.setItem = function (k, v) {
+      if (k === "tt:custom-texts") throw new DOMException("Quota exceeded", "QuotaExceededError");
+      return orig.call(this, k, v);
+    };
+  });
+  await p.reload({ waitUntil: "networkidle" });
+  await p.fill("#paste-title", "Orphan");
+  await p.fill("#paste-text", Array.from({ length: 60 }, (_, i) => `Orphan sentence ${i} here.`).join(" "));
+  await p.click("#paste-save");
+  await p.waitForFunction(() => /out of storage/i.test(document.getElementById("toast").textContent || ""), null, { timeout: 30000 }).catch(() => {});
+  const t2 = await p.textContent("#toast");
+  chk(/out of storage/i.test(t2 || ""), "a failed index write is reported, not swallowed", JSON.stringify((t2 || "").slice(0, 70)));
+  const orphans = await bodyCount(p);
+  chk(orphans === 0, "the stored body is rolled back, leaving no orphan",
+    orphans === -1 ? "no segments store" : `${orphans} bodies left`);
   await ctx.close();
 }
 

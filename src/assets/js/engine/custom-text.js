@@ -216,7 +216,12 @@ export async function saveText({ title, raw, meta }) {
 /* Move legacy records -- bodies inline in localStorage -- into
    IndexedDB, and drop the inline copies so the quota comes back.
    Best-effort per item: a text that fails to move keeps its inline
-   segments and stays readable. Safe to call on every page load. */
+   segments and stays readable.
+
+   Only /custom/ calls this, so someone who never opens that page keeps
+   their inline bodies indefinitely. That is fine -- getSegments() reads
+   both shapes -- it just means the quota comes back on a visit to
+   /custom/, not on the next page load anywhere. */
 export async function migrateInlineToIdb() {
   if (!idbSupported()) return 0;
   const list = listSaved();

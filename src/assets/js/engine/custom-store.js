@@ -94,25 +94,6 @@ export function deleteSegments(id) {
   return tx("readwrite", (store) => { store.delete(String(id)); return true; });
 }
 
-export function listIds() {
-  return tx("readonly", (store) => {
-    const req = store.getAllKeys();
-    return () => (req.result || []).map(String);
-  });
-}
-
 export function clearAll() {
   return tx("readwrite", (store) => { store.clear(); return true; });
-}
-
-/* Roughly how much room the browser will give this origin. Used only to
-   phrase an honest message; nothing is reported anywhere. */
-export async function estimateUsage() {
-  try {
-    if (navigator.storage && navigator.storage.estimate) {
-      const { usage, quota } = await navigator.storage.estimate();
-      return { usage: usage || 0, quota: quota || 0 };
-    }
-  } catch {}
-  return null;
 }

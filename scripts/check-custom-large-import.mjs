@@ -129,9 +129,12 @@ chk(!!hitSeg && Number(hitSeg.seg) > 2000, "search reaches a segment past the ol
 if (hitSeg) {
   await p.goto(B + hitSeg.href, { waitUntil: "networkidle" });
   await p.waitForSelector(".tt-char", { timeout: 30000 });
-  const target = await p.$$eval(".tt-char", (els) =>
-    els.slice(0, 60).map((e) => (e.classList.contains("tt-char--space") ? " " : e.textContent)).join(""));
-  chk(target.includes("25900") || target.includes("2590"), "that segment is what the practice page renders",
+  const target = (await p.$$eval(".tt-char", (els) =>
+    els.slice(0, 60).map((e) => (e.classList.contains("tt-char--space") ? " " : e.textContent)).join("")))
+    .replace(/\s+/g, " ");
+  // Match the whole needle. "2590" was a substring of "25900" and of
+  // every neighbouring sentence, so it would have passed on the wrong one.
+  chk(target.includes(NEEDLE), "that segment is what the practice page renders",
     JSON.stringify(target.slice(0, 50)));
 }
 

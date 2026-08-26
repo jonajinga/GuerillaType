@@ -137,9 +137,19 @@ saveBtn.addEventListener("click", async () => {
 const PICKER_PAGE = 40;
 const pickers = new Map(); // id -> { segments, page, query, host }
 
-function segPreview(s) {
+function segPreview(s, q) {
   const t = String(s || "").replace(/\s+/g, " ").trim();
-  return t.length > 140 ? t.slice(0, 140) + "…" : t;
+  if (t.length <= 140) return t;
+  // A search hit deeper than 140 characters into a segment was invisible
+  // in its own row -- the row matched, the preview did not show why.
+  if (q) {
+    const at = t.toLowerCase().indexOf(q.toLowerCase());
+    if (at > 40) {
+      const from = Math.max(0, at - 40);
+      return "…" + t.slice(from, from + 140) + (from + 140 < t.length ? "…" : "");
+    }
+  }
+  return t.slice(0, 140) + "…";
 }
 
 function practiceUrl(id, seg) {
@@ -168,7 +178,7 @@ function renderPicker(id) {
     <li>
       <a class="seg-picker__item${i === bookmark ? " is-current" : ""}" href="${practiceUrl(id, i)}" data-seg="${i}">
         <span class="seg-picker__n">${nf.format(i + 1)}</span>
-        <span class="seg-picker__preview">${htmlEscape(segPreview(st.segments[i]))}</span>
+        <span class="seg-picker__preview">${htmlEscape(segPreview(st.segments[i], q))}</span>
       </a>
     </li>`).join("");
 
