@@ -180,6 +180,66 @@ list = await saved();
 chk(list.length === 1 && list[0].id === "c_mine", "no sample is seeded when the user already has texts",
   `${list.length} text(s)`);
 
+// ── An out-of-date sample is replaced, not left to rot ───────────
+// This is the bug that shipped: a browser holding the early 7,100-char
+// excerpt kept it forever, because the sample only ever seeded into an
+// empty list.
+await wipe();
+await p.evaluate(() => {
+  const segments = ["Alice was beginning to get very tired.", "So she considered in her own mind."];
+  localStorage.setItem("tt:custom-texts", JSON.stringify([{
+    id: "c_oldsample", title: "Old excerpt (sample)", createdAt: new Date().toISOString(),
+    bytes: 7117, segCount: 18, lastSeg: 4, sample: true, segments, meta: null,
+  }]));
+});
+await openCustom();
+await p.waitForFunction(() => {
+  const it = JSON.parse(localStorage.getItem("tt:custom-texts") || "[]")[0];
+  return it && it.sample && (it.segCount | 0) > 200;
+}, null, { timeout: 30000 }).catch(() => {});
+list = await saved();
+chk(list.length === 1 && (list[0].segCount | 0) > 200, "a stale sample is replaced with the current one",
+  list.length ? `${list[0].segCount} segments` : "(none)");
+chk(list.length === 1 && list[0].id !== "c_oldsample" && !!list[0].sampleVersion,
+  "the replacement records which version it is", list.length ? String(list[0].sampleVersion) : "");
+chk(list.length === 1 && (list[0].lastSeg | 0) === 4, "the bookmark survives the replacement",
+  list.length ? `lastSeg=${list[0].lastSeg}` : "");
+
+// Replacing must not count as the user deleting it.
+await openCustom();
+list = await saved();
+chk(list.length === 1 && list[0].sample === true, "replacing does not dismiss the sample", `${list.length} text(s)`);
+
+// ── Replacing a stale sample leaves the user's own texts alone ────
+await wipe();
+await p.evaluate(() => {
+  localStorage.setItem("tt:custom-texts", JSON.stringify([
+    { id: "c_oldsample", title: "Old excerpt (sample)", createdAt: new Date().toISOString(),
+      bytes: 7117, segCount: 18, lastSeg: 0, sample: true, segments: ["Old sample text here."], meta: null },
+    { id: "c_mine2", title: "My own text", createdAt: new Date().toISOString(),
+      bytes: 40, segCount: 1, lastSeg: 0, segments: ["Something I saved myself."], meta: null },
+  ]));
+});
+await openCustom();
+await p.waitForFunction(() => JSON.parse(localStorage.getItem("tt:custom-texts") || "[]")
+  .some((x) => x.sample && (x.segCount | 0) > 200), null, { timeout: 30000 }).catch(() => {});
+list = await saved();
+chk(list.some((x) => x.id === "c_mine2"), "the user's own text survives a sample replacement",
+  list.map((x) => x.title).join(" | "));
+chk(list.filter((x) => x.sample).length === 1, "exactly one sample afterwards",
+  `${list.filter((x) => x.sample).length} sample(s), ${list.length} total`);
+
+// ── A stale sample the user DELETED stays deleted ────────────────
+// The upgrade path must never undo a deletion.
+await wipe();
+await p.evaluate(() => {
+  localStorage.setItem("tt:custom-sample", JSON.stringify("dismissed"));
+});
+await openCustom();
+await p.waitForTimeout(1500);
+list = await saved();
+chk(list.length === 0, "an upgrade never resurrects a deleted sample", `${list.length} text(s)`);
+
 // ── A wiped browser is a fresh browser ───────────────────────────
 await wipe();
 await openCustom();

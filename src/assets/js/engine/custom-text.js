@@ -128,7 +128,7 @@ export async function getSegments(id) {
   }
 }
 
-export async function saveText({ title, raw, meta, sample }) {
+export async function saveText({ title, raw, meta, sample, sampleVersion }) {
   const content = sanitize(raw);
   if (!content) throw new Error("Empty after sanitization");
 
@@ -178,9 +178,13 @@ export async function saveText({ title, raw, meta, sample }) {
     // imported corpus items.
     meta: meta || null,
   };
-  // The bundled sample. Marked so the list can label it and so deleting
-  // it can be remembered. See engine/custom-sample.js.
-  if (sample) item.sample = true;
+  // The bundled sample. Marked so the list can label it, so deleting it
+  // can be remembered, and so a later build can tell that the copy in
+  // this browser is out of date. See engine/custom-sample.js.
+  if (sample) {
+    item.sample = true;
+    if (sampleVersion) item.sampleVersion = String(sampleVersion);
+  }
   // Only the fallback path keeps bodies in the index record.
   if (!storedInIdb) item.segments = segments;
 
@@ -276,14 +280,18 @@ export const LIMITS = {
   fallbackTotal: FALLBACK_TOTAL_CHARS,
 };
 
-export function deleteSaved(id) {
+export function deleteSaved(id, { remember = true } = {}) {
   const gone = getSaved(id);
   const list = listSaved().filter((x) => x.id !== id);
   write(KEY_CUSTOM, list);
   if (idbSupported()) idbDelete(id).catch(() => {});
   // Deleting the bundled sample has to stick. Reseeding it on the next
   // visit would mean the Delete button did not work.
-  if (gone && gone.sample) write(KEY_CUSTOM_SAMPLE, "dismissed");
+  //
+  // remember:false is for replacing an out-of-date sample with a newer
+  // one -- that is not the user deleting it, and tombstoning there would
+  // make an upgrade look like a deletion.
+  if (remember && gone && gone.sample) write(KEY_CUSTOM_SAMPLE, "dismissed");
 }
 
 /* Used by the settings "wipe everything" button -- clearing the

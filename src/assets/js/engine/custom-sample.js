@@ -21,8 +21,10 @@
    The JSON is built by scripts/build-custom-sample.mjs, which strips the
    Project Gutenberg boilerplate and the smart punctuation. */
 
-import { read, write, KEY_CUSTOM_SAMPLE } from "../storage.js";
-import { listSaved, saveText } from "./custom-text.js";
+import { read, write, KEY_CUSTOM, KEY_CUSTOM_SAMPLE } from "../storage.js";
+
+const writeList = (list) => write(KEY_CUSTOM, list);
+import { listSaved, saveText, deleteSaved } from "./custom-text.js";
 
 const SAMPLE_URL = "/data/custom-sample.json";
 
@@ -36,16 +38,27 @@ export function dismissSample() {
   write(KEY_CUSTOM_SAMPLE, "dismissed");
 }
 
-/* Seed the sample if this browser has no saved texts and the user has
-   not deleted it. Returns the new record, or null if it did nothing.
+/* Seed the sample, or replace an out-of-date copy of it.
 
-   Only seeding into an EMPTY list matters twice over: it keeps the
-   sample out of the way of someone who already has their own texts, and
-   it keeps it from appearing in the middle of a test that seeded its
-   own fixture. */
+   Three rules, in this order:
+
+     1. If the user deleted it, do nothing. Ever. An upgrade must never
+        undo a deletion -- that is the one way this could become a
+        nuisance rather than a convenience.
+     2. If they already have texts of their own and no sample, stay out
+        of the way.
+     3. If the sample they have was built from different content than
+        the one shipping now, replace it. Without this, the browser that
+        seeded an early 7,100-character excerpt would keep that excerpt
+        forever, and the fix would only reach people with fresh storage.
+
+   Returns the new record, or null if it did nothing. */
 export async function ensureSample() {
   if (sampleDismissed()) return null;
-  if (listSaved().length) return null;
+
+  const list = listSaved();
+  const existing = list.find((x) => x && x.sample) || null;
+  if (!existing && list.length) return null;
 
   let data;
   try {
@@ -60,15 +73,33 @@ export async function ensureSample() {
   }
   if (!data || typeof data.text !== "string" || data.text.length < 1000) return null;
 
-  // The fetch took time. If the user saved something of their own while
-  // it was in flight, theirs is now the list and the sample stays out.
-  if (sampleDismissed() || listSaved().length) return null;
+  // Already have this exact sample.
+  if (existing && data.version && existing.sampleVersion === String(data.version)) return null;
 
+  // The fetch took time. Re-check both guards: the user may have deleted
+  // the sample or saved something of their own while it was in flight.
+  if (sampleDismissed()) return null;
+  const now = listSaved();
+  const stillThere = now.find((x) => x && x.sample) || null;
+  if (!stillThere && now.length && !existing) return null;
+
+  // Carry the bookmark and the lesson pin across an upgrade. The new
+  // text opens with the same words, so an early bookmark still points
+  // somewhere sensible; anything past the end falls back to the start.
+  const carriedSeg = stillThere ? (stillThere.lastSeg | 0) : 0;
+  const carriedPin = !!(stillThere && stillThere.forLesson);
+
+  // Remove the stale copy WITHOUT tombstoning it -- this is a
+  // replacement, not the user deleting the sample.
+  if (stillThere) deleteSaved(stillThere.id, { remember: false });
+
+  let seeded;
   try {
-    return await saveText({
+    seeded = await saveText({
       title: `${data.title || "Sample"} (sample)`,
       raw: data.text,
       sample: true,
+      sampleVersion: data.version || null,
       meta: {
         kind: "sample",
         author: data.author || null,
@@ -81,4 +112,15 @@ export async function ensureSample() {
     // interrupt about a sample. The user's own imports report properly.
     return null;
   }
+
+  if (seeded && (carriedSeg || carriedPin)) {
+    const fresh = listSaved();
+    const i = fresh.findIndex((x) => x.id === seeded.id);
+    if (i >= 0) {
+      if (carriedSeg) fresh[i].lastSeg = Math.min(carriedSeg, Math.max(0, (fresh[i].segCount | 0) - 1));
+      if (carriedPin) fresh[i].forLesson = true;
+      writeList(fresh);
+    }
+  }
+  return seeded;
 }

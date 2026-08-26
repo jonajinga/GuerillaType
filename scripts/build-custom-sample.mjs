@@ -17,6 +17,7 @@
 
    Usage: node scripts/build-custom-sample.mjs   (also runs in prebuild) */
 
+import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
@@ -69,7 +70,13 @@ const chapters = (text.match(/^CHAPTER [IVX]+\./gm) || []).length;
 if (chapters !== 12) throw new Error(`Expected 12 chapter headings, found ${chapters}`);
 if (text.length < 100000) throw new Error(`Only ${text.length} characters — that is not the whole book`);
 
+/* Content-derived, so changing the sample changes the version without
+   anyone having to remember to bump one. /custom/ compares this against
+   the copy a browser already seeded and replaces it when they differ. */
+const version = createHash("sha256").update(text).digest("hex").slice(0, 12);
+
 await writeFile(OUT, JSON.stringify({
+  version,
   title: "Alice's Adventures in Wonderland",
   author: "Lewis Carroll",
   year: "1865",
@@ -78,4 +85,4 @@ await writeFile(OUT, JSON.stringify({
   text,
 }, null, 0) + "\n", "utf8");
 
-console.log(`[custom-sample] ${text.length.toLocaleString()} chars, ${paras.length} paragraphs, ${chapters} chapters -> src/data/custom-sample.json`);
+console.log(`[custom-sample] ${text.length.toLocaleString()} chars, ${paras.length} paragraphs, ${chapters} chapters, v=${version} -> src/data/custom-sample.json`);
