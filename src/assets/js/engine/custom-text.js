@@ -146,12 +146,16 @@ export async function saveText({ title, raw, meta }) {
   // private mode, a corrupt database -- so fall back to the old inline
   // path at the old ceiling and let the caller say the text was cut.
   let storedInIdb = false;
+  let fallbackReason = useIdb ? null : "unavailable";
   if (useIdb) {
     try {
       await idbPut(id, segments);
       storedInIdb = true;
     } catch {
-      storedInIdb = false;
+      // The database exists and turned the write down -- almost always
+      // out of room. That is a different sentence to the user than
+      // "this browser has no database", so keep them apart.
+      fallbackReason = "refused";
     }
   }
   if (!storedInIdb && body.length > FALLBACK_TEXT_CHARS) {
@@ -206,7 +210,7 @@ export async function saveText({ title, raw, meta }) {
   // The index is committed, so the evicted bodies are now unreachable.
   for (const dead of evictedIds) idbDelete(dead).catch(() => {});
 
-  return { ...item, truncatedFrom, evicted, storedInIdb };
+  return { ...item, truncatedFrom, evicted, storedInIdb, fallbackReason };
 }
 
 /* Move legacy records -- bodies inline in localStorage -- into

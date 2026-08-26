@@ -24,7 +24,8 @@
     "postbuild": "node scripts/version-js-imports.mjs",
     "version-imports": "node scripts/version-js-imports.mjs",
     "custom-segments": "node scripts/check-custom-segments.mjs",
-    "custom-large": "node scripts/check-custom-large-import.mjs"
+    "custom-large": "node scripts/check-custom-large-import.mjs",
+    "custom-branches": "node scripts/check-custom-storage-branches.mjs"
   },
   "dependencies": {
     "@11ty/eleventy": "^3.0.0",

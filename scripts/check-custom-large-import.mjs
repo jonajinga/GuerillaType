@@ -75,15 +75,21 @@ chk(!!saved && Math.abs(saved.bytes - BOOK.length) < 200, "stored size matches w
 const lsBytes = await p.evaluate(() => (localStorage.getItem("tt:custom-texts") || "").length);
 chk(lsBytes < 4096, "the body left localStorage (index record only)", `${lsBytes} chars`);
 
+/* Every branch resolves. A probe that hangs when the database or the
+   store is missing turns a failing gate into a gate that never
+   finishes, which reads like a gate nobody ran. */
 const idbSegs = await p.evaluate((id) => new Promise((res) => {
-  const req = indexedDB.open("tt-custom");
+  let req;
+  try { req = indexedDB.open("tt-custom"); } catch { res(-1); return; }
+  req.onerror = req.onblocked = () => res(-1);
   req.onsuccess = () => {
-    const g = req.result.transaction("segments", "readonly").objectStore("segments").get(id);
-    g.onsuccess = () => res(g.result ? g.result.segments.length : 0);
-    g.onerror = () => res(-1);
+    try {
+      const g = req.result.transaction("segments", "readonly").objectStore("segments").get(id);
+      g.onsuccess = () => res(g.result ? g.result.segments.length : 0);
+      g.onerror = () => res(-1);
+    } catch { res(-1); }
   };
-  req.onerror = () => res(-1);
-}), saved && saved.id);
+}), (saved && saved.id) || "");
 chk(idbSegs > 2000, "segments are in IndexedDB", `${idbSegs} segments`);
 chk(!!saved && saved.segCount === idbSegs, "the index record agrees with the stored body",
   saved ? `${saved.segCount} vs ${idbSegs}` : "");

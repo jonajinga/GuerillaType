@@ -107,7 +107,10 @@ saveBtn.addEventListener("click", async () => {
     if (item.truncatedFrom) {
       const kept = (item.bytes / 1024).toFixed(0);
       const orig = (item.truncatedFrom / 1024).toFixed(0);
-      toast(`Saved "${item.title}" — ${item.segCount} segments. Trimmed to ${kept} KB of ${orig} KB: this browser would not give the site a database, so the text had to fit in its 512 KB fallback.`, "bad");
+      const why = item.fallbackReason === "refused"
+        ? "this browser refused to store it in its database, usually meaning it is out of room"
+        : "this browser does not give the site a database";
+      toast(`Saved "${item.title}" — ${nf.format(item.segCount)} segments. Trimmed to ${kept} KB of ${orig} KB: ${why}, so the text had to fit the 512 KB fallback.`, "bad");
     } else {
       toast(`Saved "${item.title}" — ${nf.format(item.segCount)} segments`);
     }
