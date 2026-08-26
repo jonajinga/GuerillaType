@@ -10,6 +10,7 @@ import {
   saveText, listSaved, deleteSaved, togglePinAsLesson,
   getSegments, segCountOf, migrateInlineToIdb,
 } from "../engine/custom-text.js";
+import { ensureSample } from "../engine/custom-sample.js";
 import { parseFile } from "../engine/import-parsers.js";
 import { $, toast, htmlEscape } from "../util/dom.js";
 import { confirmModal } from "../util/modal.js";
@@ -277,7 +278,9 @@ function render() {
     const resuming = (it.lastSeg | 0) > 0 && count > 1;
     return `
     <article class="saved-item${it.forLesson ? " is-pinned" : ""}" id="text-${it.id}">
-      <h3 class="saved-item__title">${htmlEscape(it.title)}<span class="muted">${(it.bytes / 1024).toFixed(1)} KB</span>${it.forLesson ? '<span class="saved-item__pin">★ pinned as lesson</span>' : ''}</h3>
+      <h3 class="saved-item__title">${htmlEscape(it.title)}<span class="muted">${(it.bytes / 1024).toFixed(1)} KB</span>${it.forLesson ? '<span class="saved-item__pin">★ pinned as lesson</span>' : ''}${it.sample ? '<span class="saved-item__sample">sample</span>' : ''}</h3>${
+        it.sample ? '\n      <p class="saved-item__note">A sample so you can try this out — pick any segment, or delete it and it stays gone.</p>' : ""
+      }
       <span class="saved-item__meta">${nf.format(count)} segment${count === 1 ? "" : "s"}${
         resuming ? ` · resuming at ${nf.format(Math.min((it.lastSeg | 0) + 1, count))} of ${nf.format(count)}` : ""
       } · ${new Date(it.createdAt).toLocaleDateString()}</span>
@@ -296,9 +299,12 @@ function render() {
   }).join("");
   list.querySelectorAll('[data-action="delete"]').forEach((b) => {
     b.addEventListener("click", async () => {
+      const isSample = (listSaved().find((x) => x.id === b.dataset.id) || {}).sample;
       const ok = await confirmModal({
-        title: "Delete this text?",
-        message: "The saved text will be removed from this device.",
+        title: isSample ? "Delete the sample text?" : "Delete this text?",
+        message: isSample
+          ? "It will not come back. You can always upload or paste your own."
+          : "The saved text will be removed from this device.",
         confirmLabel: "Delete",
         danger: true,
       });
@@ -340,6 +346,8 @@ function openFromHash() {
   // Pull any pre-IndexedDB texts out of localStorage first, so the list
   // below reports segment counts from one place and the quota comes back.
   try { await migrateInlineToIdb(); } catch {}
+  // Seeds only into an empty list, and only until the user deletes it.
+  try { await ensureSample(); } catch {}
   render();
   openFromHash();
 })();

@@ -34,9 +34,11 @@ const bodyCount = (page) => page.evaluate(() => new Promise((res) => {
   });
   const p = await ctx.newPage();
   p.on("pageerror", (e) => console.log("  PAGEERROR(fallback):", String(e).slice(0, 160)));
-  await p.goto(B + "/custom/", { waitUntil: "networkidle" });
+  await p.goto(B + "/custom/", { waitUntil: "domcontentloaded" });
+  await p.waitForSelector(".saved-item, .stats-empty", { timeout: 30000 }).catch(() => {});
   await p.evaluate(() => localStorage.clear());
-  await p.reload({ waitUntil: "networkidle" });
+  await p.reload({ waitUntil: "domcontentloaded" });
+  await p.waitForSelector(".saved-item, .stats-empty", { timeout: 30000 }).catch(() => {});
 
   const big = Array.from({ length: 8000 }, (_, i) =>
     `Fallback sentence ${i} with enough words to be prose rather than filler.`).join(" ");
@@ -57,7 +59,7 @@ const bodyCount = (page) => page.evaluate(() => new Promise((res) => {
   chk(!!it && it.bytes <= 512 * 1024, "fallback respects the old ceiling", it ? `${it.bytes} chars` : "");
 
   // ...and it must still be typeable.
-  await p.goto(`${B}/practice/?mode=custom&custom=${it.id}&seg=3`, { waitUntil: "networkidle" });
+  await p.goto(`${B}/practice/?mode=custom&custom=${it.id}&seg=3`, { waitUntil: "domcontentloaded" });
   await p.waitForSelector(".tt-char", { timeout: 30000 });
   const target = (await p.$$eval(".tt-char", (els) => els.slice(0, 30).map((e) => e.textContent).join("")))
     .replace(/\s+/g, " ");
@@ -66,7 +68,8 @@ const bodyCount = (page) => page.evaluate(() => new Promise((res) => {
   // true of the old build.
   chk(typeof it.segCount === "number" && it.segCount === it.segments.length,
     "fallback record still carries segCount", `segCount=${it.segCount}`);
-  await p.goto(B + "/custom/", { waitUntil: "networkidle" });
+  await p.goto(B + "/custom/", { waitUntil: "domcontentloaded" });
+  await p.waitForSelector(".saved-item, .stats-empty", { timeout: 30000 }).catch(() => {});
   await p.click('[data-action="segments"]');
   await p.waitForSelector(".seg-picker__item", { timeout: 30000 }).catch(() => {});
   const fbRows = await p.$$eval(".seg-picker__item", (e) => e.length).catch(() => 0);
@@ -87,12 +90,15 @@ const bodyCount = (page) => page.evaluate(() => new Promise((res) => {
   });
   const p = await ctx.newPage();
   p.on("pageerror", (e) => console.log("  PAGEERROR(quota):", String(e).slice(0, 160)));
-  await p.goto(B + "/custom/", { waitUntil: "networkidle" });
+  await p.goto(B + "/custom/", { waitUntil: "domcontentloaded" });
+  await p.waitForSelector(".saved-item, .stats-empty", { timeout: 30000 }).catch(() => {});
   await p.evaluate(async () => {
     localStorage.clear();
+    localStorage.setItem("tt:custom-sample", JSON.stringify("dismissed"));
     await new Promise((r) => { const q = indexedDB.deleteDatabase("tt-custom"); q.onsuccess = q.onerror = q.onblocked = () => r(); });
   });
-  await p.reload({ waitUntil: "networkidle" });
+  await p.reload({ waitUntil: "domcontentloaded" });
+  await p.waitForSelector(".saved-item, .stats-empty", { timeout: 30000 }).catch(() => {});
 
   const big = Array.from({ length: 8000 }, (_, i) =>
     `Refused sentence ${i} with enough words to be prose rather than filler.`).join(" ");
@@ -114,7 +120,7 @@ const bodyCount = (page) => page.evaluate(() => new Promise((res) => {
     refusedBodies === -1 ? "no segments store — IndexedDB was never used" : `${refusedBodies} bodies`);
   chk(/refused to store it/i.test(t || ""), "the refusal is named as a refusal, not a missing database",
     JSON.stringify((t || "").slice(0, 110)));
-  await p.goto(`${B}/practice/?mode=custom&custom=${it.id}&seg=2`, { waitUntil: "networkidle" });
+  await p.goto(`${B}/practice/?mode=custom&custom=${it.id}&seg=2`, { waitUntil: "domcontentloaded" });
   await p.waitForSelector(".tt-char", { timeout: 30000 });
   const target = (await p.$$eval(".tt-char", (els) => els.slice(0, 30).map((e) => e.textContent).join("")))
     .replace(/\s+/g, " ");
@@ -127,9 +133,11 @@ const bodyCount = (page) => page.evaluate(() => new Promise((res) => {
   const ctx = await b.newContext({ viewport: { width: 1366, height: 900 } });
   const p = await ctx.newPage();
   p.on("pageerror", (e) => console.log("  PAGEERROR(orphan):", String(e).slice(0, 160)));
-  await p.goto(B + "/custom/", { waitUntil: "networkidle" });
+  await p.goto(B + "/custom/", { waitUntil: "domcontentloaded" });
+  await p.waitForSelector(".saved-item, .stats-empty", { timeout: 30000 }).catch(() => {});
   await p.evaluate(async () => {
     localStorage.clear();
+    localStorage.setItem("tt:custom-sample", JSON.stringify("dismissed"));
     await new Promise((r) => { const q = indexedDB.deleteDatabase("tt-custom"); q.onsuccess = q.onerror = q.onblocked = () => r(); });
   });
   // localStorage full: the body reaches IndexedDB, the index record
@@ -142,7 +150,8 @@ const bodyCount = (page) => page.evaluate(() => new Promise((res) => {
       return orig.call(this, k, v);
     };
   });
-  await p.reload({ waitUntil: "networkidle" });
+  await p.reload({ waitUntil: "domcontentloaded" });
+  await p.waitForSelector(".saved-item, .stats-empty", { timeout: 30000 }).catch(() => {});
   await p.fill("#paste-title", "Orphan");
   await p.fill("#paste-text", Array.from({ length: 60 }, (_, i) => `Orphan sentence ${i} here.`).join(" "));
   await p.click("#paste-save");
@@ -159,9 +168,10 @@ const bodyCount = (page) => page.evaluate(() => new Promise((res) => {
 {
   const p = await b.newPage({ viewport: { width: 1366, height: 900 } });
   p.on("pageerror", (e) => console.log("  PAGEERROR(corpus):", String(e).slice(0, 160)));
-  await p.goto(B + "/parables/", { waitUntil: "networkidle" });
+  await p.goto(B + "/parables/", { waitUntil: "domcontentloaded" });
   await p.evaluate(() => localStorage.clear());
-  await p.reload({ waitUntil: "networkidle" });
+  await p.reload({ waitUntil: "domcontentloaded" });
+  await p.waitForSelector(".saved-item, .stats-empty", { timeout: 30000 }).catch(() => {});
   const saveBtn = await p.$('[data-action="save"]');
   chk(!!saveBtn, "parables: a save control exists");
   if (saveBtn) {
@@ -177,19 +187,22 @@ const bodyCount = (page) => page.evaluate(() => new Promise((res) => {
 {
   const p = await b.newPage({ viewport: { width: 1366, height: 900 } });
   p.on("pageerror", (e) => console.log("  PAGEERROR(lessons):", String(e).slice(0, 160)));
-  await p.goto(B + "/custom/", { waitUntil: "networkidle" });
+  await p.goto(B + "/custom/", { waitUntil: "domcontentloaded" });
+  await p.waitForSelector(".saved-item, .stats-empty", { timeout: 30000 }).catch(() => {});
   await p.evaluate(async () => {
     localStorage.clear();
+    localStorage.setItem("tt:custom-sample", JSON.stringify("dismissed"));
     await new Promise((r) => { const q = indexedDB.deleteDatabase("tt-custom"); q.onsuccess = q.onerror = q.onblocked = () => r(); });
   });
-  await p.reload({ waitUntil: "networkidle" });
+  await p.reload({ waitUntil: "domcontentloaded" });
+  await p.waitForSelector(".saved-item, .stats-empty", { timeout: 30000 }).catch(() => {});
   await p.fill("#paste-title", "Pinned thing");
   await p.fill("#paste-text", Array.from({ length: 40 }, (_, i) => `Pinned sentence ${i} here.`).join(" "));
   await p.click("#paste-save");
   await p.waitForSelector('[data-action="pin"]', { timeout: 30000 });
   await p.click('[data-action="pin"]');
   await p.waitForTimeout(300);
-  await p.goto(B + "/lessons/", { waitUntil: "networkidle" });
+  await p.goto(B + "/lessons/", { waitUntil: "domcontentloaded" });
   await p.waitForTimeout(700);
   const card = await p.textContent("#user-lessons-grid").catch(() => "");
   chk(/\d+ segments/.test(card || "") && !/undefined|NaN/.test(card || ""),
@@ -201,9 +214,11 @@ const bodyCount = (page) => page.evaluate(() => new Promise((res) => {
 {
   const p = await b.newPage({ viewport: { width: 1366, height: 900 } });
   p.on("pageerror", (e) => console.log("  PAGEERROR(migrate):", String(e).slice(0, 160)));
-  await p.goto(B + "/custom/", { waitUntil: "networkidle" });
+  await p.goto(B + "/custom/", { waitUntil: "domcontentloaded" });
+  await p.waitForSelector(".saved-item, .stats-empty", { timeout: 30000 }).catch(() => {});
   await p.evaluate(async () => {
     localStorage.clear();
+    localStorage.setItem("tt:custom-sample", JSON.stringify("dismissed"));
     await new Promise((r) => { const q = indexedDB.deleteDatabase("tt-custom"); q.onsuccess = q.onerror = q.onblocked = () => r(); });
   });
   // Seed a record in the OLD shape: bodies inline in localStorage.
@@ -215,7 +230,8 @@ const bodyCount = (page) => page.evaluate(() => new Promise((res) => {
     }]));
   });
   const before = await p.evaluate(() => localStorage.getItem("tt:custom-texts").length);
-  await p.goto(B + "/custom/", { waitUntil: "networkidle" });
+  await p.goto(B + "/custom/", { waitUntil: "domcontentloaded" });
+  await p.waitForSelector(".saved-item, .stats-empty", { timeout: 30000 }).catch(() => {});
   await p.waitForSelector(".saved-item", { timeout: 30000 });
   await p.waitForFunction(() => {
     const it = JSON.parse(localStorage.getItem("tt:custom-texts") || "[]")[0];
@@ -226,7 +242,7 @@ const bodyCount = (page) => page.evaluate(() => new Promise((res) => {
   const meta = await p.textContent(".saved-item__meta").catch(() => "");
   chk(/900 segments/.test(meta || ""), "migrated text still reports its segment count", JSON.stringify((meta || "").trim().slice(0, 50)));
   // And it must still be typeable at the segment it was left on.
-  await p.goto(B + "/practice/?mode=custom&custom=c_legacy&seg=700", { waitUntil: "networkidle" });
+  await p.goto(B + "/practice/?mode=custom&custom=c_legacy&seg=700", { waitUntil: "domcontentloaded" });
   await p.waitForSelector(".tt-char", { timeout: 30000 });
   const t = (await p.$$eval(".tt-char", (els) => els.slice(0, 24).map((e) => e.textContent).join(""))).replace(/\s+/g, " ");
   chk(/Legacy segment 700/.test(t), "migrated text types at a late segment", JSON.stringify(t.slice(0, 30)));
@@ -237,9 +253,15 @@ const bodyCount = (page) => page.evaluate(() => new Promise((res) => {
 {
   const p = await b.newPage({ viewport: { width: 1366, height: 900 } });
   p.on("pageerror", (e) => console.log("  PAGEERROR(settings):", String(e).slice(0, 160)));
-  await p.goto(B + "/custom/", { waitUntil: "networkidle" });
-  await p.evaluate(() => localStorage.clear());
-  await p.reload({ waitUntil: "networkidle" });
+  await p.goto(B + "/custom/", { waitUntil: "domcontentloaded" });
+  await p.waitForSelector(".saved-item, .stats-empty", { timeout: 30000 }).catch(() => {});
+  await p.evaluate(async () => {
+    localStorage.clear();
+    localStorage.setItem("tt:custom-sample", JSON.stringify("dismissed"));
+    await new Promise((r) => { const q = indexedDB.deleteDatabase("tt-custom"); q.onsuccess = q.onerror = q.onblocked = () => r(); });
+  });
+  await p.reload({ waitUntil: "domcontentloaded" });
+  await p.waitForSelector(".saved-item, .stats-empty", { timeout: 30000 }).catch(() => {});
   await p.fill("#paste-title", "Wipe me");
   await p.fill("#paste-text", Array.from({ length: 60 }, (_, i) => `Wipe sentence ${i} here.`).join(" "));
   await p.click("#paste-save");
@@ -254,8 +276,10 @@ const bodyCount = (page) => page.evaluate(() => new Promise((res) => {
       } catch { res(-1); }
     };
   }));
-  chk(before === 1, "a body is in IndexedDB before the wipe", `${before}`);
-  await p.goto(B + "/settings/", { waitUntil: "networkidle" });
+  // Not an exact count: /custom/ also seeds a sample text into an empty
+  // list, so the store legitimately holds more than the one just saved.
+  chk(before >= 1, "a body is in IndexedDB before the wipe", `${before}`);
+  await p.goto(B + "/settings/", { waitUntil: "domcontentloaded" });
   await p.click("#reset-all");
   await p.click(".modal__confirm, [data-modal-confirm], .btn--danger").catch(() => {});
   await p.waitForTimeout(2500);

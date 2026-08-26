@@ -7,6 +7,9 @@ export const KEY_PROFILES = NS + "profiles";
 export const KEY_ACTIVE = NS + "active-profile";
 export const KEY_SETTINGS = NS + "settings";
 export const KEY_CUSTOM = NS + "custom-texts";
+// Set to "dismissed" once the user deletes the bundled sample text, so
+// it is not seeded again. See engine/custom-sample.js.
+export const KEY_CUSTOM_SAMPLE = NS + "custom-sample";
 export const KEY_META = NS + "meta";
 export const KEY_THEME = NS + "theme";
 

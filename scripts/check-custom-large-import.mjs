@@ -38,15 +38,18 @@ p.on("pageerror", (e) => console.log("  PAGEERROR:", String(e).slice(0, 200)));
 
 console.log(`  (uploading ${BOOK.length.toLocaleString()} characters — old ceiling was ${OLD_CEILING.toLocaleString()})`);
 
-await p.goto(B + "/custom/", { waitUntil: "networkidle" });
+await p.goto(B + "/custom/", { waitUntil: "domcontentloaded" });
+  await p.waitForSelector(".saved-item, .stats-empty", { timeout: 30000 }).catch(() => {});
 await p.evaluate(async () => {
   localStorage.clear();
+    localStorage.setItem("tt:custom-sample", JSON.stringify("dismissed"));
   await new Promise((res) => {
     const r = indexedDB.deleteDatabase("tt-custom");
     r.onsuccess = r.onerror = r.onblocked = () => res();
   });
 });
-await p.reload({ waitUntil: "networkidle" });
+await p.reload({ waitUntil: "domcontentloaded" });
+  await p.waitForSelector(".saved-item, .stats-empty", { timeout: 30000 }).catch(() => {});
 
 // ── Upload through the real file input ──────────────────────────
 await p.setInputFiles("#uploader-file", {
@@ -127,7 +130,7 @@ chk(!!hitSeg && Number(hitSeg.seg) > 2000, "search reaches a segment past the ol
 
 // ── Clicking it actually types that part ────────────────────────
 if (hitSeg) {
-  await p.goto(B + hitSeg.href, { waitUntil: "networkidle" });
+  await p.goto(B + hitSeg.href, { waitUntil: "domcontentloaded" });
   await p.waitForSelector(".tt-char", { timeout: 30000 });
   const target = (await p.$$eval(".tt-char", (els) =>
     els.slice(0, 60).map((e) => (e.classList.contains("tt-char--space") ? " " : e.textContent)).join("")))
@@ -139,7 +142,8 @@ if (hitSeg) {
 }
 
 // ── Jump-to-number, and survival across a reload ────────────────
-await p.goto(B + "/custom/", { waitUntil: "networkidle" });
+await p.goto(B + "/custom/", { waitUntil: "domcontentloaded" });
+  await p.waitForSelector(".saved-item, .stats-empty", { timeout: 30000 }).catch(() => {});
 await p.waitForSelector('[data-action="segments"]', { timeout: 30000 });
 const stillFull = await p.evaluate(() => {
   const it = JSON.parse(localStorage.getItem("tt:custom-texts") || "[]")[0];
