@@ -24,12 +24,33 @@ import { resolve } from "node:path";
 const SRC = resolve("src/content/books/alice-in-wonderland.txt");
 const OUT = resolve("src/data/custom-sample.json");
 
+/* Same fold the site's own book pipeline uses (ingest-books.mjs), so the
+   sample and the library's copy of this book agree. The typing engine
+   compares characters exactly -- no folding at type time -- so a single
+   accented letter is a wall a US-keyboard user cannot get past. */
+const ACCENT_MAP = {
+  "À":"A","Á":"A","Â":"A","Ã":"A","Ä":"A","Å":"A",
+  "à":"a","á":"a","â":"a","ã":"a","ä":"a","å":"a",
+  "Ç":"C","ç":"c",
+  "È":"E","É":"E","Ê":"E","Ë":"E",
+  "è":"e","é":"e","ê":"e","ë":"e",
+  "Ì":"I","Í":"I","Î":"I","Ï":"I",
+  "ì":"i","í":"i","î":"i","ï":"i",
+  "Ñ":"N","ñ":"n",
+  "Ò":"O","Ó":"O","Ô":"O","Õ":"O","Ö":"O","Ø":"O",
+  "ò":"o","ó":"o","ô":"o","õ":"o","ö":"o","ø":"o",
+  "Ù":"U","Ú":"U","Û":"U","Ü":"U",
+  "ù":"u","ú":"u","û":"u","ü":"u",
+  "Ý":"Y","ý":"y","ÿ":"y","Æ":"AE","æ":"ae","Œ":"OE","œ":"oe","ß":"ss",
+};
+
 /* Site-wide rule: typeable content has no smart punctuation, so the
    characters are ones a keyboard actually produces. */
 const asciify = (s) => s
   .replace(/—/g, "--").replace(/–/g, "-")
   .replace(/[“”]/g, '"').replace(/[‘’]/g, "'")
-  .replace(/…/g, "...");
+  .replace(/…/g, "...")
+  .replace(/[À-ſ]/g, (c) => ACCENT_MAP[c] || c);
 
 const raw = await readFile(SRC, "utf8");
 const lines = raw.split(/\r?\n/);
@@ -50,22 +71,31 @@ const theEnd = body.findIndex((l) => /^THE END\s*$/.test(l));
 if (theEnd >= 0) body = body.slice(0, theEnd + 1);
 
 let text = body.join("\n")
-  .replace(/^\s*\[Illustration[^\]]*\]\s*$/gim, "")
-  .replace(/_([^_\n]+)_/g, "$1");
+  .replace(/^\s*\[Illustration[^\]]*\]\s*$/gim, "");
 
-// Rejoin hard-wrapped lines into paragraphs.
+// Rejoin hard-wrapped lines into paragraphs FIRST. Stripping the
+// Gutenberg italics markers before this missed every _span that
+// crossed a line break_, and shipped those underscores as text.
 const paras = text.split(/\n\s*\n/)
   .map((p) => p.replace(/\s+/g, " ").trim())
   .filter(Boolean);
 
-text = asciify(paras.join("\n\n"));
+text = asciify(paras.join("\n\n")).replace(/_([^_\n]+)_/g, "$1");
 
 // Guard rails. A sample that ships with licence boilerplate in it, or
 // with characters nobody can type, is worse than no sample.
 const leaked = /PROJECT GUTENBERG|MILLENNIUM FULCRUM|www\.gutenberg\.org/i.exec(text);
 if (leaked) throw new Error(`Boilerplate leaked into the sample: ${leaked[0]}`);
-const smart = text.match(/[‘’“”–—…]/g);
-if (smart) throw new Error(`${smart.length} smart-punctuation characters survived asciify`);
+/* This used to test for [''""--...] -- exactly the class asciify had
+   just removed -- so it could not fire, and an accented letter sailed
+   through it. Assert the property that actually matters: every
+   character is one a plain keyboard produces. */
+const untypeable = [...new Set(text.replace(/[\n\t]/g, "").split("").filter((c) => c.charCodeAt(0) < 32 || c.charCodeAt(0) > 126))];
+if (untypeable.length) {
+  throw new Error(`${untypeable.length} untypeable character(s) survived: ${JSON.stringify(untypeable.join(""))}`);
+}
+const strays = text.match(/_/g);
+if (strays) throw new Error(`${strays.length} italics underscore(s) survived`);
 const chapters = (text.match(/^CHAPTER [IVX]+\./gm) || []).length;
 if (chapters !== 12) throw new Error(`Expected 12 chapter headings, found ${chapters}`);
 if (text.length < 100000) throw new Error(`Only ${text.length} characters — that is not the whole book`);

@@ -32,8 +32,14 @@ function buildBook() {
 const BOOK = buildBook();
 const NEEDLE = "Sentence number 25900 of the imported book";
 
+/* Service workers are BLOCKED in every context below. pwa.js calls
+   location.reload() on controllerchange, and when that reload lands
+   mid-test the page is rebuilt underneath whatever was being driven --
+   panels detach, elements go stale, and a healthy build gets accused at
+   random. These gates are about custom-text behaviour, not the service
+   worker, so the honest thing is to take it out of the picture. */
 const b = await chromium.launch();
-const p = await b.newPage({ viewport: { width: 1366, height: 900 } });
+const p = await b.newPage({ viewport: { width: 1366, height: 900 }, serviceWorkers: "block" });
 p.on("pageerror", (e) => console.log("  PAGEERROR:", String(e).slice(0, 200)));
 
 console.log(`  (uploading ${BOOK.length.toLocaleString()} characters — old ceiling was ${OLD_CEILING.toLocaleString()})`);

@@ -9,10 +9,16 @@
 
    It is FETCHED, not embedded. custom-boot.js imports this module on
    every visit to /custom/, so 143 KB of book baked into it would be 143
-   KB every visitor downloads forever, including the ones who deleted
-   the sample a year ago. The fetch happens only in the one case where
-   the text is actually about to be seeded. After the first hit the
-   service worker serves it from the runtime cache.
+   KB in the module every visitor downloads forever, including the ones
+   who deleted the sample a year ago.
+
+   Who actually fetches: a browser with no texts (it is about to seed),
+   and a browser holding a sample (the only way to learn whether that
+   sample is current is to fetch the current one and compare versions).
+   A user with their own texts and no sample never fetches, and neither
+   does one who deleted it. The file is served with a day-long
+   Cache-Control and sits in the service worker's runtime cache, so the
+   repeat case is a cache read rather than a download.
 
    It is seeded ONLY into an empty list, and only until the user deletes
    it. Deleting writes a tombstone (KEY_CUSTOM_SAMPLE) so it stays gone
@@ -54,7 +60,17 @@ export function dismissSample() {
 
    Returns the new record, or null if it did nothing. */
 export async function ensureSample() {
-  if (sampleDismissed()) return null;
+  if (sampleDismissed()) {
+    // Self-heal. A sample sitting alongside a tombstone means a delete
+    // raced a seed and lost: saveText() reads the list, awaits the
+    // IndexedDB write, and writes back a list captured before the
+    // deletion. Without this the user is left with a text they deleted
+    // and no visit ever cleans it up, because this function returns on
+    // the line above.
+    const stray = listSaved().find((x) => x && x.sample);
+    if (stray) deleteSaved(stray.id, { remember: false });
+    return null;
+  }
 
   const list = listSaved();
   const existing = list.find((x) => x && x.sample) || null;
@@ -110,6 +126,15 @@ export async function ensureSample() {
   } catch {
     // A browser that cannot store the sample is not a browser we should
     // interrupt about a sample. The user's own imports report properly.
+    return null;
+  }
+
+  // The save had its own await inside it. Deleting during THAT window
+  // is the race the check before the fetch does not cover, so close it
+  // here: if the sample was dismissed while this was in flight, take
+  // back what was just written.
+  if (sampleDismissed()) {
+    if (seeded) deleteSaved(seeded.id, { remember: false });
     return null;
   }
 

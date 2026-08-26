@@ -8,6 +8,12 @@ import { chromium } from "playwright";
 const B = process.env.BASE_URL || "http://localhost:8765";
 let pass = 0, fail = 0;
 const chk = (ok, n, x = "") => { console.log(`  ${ok ? "PASS" : "FAIL"}  ${n}${x ? "  " + x : ""}`); ok ? pass++ : fail++; };
+/* Service workers are BLOCKED in every context below. pwa.js calls
+   location.reload() on controllerchange, and when that reload lands
+   mid-test the page is rebuilt underneath whatever was being driven --
+   panels detach, elements go stale, and a healthy build gets accused at
+   random. These gates are about custom-text behaviour, not the service
+   worker, so the honest thing is to take it out of the picture. */
 const b = await chromium.launch();
 
 /* Bodies in the IndexedDB store, or -1 when the store does not exist.
@@ -28,7 +34,7 @@ const bodyCount = (page) => page.evaluate(() => new Promise((res) => {
 
 // ── 1. IndexedDB refused: must fall back and SAY it trimmed ──────
 {
-  const ctx = await b.newContext({ viewport: { width: 1366, height: 900 } });
+  const ctx = await b.newContext({ viewport: { width: 1366, height: 900 }, serviceWorkers: "block" });
   await ctx.addInitScript(() => {
     Object.defineProperty(window, "indexedDB", { get() { return undefined; }, configurable: true });
   });
@@ -79,7 +85,7 @@ const bodyCount = (page) => page.evaluate(() => new Promise((res) => {
 
 // ── 1b. IndexedDB present but the write is refused (out of room) ──
 {
-  const ctx = await b.newContext({ viewport: { width: 1366, height: 900 } });
+  const ctx = await b.newContext({ viewport: { width: 1366, height: 900 }, serviceWorkers: "block" });
   await ctx.addInitScript(() => {
     // Exactly what a full disk looks like from here.
     const orig = IDBObjectStore.prototype.put;
@@ -130,7 +136,7 @@ const bodyCount = (page) => page.evaluate(() => new Promise((res) => {
 
 // ── 2b. Body stored, then the index write fails: no orphan left ──
 {
-  const ctx = await b.newContext({ viewport: { width: 1366, height: 900 } });
+  const ctx = await b.newContext({ viewport: { width: 1366, height: 900 }, serviceWorkers: "block" });
   const p = await ctx.newPage();
   p.on("pageerror", (e) => console.log("  PAGEERROR(orphan):", String(e).slice(0, 160)));
   await p.goto(B + "/custom/", { waitUntil: "domcontentloaded" });
@@ -166,7 +172,7 @@ const bodyCount = (page) => page.evaluate(() => new Promise((res) => {
 
 // ── 3. Corpus "Save" (saveText became async) ─────────────────────
 {
-  const p = await b.newPage({ viewport: { width: 1366, height: 900 } });
+  const p = await b.newPage({ viewport: { width: 1366, height: 900 }, serviceWorkers: "block" });
   p.on("pageerror", (e) => console.log("  PAGEERROR(corpus):", String(e).slice(0, 160)));
   await p.goto(B + "/parables/", { waitUntil: "domcontentloaded" });
   await p.evaluate(() => localStorage.clear());
@@ -185,7 +191,7 @@ const bodyCount = (page) => page.evaluate(() => new Promise((res) => {
 
 // ── 4. Pinned lesson card shows a segment count (segCount split) ──
 {
-  const p = await b.newPage({ viewport: { width: 1366, height: 900 } });
+  const p = await b.newPage({ viewport: { width: 1366, height: 900 }, serviceWorkers: "block" });
   p.on("pageerror", (e) => console.log("  PAGEERROR(lessons):", String(e).slice(0, 160)));
   await p.goto(B + "/custom/", { waitUntil: "domcontentloaded" });
   await p.waitForSelector(".saved-item, .stats-empty", { timeout: 30000 }).catch(() => {});
@@ -212,7 +218,7 @@ const bodyCount = (page) => page.evaluate(() => new Promise((res) => {
 
 // ── 4b. Pre-IndexedDB saved texts migrate, and hand the quota back ──
 {
-  const p = await b.newPage({ viewport: { width: 1366, height: 900 } });
+  const p = await b.newPage({ viewport: { width: 1366, height: 900 }, serviceWorkers: "block" });
   p.on("pageerror", (e) => console.log("  PAGEERROR(migrate):", String(e).slice(0, 160)));
   await p.goto(B + "/custom/", { waitUntil: "domcontentloaded" });
   await p.waitForSelector(".saved-item, .stats-empty", { timeout: 30000 }).catch(() => {});
@@ -251,7 +257,7 @@ const bodyCount = (page) => page.evaluate(() => new Promise((res) => {
 
 // ── 5. Settings wipe clears the IndexedDB bodies too ─────────────
 {
-  const p = await b.newPage({ viewport: { width: 1366, height: 900 } });
+  const p = await b.newPage({ viewport: { width: 1366, height: 900 }, serviceWorkers: "block" });
   p.on("pageerror", (e) => console.log("  PAGEERROR(settings):", String(e).slice(0, 160)));
   await p.goto(B + "/custom/", { waitUntil: "domcontentloaded" });
   await p.waitForSelector(".saved-item, .stats-empty", { timeout: 30000 }).catch(() => {});

@@ -16,8 +16,14 @@ process.on("unhandledRejection", (err) => {
   process.exit(1);
 });
 
+/* Service workers are BLOCKED in every context below. pwa.js calls
+   location.reload() on controllerchange, and when that reload lands
+   mid-test the page is rebuilt underneath whatever was being driven --
+   panels detach, elements go stale, and a healthy build gets accused at
+   random. These gates are about custom-text behaviour, not the service
+   worker, so the honest thing is to take it out of the picture. */
 const b = await chromium.launch();
-const p = await b.newPage({ viewport: { width: 1366, height: 900 } });
+const p = await b.newPage({ viewport: { width: 1366, height: 900 }, serviceWorkers: "block" });
 p.on("pageerror", (e) => console.log("  PAGEERROR:", String(e).slice(0, 200)));
 
 /* Waiting on network idle is flaky here — the page boots through a
@@ -70,12 +76,16 @@ const pages = parseInt((pager.match(/of\s+([\d,]+)/) || [])[1]?.replace(/,/g, ""
 chk(pages > 1, "a whole book paginates the picker", JSON.stringify(pager.trim()));
 
 // The last chapter is the part an excerpt would not have.
-/* The filter is debounced and renderPicker rewrites the panel's HTML,
-   replacing the input element. Typing into it can therefore land while
-   the node is being swapped and be lost, so drive it until the count
-   line proves the query took effect rather than assuming one fill did. */
+/* Drive the filter until the count line proves the query took effect.
+
+   An earlier version of this comment blamed the debounce and the
+   innerHTML swap. That was wrong: the retries could not have helped,
+   because the real cause was the service worker reloading the page and
+   detaching the whole panel. That is handled at the context level now.
+   The loop stays as a cheap guard against the debounce genuinely
+   swallowing a keystroke, but it is no longer load-bearing. */
 const applyFilter = async (q) => {
-  for (let attempt = 0; attempt < 5; attempt++) {
+  for (let attempt = 0; attempt < 3; attempt++) {
     await p.fill(".seg-picker__filter", q).catch(() => {});
     const took = await p.waitForFunction(
       (needle) => {
@@ -239,6 +249,29 @@ await openCustom();
 await p.waitForTimeout(1500);
 list = await saved();
 chk(list.length === 0, "an upgrade never resurrects a deleted sample", `${list.length} text(s)`);
+
+// ── A sample that survived a lost delete race is cleaned up ──────
+// The race itself is timing-dependent, but the state it LEAVES is not,
+// and that state is the damaging part: tombstone set and a sample
+// present, which the old code returned past on every visit, so the user
+// kept a text they had deleted forever.
+await wipe();
+await p.evaluate(() => {
+  localStorage.setItem("tt:custom-sample", JSON.stringify("dismissed"));
+  localStorage.setItem("tt:custom-texts", JSON.stringify([{
+    id: "c_resurrected", title: "Alice's Adventures in Wonderland (sample)",
+    createdAt: new Date().toISOString(), bytes: 143234, segCount: 337, lastSeg: 0,
+    sample: true, sampleVersion: "deadbeefcafe", segments: ["Left behind by a lost race."], meta: null,
+  }]));
+});
+await openCustom();
+await p.waitForFunction(() => JSON.parse(localStorage.getItem("tt:custom-texts") || "[]").length === 0,
+  null, { timeout: 30000 }).catch(() => {});
+list = await saved();
+chk(list.length === 0, "a sample left behind by a lost delete race is cleaned up",
+  list.length ? `${list.length} text(s) still there` : "removed");
+const tombStillSet = await p.evaluate(() => localStorage.getItem("tt:custom-sample"));
+chk(/dismissed/.test(tombStillSet || ""), "cleaning it up does not un-delete it", String(tombStillSet));
 
 // ── A wiped browser is a fresh browser ───────────────────────────
 await wipe();
