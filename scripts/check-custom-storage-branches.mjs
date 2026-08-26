@@ -281,7 +281,12 @@ const bodyCount = (page) => page.evaluate(() => new Promise((res) => {
   chk(before >= 1, "a body is in IndexedDB before the wipe", `${before}`);
   await p.goto(B + "/settings/", { waitUntil: "domcontentloaded" });
   await p.click("#reset-all");
-  await p.click(".modal__confirm, [data-modal-confirm], .btn--danger").catch(() => {});
+  // confirmModal() builds a <dialog> with [data-ok]. The old selector
+  // list guessed at three class names, two of which exist nowhere, and
+  // swallowed a failed click — so a wipe that never got confirmed would
+  // have looked like a wipe that did not work.
+  await p.waitForSelector("dialog[open] [data-ok]", { timeout: 15000 });
+  await p.click("dialog[open] [data-ok]");
   await p.waitForTimeout(2500);
   const after = await p.evaluate(() => new Promise((res) => {
     const q = indexedDB.open("tt-custom");

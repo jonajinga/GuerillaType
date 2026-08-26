@@ -46,8 +46,10 @@ await openCustom();
 let list = await saved();
 chk(list.length === 1 && list[0].sample === true, "a fresh browser is seeded with the sample",
   list.length ? `${list.length} text(s), sample=${list[0].sample}` : "(none)");
-chk(list.length === 1 && list[0].segCount > 5, "the sample has enough segments to show the picker",
+chk(list.length === 1 && list[0].segCount > 200, "the sample is a whole book, not an excerpt",
   list.length ? `${list[0].segCount} segments` : "");
+chk(list.length === 1 && list[0].bytes > 100000, "the whole book is stored",
+  list.length ? `${list[0].bytes.toLocaleString()} chars` : "");
 
 const badge = await p.textContent(".saved-item__sample").catch(() => "");
 chk(/sample/i.test(badge || ""), "the card is labelled a sample", JSON.stringify((badge || "").trim()));
@@ -63,6 +65,51 @@ await p.click('[data-action="segments"]').catch(() => {});
 await p.waitForSelector(".seg-picker__item", { timeout: 30000 }).catch(() => {});
 const rows = await p.$$eval(".seg-picker__item", (e) => e.length).catch(() => 0);
 chk(rows > 1, "the picker lists its segments", `${rows} rows`);
+const pager = (await p.textContent(".seg-picker__page").catch(() => "")) || "";
+const pages = parseInt((pager.match(/of\s+([\d,]+)/) || [])[1]?.replace(/,/g, "") || "0", 10);
+chk(pages > 1, "a whole book paginates the picker", JSON.stringify(pager.trim()));
+
+// The last chapter is the part an excerpt would not have.
+/* The filter is debounced and renderPicker rewrites the panel's HTML,
+   replacing the input element. Typing into it can therefore land while
+   the node is being swapped and be lost, so drive it until the count
+   line proves the query took effect rather than assuming one fill did. */
+const applyFilter = async (q) => {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    await p.fill(".seg-picker__filter", q).catch(() => {});
+    const took = await p.waitForFunction(
+      (needle) => {
+        const input = document.querySelector(".seg-picker__filter");
+        const count = document.querySelector(".seg-picker__count");
+        return !!input && input.value === needle && !!count && /matching/.test(count.textContent);
+      },
+      q, { timeout: 5000 }).then(() => true).catch(() => false);
+    if (took) return true;
+  }
+  return false;
+};
+const filtered = await applyFilter("CHAPTER XII");
+chk(filtered, "the picker's search applies", filtered ? "" : "the filter never took effect");
+const lastCh = await p.evaluate(() => {
+  const a = [...document.querySelectorAll(".seg-picker__item")].find((x) => /CHAPTER XII/.test(x.textContent));
+  return a ? { seg: Number(a.dataset.seg), href: a.getAttribute("href") } : null;
+});
+chk(!!lastCh && lastCh.seg > 200, "search reaches the final chapter",
+  lastCh ? `segment ${lastCh.seg + 1}` : "(CHAPTER XII not found)");
+if (lastCh) {
+  await p.goto(B + lastCh.href, { waitUntil: "domcontentloaded" });
+  await p.waitForSelector(".tt-char", { timeout: 30000 }).catch(() => {});
+  // Scan the WHOLE rendered segment. chunk() packs sentences up to ~500
+  // characters, so a chapter heading usually sits mid-segment rather
+  // than at its start -- checking only the first 40 characters failed on
+  // a segment that did contain what was searched for.
+  const t = (await p.$$eval(".tt-char", (els) => els.map((e) => e.textContent).join("")).catch(() => "")).replace(/\s+/g, " ");
+  chk(/CHAPTER XII/.test(t), "the final chapter types",
+    `${t.length} chars rendered, heading ${t.indexOf("CHAPTER XII") >= 0 ? "at " + t.indexOf("CHAPTER XII") : "absent"}`);
+  await openCustom();
+  await p.click('[data-action="segments"]').catch(() => {});
+  await p.waitForSelector(".seg-picker__item", { timeout: 30000 }).catch(() => {});
+}
 
 const segs = await p.evaluate((id) => new Promise((res) => {
   let req;
@@ -89,8 +136,13 @@ chk(!!want && typed.startsWith(want.slice(0, 30)), "the sample actually types, a
 // Site rule: typeable content carries no smart punctuation.
 const full = segs.join(" ");
 const smart = (full.match(/[‘’“”–—…]/g) || []);
-chk(full.length > 1000 && smart.length === 0, "the sample carries no smart punctuation",
-  `${full.length} chars, ${smart.length} smart`);
+chk(full.length > 100000 && smart.length === 0, "the sample carries no smart punctuation",
+  `${full.length.toLocaleString()} chars, ${smart.length} smart`);
+// Licence boilerplate would be shipped as something to type.
+const leaked = /PROJECT GUTENBERG|MILLENNIUM FULCRUM|gutenberg\.org/i.exec(full);
+chk(!leaked, "no Project Gutenberg boilerplate in the text", leaked ? leaked[0] : "");
+const chapters = (full.match(/CHAPTER [IVX]+\./g) || []).length;
+chk(chapters === 12, "all twelve chapters are present", `${chapters} chapter headings`);
 
 // ── Deleting it must STICK ───────────────────────────────────────
 await openCustom();
