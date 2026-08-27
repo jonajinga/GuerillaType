@@ -29,14 +29,15 @@
         },
         {
           "id": "p5",
-          "text": "Mina Harker's Journal CHAPTER XV. Dr. Seward's Diary CHAPTER XVI. Dr. Seward's Diary CHAPTER XVII. Dr. Seward's Diary CHAPTER XVIII. Dr. Seward's Diary CHAPTER XIX. Jonathan Harker's Journal CHAPTER XX. Jonathan Harker's Journal CHAPTER XXI. Dr. Seward's Diary CHAPTER XXII. Jonathan Harker's Journal CHAPTER XXIII. Dr. Seward's Diary CHAPTER XXIV. Dr. Seward's Phonograph Diary, spoken by Van Helsing CHAPTER XXV. Dr. Seward's Diary CHAPTER XXVI. Dr. Seward's Diary CHAPTER XXVII."
-        },
+          "text": "Mina Harker's Journal CHAPTER XV. Dr. Seward's Diary CHAPTER XVI. Dr. Seward's Diary CHAPTER XVII. Dr. Seward's Diary CHAPTER XVIII. Dr. Seward's Diary CHAPTER XIX. Jonathan Harker's Journal CHAPTER XX. Jonathan Harker's Journal CHAPTER XXI. Dr. Seward's Diary CHAPTER XXII. Jonathan Harker's Journal CHAPTER XXIII. Dr. Seward's Diary CHAPTER XXIV. Dr. Seward's Phonograph Diary, spoken by Van Helsing CHAPTER XXV. Dr. Seward's Diary CHAPTER XXVI. Dr. Seward's Diary"
+        }
+      ]
+    },
+    {
+      "title": "Mina Harker's Journal",
+      "paragraphs": [
         {
-          "id": "p6",
-          "text": "Mina Harker's Journal"
-        },
-        {
-          "id": "p7",
+          "id": "p0",
           "text": "How these papers have been placed in sequence will be made manifest in the reading of them. All needless matters have been eliminated, so that a history almost at variance with the possibilities of later-day belief may stand forth as simple fact. There is throughout no statement of past things wherein memory may err, for all the records chosen are exactly contemporary, given from the standpoints and within the range of knowledge of those who made them."
         }
       ]
@@ -1658,7 +1659,7 @@
       ]
     },
     {
-      "title": "Chapter 6",
+      "title": "Chapter 7",
       "paragraphs": [
         {
           "id": "p0",
@@ -3338,7 +3339,7 @@
       ]
     },
     {
-      "title": "Chapter 10",
+      "title": "Chapter 11",
       "paragraphs": [
         {
           "id": "p0",
@@ -3851,7 +3852,7 @@
       ]
     },
     {
-      "title": "Chapter 11",
+      "title": "Chapter 12",
       "paragraphs": [
         {
           "id": "p0",
@@ -4392,7 +4393,7 @@
       ]
     },
     {
-      "title": "Chapter 12",
+      "title": "Chapter 13",
       "paragraphs": [
         {
           "id": "p0",
@@ -5435,7 +5436,7 @@
       ]
     },
     {
-      "title": "Chapter 15",
+      "title": "Chapter 16",
       "paragraphs": [
         {
           "id": "p0",
@@ -6628,7 +6629,7 @@
       ]
     },
     {
-      "title": "Chapter 20",
+      "title": "Chapter 21",
       "paragraphs": [
         {
           "id": "p0",
@@ -12922,7 +12923,7 @@
       ]
     }
   ],
-  "chapterCount": 33,
-  "paragraphCount": 3188,
-  "charCount": 832841
+  "chapterCount": 34,
+  "paragraphCount": 3187,
+  "charCount": 832805
 }

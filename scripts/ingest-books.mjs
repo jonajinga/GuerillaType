@@ -45,6 +45,16 @@ const PG_END   = /\*+ ?END OF (?:THIS |THE )?PROJECT GUTENBERG.*?\*+/i;
 // don't false-positive.
 const CHAPTER_HEAD = /^\s*(?:(?:CHAPTER|Chapter|PART|Part|BOOK|Book|SECTION|Section)[\s\.]+(?:[IVXLCDM\d]+)\b.*|[A-Z][A-Z][A-Z ,'.\-]{12,88}[A-Z.])\s*$/;
 
+/* A head that is nothing but a label and a numeral -- "CHAPTER I.",
+   "Part 2". In the common Project Gutenberg layout the chapter's actual
+   title sits on the very next line, and it is ordinary mixed case. */
+const BARE_LABEL_HEAD = /^(?:CHAPTER|Chapter|PART|Part|BOOK|Book|SECTION|Section)[\s.]+[IVXLCDM\d]+\.?$/;
+
+/* Same, but allowing a title after the numeral: "Chapter I. Into the
+   Primitive" as well as "CHAPTER I.". Used to decide whether a head
+   swept into a contents run is a real chapter worth rescuing. */
+const CHAPTER_LABEL_PREFIX = /^(?:CHAPTER|Chapter|PART|Part|BOOK|Book|SECTION|Section)[\s.]+[IVXLCDM\d]+\b/;
+
 // Numeric chapter heading: "01 My Early Home", "1. The Hunt".
 const NUMERIC_HEAD = /^\s*(\d{1,3})[\s\.]+([A-Z][\w\s,.'"\-]{1,80})\s*$/;
 
@@ -281,7 +291,39 @@ function splitChapters(body) {
     // hundreds even though every individual gap is empty.
     const runLen = runEnd - i;
     if (runLen >= 3 && totalBody < 200 + runLen * 50) {
-      for (let k = i; k <= runEnd; k++) dropIxs.add(k);
+      /* The last head in the run is not necessarily a contents entry.
+         When a contents page ends a few lines above the book's first
+         chapter head -- Alice's sits 5 lines below the last entry, well
+         inside the 8-line gap -- that real head is swept into the run
+         and dropped with it, and the book silently loses chapter one.
+         Nothing downstream can notice: the title strips to empty and
+         the reader numbers chapters by position, so 11 chapters just
+         looks like a book with 11 chapters.
+
+         Tell them apart by what FOLLOWS. A contents entry is followed
+         by the next entry or by whitespace; the real first chapter is
+         followed by the chapter. */
+      const last = filtered[runEnd];
+      const afterEnd = runEnd + 1 < filtered.length ? filtered[runEnd + 1].i : lines.length;
+      const after = lines.slice((last.lastI || last.i) + 1, afterEnd).join("").trim();
+      /* Only rescue a head that is genuinely a chapter label -- "CHAPTER
+         I.", "BOOK II". Measured: without this the rescue fires 165
+         times, and the ones that cost body text are heads like PREFACE,
+         a dedication, or a stray capitalised fragment, not chapters.
+         Rescuing those does not recover a chapter; it promotes a scrap
+         of front matter to a heading and the prose beneath it is
+         reshaped around the mistake.
+
+         A bare roman numeral is excluded for a second reason: the
+         "roman" branch above carries a look-ahead that pulls the next
+         line into the title, so rescuing one eats the first line of the
+         following prose. */
+      const rescuable = last.kind !== "roman" && CHAPTER_LABEL_PREFIX.test(String(last.title || "").trim());
+      const dropTo = (rescuable && after.length > 400) ? runEnd - 1 : runEnd;
+      // Still has to look like a cluster once the real head is excluded.
+      if (dropTo - i >= 2) {
+        for (let k = i; k <= dropTo; k++) dropIxs.add(k);
+      }
       i = runEnd;
     }
   }
@@ -326,10 +368,11 @@ function splitChapters(body) {
         continue;
       }
       if (classifyLine(lines[j], j, lines)) break;
-      // Two acceptable shapes for a continuation:
+      // Three acceptable shapes for a continuation:
       //   (1) clean all-caps fragment ("ARAMIS")
       //   (2) mostly-uppercase line under 90 chars with no terminal
       //       sentence punctuation ("JONATHAN HARKER'S JOURNAL--continued")
+      //   (3) the title line of a bare label head (see below)
       const isCapsFrag = CAPS_FRAGMENT.test(lines[j]);
       let isMostlyUpper = false;
       if (!isCapsFrag && t.length <= 90 && !/[.!?]\s*$/.test(t) && /^[A-Z]/.test(t)) {
@@ -339,7 +382,38 @@ function splitChapters(body) {
           isMostlyUpper = upper / letters.length >= 0.5;
         }
       }
-      if (!isCapsFrag && !isMostlyUpper) break;
+      /* (3) The head is nothing but "CHAPTER I." and this is the line
+         glued directly beneath it. That line IS the chapter's title, in
+         whatever case the book sets it -- an ordinary mixed-case title
+         scores about 0.18 against the 0.5 uppercase test above, so it
+         used to be left behind. The cost of leaving it: it stays in the
+         body as a stray one-line paragraph the reader asks you to type,
+         the bare label strips to an empty title, and identical empty
+         titles let the contents-page dedupe drop a real chapter.
+
+         Deliberately narrow. It fires only for the FIRST line after the
+         head, only when nothing has been absorbed yet, and only when
+         that line is glued to the head with no blank line between --
+         which is what separates a title from the first line of prose.
+         A trailing full stop still disqualifies it; "?" and "!" do not,
+         because chapter titles are allowed to ask questions.
+
+         The 48-character cap and the "--" test are measured, not
+         guessed. Across the corpus 630 lines qualify on the other
+         conditions. Every one that cost body text was 55 characters or
+         longer, or carried a "--" -- those are not titles but the
+         dash-separated chapter synopses in Twain's travel books, and
+         folding one into a title took real prose out of the book. The
+         cap rejects all 120 of those and keeps 483 of the 510 genuine
+         titles. Erring this way is deliberate: a rejected fold merely
+         forgoes an improvement, an accepted one deletes text. */
+      const isBareLabelTitle =
+        !isCapsFrag && !isMostlyUpper &&
+        lastI === h.lastI && blanks === 0 && j === h.lastI + 1 &&
+        BARE_LABEL_HEAD.test(title.trim()) &&
+        t.length <= 48 && !/--/.test(t) &&
+        !/\.\s*$/.test(t) && /^[A-Za-z"'(]/.test(t);
+      if (!isCapsFrag && !isMostlyUpper && !isBareLabelTitle) break;
       if (title.toUpperCase().endsWith(t.toUpperCase())) break;
       title = title.replace(/[,\s]+$/, "") + " " + t;
       lastI = j;

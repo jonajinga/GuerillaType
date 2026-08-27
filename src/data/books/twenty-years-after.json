@@ -2,10 +2,407 @@
   "slug": "twenty-years-after",
   "title": "Twenty Years After",
   "author": "Alexandre Dumas",
-  "year": null,
+  "year": "1845",
   "chapters": [
     {
       "title": "Chapter 1",
+      "paragraphs": [
+        {
+          "id": "p0",
+          "text": "The Shade of Cardinal Richelieu."
+        },
+        {
+          "id": "p1",
+          "text": "In a splendid chamber of the Palais Royal, formerly styled the Palais Cardinal, a man was sitting in deep reverie, his head supported on his hands, leaning over a gilt and inlaid table which was covered with letters and papers."
+        },
+        {
+          "id": "p2",
+          "text": "Behind this figure glowed a vast fireplace alive with leaping flames; great logs of oak blazed and crackled on the polished brass andirons whose flicker shone upon the superb habiliments of the lonely tenant of the room, which was illumined grandly by twin candelabra rich with wax-lights."
+        },
+        {
+          "id": "p3",
+          "text": "Any one who happened at that moment to contemplate that red simar-the gorgeous robe of office-and the rich lace, or who gazed on that pale brow, bent in anxious meditation, might, in the solitude of that apartment, combined with the silence of the ante-chambers and the measured paces of the guards upon the landing-place, have fancied that the shade of Cardinal Richelieu lingered still in his accustomed haunt."
+        },
+        {
+          "id": "p4",
+          "text": "It was, alas! the ghost of former greatness. France enfeebled, the authority of her sovereign contemned, her nobles returning to their former turbulence and insolence, her enemies within her frontiers-all proved the great Richelieu no longer in existence."
+        },
+        {
+          "id": "p5",
+          "text": "In truth, that the red simar which occupied the wonted place was his no longer, was still more strikingly obvious from the isolation which seemed, as we have observed, more appropriate to a phantom than a living creature-from the corridors deserted by courtiers, and courts crowded with guards-from that spirit of bitter ridicule, which, arising from the streets below, penetrated through the very casements of the room, which resounded with the murmurs of a whole city leagued against the minister; as well as from the distant and incessant sounds of guns firing-let off, happily, without other end or aim, except to show to the guards, the Swiss troops and the military who surrounded the Palais Royal, that the people were possessed of arms."
+        },
+        {
+          "id": "p6",
+          "text": "The shade of Richelieu was Mazarin. Now Mazarin was alone and defenceless, as he well knew."
+        },
+        {
+          "id": "p7",
+          "text": "\"Foreigner!\" he ejaculated, \"Italian! that is their mean yet mighty byword of reproach-the watchword with which they assassinated, hanged, and made away with Concini; and if I gave them their way they would assassinate, hang, and make away with me in the same manner, although they have nothing to complain of except a tax or two now and then. Idiots!"
+        },
+        {
+          "id": "p8",
+          "text": "ignorant of their real enemies, they do not perceive that it is not the Italian who speaks French badly, but those who can say fine things to them in the purest Parisian accent, who are their real foes."
+        },
+        {
+          "id": "p9",
+          "text": "\"Yes, yes,\" Mazarin continued, whilst his wonted smile, full of subtlety, lent a strange expression to his pale lips; \"yes, these noises prove to me, indeed, that the destiny of favorites is precarious; but ye shall know I am no ordinary favorite. No!"
+        },
+        {
+          "id": "p10",
+          "text": "The Earl of Essex, 'tis true, wore a splendid ring, set with diamonds, given him by his royal mistress, whilst I-I have nothing but a simple circlet of gold, with a cipher on it and a date; but that ring has been blessed in the chapel of the Palais Royal,* so they will never ruin me, as they long to do, and whilst they shout, 'Down with Mazarin!'"
+        },
+        {
+          "id": "p11",
+          "text": "I, unknown, and unperceived by them, incite them to cry out, 'Long live the Duke de Beaufort' one day; another, 'Long live the Prince de Conde;' and again, 'Long live the parliament!'\" And at this word the smile on the cardinal's lips assumed an expression of hatred, of which his mild countenance seemed incapable. \"The parliament! We shall soon see how to dispose,\" he continued, \"of the parliament! Both Orleans and Montargis are ours."
+        },
+        {
+          "id": "p12",
+          "text": "It will be a work of time, but those who have begun by crying out: Down with Mazarin! will finish by shouting out, Down with all the people I have mentioned, each in his turn."
+        },
+        {
+          "id": "p13",
+          "text": "* It is said that Mazarin, who, though a cardinal, had not taken such vows as to prevent it, was secretly married to Anne of Austria.-La Porte's Memoirs."
+        },
+        {
+          "id": "p14",
+          "text": "\"Richelieu, whom they hated during his lifetime and whom they now praise after his death, was even less popular than I am. Often he was driven away, oftener still had he a dread of being sent away. The queen will never banish me, and even were I obliged to yield to the populace she would yield with me; if I fly, she will fly; and then we shall see how the rebels will get on without either king or queen."
+        },
+        {
+          "id": "p15",
+          "text": "\"Oh, were I not a foreigner! were I but a Frenchman! were I but of gentle birth!\""
+        },
+        {
+          "id": "p16",
+          "text": "The position of the cardinal was indeed critical, and recent events had added to his difficulties. Discontent had long pervaded the lower ranks of society in France. Crushed and impoverished by taxation-imposed by Mazarin, whose avarice impelled him to grind them down to the very dust-the people, as the Advocate-General Talon described it, had nothing left to them except their souls; and as those could not be sold by auction, they began to murmur."
+        },
+        {
+          "id": "p17",
+          "text": "Patience had in vain been recommended to them by reports of brilliant victories gained by France; laurels, however, were not meat and drink, and the people had for some time been in a state of discontent."
+        },
+        {
+          "id": "p18",
+          "text": "Had this been all, it might not, perhaps, have greatly signified; for when the lower classes alone complained, the court of France, separated as it was from the poor by the intervening classes of the gentry and the bourgeoisie, seldom listened to their voice; but unluckily, Mazarin had had the imprudence to attack the magistrates and had sold no less than twelve appointments in the Court of Requests, at a high price; and as the officers of that court paid very dearly for their places, and as the addition of twelve new colleagues would necessarily lower the value of each place, the old functionaries formed a union amongst themselves, and, enraged, swore on the Bible not to allow of this addition to their number, but to resist all the persecutions which might ensue; and should any one of them chance to forfeit his post by this resistance, to combine to indemnify him for his loss."
+        },
+        {
+          "id": "p19",
+          "text": "Now the following occurrences had taken place between the two contending parties."
+        },
+        {
+          "id": "p20",
+          "text": "On the seventh of January between seven and eight hundred tradesmen had assembled in Paris to discuss a new tax which was to be levied on house property. They deputed ten of their number to wait upon the Duke of Orleans, who, according to his custom, affected popularity. The duke received them and they informed him that they were resolved not to pay this tax, even if they were obliged to defend themselves against its collectors by force of arms."
+        },
+        {
+          "id": "p21",
+          "text": "They were listened to with great politeness by the duke, who held out hopes of easier measures, promised to speak in their behalf to the queen, and dismissed them with the ordinary expression of royalty, \"We will see what we can do.\""
+        },
+        {
+          "id": "p22",
+          "text": "Two days afterward these same magistrates appeared before the cardinal and their spokesman addressed Mazarin with so much fearlessness and determination that the minister was astounded and sent the deputation away with the same answer as it had received from the Duke of Orleans-that he would see what could be done; and in accordance with that intention a council of state was assembled and the superintendent of finance was summoned."
+        },
+        {
+          "id": "p23",
+          "text": "This man, named Emery, was the object of popular detestation, in the first place because he was superintendent of finance, and every superintendent of finance deserved to be hated; in the second place, because he rather deserved the odium which he had incurred."
+        },
+        {
+          "id": "p24",
+          "text": "He was the son of a banker at Lyons named Particelli, who, after becoming a bankrupt, chose to change his name to Emery; and Cardinal Richelieu having discovered in him great financial aptitude, had introduced him with a strong recommendation to Louis XIII. under his assumed name, in order that he might be appointed to the post he subsequently held."
+        },
+        {
+          "id": "p25",
+          "text": "\"You surprise me!\" exclaimed the monarch. \"I am rejoiced to hear you speak of Monsieur d'Emery as calculated for a post which requires a man of probity. I was really afraid that you were going to force that villain Particelli upon me.\""
+        },
+        {
+          "id": "p26",
+          "text": "\"Sire,\" replied Richelieu, \"rest assured that Particelli, the man to whom your majesty refers, has been hanged.\""
+        },
+        {
+          "id": "p27",
+          "text": "\"Ah; so much the better!\" exclaimed the king. \"It is not for nothing that I am styled Louis the Just,\" and he signed Emery's appointment."
+        },
+        {
+          "id": "p28",
+          "text": "This was the same Emery who became eventually superintendent of finance."
+        },
+        {
+          "id": "p29",
+          "text": "He was sent for by the ministers and he came before them pale and trembling, declaring that his son had very nearly been assassinated the day before, near the palace. The mob had insulted him on account of the ostentatious luxury of his wife, whose house was hung with red velvet edged with gold fringe."
+        },
+        {
+          "id": "p30",
+          "text": "This lady was the daughter of Nicholas de Camus, who arrived in Paris with twenty francs in his pocket, became secretary of state, and accumulated wealth enough to divide nine millions of francs among his children and to keep an income of forty thousand for himself."
+        },
+        {
+          "id": "p31",
+          "text": "The fact was that Emery's son had run a great chance of being suffocated, one of the rioters having proposed to squeeze him until he gave up all the gold he had swallowed. Nothing, therefore, was settled that day, as Emery's head was not steady enough for business after such an occurrence."
+        },
+        {
+          "id": "p32",
+          "text": "On the next day Mathieu Mole, the chief president, whose courage at this crisis, says the Cardinal de Retz, was equal to that of the Duc de Beaufort and the Prince de Conde-in other words, of the two men who were considered the bravest in France-had been attacked in his turn. The people threatened to hold him responsible for the evils that hung over them."
+        },
+        {
+          "id": "p33",
+          "text": "But the chief president had replied with his habitual coolness, without betraying either disturbance or surprise, that should the agitators refuse obedience to the king's wishes he would have gallows erected in the public squares and proceed at once to hang the most active among them. To which the others had responded that they would be glad to see the gallows erected; they would serve for the hanging of those detestable judges who purchased favor at court at the price of the people's misery."
+        },
+        {
+          "id": "p34",
+          "text": "Nor was this all. On the eleventh the queen in going to mass at Notre Dame, as she always did on Saturdays, was followed by more than two hundred women demanding justice. These poor creatures had no bad intentions. They wished only to be allowed to fall on their knees before their sovereign, and that they might move her to compassion; but they were prevented by the royal guard and the queen proceeded on her way, haughtily disdainful of their entreaties."
+        },
+        {
+          "id": "p35",
+          "text": "At length parliament was convoked; the authority of the king was to be maintained."
+        },
+        {
+          "id": "p36",
+          "text": "One day-it was the morning of the day my story begins-the king, Louis XIV., then ten years of age, went in state, under pretext of returning thanks for his recovery from the small-pox, to Notre Dame. He took the opportunity of calling out his guard, the Swiss troops and the musketeers, and he had planted them round the Palais Royal, on the quays, and on the Pont Neuf."
+        },
+        {
+          "id": "p37",
+          "text": "After mass the young monarch drove to the Parliament House, where, upon the throne, he hastily confirmed not only such edicts as he had already passed, but issued new ones, each one, according to Cardinal de Retz, more ruinous than the others-a proceeding which drew forth a strong remonstrance from the chief president, Mole-whilst President Blancmesnil and Councillor Broussel raised their voices in indignation against fresh taxes."
+        },
+        {
+          "id": "p38",
+          "text": "The king returned amidst the silence of a vast multitude to the Palais Royal. All minds were uneasy, most were foreboding, many of the people used threatening language."
+        },
+        {
+          "id": "p39",
+          "text": "At first, indeed, they were doubtful whether the king's visit to the parliament had been in order to lighten or increase their burdens; but scarcely was it known that the taxes were to be still further increased, when cries of \"Down with Mazarin!\" \"Long live Broussel!\" \"Long live Blancmesnil!\" resounded through the city."
+        },
+        {
+          "id": "p40",
+          "text": "For the people had learned that Broussel and Blancmesnil had made speeches in their behalf, and, although the eloquence of these deputies had been without avail, it had none the less won for them the people's good-will. All attempts to disperse the groups collected in the streets, or silence their exclamations, were in vain."
+        },
+        {
+          "id": "p41",
+          "text": "Orders had just been given to the royal guards and the Swiss guards, not only to stand firm, but to send out patrols to the streets of Saint Denis and Saint Martin, where the people thronged and where they were the most vociferous, when the mayor of Paris was announced at the Palais Royal."
+        },
+        {
+          "id": "p42",
+          "text": "He was shown in directly; he came to say that if these offensive precautions were not discontinued, in two hours Paris would be under arms."
+        },
+        {
+          "id": "p43",
+          "text": "Deliberations were being held when a lieutenant in the guards, named Comminges, made his appearance, with his clothes all torn, his face streaming with blood. The queen on seeing him uttered a cry of surprise and asked him what was going on."
+        },
+        {
+          "id": "p44",
+          "text": "As the mayor had foreseen, the sight of the guards had exasperated the mob. The tocsin was sounded. Comminges had arrested one of the ringleaders and had ordered him to be hanged near the cross of Du Trahoir; but in attempting to execute this command the soldiery were attacked in the market-place with stones and halberds; the delinquent had escaped to the Rue des Lombards and rushed into a house. They broke open the doors and searched the dwelling, but in vain."
+        },
+        {
+          "id": "p45",
+          "text": "Comminges, wounded by a stone which had struck him on the forehead, had left a picket in the street and returned to the Palais Royal, followed by a menacing crowd, to tell his story."
+        },
+        {
+          "id": "p46",
+          "text": "This account confirmed that of the mayor. The authorities were not in a condition to cope with serious revolt. Mazarin endeavored to circulate among the people a report that troops had only been stationed on the quays and on the Pont Neuf, on account of the ceremonial of the day, and that they would soon withdraw."
+        },
+        {
+          "id": "p47",
+          "text": "In fact, about four o'clock they were all concentrated about the Palais Royal, the courts and ground floors of which were filled with musketeers and Swiss guards, and there awaited the outcome of all this disturbance."
+        },
+        {
+          "id": "p48",
+          "text": "Such was the state of affairs at the very moment we introduced our readers to the study of Cardinal Mazarin-once that of Cardinal Richelieu. We have seen in what state of mind he listened to the murmurs from below, which even reached him in his seclusion, and to the guns, the firing of which resounded through that room."
+        },
+        {
+          "id": "p49",
+          "text": "All at once he raised his head; his brow slightly contracted like that of a man who has formed a resolution; he fixed his eyes upon an enormous clock that was about to strike ten, and taking up a whistle of silver gilt that stood upon the table near him, he shrilled it twice."
+        },
+        {
+          "id": "p50",
+          "text": "A door hidden in the tapestry opened noiselessly and a man in black silently advanced and stood behind the chair on which Mazarin sat."
+        },
+        {
+          "id": "p51",
+          "text": "\"Bernouin,\" said the cardinal, not turning round, for having whistled, he knew that it was his valet-de-chambre who was behind him; \"what musketeers are now within the palace?\""
+        },
+        {
+          "id": "p52",
+          "text": "\"The Black Musketeers, my lord.\""
+        },
+        {
+          "id": "p53",
+          "text": "\"What company?\""
+        },
+        {
+          "id": "p54",
+          "text": "\"Treville's company.\""
+        },
+        {
+          "id": "p55",
+          "text": "\"Is there any officer belonging to this company in the ante-chamber?\""
+        },
+        {
+          "id": "p56",
+          "text": "\"Lieutenant d'Artagnan.\""
+        },
+        {
+          "id": "p57",
+          "text": "\"A man on whom we can depend, I hope.\""
+        },
+        {
+          "id": "p58",
+          "text": "\"Yes, my lord.\""
+        },
+        {
+          "id": "p59",
+          "text": "\"Give me a uniform of one of these musketeers and help me to put it on.\""
+        },
+        {
+          "id": "p60",
+          "text": "The valet went out as silently as he had entered and appeared in a few minutes bringing the dress demanded."
+        },
+        {
+          "id": "p61",
+          "text": "The cardinal, in deep thought and in silence, began to take off the robes of state he had assumed in order to be present at the sitting of parliament, and to attire himself in the military coat, which he wore with a certain degree of easy grace, owing to his former campaigns in Italy. When he was completely dressed he said:"
+        },
+        {
+          "id": "p62",
+          "text": "\"Send hither Monsieur d'Artagnan.\""
+        },
+        {
+          "id": "p63",
+          "text": "The valet went out of the room, this time by the centre door, but still as silently as before; one might have fancied him an apparition."
+        },
+        {
+          "id": "p64",
+          "text": "When he was left alone the cardinal looked at himself in the glass with a feeling of self-satisfaction."
+        },
+        {
+          "id": "p65",
+          "text": "Still young-for he was scarcely forty-six years of age-he possessed great elegance of form and was above the middle height; his complexion was brilliant and beautiful; his glance full of expression; his nose, though large, was well proportioned; his forehead broad and majestic; his hair, of a chestnut color, was curled slightly; his beard, which was darker than his hair, was turned carefully with a curling iron, a practice that greatly improved it."
+        },
+        {
+          "id": "p66",
+          "text": "After a short time the cardinal arranged his shoulder belt, then looked with great complacency at his hands, which were most elegant and of which he took the greatest care; and throwing on one side the large kid gloves tried on at first, as belonging to the uniform, he put on others of silk only. At this instant the door opened."
+        },
+        {
+          "id": "p67",
+          "text": "\"Monsieur d'Artagnan,\" said the valet-de-chambre."
+        },
+        {
+          "id": "p68",
+          "text": "An officer, as he spoke, entered the apartment. He was a man between thirty-nine and forty years of age, of medium height but a very well proportioned figure; with an intellectual and animated physiognomy; his beard black, and his hair turning gray, as often happens when people have found life either too gay or too sad, more especially when they happen to be of swart complexion."
+        },
+        {
+          "id": "p69",
+          "text": "D'Artagnan advanced a few steps into the apartment."
+        },
+        {
+          "id": "p70",
+          "text": "How perfectly he remembered his former entrance into that very room! Seeing, however, no one there except a musketeer of his own troop, he fixed his eyes upon the supposed soldier, in whose dress, nevertheless, he recognized at the first glance the cardinal."
+        },
+        {
+          "id": "p71",
+          "text": "The lieutenant remained standing in a dignified but respectful posture, such as became a man of good birth, who had in the course of his life been frequently in the society of the highest nobles."
+        },
+        {
+          "id": "p72",
+          "text": "The cardinal looked at him with a cunning rather than serious glance, yet he examined his countenance with attention and after a momentary silence said:"
+        },
+        {
+          "id": "p73",
+          "text": "\"You are Monsieur d'Artagnan?\""
+        },
+        {
+          "id": "p74",
+          "text": "\"I am that individual,\" replied the officer."
+        },
+        {
+          "id": "p75",
+          "text": "Mazarin gazed once more at a countenance full of intelligence, the play of which had been, nevertheless, subdued by age and experience; and D'Artagnan received the penetrating glance like one who had formerly sustained many a searching look, very different, indeed, from those which were inquiringly directed on him at that instant."
+        },
+        {
+          "id": "p76",
+          "text": "\"Sir,\" resumed the cardinal, \"you are to come with me, or rather, I am to go with you.\""
+        },
+        {
+          "id": "p77",
+          "text": "\"I am at your command, my lord,\" returned D'Artagnan."
+        },
+        {
+          "id": "p78",
+          "text": "\"I wish to visit in person the outposts which surround the Palais Royal; do you suppose that there is any danger in so doing?\""
+        },
+        {
+          "id": "p79",
+          "text": "\"Danger, my lord!\" exclaimed D'Artagnan with a look of astonishment, \"what danger?\""
+        },
+        {
+          "id": "p80",
+          "text": "\"I am told that there is a general insurrection.\""
+        },
+        {
+          "id": "p81",
+          "text": "\"The uniform of the king's musketeers carries a certain respect with it, and even if that were not the case I would engage with four of my men to put to flight a hundred of these clowns.\""
+        },
+        {
+          "id": "p82",
+          "text": "\"Did you witness the injury sustained by Comminges?\""
+        },
+        {
+          "id": "p83",
+          "text": "\"Monsieur de Comminges is in the guards and not in the musketeers--\""
+        },
+        {
+          "id": "p84",
+          "text": "\"Which means, I suppose, that the musketeers are better soldiers than the guards.\" The cardinal smiled as he spoke."
+        },
+        {
+          "id": "p85",
+          "text": "\"Every one likes his own uniform best, my lord.\""
+        },
+        {
+          "id": "p86",
+          "text": "\"Myself excepted,\" and again Mazarin smiled; \"for you perceive that I have left off mine and put on yours.\""
+        },
+        {
+          "id": "p87",
+          "text": "\"Lord bless us! this is modesty indeed!\" cried D'Artagnan. \"Had I such a uniform as your eminence possesses, I protest I should be mightily content, and I would take an oath never to wear any other costume--\""
+        },
+        {
+          "id": "p88",
+          "text": "\"Yes, but for to-night's adventure I don't suppose my dress would have been a very safe one. Give me my felt hat, Bernouin.\""
+        },
+        {
+          "id": "p89",
+          "text": "The valet instantly brought to his master a regimental hat with a wide brim. The cardinal put it on in military style."
+        },
+        {
+          "id": "p90",
+          "text": "\"Your horses are ready saddled in their stables, are they not?\" he said, turning to D'Artagnan."
+        },
+        {
+          "id": "p91",
+          "text": "\"Yes, my lord.\""
+        },
+        {
+          "id": "p92",
+          "text": "\"Well, let us set out.\""
+        },
+        {
+          "id": "p93",
+          "text": "\"How many men does your eminence wish to escort you?\""
+        },
+        {
+          "id": "p94",
+          "text": "\"You say that with four men you will undertake to disperse a hundred low fellows; as it may happen that we shall have to encounter two hundred, take eight--\""
+        },
+        {
+          "id": "p95",
+          "text": "\"As many as my lord wishes.\""
+        },
+        {
+          "id": "p96",
+          "text": "\"I will follow you. This way-light us downstairs Bernouin.\""
+        },
+        {
+          "id": "p97",
+          "text": "The valet held a wax-light; the cardinal took a key from his bureau and opening the door of a secret stair descended into the court of the Palais Royal."
+        }
+      ]
+    },
+    {
+      "title": "Chapter 2",
       "paragraphs": [
         {
           "id": "p0",
@@ -438,7 +835,7 @@
       ]
     },
     {
-      "title": "Chapter 2",
+      "title": "Chapter 3",
       "paragraphs": [
         {
           "id": "p0",
@@ -1275,7 +1672,7 @@
       ]
     },
     {
-      "title": "Chapter 3",
+      "title": "Chapter 4",
       "paragraphs": [
         {
           "id": "p0",
@@ -1840,7 +2237,7 @@
       ]
     },
     {
-      "title": "Chapter 4",
+      "title": "Chapter 5",
       "paragraphs": [
         {
           "id": "p0",
@@ -2197,7 +2594,7 @@
       ]
     },
     {
-      "title": "Chapter 5",
+      "title": "Chapter 6",
       "paragraphs": [
         {
           "id": "p0",
@@ -2822,7 +3219,7 @@
       ]
     },
     {
-      "title": "Chapter 6",
+      "title": "Chapter 7",
       "paragraphs": [
         {
           "id": "p0",
@@ -3247,7 +3644,7 @@
       ]
     },
     {
-      "title": "Chapter 7",
+      "title": "Chapter 8",
       "paragraphs": [
         {
           "id": "p0",
@@ -3688,7 +4085,7 @@
       ]
     },
     {
-      "title": "Chapter 8",
+      "title": "Chapter 9",
       "paragraphs": [
         {
           "id": "p0",
@@ -4677,7 +5074,7 @@
       ]
     },
     {
-      "title": "Chapter 9",
+      "title": "Chapter 10",
       "paragraphs": [
         {
           "id": "p0",
@@ -4894,7 +5291,7 @@
       ]
     },
     {
-      "title": "Chapter 10",
+      "title": "Chapter 11",
       "paragraphs": [
         {
           "id": "p0",
@@ -5459,7 +5856,7 @@
       ]
     },
     {
-      "title": "Chapter 11",
+      "title": "Chapter 12",
       "paragraphs": [
         {
           "id": "p0",
@@ -5796,7 +6193,7 @@
       ]
     },
     {
-      "title": "Chapter 12",
+      "title": "Chapter 13",
       "paragraphs": [
         {
           "id": "p0",
@@ -6105,7 +6502,7 @@
       ]
     },
     {
-      "title": "Chapter 13",
+      "title": "Chapter 14",
       "paragraphs": [
         {
           "id": "p0",
@@ -6470,7 +6867,7 @@
       ]
     },
     {
-      "title": "Chapter 14",
+      "title": "Chapter 15",
       "paragraphs": [
         {
           "id": "p0",
@@ -6991,7 +7388,7 @@
       ]
     },
     {
-      "title": "Chapter 15",
+      "title": "Chapter 16",
       "paragraphs": [
         {
           "id": "p0",
@@ -7316,7 +7713,7 @@
       ]
     },
     {
-      "title": "Chapter 16",
+      "title": "Chapter 17",
       "paragraphs": [
         {
           "id": "p0",
@@ -7609,7 +8006,7 @@
       ]
     },
     {
-      "title": "Chapter 17",
+      "title": "Chapter 18",
       "paragraphs": [
         {
           "id": "p0",
@@ -8234,7 +8631,7 @@
       ]
     },
     {
-      "title": "Chapter 18",
+      "title": "Chapter 19",
       "paragraphs": [
         {
           "id": "p0",
@@ -8799,7 +9196,7 @@
       ]
     },
     {
-      "title": "Chapter 19",
+      "title": "Chapter 20",
       "paragraphs": [
         {
           "id": "p0",
@@ -9424,7 +9821,7 @@
       ]
     },
     {
-      "title": "Chapter 20",
+      "title": "Chapter 21",
       "paragraphs": [
         {
           "id": "p0",
@@ -10025,7 +10422,7 @@
       ]
     },
     {
-      "title": "Chapter 21",
+      "title": "Chapter 22",
       "paragraphs": [
         {
           "id": "p0",
@@ -10402,7 +10799,7 @@
       ]
     },
     {
-      "title": "Chapter 22",
+      "title": "Chapter 23",
       "paragraphs": [
         {
           "id": "p0",
@@ -10983,7 +11380,7 @@
       ]
     },
     {
-      "title": "Chapter 23",
+      "title": "Chapter 24",
       "paragraphs": [
         {
           "id": "p0",
@@ -11536,7 +11933,7 @@
       ]
     },
     {
-      "title": "Chapter 24",
+      "title": "Chapter 25",
       "paragraphs": [
         {
           "id": "p0",
@@ -12101,7 +12498,7 @@
       ]
     },
     {
-      "title": "Chapter 25",
+      "title": "Chapter 26",
       "paragraphs": [
         {
           "id": "p0",
@@ -12738,7 +13135,7 @@
       ]
     },
     {
-      "title": "Chapter 26",
+      "title": "Chapter 27",
       "paragraphs": [
         {
           "id": "p0",
@@ -13331,7 +13728,7 @@
       ]
     },
     {
-      "title": "Chapter 27",
+      "title": "Chapter 28",
       "paragraphs": [
         {
           "id": "p0",
@@ -13576,7 +13973,7 @@
       ]
     },
     {
-      "title": "Chapter 28",
+      "title": "Chapter 29",
       "paragraphs": [
         {
           "id": "p0",
@@ -13921,7 +14318,7 @@
       ]
     },
     {
-      "title": "Chapter 29",
+      "title": "Chapter 30",
       "paragraphs": [
         {
           "id": "p0",
@@ -14142,7 +14539,7 @@
       ]
     },
     {
-      "title": "Chapter 30",
+      "title": "Chapter 31",
       "paragraphs": [
         {
           "id": "p0",
@@ -14703,7 +15100,7 @@
       ]
     },
     {
-      "title": "Chapter 31",
+      "title": "Chapter 32",
       "paragraphs": [
         {
           "id": "p0",
@@ -15092,7 +15489,7 @@
       ]
     },
     {
-      "title": "Chapter 32",
+      "title": "Chapter 33",
       "paragraphs": [
         {
           "id": "p0",
@@ -15453,7 +15850,7 @@
       ]
     },
     {
-      "title": "Chapter 33",
+      "title": "Chapter 34",
       "paragraphs": [
         {
           "id": "p0",
@@ -15994,7 +16391,7 @@
       ]
     },
     {
-      "title": "Chapter 34",
+      "title": "Chapter 35",
       "paragraphs": [
         {
           "id": "p0",
@@ -16407,7 +16804,7 @@
       ]
     },
     {
-      "title": "Chapter 35",
+      "title": "Chapter 36",
       "paragraphs": [
         {
           "id": "p0",
@@ -16648,7 +17045,7 @@
       ]
     },
     {
-      "title": "Chapter 36",
+      "title": "Chapter 37",
       "paragraphs": [
         {
           "id": "p0",
@@ -17005,7 +17402,7 @@
       ]
     },
     {
-      "title": "Chapter 37",
+      "title": "Chapter 38",
       "paragraphs": [
         {
           "id": "p0",
@@ -17226,7 +17623,7 @@
       ]
     },
     {
-      "title": "Chapter 38",
+      "title": "Chapter 39",
       "paragraphs": [
         {
           "id": "p0",
@@ -17595,7 +17992,7 @@
       ]
     },
     {
-      "title": "Chapter 39",
+      "title": "Chapter 40",
       "paragraphs": [
         {
           "id": "p0",
@@ -17768,7 +18165,7 @@
       ]
     },
     {
-      "title": "Chapter 40",
+      "title": "Chapter 41",
       "paragraphs": [
         {
           "id": "p0",
@@ -18237,7 +18634,7 @@
       ]
     },
     {
-      "title": "Chapter 41",
+      "title": "Chapter 42",
       "paragraphs": [
         {
           "id": "p0",
@@ -18822,7 +19219,7 @@
       ]
     },
     {
-      "title": "Chapter 42",
+      "title": "Chapter 43",
       "paragraphs": [
         {
           "id": "p0",
@@ -19223,7 +19620,7 @@
       ]
     },
     {
-      "title": "Chapter 43",
+      "title": "Chapter 44",
       "paragraphs": [
         {
           "id": "p0",
@@ -19964,7 +20361,7 @@
       ]
     },
     {
-      "title": "Chapter 44",
+      "title": "Chapter 45",
       "paragraphs": [
         {
           "id": "p0",
@@ -20537,7 +20934,7 @@
       ]
     },
     {
-      "title": "Chapter 45",
+      "title": "Chapter 46",
       "paragraphs": [
         {
           "id": "p0",
@@ -21062,7 +21459,7 @@
       ]
     },
     {
-      "title": "Chapter 46",
+      "title": "Chapter 47",
       "paragraphs": [
         {
           "id": "p0",
@@ -21387,7 +21784,7 @@
       ]
     },
     {
-      "title": "Chapter 47",
+      "title": "Chapter 48",
       "paragraphs": [
         {
           "id": "p0",
@@ -22140,7 +22537,7 @@
       ]
     },
     {
-      "title": "Chapter 48",
+      "title": "Chapter 49",
       "paragraphs": [
         {
           "id": "p0",
@@ -22537,7 +22934,7 @@
       ]
     },
     {
-      "title": "Chapter 49",
+      "title": "Chapter 50",
       "paragraphs": [
         {
           "id": "p0",
@@ -22978,7 +23375,7 @@
       ]
     },
     {
-      "title": "Chapter 50",
+      "title": "Chapter 51",
       "paragraphs": [
         {
           "id": "p0",
@@ -23847,7 +24244,7 @@
       ]
     },
     {
-      "title": "Chapter 51",
+      "title": "Chapter 52",
       "paragraphs": [
         {
           "id": "p0",
@@ -24716,7 +25113,7 @@
       ]
     },
     {
-      "title": "Chapter 52",
+      "title": "Chapter 53",
       "paragraphs": [
         {
           "id": "p0",
@@ -25297,7 +25694,7 @@
       ]
     },
     {
-      "title": "Chapter 53",
+      "title": "Chapter 54",
       "paragraphs": [
         {
           "id": "p0",
@@ -26042,7 +26439,7 @@
       ]
     },
     {
-      "title": "Chapter 54",
+      "title": "Chapter 55",
       "paragraphs": [
         {
           "id": "p0",
@@ -26603,7 +27000,7 @@
       ]
     },
     {
-      "title": "Chapter 55",
+      "title": "Chapter 56",
       "paragraphs": [
         {
           "id": "p0",
@@ -27176,7 +27573,7 @@
       ]
     },
     {
-      "title": "Chapter 56",
+      "title": "Chapter 57",
       "paragraphs": [
         {
           "id": "p0",
@@ -27585,7 +27982,7 @@
       ]
     },
     {
-      "title": "Chapter 57",
+      "title": "Chapter 58",
       "paragraphs": [
         {
           "id": "p0",
@@ -28250,7 +28647,7 @@
       ]
     },
     {
-      "title": "Chapter 58",
+      "title": "Chapter 59",
       "paragraphs": [
         {
           "id": "p0",
@@ -28727,7 +29124,7 @@
       ]
     },
     {
-      "title": "Chapter 59",
+      "title": "Chapter 60",
       "paragraphs": [
         {
           "id": "p0",
@@ -29192,7 +29589,7 @@
       ]
     },
     {
-      "title": "Chapter 60",
+      "title": "Chapter 61",
       "paragraphs": [
         {
           "id": "p0",
@@ -30177,7 +30574,7 @@
       ]
     },
     {
-      "title": "Chapter 61",
+      "title": "Chapter 62",
       "paragraphs": [
         {
           "id": "p0",
@@ -31274,7 +31671,7 @@
       ]
     },
     {
-      "title": "Chapter 62",
+      "title": "Chapter 63",
       "paragraphs": [
         {
           "id": "p0",
@@ -31547,228 +31944,224 @@
       ]
     },
     {
-      "title": "Chapter 63",
+      "title": "Remember!",
       "paragraphs": [
         {
           "id": "p0",
-          "text": "Remember!"
-        },
-        {
-          "id": "p1",
           "text": "The mob had already assembled when the confession terminated. The king's children next arrived-the Princess Charlotte, a beautiful, fair-haired child, with tears in her eyes, and the Duke of Gloucester, a boy eight or nine years old, whose tearless eyes and curling lip revealed a growing pride. He had wept all night long, but would not show his grief before the people."
         },
         {
-          "id": "p2",
+          "id": "p1",
           "text": "Charles's heart melted within him at the sight of those two children, whom he had not seen for two years and whom he now met at the moment of death. He turned to brush away a tear, and then, summoning up all his firmness, drew his daughter toward him, recommending her to be pious and resigned. Then he took the boy upon his knee."
         },
         {
-          "id": "p3",
+          "id": "p2",
           "text": "\"My son,\" he said to him, \"you saw a great number of people in the streets as you came here. These men are going to behead your father. Do not forget that. Perhaps some day they will want to make you king, instead of the Prince of Wales, or the Duke of York, your elder brothers. But you are not the king, my son, and can never be so while they are alive. Swear to me, then, never to let them put a crown upon your head unless you have a legal right to the crown."
         },
         {
-          "id": "p4",
+          "id": "p3",
           "text": "For one day-listen, my son-one day, if you do so, they will doom you to destruction, head and crown, too, and then you will not be able to die with a calm conscience, as I die. Swear, my son.\""
         },
         {
-          "id": "p5",
+          "id": "p4",
           "text": "The child stretched out his little hand toward that of his father and said, \"I swear to your majesty.\""
         },
         {
-          "id": "p6",
+          "id": "p5",
           "text": "\"Henry,\" said Charles, \"call me your father.\""
         },
         {
-          "id": "p7",
+          "id": "p6",
           "text": "\"Father,\" replied the child, \"I swear to you that they shall kill me sooner than make me king.\""
         },
         {
-          "id": "p8",
+          "id": "p7",
           "text": "\"Good, my child. Now kiss me; and you, too, Charlotte. Never forget me.\""
         },
         {
-          "id": "p9",
+          "id": "p8",
           "text": "\"Oh! never, never!\" cried both the children, throwing their arms around their father's neck."
         },
         {
-          "id": "p10",
+          "id": "p9",
           "text": "\"Farewell,\" said Charles, \"farewell, my children. Take them away, Juxon; their tears will deprive me of the courage to die.\""
         },
         {
-          "id": "p11",
+          "id": "p10",
           "text": "Juxon led them away, and this time the doors were left open."
         },
         {
-          "id": "p12",
+          "id": "p11",
           "text": "Meanwhile, Athos, in his concealment, waited in vain the signal to recommence his work. Two long hours he waited in terrible inaction. A deathlike silence reigned in the room above. At last he determined to discover the cause of this stillness. He crept from his hole and stood, hidden by the black drapery, beneath the scaffold."
         },
         {
-          "id": "p13",
+          "id": "p12",
           "text": "Peeping out from the drapery, he could see the rows of halberdiers and musketeers around the scaffold and the first ranks of the populace swaying and groaning like the sea."
         },
         {
-          "id": "p14",
+          "id": "p13",
           "text": "\"What is the matter, then?\" he asked himself, trembling more than the wind-swayed cloth he was holding back. \"The people are hurrying on, the soldiers under arms, and among the spectators I see D'Artagnan. What is he waiting for? What is he looking at? Good God! have they allowed the headsman to escape?\""
         },
         {
-          "id": "p15",
+          "id": "p14",
           "text": "Suddenly the dull beating of muffled drums filled the square. The sound of heavy steps was heard above his head. The next moment the very planks of the scaffold creaked with the weight of an advancing procession, and the eager faces of the spectators confirmed what a last hope at the bottom of his heart had prevented him till then believing. At the same moment a well-known voice above him pronounced these words:"
         },
         {
-          "id": "p16",
+          "id": "p15",
           "text": "\"Colonel, I want to speak to the people.\""
         },
         {
-          "id": "p17",
+          "id": "p16",
           "text": "Athos shuddered from head to foot. It was the king speaking on the scaffold."
         },
         {
-          "id": "p18",
+          "id": "p17",
           "text": "In fact, after taking a few drops of wine and a piece of bread, Charles, weary of waiting for death, had suddenly decided to go to meet it and had given the signal for movement. Then the two wings of the window facing the square had been thrown open, and the people had seen silently advancing from the interior of the vast chamber, first, a masked man, who, carrying an axe in his hand, was recognized as the executioner. He approached the block and laid his axe upon it."
         },
         {
-          "id": "p19",
+          "id": "p18",
           "text": "Behind him, pale indeed, but marching with a firm step, was Charles Stuart, who advanced between two priests, followed by a few superior officers appointed to preside at the execution and attended by two files of partisans who took their places on opposite sides of the scaffold."
         },
         {
-          "id": "p20",
+          "id": "p19",
           "text": "The sight of the masked man gave rise to a prolonged sensation. Every one was full of curiosity as to who that unknown executioner could be who presented himself so opportunely to assure to the people the promised spectacle, when the people believed it had been postponed until the following day. All gazed at him searchingly."
         },
         {
-          "id": "p21",
+          "id": "p20",
           "text": "But they could discern nothing but a man of middle height, dressed in black, apparently of a certain age, for the end of a gray beard peeped out from the bottom of the mask that hid his features."
         },
         {
-          "id": "p22",
+          "id": "p21",
           "text": "The king's request had undoubtedly been acceded to by an affirmative sign, for in firm, sonorous accents, which vibrated in the depths of Athos's heart, the king began his speech, explaining his conduct and counseling the welfare of the kingdom."
         },
         {
-          "id": "p23",
+          "id": "p22",
           "text": "\"Oh!\" said Athos to himself, \"is it indeed possible that I hear what I hear and that I see what I see? Is it possible that God has abandoned His representative on earth and left him to die thus miserably? And I have not seen him! I have not said adieu to him!\""
         },
         {
-          "id": "p24",
+          "id": "p23",
           "text": "A noise was heard like that the instrument of death would make if moved upon the block."
         },
         {
-          "id": "p25",
+          "id": "p24",
           "text": "\"Do not touch the axe,\" said the king, and resumed his speech."
         },
         {
-          "id": "p26",
+          "id": "p25",
           "text": "At the end of his speech the king looked tenderly around upon the people. Then unfastening the diamond ornament which the queen had sent him, he placed it in the hands of the priest who accompanied Juxon. Then he drew from his breast a little cross set in diamonds, which, like the order, had been the gift of Henrietta Maria."
         },
         {
-          "id": "p27",
+          "id": "p26",
           "text": "\"Sir,\" said he to the priest, \"I shall keep this cross in my hand till the last moment. Take it from me when I am-dead.\""
         },
         {
-          "id": "p28",
+          "id": "p27",
           "text": "\"Yes, sire,\" said a voice, which Athos recognized as that of Aramis."
         },
         {
-          "id": "p29",
+          "id": "p28",
           "text": "He then took his hat from his head and threw it on the ground. One by one he undid the buttons of his doublet, took it off and deposited it by the side of his hat. Then, as it was cold, he asked for his gown, which was brought to him."
         },
         {
-          "id": "p30",
+          "id": "p29",
           "text": "All the preparations were made with a frightful calmness. One would have thought the king was going to bed and not to his coffin."
         },
         {
-          "id": "p31",
+          "id": "p30",
           "text": "\"Will these be in your way?\" he said to the executioner, raising his long locks; \"if so, they can be tied up.\""
         },
         {
-          "id": "p32",
+          "id": "p31",
           "text": "Charles accompanied these words with a look designed to penetrate the mask of the unknown headsman. His calm, noble gaze forced the man to turn away his head. But after the searching look of the king he encountered the burning eyes of Aramis."
         },
         {
-          "id": "p33",
+          "id": "p32",
           "text": "The king, seeing that he did not reply, repeated his question."
         },
         {
-          "id": "p34",
+          "id": "p33",
           "text": "\"It will do,\" replied the man, in a tremulous voice, \"if you separate them across the neck.\""
         },
         {
-          "id": "p35",
+          "id": "p34",
           "text": "The king parted his hair with his hands, and looking at the block he said:"
         },
         {
-          "id": "p36",
+          "id": "p35",
           "text": "\"This block is very low, is there no other to be had?\""
         },
         {
-          "id": "p37",
+          "id": "p36",
           "text": "\"It is the usual block,\" answered the man in the mask."
         },
         {
-          "id": "p38",
+          "id": "p37",
           "text": "\"Do you think you can behead me with a single blow?\" asked the king."
         },
         {
-          "id": "p39",
+          "id": "p38",
           "text": "\"I hope so,\" was the reply. There was something so strange in these three words that everybody, except the king, shuddered."
         },
         {
-          "id": "p40",
+          "id": "p39",
           "text": "\"I do not wish to be taken by surprise,\" added the king. \"I shall kneel down to pray; do not strike then.\""
         },
         {
-          "id": "p41",
+          "id": "p40",
           "text": "\"When shall I strike?\""
         },
         {
-          "id": "p42",
+          "id": "p41",
           "text": "\"When I shall lay my head on the block and say 'Remember!' then strike boldly.\""
         },
         {
-          "id": "p43",
+          "id": "p42",
           "text": "\"Gentlemen,\" said the king to those around him, \"I leave you to brave the tempest; I go before you to a kingdom which knows no storms. Farewell.\""
         },
         {
-          "id": "p44",
+          "id": "p43",
           "text": "He looked at Aramis and made a special sign to him with his head."
         },
         {
-          "id": "p45",
+          "id": "p44",
           "text": "\"Now,\" he continued, \"withdraw a little and let me say my prayer, I beseech you. You, also, stand aside,\" he said to the masked man. \"It is only for a moment and I know that I belong to you; but remember that you are not to strike till I give the signal.\""
         },
         {
-          "id": "p46",
+          "id": "p45",
           "text": "Then he knelt down, made the sign of the cross, and lowering his face to the planks, as if he would have kissed them, said in a low tone, in French, \"Comte de la Fere, are you there?\""
         },
         {
-          "id": "p47",
+          "id": "p46",
           "text": "\"Yes, your majesty,\" he answered, trembling."
         },
         {
-          "id": "p48",
+          "id": "p47",
           "text": "\"Faithful friend, noble heart!\" said the king, \"I should not have been rescued. I have addressed my people and I have spoken to God; last of all I speak to you. To maintain a cause which I believed sacred I have lost the throne and my children their inheritance. A million in gold remains; it is buried in the cellars of Newcastle Keep. You only know that this money exists. Make use of it, then, whenever you think it will be most useful, for my eldest son's welfare. And now, farewell.\""
         },
         {
-          "id": "p49",
+          "id": "p48",
           "text": "\"Farewell, saintly, martyred majesty,\" lisped Athos, chilled with terror."
         },
         {
-          "id": "p50",
+          "id": "p49",
           "text": "A moment's silence ensued and then, in a full, sonorous voice, the king exclaimed: \"Remember!\""
         },
         {
-          "id": "p51",
+          "id": "p50",
           "text": "He had scarcely uttered the word when a heavy blow shook the scaffold and where Athos stood immovable a warm drop fell upon his brow. He reeled back with a shudder and the same moment the drops became a crimson cataract."
         },
         {
-          "id": "p52",
+          "id": "p51",
           "text": "Athos fell on his knees and remained some minutes as if bewildered or stunned. At last he rose and taking his handkerchief steeped it in the blood of the martyred king. Then as the crowd gradually dispersed he leaped down, crept from behind the drapery, glided between two horses, mingled with the crowd and was the first to arrive at the inn."
         },
         {
-          "id": "p53",
+          "id": "p52",
           "text": "Having gained his room he raised his hand to his face, and observing that his fingers were covered with the monarch's blood, fell down insensible."
         }
       ]
     },
     {
-      "title": "Chapter 64",
+      "title": "Chapter 65",
       "paragraphs": [
         {
           "id": "p0",
@@ -32309,7 +32702,7 @@
       ]
     },
     {
-      "title": "Chapter 65",
+      "title": "Chapter 66",
       "paragraphs": [
         {
           "id": "p0",
@@ -32726,7 +33119,7 @@
       ]
     },
     {
-      "title": "Chapter 66",
+      "title": "Chapter 67",
       "paragraphs": [
         {
           "id": "p0",
@@ -33103,552 +33496,548 @@
       ]
     },
     {
-      "title": "Chapter 67",
+      "title": "The Skiff \"Lightning.\"",
       "paragraphs": [
         {
           "id": "p0",
-          "text": "The Skiff \"Lightning.\""
-        },
-        {
-          "id": "p1",
           "text": "D'Artagnan had judged correctly; Mordaunt felt that he had no time to lose, and he lost none. He knew the rapidity of decision and action that characterized his enemies and resolved to act with reference to that. This time the musketeers had an adversary who was worthy of them."
         },
         {
-          "id": "p2",
+          "id": "p1",
           "text": "After closing the door carefully behind him Mordaunt glided into the subterranean passage, sheathing on the way his now useless sword, and thus reached the neighboring house, where he paused to examine himself and to take breath."
         },
         {
-          "id": "p3",
+          "id": "p2",
           "text": "\"Good!\" he said, \"nothing, almost nothing-scratches, nothing more; two in the arm and one in the breast. The wounds that I make are better than that-witness the executioner of Bethune, my uncle and King Charles. Now, not a second to lose, for a second lost will perhaps save them. They must die-die all together-killed at one stroke by the thunder of men in default of God's. They must disappear, broken, scattered, annihilated."
         },
         {
-          "id": "p4",
+          "id": "p3",
           "text": "I will run, then, till my legs no longer serve, till my heart bursts in my bosom but I will arrive before they do.\""
         },
         {
-          "id": "p5",
+          "id": "p4",
           "text": "Mordaunt proceeded at a rapid pace to the nearest cavalry barracks, about a quarter of a league distant. He made that quarter of a league in four or five minutes. Arrived at the barracks he made himself known, took the best horse in the stables, mounted and gained the high road. A quarter of an hour later he was at Greenwich."
         },
         {
-          "id": "p6",
+          "id": "p5",
           "text": "\"There is the port,\" he murmured. \"That dark point yonder is the Isle of Dogs. Good! I am half an hour in advance of them, an hour, perhaps. Fool that I was! I have almost killed myself by my needless haste. Now,\" he added, rising in the stirrups and looking about him, \"which, I wonder, is the Lightning?\""
         },
         {
-          "id": "p7",
+          "id": "p6",
           "text": "At this moment, as if in reply to his words, a man lying on a coil of cables rose and advanced a few steps toward him. Mordaunt drew a handkerchief from his pocket, and tying a knot at each corner-the signal agreed upon-waved it in the air and the man came up to him. He was wrapped in a large rough cape, which concealed his form and partly his face."
         },
         {
-          "id": "p8",
+          "id": "p7",
           "text": "\"Do you wish to go on the water, sir?\" said the sailor."
         },
         {
-          "id": "p9",
+          "id": "p8",
           "text": "\"Yes, just so. Along the Isle of Dogs.\""
         },
         {
-          "id": "p10",
+          "id": "p9",
           "text": "\"And perhaps you have a preference for one boat more than another. You would like one that sails as rapidly as--\""
         },
         {
-          "id": "p11",
+          "id": "p10",
           "text": "\"Lightning,\" interrupted Mordaunt."
         },
         {
-          "id": "p12",
+          "id": "p11",
           "text": "\"Then mine is the boat you want, sir. I'm your man.\""
         },
         {
-          "id": "p13",
+          "id": "p12",
           "text": "\"I begin to think so, particularly if you have not forgotten a certain signal.\""
         },
         {
-          "id": "p14",
+          "id": "p13",
           "text": "\"Here it is, sir,\" and the sailor took from his coat a handkerchief, tied at each corner."
         },
         {
-          "id": "p15",
+          "id": "p14",
           "text": "\"Good, quite right!\" cried Mordaunt, springing off his horse. \"There's not a moment to lose; now take my horse to the nearest inn and conduct me to your vessel.\""
         },
         {
-          "id": "p16",
+          "id": "p15",
           "text": "\"But,\" asked the sailor, \"where are your companions? I thought there were four of you.\""
         },
         {
-          "id": "p17",
+          "id": "p16",
           "text": "\"Listen to me, sir. I'm not the man you take me for; you are in Captain Rogers's post, are you not? under orders from General Cromwell. Mine, also, are from him!\""
         },
         {
-          "id": "p18",
+          "id": "p17",
           "text": "\"Indeed, sir, I recognize you; you are Captain Mordaunt.\""
         },
         {
-          "id": "p19",
+          "id": "p18",
           "text": "Mordaunt was startled."
         },
         {
-          "id": "p20",
+          "id": "p19",
           "text": "\"Oh, fear nothing,\" said the skipper, showing his face. \"I am a friend.\""
         },
         {
-          "id": "p21",
+          "id": "p20",
           "text": "\"Captain Groslow!\" cried Mordaunt."
         },
         {
-          "id": "p22",
+          "id": "p21",
           "text": "\"Himself. The general remembered that I had formerly been a naval officer and he gave me the command of this expedition. Is there anything new in the wind?\""
         },
         {
-          "id": "p23",
+          "id": "p22",
           "text": "\"Nothing.\""
         },
         {
-          "id": "p24",
+          "id": "p23",
           "text": "\"I thought, perhaps, that the king's death--\""
         },
         {
-          "id": "p25",
+          "id": "p24",
           "text": "\"Has only hastened their flight; in ten minutes they will perhaps be here.\""
         },
         {
-          "id": "p26",
+          "id": "p25",
           "text": "\"What have you come for, then?\""
         },
         {
-          "id": "p27",
+          "id": "p26",
           "text": "\"To embark with you.\""
         },
         {
-          "id": "p28",
+          "id": "p27",
           "text": "\"Ah! ah! the general doubted my fidelity?\""
         },
         {
-          "id": "p29",
+          "id": "p28",
           "text": "\"No, but I wish to have a share in my revenge. Haven't you some one who will relieve me of my horse?\""
         },
         {
-          "id": "p30",
+          "id": "p29",
           "text": "Groslow whistled and a sailor appeared."
         },
         {
-          "id": "p31",
+          "id": "p30",
           "text": "\"Patrick,\" said Groslow, \"take this horse to the stables of the nearest inn. If any one asks you whose it is you can say that it belongs to an Irish gentleman.\""
         },
         {
-          "id": "p32",
+          "id": "p31",
           "text": "The sailor departed without reply."
         },
         {
-          "id": "p33",
+          "id": "p32",
           "text": "\"Now,\" said Mordaunt, \"are you not afraid that they will recognize you?\""
         },
         {
-          "id": "p34",
+          "id": "p33",
           "text": "\"There is no danger, dressed as I am in this pilot coat, on a night as dark as this. Besides even you didn't recognize me; they will be much less likely to.\""
         },
         {
-          "id": "p35",
+          "id": "p34",
           "text": "\"That is true,\" said Mordaunt, \"and they will be far from thinking of you. Everything is ready, is it not?\""
         },
         {
-          "id": "p36",
+          "id": "p35",
           "text": "\"Yes.\""
         },
         {
-          "id": "p37",
+          "id": "p36",
           "text": "\"The cargo on board?\""
         },
         {
-          "id": "p38",
+          "id": "p37",
           "text": "\"Yes.\""
         },
         {
-          "id": "p39",
+          "id": "p38",
           "text": "\"Five full casks?\""
         },
         {
-          "id": "p40",
+          "id": "p39",
           "text": "\"And fifty empty ones.\""
         },
         {
-          "id": "p41",
+          "id": "p40",
           "text": "\"Good.\""
         },
         {
-          "id": "p42",
+          "id": "p41",
           "text": "\"We are carrying port wine to Anvers.\""
         },
         {
-          "id": "p43",
+          "id": "p42",
           "text": "\"Excellent. Now take me aboard and return to your post, for they will soon be here.\""
         },
         {
-          "id": "p44",
+          "id": "p43",
           "text": "\"I am ready.\""
         },
         {
-          "id": "p45",
+          "id": "p44",
           "text": "\"It is important that none of your crew should see me.\""
         },
         {
-          "id": "p46",
+          "id": "p45",
           "text": "\"I have but one man on board, and I am as sure of him as I am of myself. Besides, he doesn't know you; like his mates he is ready to obey our orders knowing nothing of our plan.\""
         },
         {
-          "id": "p47",
+          "id": "p46",
           "text": "\"Very well; let us go.\""
         },
         {
-          "id": "p48",
+          "id": "p47",
           "text": "They then went down to the Thames. A boat was fastened to the shore by a chain fixed to a stake. Groslow jumped in, followed by Mordaunt, and in five minutes they were quite away from that world of houses which then crowded the outskirts of London; and Mordaunt could discern the little vessel riding at anchor near the Isle of Dogs."
         },
         {
-          "id": "p49",
+          "id": "p48",
           "text": "When they reached the side of this felucca, Mordaunt, dexterous in his eagerness for vengeance, seized a rope and climbed up the side of the vessel with a coolness and agility very rare among landsmen. He went with Groslow to the captain's berth, a sort of temporary cabin of planks, for the chief apartment had been given up by Captain Rogers to the passengers, who were to be accommodated at the other end of the boat."
         },
         {
-          "id": "p50",
+          "id": "p49",
           "text": "\"They will have nothing to do, then at this end?\" said Mordaunt."
         },
         {
-          "id": "p51",
+          "id": "p50",
           "text": "\"Nothing at all.\""
         },
         {
-          "id": "p52",
+          "id": "p51",
           "text": "\"That's a capital arrangement. Return to Greenwich and bring them here. I shall hide myself in your cabin. You have a longboat?\""
         },
         {
-          "id": "p53",
+          "id": "p52",
           "text": "\"That in which we came.\""
         },
         {
-          "id": "p54",
+          "id": "p53",
           "text": "\"It appeared light and well constructed.\""
         },
         {
-          "id": "p55",
+          "id": "p54",
           "text": "\"Quite a canoe.\""
         },
         {
-          "id": "p56",
+          "id": "p55",
           "text": "\"Fasten it to the poop with a rope; put the oars into it, so that it may follow in the track and there will be nothing to do except to cut the cord. Put a good supply of rum and biscuit in it for the seamen; should the night happen to be stormy they will not be sorry to find something to console themselves with.\""
         },
         {
-          "id": "p57",
+          "id": "p56",
           "text": "\"Consider all this done. Do you wish to see the powder-room?\""
         },
         {
-          "id": "p58",
+          "id": "p57",
           "text": "\"No. When you return I will set the fuse myself, but be careful to conceal your face, so that you cannot be recognized by them.\""
         },
         {
-          "id": "p59",
+          "id": "p58",
           "text": "\"Never fear.\""
         },
         {
-          "id": "p60",
+          "id": "p59",
           "text": "\"There's ten o'clock striking at Greenwich.\""
         },
         {
-          "id": "p61",
+          "id": "p60",
           "text": "Groslow, then, having given the sailor on duty an order to be on the watch with more than usual vigilance, went down into the longboat and soon reached Greenwich. The wind was chilly and the jetty was deserted, as he approached it; but he had no sooner landed than he heard a noise of horses galloping upon the paved road."
         },
         {
-          "id": "p62",
+          "id": "p61",
           "text": "These horsemen were our friends, or rather, an avant garde, composed of D'Artagnan and Athos. As soon as they arrived at the spot where Groslow stood they stopped, as if guessing that he was the man they wanted. Athos alighted and calmly opened the handkerchief tied at each corner, whilst D'Artagnan, ever cautious, remained on horseback, one hand upon his pistol, leaning forward watchfully."
         },
         {
-          "id": "p63",
+          "id": "p62",
           "text": "On seeing the appointed signal, Groslow, who had at first crept behind one of the cannons planted on that spot, walked straight up to the gentlemen. He was so well wrapped up in his cloak that it would have been impossible to see his face even if the night had not been so dark as to render precaution superfluous; nevertheless, the keen glance of Athos perceived at once it was not Rogers who stood before them."
         },
         {
-          "id": "p64",
+          "id": "p63",
           "text": "\"What do you want with us?\" he asked of Groslow."
         },
         {
-          "id": "p65",
+          "id": "p64",
           "text": "\"I wish to inform you, my lord,\" replied Groslow, with an Irish accent, feigned of course, \"that if you are looking for Captain Rogers you will not find him. He fell down this morning and broke his leg. But I'm his cousin; he told me everything and desired me to watch instead of him, and in his place to conduct, wherever they wished to go, the gentlemen who should bring me a handkerchief tied at each corner, like that one which you hold and one which I have in my pocket.\""
         },
         {
-          "id": "p66",
+          "id": "p65",
           "text": "And he drew out the handkerchief."
         },
         {
-          "id": "p67",
+          "id": "p66",
           "text": "\"Was that all he said?\" inquired Athos."
         },
         {
-          "id": "p68",
+          "id": "p67",
           "text": "\"No, my lord; he said you had engaged to pay seventy pounds if I landed you safe and sound at Boulogne or any other port you choose in France.\""
         },
         {
-          "id": "p69",
+          "id": "p68",
           "text": "\"What do you think of all this?\" said Athos, in a low tone to D'Artagnan, after explaining to him in French what the sailor had said in English."
         },
         {
-          "id": "p70",
+          "id": "p69",
           "text": "\"It seems a likely story to me.\""
         },
         {
-          "id": "p71",
+          "id": "p70",
           "text": "\"And to me, too.\""
         },
         {
-          "id": "p72",
+          "id": "p71",
           "text": "\"Besides, we can but blow out his brains if he proves false,\" said the Gascon; \"and you, Athos, you know something of everything and can be our captain. I dare say you know how to navigate, should he fail us.\""
         },
         {
-          "id": "p73",
+          "id": "p72",
           "text": "\"My dear friend, you guess well. My father meant me for the navy and I have some vague notions about navigation.\""
         },
         {
-          "id": "p74",
+          "id": "p73",
           "text": "\"You see!\" cried D'Artagnan."
         },
         {
-          "id": "p75",
+          "id": "p74",
           "text": "They then summoned their friends, who, with Blaisois, Mousqueton and Grimaud, promptly joined them, leaving Parry behind them, who was to take back to London the horses of the gentlemen and of their lackeys, which had been sold to the host in settlement of their account with him. Thanks to this stroke of business the four friends were able to take away with them a sum of money which, if not large, was sufficient as a provision against delays and accidents."
         },
         {
-          "id": "p76",
+          "id": "p75",
           "text": "Parry parted from his friends regretfully; they had proposed his going with them to France, but he had straightway declined."
         },
         {
-          "id": "p77",
+          "id": "p76",
           "text": "\"It is very simple,\" Mousqueton had said; \"he is thinking of Groslow.\""
         },
         {
-          "id": "p78",
+          "id": "p77",
           "text": "It was Captain Groslow, the reader will remember, who had broken Parry's head."
         },
         {
-          "id": "p79",
+          "id": "p78",
           "text": "D'Artagnan resumed immediately the attitude of distrust that was habitual with him. He found the wharf too completely deserted, the night too dark, the captain too accommodating. He had reported to Aramis what had taken place, and Aramis, not less distrustful than he, had increased his suspicions. A slight click of the tongue against his teeth informed Athos of the Gascon's uneasiness."
         },
         {
-          "id": "p80",
+          "id": "p79",
           "text": "\"We have no time now for suspicions,\" said Athos. \"The boat is waiting for us; come.\""
         },
         {
-          "id": "p81",
+          "id": "p80",
           "text": "\"Besides,\" said Aramis, \"what prevents our being distrustful and going aboard at the same time? We can watch the skipper.\""
         },
         {
-          "id": "p82",
+          "id": "p81",
           "text": "\"And if he doesn't go straight I will crush him, that's all.\""
         },
         {
-          "id": "p83",
+          "id": "p82",
           "text": "\"Well said, Porthos,\" replied D'Artagnan. \"Let us go, then. You first, Mousqueton,\" and he stopped his friends, directing the valets to go first, in order to test the plank leading from the pier to the boat."
         },
         {
-          "id": "p84",
+          "id": "p83",
           "text": "The three valets passed without accident. Athos followed them, then Porthos, then Aramis. D'Artagnan went last, still shaking his head."
         },
         {
-          "id": "p85",
+          "id": "p84",
           "text": "\"What in the devil is the matter with you, my friend?\" said Porthos. \"Upon my word you would make Caesar afraid.\""
         },
         {
-          "id": "p86",
+          "id": "p85",
           "text": "\"The matter is,\" replied D'Artagnan, \"that I can see upon this pier neither inspector nor sentinel nor exciseman.\""
         },
         {
-          "id": "p87",
+          "id": "p86",
           "text": "\"And you complain of that!\" said Porthos. \"Everything goes as if in flowery paths.\""
         },
         {
-          "id": "p88",
+          "id": "p87",
           "text": "\"Everything goes too well, Porthos. But no matter; we must trust in God.\""
         },
         {
-          "id": "p89",
+          "id": "p88",
           "text": "As soon as the plank was withdrawn the captain took his place at the tiller and made a sign to one of the sailors, who, boat-hook in hand, began to push out from the labyrinth of boats in which they were involved. The other sailor had already seated himself on the port side and was ready to row. As soon as there was room for rowing, his companion rejoined him and the boat began to move more rapidly."
         },
         {
-          "id": "p90",
+          "id": "p89",
           "text": "\"At last we are off!\" exclaimed Porthos."
         },
         {
-          "id": "p91",
+          "id": "p90",
           "text": "\"Alas,\" said Athos, \"we depart alone.\""
         },
         {
-          "id": "p92",
+          "id": "p91",
           "text": "\"Yes; but all four together and without a scratch; which is a consolation.\""
         },
         {
-          "id": "p93",
+          "id": "p92",
           "text": "\"We are not yet at our destination,\" observed the prudent D'Artagnan; \"beware of misadventure.\""
         },
         {
-          "id": "p94",
+          "id": "p93",
           "text": "\"Ah, my friend!\" cried Porthos, \"like the crows, you always bring bad omens. Who could intercept us on such a night as this, pitch dark, when one does not see more than twenty yards before one?\""
         },
         {
-          "id": "p95",
+          "id": "p94",
           "text": "\"Yes, but to-morrow morning--\""
         },
         {
-          "id": "p96",
+          "id": "p95",
           "text": "\"To-morrow we shall be at Boulogne.\""
         },
         {
-          "id": "p97",
+          "id": "p96",
           "text": "\"I hope so, with all my heart,\" said the Gascon, \"and I confess my weakness. Yes, Athos, you may laugh, but as long as we were within gunshot of the pier or of the vessels lying by it I was looking for a frightful discharge of musketry which would crush us.\""
         },
         {
-          "id": "p98",
+          "id": "p97",
           "text": "\"But,\" said Porthos, with great wisdom, \"that was impossible, for they would have killed the captain and the sailors.\""
         },
         {
-          "id": "p99",
+          "id": "p98",
           "text": "\"Bah! much Monsieur Mordaunt would care. You don't imagine he would consider a little thing like that?\""
         },
         {
-          "id": "p100",
+          "id": "p99",
           "text": "\"At any rate,\" said Porthos, \"I am glad to hear D'Artagnan admit that he is afraid.\""
         },
         {
-          "id": "p101",
+          "id": "p100",
           "text": "\"I not only confess it, but am proud of it,\" returned the Gascon; \"I'm not such a rhinoceros as you are. Oho! what's that?\""
         },
         {
-          "id": "p102",
+          "id": "p101",
           "text": "\"The Lightning,\" answered the captain, \"our felucca.\""
         },
         {
-          "id": "p103",
+          "id": "p102",
           "text": "\"So far, so good,\" laughed Athos."
         },
         {
-          "id": "p104",
+          "id": "p103",
           "text": "They went on board and the captain instantly conducted them to the berth prepared for them-a cabin which was to serve for all purposes and for the whole party; he then tried to slip away under pretext of giving orders to some one."
         },
         {
-          "id": "p105",
+          "id": "p104",
           "text": "\"Stop a moment,\" cried D'Artagnan; \"pray how many men have you on board, captain?\""
         },
         {
-          "id": "p106",
+          "id": "p105",
           "text": "\"I don't understand,\" was the reply."
         },
         {
-          "id": "p107",
+          "id": "p106",
           "text": "\"Explain it, Athos.\""
         },
         {
-          "id": "p108",
+          "id": "p107",
           "text": "Groslow, on the question being interpreted, answered, \"Three, without counting myself.\""
         },
         {
-          "id": "p109",
+          "id": "p108",
           "text": "D'Artagnan understood, for while replying the captain had raised three fingers. \"Oh!\" he exclaimed, \"I begin to be more at my ease, however, whilst you settle yourselves, I shall make the round of the boat.\""
         },
         {
-          "id": "p110",
+          "id": "p109",
           "text": "\"As for me,\" said Porthos, \"I will see to the supper.\""
         },
         {
-          "id": "p111",
+          "id": "p110",
           "text": "\"A very good idea, Porthos,\" said the Gascon. \"Athos lend me Grimaud, who in the society of his friend Parry has perhaps picked up a little English, and can act as my interpreter.\""
         },
         {
-          "id": "p112",
+          "id": "p111",
           "text": "\"Go, Grimaud,\" said Athos."
         },
         {
-          "id": "p113",
+          "id": "p112",
           "text": "D'Artagnan, finding a lantern on the deck, took it up and with a pistol in his hand he said to the captain, in English, \"Come,\" (being, with the classic English oath, the only English words he knew), and so saying he descended to the lower deck."
         },
         {
-          "id": "p114",
+          "id": "p113",
           "text": "This was divided into three compartments-one which was covered by the floor of that room in which Athos, Porthos and Aramis were to pass the night; the second was to serve as the sleeping-room for the servants, the third, under the prow of the ship, was under the temporary cabin in which Mordaunt was concealed."
         },
         {
-          "id": "p115",
+          "id": "p114",
           "text": "\"Oho!\" cried D'Artagnan, as he went down the steps of the hatchway, preceded by the lantern, \"what a number of barrels! one would think one was in the cave of Ali Baba. What is there in them?\" he added, putting his lantern on one of the casks."
         },
         {
-          "id": "p116",
+          "id": "p115",
           "text": "The captain seemed inclined to go upon deck again, but controlling himself he answered:"
         },
         {
-          "id": "p117",
+          "id": "p116",
           "text": "\"Port wine.\""
         },
         {
-          "id": "p118",
+          "id": "p117",
           "text": "\"Ah! port wine! 'tis a comfort,\" said the Gascon, \"since we shall not die of thirst. Are they all full?\""
         },
         {
-          "id": "p119",
+          "id": "p118",
           "text": "Grimaud translated the question, and Groslow, who was wiping the perspiration from off his forehead, answered:"
         },
         {
-          "id": "p120",
+          "id": "p119",
           "text": "\"Some full, others empty.\""
         },
         {
-          "id": "p121",
+          "id": "p120",
           "text": "D'Artagnan struck the barrels with his hand, and having ascertained that he spoke the truth, pushed his lantern, greatly to the captain's alarm, into the interstices between the barrels, and finding that there was nothing concealed in them:"
         },
         {
-          "id": "p122",
+          "id": "p121",
           "text": "\"Come along,\" he said; and he went toward the door of the second compartment."
         },
         {
-          "id": "p123",
+          "id": "p122",
           "text": "\"Stop!\" said the Englishman, \"I have the key of that door;\" and he opened the door, with a trembling hand, into the second compartment, where Mousqueton and Blaisois were preparing supper."
         },
         {
-          "id": "p124",
+          "id": "p123",
           "text": "Here there was evidently nothing to seek or to apprehend and they passed rapidly to examine the third compartment."
         },
         {
-          "id": "p125",
+          "id": "p124",
           "text": "This was the room appropriated to the sailors. Two or three hammocks hung upon the ceiling, a table and two benches composed the entire furniture. D'Artagnan picked up two or three old sails hung on the walls, and meeting nothing to suspect, regained by the hatchway the deck of the vessel."
         },
         {
-          "id": "p126",
+          "id": "p125",
           "text": "\"And this room?\" he asked, pointing to the captain's cabin."
         },
         {
-          "id": "p127",
+          "id": "p126",
           "text": "\"That's my room,\" replied Groslow."
         },
         {
-          "id": "p128",
+          "id": "p127",
           "text": "\"Open the door.\""
         },
         {
-          "id": "p129",
+          "id": "p128",
           "text": "The captain obeyed. D'Artagnan stretched out his arm in which he held the lantern, put his head in at the half opened door, and seeing that the cabin was nothing better than a shed:"
         },
         {
-          "id": "p130",
+          "id": "p129",
           "text": "\"Good,\" he said. \"If there is an army on board it is not here that it is hidden. Let us see what Porthos has found for supper.\" And thanking the captain, he regained the state cabin, where his friends were."
         },
         {
-          "id": "p131",
+          "id": "p130",
           "text": "Porthos had found nothing, and with him fatigue had prevailed over hunger. He had fallen asleep and was in a profound slumber when D'Artagnan returned. Athos and Aramis were beginning to close their eyes, which they half opened when their companion came in again."
         },
         {
-          "id": "p132",
+          "id": "p131",
           "text": "\"Well!\" said Aramis."
         },
         {
-          "id": "p133",
+          "id": "p132",
           "text": "\"All is well; we may sleep tranquilly.\""
         },
         {
-          "id": "p134",
+          "id": "p133",
           "text": "On this assurance the two friends fell asleep; and D'Artagnan, who was very weary, bade good-night to Grimaud and laid himself down in his cloak, with naked sword at his side, in such a manner that his body barricaded the passage, and it should be impossible to enter the room without upsetting him."
         }
       ]
     },
     {
-      "title": "Chapter 68",
+      "title": "Chapter 69",
       "paragraphs": [
         {
           "id": "p0",
@@ -34149,7 +34538,7 @@
       ]
     },
     {
-      "title": "Chapter 69",
+      "title": "Chapter 70",
       "paragraphs": [
         {
           "id": "p0",
@@ -34470,7 +34859,7 @@
       ]
     },
     {
-      "title": "Chapter 70",
+      "title": "Chapter 71",
       "paragraphs": [
         {
           "id": "p0",
@@ -34827,7 +35216,7 @@
       ]
     },
     {
-      "title": "Chapter 71",
+      "title": "Chapter 72",
       "paragraphs": [
         {
           "id": "p0",
@@ -35168,7 +35557,7 @@
       ]
     },
     {
-      "title": "Chapter 72",
+      "title": "Chapter 73",
       "paragraphs": [
         {
           "id": "p0",
@@ -35565,7 +35954,7 @@
       ]
     },
     {
-      "title": "Chapter 73",
+      "title": "Chapter 74",
       "paragraphs": [
         {
           "id": "p0",
@@ -35974,7 +36363,7 @@
       ]
     },
     {
-      "title": "Chapter 74",
+      "title": "Chapter 75",
       "paragraphs": [
         {
           "id": "p0",
@@ -36603,7 +36992,7 @@
       ]
     },
     {
-      "title": "Chapter 75",
+      "title": "Chapter 76",
       "paragraphs": [
         {
           "id": "p0",
@@ -37012,7 +37401,7 @@
       ]
     },
     {
-      "title": "Chapter 76",
+      "title": "Chapter 77",
       "paragraphs": [
         {
           "id": "p0",
@@ -37353,7 +37742,7 @@
       ]
     },
     {
-      "title": "Chapter 77",
+      "title": "Chapter 78",
       "paragraphs": [
         {
           "id": "p0",
@@ -37602,7 +37991,7 @@
       ]
     },
     {
-      "title": "Chapter 78",
+      "title": "Chapter 79",
       "paragraphs": [
         {
           "id": "p0",
@@ -37787,7 +38176,7 @@
       ]
     },
     {
-      "title": "Chapter 79",
+      "title": "Chapter 80",
       "paragraphs": [
         {
           "id": "p0",
@@ -37988,7 +38377,7 @@
       ]
     },
     {
-      "title": "Chapter 80",
+      "title": "Chapter 81",
       "paragraphs": [
         {
           "id": "p0",
@@ -38625,7 +39014,7 @@
       ]
     },
     {
-      "title": "Chapter 81",
+      "title": "Chapter 82",
       "paragraphs": [
         {
           "id": "p0",
@@ -39298,7 +39687,7 @@
       ]
     },
     {
-      "title": "Chapter 82",
+      "title": "Chapter 83",
       "paragraphs": [
         {
           "id": "p0",
@@ -39523,7 +39912,7 @@
       ]
     },
     {
-      "title": "Chapter 83",
+      "title": "Chapter 84",
       "paragraphs": [
         {
           "id": "p0",
@@ -39980,7 +40369,7 @@
       ]
     },
     {
-      "title": "Chapter 84",
+      "title": "Chapter 85",
       "paragraphs": [
         {
           "id": "p0",
@@ -40477,7 +40866,7 @@
       ]
     },
     {
-      "title": "Chapter 85",
+      "title": "Chapter 86",
       "paragraphs": [
         {
           "id": "p0",
@@ -41134,7 +41523,7 @@
       ]
     },
     {
-      "title": "Chapter 86",
+      "title": "Chapter 87",
       "paragraphs": [
         {
           "id": "p0",
@@ -41735,7 +42124,7 @@
       ]
     },
     {
-      "title": "Chapter 87",
+      "title": "Chapter 88",
       "paragraphs": [
         {
           "id": "p0",
@@ -41868,7 +42257,7 @@
       ]
     }
   ],
-  "chapterCount": 87,
-  "paragraphCount": 10357,
-  "charCount": 1320611
+  "chapterCount": 88,
+  "paragraphCount": 10453,
+  "charCount": 1340846
 }

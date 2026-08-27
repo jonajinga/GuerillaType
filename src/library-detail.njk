@@ -60,6 +60,7 @@ eleventyComputed:
 <script type="module">
   import { getActive, updateActive } from "/assets/js/profiles.js?v={{ cssVersion }}";
   import { confirmModal } from "/assets/js/util/modal.js?v={{ cssVersion }}";
+  import { bookStructureSig } from "/assets/js/engine/book-structure.js?v={{ cssVersion }}";
 
   /* Render a public-domain book like TypeLit: chapter dropdown,
      paginated paragraph view, click-to-type per paragraph, "type this
@@ -68,11 +69,31 @@ eleventyComputed:
      active profile under bookProgress[slug].typed["ch:pid"]. */
 
   const BOOK = {{ book | dump | safe }};
+  const BOOK_SIG = bookStructureSig(BOOK.chapters);
   const slug = BOOK.slug;
   const PARAS_PER_PAGE = 6;
 
   const profile = getActive();
-  const prog = (profile.bookProgress || {})[slug] || { typed: {}, lastChapter: 0, lastParagraphId: null };
+  let prog = (profile.bookProgress || {})[slug] || { typed: {}, lastChapter: 0, lastParagraphId: null };
+
+  /* Progress is keyed "chapterIndex:paragraphId". If this book has been
+     re-split since those marks were saved, both halves of every key now
+     mean something else, and the page would cheerfully show paragraphs
+     as typed that were never typed. Wrong marks are worse than no
+     marks, so drop them and record the structure they belong to.
+     Progress saved before fingerprints existed carries no sig and
+     cannot be checked, so it is dropped once. */
+  if (prog.sig !== BOOK_SIG) {
+    const had = Object.keys(prog.typed || {}).length;
+    prog = { typed: {}, lastChapter: 0, lastParagraphId: null, sig: BOOK_SIG };
+    if (had) {
+      updateActive((p) => {
+        p.bookProgress = p.bookProgress || {};
+        p.bookProgress[slug] = { typed: {}, lastChapter: 0, lastParagraphId: null, sig: BOOK_SIG };
+        return p;
+      });
+    }
+  }
 
   const chSel = document.getElementById("book-chapter-select");
   const pageLabel = document.getElementById("book-page-label");
