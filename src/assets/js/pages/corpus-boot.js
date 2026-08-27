@@ -274,7 +274,7 @@ if (root) {
     list.querySelectorAll("[data-action]").forEach((btn) => btn.addEventListener("click", () => onAction(btn)));
   }
 
-  function typeItem(it) {
+  async function typeItem(it) {
     const title = rowTitle(it);
     // Carry source metadata so the practice page can render an
     // attribution header (author, year, work, meaning) AND so the
@@ -292,7 +292,7 @@ if (root) {
       // renders it on its own centered line at the end of the body.
       moral: it.moral || null,
     };
-    const item = saveText({ title, raw: it.text, meta });
+    const item = await saveText({ title, raw: it.text, meta });
     const from = kind && kind !== "item" ? `&from=${encodeURIComponent(kind)}` : "";
     window.location.href = `/practice/?mode=custom&custom=${encodeURIComponent(item.id)}&seg=0${from}`;
   }
@@ -322,10 +322,14 @@ if (root) {
     }
     const it = items.find((x) => (x.id || "") === id);
     if (!it) return;
-    if (action === "type") typeItem(it);
+    if (action === "type") { await typeItem(it); }
     else {
-      saveText({ title: rowTitle(it), raw: it.text });
-      toast(`Saved "${rowTitle(it)}" to your texts`);
+      try {
+        await saveText({ title: rowTitle(it), raw: it.text });
+        toast(`Saved "${rowTitle(it)}" to your texts`);
+      } catch (e) {
+        toast(e.message || "Couldn't save that.", "bad");
+      }
     }
   }
 }

@@ -45,11 +45,15 @@ No, by design. Use Settings → Export JSON, then Import JSON on the other devic
 
 ## What's the maximum custom text size?
 
-512 KB of text per item, 1 MB across everything you've saved. That's the extracted text, not the file — a 6 MB PDF full of fonts and images is often only a few hundred KB of actual prose.
+Whole books are fine. The ceiling is 12 million characters per text — about four times the length of *War and Peace*, the longest of the 271 books bundled with this site — and 60 million across everything you've saved. In practice nothing you upload will reach it.
 
-Long files are chunked into ~500-character segments at sentence boundaries. When you finish one, **Next segment →** takes you to the following one, and the site remembers where you stopped so you can come back to a long book later.
+That's measured on the extracted text, not the file: a 6 MB PDF full of fonts and images is often only a few hundred KB of actual prose.
 
-If a text is too long it gets trimmed at a sentence boundary and you'll be told by how much, rather than it quietly happening. The ceiling exists because browser `localStorage` is a shared ~5 MB budget that also holds your practice history — moving custom text to a bigger store is on the roadmap.
+It used to be 512 KB per text, which cut a 600-page PDF off about a third of the way in. The bodies now live in the browser's IndexedDB, which is measured in hundreds of megabytes, instead of `localStorage`, which is a shared ~5 MB budget that also holds your practice history. Only a small index record — title, segment count, where you stopped — stays in `localStorage`.
+
+Long files are split into ~500-character segments at sentence boundaries. When you finish one, **Next segment →** takes you to the following one, **Choose a segment** opens a searchable list of every segment in the text so you can jump straight to the part you want, and the site remembers where you stopped so you can come back to a long book later.
+
+If a browser refuses the site a database at all — some locked-down private windows do — saving falls back to the old 512 KB ceiling, trims at a sentence boundary, and tells you by how much. It never happens quietly.
 
 ## Why an editorial style instead of pure mono?
 

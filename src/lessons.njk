@@ -42,7 +42,7 @@ description: "Three hundred progressive lessons: home row drills, bigrams, speed
 </div>
 
 <script type="module">
-  import { listLessonPinned } from "/assets/js/engine/custom-text.js?v={{ cssVersion }}";
+  import { listLessonPinned, segCountOf } from "/assets/js/engine/custom-text.js?v={{ cssVersion }}";
   const stage = document.getElementById("user-lessons-stage");
   const grid = document.getElementById("user-lessons-grid");
   const pinned = listLessonPinned();
@@ -52,7 +52,7 @@ description: "Three hundred progressive lessons: home row drills, bigrams, speed
       <a class="lesson-card" href="/practice/?mode=custom&custom=${encodeURIComponent(it.id)}&seg=0">
         <span class="lesson-card__num">Custom</span>
         <span class="lesson-card__title">${escape(it.title)}</span>
-        <span class="lesson-card__keys"><span class="lesson-card__key">${it.segments.length} segments</span></span>
+        <span class="lesson-card__keys"><span class="lesson-card__key">${segCountOf(it)} segments</span></span>
       </a>
     `).join("");
   }

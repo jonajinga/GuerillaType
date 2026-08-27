@@ -6,7 +6,7 @@ import { TypingEngine } from "../engine/typing-engine.js";
 import { AdaptiveModel } from "../engine/adaptive.js";
 import { buildPicker, uniformText } from "../engine/wordpicker.js";
 import { recordSession } from "../engine/session-recorder.js";
-import { setSegProgress } from "../engine/custom-text.js";
+import { setSegProgress, getSaved as getSavedCustom, listSaved as listSavedCustom, getSegments as getCustomSegments } from "../engine/custom-text.js";
 import { byId as achievementById } from "../engine/achievements.js";
 import { fingerForKey } from "../engine/layouts.js";
 import { setSoundPrefs, playKey, playMistake, playFinish } from "../engine/sounds.js";
@@ -399,9 +399,13 @@ async function buildText() {
     return "Hope is the thing with feathers";
   }
   if (state.mode === "custom") {
-    const list = JSON.parse(localStorage.getItem("tt:custom-texts") || "[]");
-    const item = list.find((x) => x.id === state.customId) || list[0];
+    // The bodies live in IndexedDB now (custom-store.js) -- reading
+    // localStorage directly here would see the index record only and
+    // report every imported book as empty.
+    const item = getSavedCustom(state.customId) || listSavedCustom()[0];
     if (!item) return "Add a custom text on the /custom/ page first.";
+    const segments = await getCustomSegments(item.id);
+    if (!segments.length) return "That text could not be read back from this browser's storage. Re-import it on the /custom/ page.";
     // Stash meta + title so renderAttributionHeader can paint
     // author/year/source above the typing surface.
     state._customTitle = item.title;
@@ -413,7 +417,7 @@ async function buildText() {
     // sees the WHOLE parable / quote / poem on the typing surface.
     const corpusKinds = ["quote","idiom","parable","poem"];
     if (item.meta && corpusKinds.indexOf(item.meta.kind) !== -1) {
-      const body = (item.segments || []).join(" ").trim();
+      const body = segments.join(" ").trim();
       // Poems: preserve line/stanza formatting by passing an array
       // of lines instead of one flat string. Each line becomes its
       // own paragraph block in the renderer.
@@ -435,11 +439,11 @@ async function buildText() {
     // Remember the shape of this text so the results screen can offer
     // "Next segment" and show progress. Without these, a 481-segment
     // import was navigable only by hand-editing ?seg= in the URL.
-    state._customSegCount = item.segments.length;
-    state._customLastSeg = item.segments.length - 1;
-    const idx = Math.min(Math.max(0, state.customSeg), item.segments.length - 1);
+    state._customSegCount = segments.length;
+    state._customLastSeg = segments.length - 1;
+    const idx = Math.min(Math.max(0, state.customSeg), segments.length - 1);
     state.customSeg = idx;
-    return item.segments[idx];
+    return segments[idx];
   }
   if (state.mode === "lesson") {
     const lesson = await getLesson(state.lessonId);
@@ -1269,9 +1273,13 @@ function renderResults(r) {
           const first = nextUrl
             ? wrap(ICONS.next, "Next segment →", { tag: "a", attrs: `id="tt-next-seg" href="${nextUrl}"` }, "Continue with the next part of this text.", true)
             : wrap(ICONS.check, "Text finished", { tag: "a", attrs: `href="/custom/"` }, "You have typed every segment of this text.", true);
+          // Sequential "next" is no way to reach segment 3,900 of an
+          // imported book. Deep-link into the picker on /custom/.
+          const pickUrl = `/custom/#pick-${encodeURIComponent(state.customId)}`;
           return progress + first
             + wrap(ICONS.retry, "Type this segment again", { attrs: `type="button" onclick="window.ttRestart && window.ttRestart()"` }, "Retype this same segment from the start.")
-            + wrap(ICONS.list, "All saved texts", { tag: "a", attrs: `href="/custom/"` }, "Back to your saved custom texts.");
+            + wrap(ICONS.list, "Choose a segment", { tag: "a", attrs: `id="tt-pick-seg" href="${pickUrl}"` }, "Jump to any segment of this text.")
+            + wrap(ICONS.book, "All saved texts", { tag: "a", attrs: `href="/custom/"` }, "Back to your saved custom texts.");
         }
         // Daily-quote mode: "Next test" -> fresh random quote.
         const isDaily = state.mode === "quote" && state.quote === "daily";

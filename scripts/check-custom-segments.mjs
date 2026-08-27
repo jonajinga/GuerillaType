@@ -7,7 +7,12 @@ let pass = 0, fail = 0;
 const chk = (ok, n, x = "") => { console.log(`  ${ok ? "PASS" : "FAIL"}  ${n}${x ? "  " + x : ""}`); ok ? pass++ : fail++; };
 
 const b = await chromium.launch();
-const p = await b.newPage({ viewport: { width: 1366, height: 900 } });
+/* Service worker blocked: pwa.js reloads the page on controllerchange,
+   and a reload landing mid-test rebuilds the DOM under whatever is being
+   driven. This gate survives it today only because its navigations wait
+   on networkidle, which happens to outlast the reload — that is luck,
+   not design, and the other three custom gates block it explicitly. */
+const p = await b.newPage({ viewport: { width: 1366, height: 900 }, serviceWorkers: "block" });
 p.on("pageerror", e => console.log("  PAGEERROR:", String(e).slice(0, 140)));
 
 // Seed a 4-segment text, as a PDF import would produce.
