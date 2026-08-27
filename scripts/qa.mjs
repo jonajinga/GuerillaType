@@ -13,6 +13,17 @@ const browser = await chromium.launch({ headless: true });
 const ctx = await browser.newContext({ viewport: { width: 1366, height: 900 } });
 const page = await ctx.newPage();
 
+/* Counts below are FLOORS, not equalities.
+
+   Five checks here asserted exact numbers the content had outgrown --
+   9 wordlist cards against 23, 80 lesson cards against 500, 11 stages
+   against 29 -- so every content addition broke the suite and the red
+   was ignored rather than read. A sixth queried .library-card, a class
+   that exists only in library.css and that no markup has ever produced,
+   so it could never pass at all; the page renders .library-row.
+
+   A floor still catches the failure that matters (the page rendered
+   nothing) without crying wolf every time a lesson is added. */
 let pass = 0, fail = 0;
 const failures = [];
 const consoleErrorsByPage = new Map();
@@ -173,7 +184,7 @@ check("search page: results grouped by kind", resultGroups >= 1, `groups=${resul
 console.log("\n## 9. Word lists — index + detail\n");
 await visit("/wordlists/");
 const wordCards = await page.$$eval(".wordlist-card", (els) => els.length);
-check("wordlists index: 9 cards", wordCards === 9, `got ${wordCards}`);
+check("wordlists index: at least 9 cards", wordCards >= 9, `got ${wordCards}`);
 await visit("/wordlists/en-1k/");
 const wordItems = await page.$$eval(".wordlist-detail__word", (els) => els.length);
 check("wordlists detail: en-1k full list rendered", wordItems >= 800, `got ${wordItems}`);
@@ -181,9 +192,9 @@ check("wordlists detail: en-1k full list rendered", wordItems >= 800, `got ${wor
 console.log("\n## 10. Lessons — full 80-lesson curriculum\n");
 await visit("/lessons/");
 const lessonCards = await page.$$eval(".lesson-card", (els) => els.length);
-check("lessons: 80 lesson cards", lessonCards === 80, `got ${lessonCards}`);
+check("lessons: at least 80 lesson cards", lessonCards >= 80, `got ${lessonCards}`);
 const stages = await page.$$eval(".lessons-stage", (els) => els.length);
-check("lessons: 10 stages plus 1 hidden user-stage", stages === 11, `got ${stages}`);
+check("lessons: at least 10 stages plus 1 hidden user-stage", stages >= 11, `got ${stages}`);
 await visit("/practice/?lesson=57"); // literal-text lesson (Austen)
 await page.waitForTimeout(1200);
 const lessonText = await page.$eval("#tt-text", (el) => el.textContent || "");
@@ -194,12 +205,12 @@ check("lesson 57 (Austen) loads literal text", normalized.includes("truth univer
 
 console.log("\n## 11. Library — books + per-paragraph tracking\n");
 await visit("/library/");
-const libCards = await page.$$eval(".library-card", (els) => els.length);
-check("library: 5 starter books", libCards === 5, `got ${libCards}`);
+const libCards = await page.$$eval(".library-row", (els) => els.length);
+check("library: book rows render", libCards >= 5, `got ${libCards}`);
 await visit("/library/the-time-machine/");
 await page.waitForTimeout(700);
 const chapterOptions = await page.$$eval("#book-chapter-select option", (els) => els.length);
-check("book reader: 2 chapter options for The Time Machine", chapterOptions === 2, `got ${chapterOptions}`);
+check("book reader: chapter options for The Time Machine", chapterOptions >= 2, `got ${chapterOptions}`);
 const readerParas = await page.$$eval(".book-reader__para", (els) => els.length);
 check("book reader: paragraphs render on initial page", readerParas > 0, `got ${readerParas}`);
 const pageLabel = await page.$eval("#book-page-label", (el) => el.textContent || "");

@@ -533,7 +533,6 @@ const map = {
   settings: () => import("./pages/settings-boot.js" + _v),
   stats: () => import("./pages/stats-boot.js" + _v),
   quotes: () => import("./pages/quotes-boot.js" + _v),
-  library: () => import("./pages/library-boot.js" + _v),
   contact: () => import("./pages/contact-boot.js" + _v),
   idioms: () => import("./pages/corpus-boot.js" + _v),
   parables: () => import("./pages/corpus-boot.js" + _v),

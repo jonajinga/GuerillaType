@@ -8,12 +8,28 @@ import { chromium } from "playwright";
 const BASE = process.env.BASE_URL || "http://localhost:8080";
 
 const browser = await chromium.launch({ headless: true });
-const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+/* Service workers blocked. pwa.js reloads the page on controllerchange,
+   which adds a main-frame navigation partway through a run and resets
+   scroll position under whatever is being measured. Measured on the TOC
+   check: heading lands at 100 with the worker blocked and 135 with it
+   active, plus an extra navigation. The four check-custom-* gates block
+   it for the same reason. This suite is about page behaviour, not the
+   service worker. */
+const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: "block" });
 const page = await ctx.newPage();
 
 const consoleErrors = [];
 page.on("console", (m) => { if (m.type() === "error") consoleErrors.push(m.text()); });
 page.on("pageerror", (e) => consoleErrors.push("pageerror: " + e.message));
+
+/* $eval throws when its selector matches nothing, which ended this run
+   at section 13 of 16 -- so sections 14, 15 and 16 never executed on any
+   branch, and section 16 is "no console errors anywhere". A suite that
+   stops early looks exactly like a suite that passed. These helpers
+   return a fallback instead, so a missing element fails one check and
+   the rest still run. */
+const countOf = (page, sel) => page.$$eval(sel, (els) => els.length).catch(() => 0);
+const textsOf = (page, sel) => page.$$eval(sel, (els) => els.map((e) => e.textContent.trim())).catch(() => []);
 
 let pass = 0, fail = 0;
 function check(label, ok, detail) {
@@ -41,16 +57,16 @@ check("home: editorial hero present", !!heroTitle);
 // dead ever since. Nobody noticed, because a crashed smoke test and a passing
 // one both end with the shell prompt back.
 //
-// The daily quote now loads into the hero typing surface: `#tt-text` gets the
-// characters, `#daily-cite` gets the attribution. Both are populated by JS, so
-// both are worth asserting — and both use `$`, which returns null rather than
-// throwing.
-const citeEl = await page.$("#daily-cite");
-check("home: daily-cite element present", !!citeEl);
-const citeText = citeEl ? (await citeEl.textContent())?.trim() ?? "" : "";
-check("home: daily quote attribution populated", citeText.length > 0, `got "${citeText.slice(0, 40)}"`);
-const quoteChars = await page.$$eval("#tt-text .tt-char", (els) => els.length).catch(() => 0);
-check("home: daily quote text loaded into the typing surface", quoteChars > 0, `${quoteChars} chars`);
+/* The hero stopped being a daily quote in c972d42, which replaced it
+   with a 15-second tape sprint and left #daily-cite behind as an empty
+   div nothing writes to. The old assertion kept testing the attribution
+   of a quote that is no longer shown -- it was reporting a feature's
+   absence as a failure, every run, for a feature that was deliberately
+   removed. Assert what the hero actually is. */
+const heroMode = await page.$eval("#tt-stage", (el) => el.dataset.mode).catch(() => null);
+check("home: hero runs the tape sprint", heroMode === "tape", `data-mode=${JSON.stringify(heroMode)}`);
+const quoteChars = await countOf(page, "#tt-text .tt-char");
+check("home: hero loads typeable text", quoteChars > 0, `${quoteChars} chars`);
 const stage = await page.$("#tt-stage");
 check("home: typing surface present", !!stage);
 
@@ -110,7 +126,10 @@ check("features: sections present", featuresHeads >= 8, `got ${featuresHeads}`);
 
 await page.goto(BASE + "/analytics/");
 await page.waitForTimeout(400);
-const analyticsHeads = await page.$$eval(".article-body h2", (els) => els.length);
+// This page wraps its copy in .ac-prose, not .article-body, and 8 of
+// its 20 heads sit outside that wrapper in the chart sections -- the old
+// selector matched nothing and reported 0. Count them where they are.
+const analyticsHeads = await countOf(page, "main h2");
 check("analytics: sections present", analyticsHeads >= 4, `got ${analyticsHeads}`);
 
 // 6. Lessons page links to lesson runner
@@ -200,16 +219,22 @@ await page.waitForTimeout(400);
 const siteHeads = await page.$$eval(".article-body h2", (els) => els.length);
 check("sitemap: section heads present", siteHeads >= 5, `got ${siteHeads}`);
 
-// 12. Mode-bar fieldset legends visible
+/* 12-13. The mode bar these two checks described does not exist.
+   src/_includes/partials/practice/mode-bar.njk is included by no
+   template, and .mode-bar__legend survives only in tabs.css, so
+   "legends present" could never pass and the $eval for
+   .mode-bar__field[data-group="duration"] threw and ended the run
+   three sections early.
+
+   The user-facing concern behind them is still real -- a deep link
+   carrying a mode should start the practice page in that mode -- so
+   assert that against the markup that does exist. */
 await page.goto(BASE + "/practice/?mode=words");
 await page.waitForTimeout(700);
-const legends = await page.$$eval(".mode-bar__legend", (els) => els.map((e) => e.textContent.trim()));
-check("mode-bar: legends present", legends.length >= 2 && legends[0].toLowerCase().includes("mode"), JSON.stringify(legends));
-
-// 13. Words-mode shows the word-count group, hides duration group
-const durationHidden = await page.$eval('.mode-bar__field[data-group="duration"]', (el) => el.hasAttribute("hidden"));
-const wordsVisible = await page.$eval('.mode-bar__field[data-group="words"]', (el) => !el.hasAttribute("hidden"));
-check("mode-bar: hides irrelevant groups (words mode)", durationHidden && wordsVisible);
+const wordsMode = await page.$eval("#tt-stage", (el) => el.dataset.mode).catch(() => null);
+check("practice: ?mode=words boots in words mode", wordsMode === "words", `data-mode=${JSON.stringify(wordsMode)}`);
+const wordsChars = await countOf(page, "#tt-text .tt-char");
+check("practice: words mode renders typeable text", wordsChars > 0, `${wordsChars} chars`);
 
 // 14. Shortcuts overlay opens with '?' (must use a non-typing page —
 // the engine claims the input on practice and now lets ? pass through
@@ -234,7 +259,22 @@ const tocClickInfo = await page.evaluate(async () => {
   const target = links[6] || links[3] || links[0];
   if (!target) return null;
   target.click();
-  await new Promise((r) => setTimeout(r, 700));
+  /* Wait for the scroll to actually settle rather than assuming it has
+     after a fixed delay -- a long page, a slow frame or an extra
+     navigation all make 700ms a coin toss, and this check sat behind an
+     abort for long enough that nobody saw it flap. */
+  await new Promise((resolve) => {
+    let last = -1, still = 0;
+    const tick = () => {
+      const y = Math.round(window.scrollY);
+      still = y === last ? still + 1 : 0;
+      last = y;
+      if (still >= 3) return resolve();
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+    setTimeout(resolve, 3000);
+  });
   const headId = target.dataset.target;
   const head = document.getElementById(headId);
   if (!head) return null;
