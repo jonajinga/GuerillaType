@@ -176,15 +176,70 @@
   background:var(--bg-1);
   border-bottom:1px solid var(--rule);
   box-shadow:0 18px 42px rgba(0,0,0,.4);
-  /* Comfortable height that holds 7-9 link items per column + section
-     header without scrolling. Below 720 the two longest sections
-     (Library, Insights) clipped their last items. */
-  height:760px;
+  /* 760px comfortably holds 7-9 link items per column plus the section
+     header. But the panel is anchored below the header, so it needs
+     760 + header before it fits -- and a 1440x768 laptop hung 71px of
+     every panel below the fold with overflow:hidden, so those links
+     could not be reached at all. Cap to the viewport and scroll the
+     remainder. min() keeps every panel the same height as each other,
+     which is what the design wants and what the smoke test asserts.
+
+     dvh so mobile browser chrome collapsing does not clip it; the vh
+     line above is the fallback for engines without dvh. */
+  --mega-h:min(760px, calc(100vh - var(--header-h, 58px) - var(--space-3)));
+  --mega-h:min(760px, calc(100dvh - var(--header-h, 58px) - var(--space-3)));
+  height:var(--mega-h);
   padding:0;
   z-index:60;
   box-sizing:border-box;
   border-top:1px solid var(--rule);
-  overflow:hidden;
+  overflow-y:auto;
+  overflow-x:hidden;
+  /* Don't hand the wheel back to the page when the list bottoms out --
+     scrolling a menu should never scroll the document behind it. */
+  overscroll-behavior:contain;
+  /* Reserve the gutter so opening a scrollable panel doesn't shift the
+     columns sideways relative to a non-scrollable one. */
+  scrollbar-gutter:stable;
+  scrollbar-width:thin;
+  scrollbar-color:var(--rule) transparent;
+}
+.mega::-webkit-scrollbar{width:10px}
+.mega::-webkit-scrollbar-track{background:transparent}
+.mega::-webkit-scrollbar-thumb{
+  background:var(--rule);
+  border-radius:99px;
+  border:3px solid var(--bg-1);
+}
+.mega::-webkit-scrollbar-thumb:hover{background:var(--fg-3, var(--fg-2))}
+
+/* Scroll cues. Set by megamenu.js, which knows whether the panel
+   actually overflows and where it currently sits, so the fades never
+   appear on a panel that has nothing more to show. */
+.mega::before,
+.mega::after{
+  content:"";
+  position:sticky;left:0;right:0;
+  display:block;height:var(--space-5);
+  pointer-events:none;
+  opacity:0;transition:opacity var(--t-fast, .15s) ease;
+  z-index:1;
+}
+.mega::before{
+  top:0;margin-bottom:calc(var(--space-5) * -1);
+  background:linear-gradient(to bottom, var(--bg-1), transparent);
+}
+.mega::after{
+  bottom:0;margin-top:calc(var(--space-5) * -1);
+  background:linear-gradient(to top, var(--bg-1), transparent);
+}
+.mega[data-overflowing="true"]:not([data-at-top="true"])::before{opacity:1}
+.mega[data-overflowing="true"]:not([data-at-end="true"])::after{opacity:1}
+
+/* A keyboard user tabbing down a long column should not be teleported
+   by the browser's instant scroll. */
+@media (prefers-reduced-motion:no-preference){
+  .mega{scroll-behavior:smooth}
 }
 .mega__inner{
   /* Stretch wider than the body's --max-width so the link columns get
@@ -199,7 +254,9 @@
      longer link descriptions room without forcing 2-line wraps. */
   grid-template-columns:repeat(3, minmax(0, 1.1fr)) 0.75fr;
   gap:var(--space-5) var(--space-6);
-  height:100%;
+  /* min-height, not height: short menus still fill the panel, long ones
+     grow past it and .mega scrolls instead of clipping them. */
+  min-height:100%;
 }
 @media (max-width:1380px){
   /* Standard desktop -- drop the featured rail and let the 3 link
@@ -300,6 +357,14 @@
   background:color-mix(in oklab, var(--accent) 7%, var(--bg-2));
   border:1px solid var(--rule);border-radius:var(--radius);
   height:100%;box-sizing:border-box;overflow:hidden;
+  /* The rail must never drive the panel's height. Compete's featured
+     challenge list renders 1304px of rows; as a stretched grid item
+     that dragged the row to 1484px and every link column with it, so
+     the panel scrolled through a screenful of empty stretched column
+     to reach links that were sitting at the top all along. Cap it to
+     the panel and let .mega__featured-body scroll inside itself, which
+     it is already set up to do. */
+  max-height:calc(var(--mega-h) - var(--space-6) * 2);
 }
 .mega__featured-eyebrow{
   font-family:var(--font-mono);font-size:var(--fs-200);
