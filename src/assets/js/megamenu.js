@@ -279,10 +279,50 @@ const items = Array.from(document.querySelectorAll(".site-nav__item[data-mega]")
 let openItem = null;
 let closeTimer = null;
 
+/* ── Scroll cues ─────────────────────────────────────────────────
+   The panel is capped to the viewport height and scrolls when a menu
+   is taller than the room available -- on a 1440x768 laptop that is
+   every menu. A scrollbar alone is easy to miss on a panel that looks
+   deliberately sized, so fade the top and bottom edges to show there
+   is more, and only when there actually is: these attributes drive the
+   ::before / ::after cues in nav.css and are the difference between an
+   affordance and decoration. */
+function syncScrollCues(panel) {
+  if (!panel) return;
+  const max = panel.scrollHeight - panel.clientHeight;
+  panel.dataset.overflowing = max > 1 ? "true" : "false";
+  panel.dataset.atTop = panel.scrollTop <= 1 ? "true" : "false";
+  panel.dataset.atEnd = panel.scrollTop >= max - 1 ? "true" : "false";
+}
+
+const cuesBound = new WeakSet();
+function bindScrollCues(panel) {
+  if (!panel || cuesBound.has(panel)) return;
+  cuesBound.add(panel);
+  panel.addEventListener("scroll", () => syncScrollCues(panel), { passive: true });
+}
+
+window.addEventListener("resize", () => {
+  if (!openItem) return;
+  syncScrollCues(openItem.querySelector(".mega"));
+}, { passive: true });
+
 function openMega(item) {
   if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
   if (openItem && openItem !== item) closeMega(openItem, true);
   item.dataset.open = "true";
+  const panel = item.querySelector(".mega");
+  if (panel) {
+    bindScrollCues(panel);
+    // Reopening a menu should start at the top, not wherever it was
+    // left. "instant" because nav.css turns on smooth scrolling and a
+    // menu animating its own scroll position as it appears reads as a
+    // glitch.
+    try { panel.scrollTo({ top: 0, behavior: "instant" }); }
+    catch { panel.scrollTop = 0; }
+    // After the open animation has laid the panel out.
+    requestAnimationFrame(() => syncScrollCues(panel));
+  }
   const trigger = item.querySelector("[data-mega-trigger]");
   if (trigger) trigger.setAttribute("aria-expanded", "true");
   openItem = item;
