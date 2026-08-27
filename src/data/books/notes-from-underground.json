@@ -847,18 +847,14 @@
       ]
     },
     {
-      "title": "Part II",
+      "title": "Part II A Propos of the Wet Snow",
       "paragraphs": [
         {
           "id": "p0",
-          "text": "A Propos of the Wet Snow"
-        },
-        {
-          "id": "p1",
           "text": "When from dark error's subjugation My words of passionate exhortation Had wrenched thy fainting spirit free; And writhing prone in thine affliction Thou didst recall with malediction The vice that had encompassed thee: And when thy slumbering conscience, fretting By recollection's torturing flame, Thou didst reveal the hideous setting Of thy life's current ere I came: When suddenly I saw thee sicken, And weeping, hide thine anguished face, Revolted, maddened, horror-stricken, At memories of foul disgrace."
         },
         {
-          "id": "p2",
+          "id": "p1",
           "text": "NEKRASSOV (translated by Juliet Soskice)."
         }
       ]
@@ -3531,6 +3527,6 @@
     }
   ],
   "chapterCount": 21,
-  "paragraphCount": 855,
-  "charCount": 236036
+  "paragraphCount": 854,
+  "charCount": 236012
 }

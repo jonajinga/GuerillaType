@@ -28,7 +28,8 @@
     "custom-branches": "node scripts/check-custom-storage-branches.mjs",
     "custom-sample": "node scripts/check-custom-sample.mjs",
     "prebuild": "node scripts/build-custom-sample.mjs",
-    "custom-sample-data": "node scripts/build-custom-sample.mjs"
+    "custom-sample-data": "node scripts/build-custom-sample.mjs",
+    "book-chapters": "node scripts/check-book-chapters.mjs"
   },
   "dependencies": {
     "@11ty/eleventy": "^3.0.0",

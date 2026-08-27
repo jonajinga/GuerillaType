@@ -9,6 +9,7 @@ import { recordSession } from "../engine/session-recorder.js";
 import { setSegProgress, getSaved as getSavedCustom, listSaved as listSavedCustom, getSegments as getCustomSegments } from "../engine/custom-text.js";
 import { byId as achievementById } from "../engine/achievements.js";
 import { fingerForKey } from "../engine/layouts.js";
+import { bookStructureSig } from "../engine/book-structure.js";
 import { setSoundPrefs, playKey, playMistake, playFinish } from "../engine/sounds.js";
 import { getActive, updateActive } from "../profiles.js";
 import { loadQuotes, pickQuote, dailyQuote } from "../engine/quotes.js";
@@ -959,7 +960,13 @@ function handleFinish(result) {
     }
     updateActive((p) => {
       p.bookProgress = p.bookProgress || {};
-      const bp = p.bookProgress[state.bookSlug] = p.bookProgress[state.bookSlug] || { typed: {}, lastChapter: 0, lastParagraphId: null };
+      let bp = p.bookProgress[state.bookSlug] = p.bookProgress[state.bookSlug] || { typed: {}, lastChapter: 0, lastParagraphId: null };
+      // Same rule as the reader: marks saved against a different chapter
+      // structure no longer point at the text they were made for.
+      const sig = state._book ? bookStructureSig(state._book.chapters) : null;
+      if (sig && bp.sig !== sig) {
+        bp = p.bookProgress[state.bookSlug] = { typed: {}, lastChapter: 0, lastParagraphId: null, sig };
+      }
       for (const pid of completedIds) {
         bp.typed[`${state.bookCh}:${pid}`] = { wpm: result.wpm, acc: result.accuracy, at: new Date().toISOString() };
       }
