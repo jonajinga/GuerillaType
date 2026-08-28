@@ -86,6 +86,62 @@ export class Renderer {
      shifts earlier content in normal LTR flow, so appendText measures
      only the new tail instead of re-walking thousands of spans -- which
      keeps long zen / adaptive streams from degrading to O(n^2). */
+  /* Keep the caret on screen while typing a long passage.
+
+     These modes -- book reader, custom text, long quotes -- render the
+     whole passage into the page and deliberately do not slide lines up
+     the way the default mode does. That is right for short passages,
+     where the reader wants the paragraph to sit still. For a long one it
+     meant the caret simply walked off the bottom of the window and the
+     typist had to stop and scroll by hand to see what to type next.
+
+     Costs no getBoundingClientRect: the container's document-space top
+     is cached in _measure, so this needs only window.scrollY, which the
+     typing-perf gate's budget of 0.5 rect reads per keystroke does not
+     count and which cannot force layout when read before the caret
+     style writes.
+
+     Scrolls only when the caret leaves a comfortable band, so an
+     ordinary line of typing moves nothing. */
+  _followCaretInPage(contY, lineH) {
+    if (this._contDocTop == null) return;
+    const vh = window.innerHeight || 0;
+    if (!vh) return;
+
+    const line = lineH || 28;
+    const scrollY = window.scrollY || window.pageYOffset || 0;
+    const top = this._contDocTop + contY - scrollY;
+
+    /* Headroom above so you can see the line you just finished, and a
+       deeper margin below so the NEXT line is already on screen rather
+       than arriving flush with the bottom edge. */
+    const min = Math.max(line * 2, vh * 0.15);
+    const max = vh - Math.max(line * 4, vh * 0.28);
+    if (top >= min && top <= max) return;
+
+    const delta = Math.round(top - vh * 0.38);
+    if (Math.abs(delta) < 4) return;
+
+    /* Instant, not smooth, and deliberately so.
+
+       A smooth scroll is asynchronous: the following keystrokes read a
+       scrollY that has not caught up, so either they stack corrections
+       on top of an in-flight animation or -- if you suppress that with a
+       cooldown -- the caret keeps travelling during the cooldown and
+       leaves the screen anyway. Measured with a 320ms cooldown while
+       typing a 521-character poem: the caret left a 700px viewport three
+       times, ranging from 0 to 779px.
+
+       Instant also matches the rest of the app. The default mode slides
+       lines with an immediate transform; a page that eases underneath
+       you while you type reads as drift, not polish. */
+    try {
+      window.scrollBy({ top: delta, behavior: "auto" });
+    } catch {
+      window.scrollBy(0, delta);
+    }
+  }
+
   _measure(from = 0) {
     const n = this.chars.length;
     if (!n) { this._posCount = 0; this._dirty = false; return; }
@@ -98,6 +154,11 @@ export class Renderer {
     // math stays correct when measured mid-scroll or mid-tape-slide.
     this._innerOffX = (ir.left - cr.left) + (this._tapeShift || 0);
     this._innerOffY = (ir.top - cr.top) + (this.scrollPx || 0);
+    /* Container top in DOCUMENT space, so it stays valid as the page
+       scrolls and the per-keystroke caret-follow below never needs a
+       rect of its own. _measure only runs when the layout is dirty or
+       new characters arrive, never per keypress. */
+    this._contDocTop = cr.top + (window.scrollY || window.pageYOffset || 0);
 
     const pos = this._pos;
     for (let k = from; k < n; k++) {
@@ -319,6 +380,9 @@ export class Renderer {
         this.scrollPx = 0;
         this.inner.style.transform = "";
       }
+      /* Before the style writes below, so reading scrollY cannot be
+         forced to flush them. */
+      this._followCaretInPage(contY, h);
       this.caret.style.left = contX + "px";
       this.caret.style.top = contY + "px";
       return;

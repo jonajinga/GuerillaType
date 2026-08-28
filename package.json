@@ -31,7 +31,8 @@
     "custom-sample-data": "node scripts/build-custom-sample.mjs",
     "book-chapters": "node scripts/check-book-chapters.mjs",
     "nav-scroll": "node scripts/check-nav-scroll.mjs",
-    "typing-perf": "node scripts/check-typing-perf.mjs"
+    "typing-perf": "node scripts/check-typing-perf.mjs",
+    "caret-follow": "node scripts/check-caret-follow.mjs"
   },
   "dependencies": {
     "@11ty/eleventy": "^3.0.0",
