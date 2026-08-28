@@ -24,3 +24,27 @@ export function shuffle(arr, rng = Math.random) {
   }
   return a;
 }
+
+/* Weighted pick-with-replacement. Returns a `choose()` closure so the
+   cumulative table is built once and reused across many picks.
+   Weights must line up index-for-index with `items`; negatives and
+   NaN are treated as 0. If nothing has positive weight the chooser
+   degrades to a uniform pick, so callers never have to special-case
+   "no signal yet". */
+export function weightedChooser(items, weights, rng = Math.random) {
+  const list = items || [];
+  const cum = new Array(list.length);
+  let total = 0;
+  for (let i = 0; i < list.length; i++) {
+    const w = Number(weights && weights[i]);
+    total += Number.isFinite(w) && w > 0 ? w : 0;
+    cum[i] = total;
+  }
+  if (!list.length) return () => undefined;
+  if (!(total > 0)) return () => pick(list, rng);
+  return function choose() {
+    const r = rng() * total;
+    for (let i = 0; i < cum.length; i++) if (r <= cum[i]) return list[i];
+    return list[list.length - 1];
+  };
+}
