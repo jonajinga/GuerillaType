@@ -51,6 +51,9 @@ const EXPECTED = [
   { slug: "a-tale-of-two-cities", chapters: 45 },
   { slug: "sign-of-four", chapters: 12 },
   { slug: "call-of-the-wild", chapters: 7 },
+  // Five staves, not chapters. The whole book landed in one section
+  // until STAVE was added to the recognised division labels.
+  { slug: "a-christmas-carol", chapters: 5, firstTitle: "Marley's Ghost" },
 ];
 
 for (const want of EXPECTED) {
@@ -103,7 +106,7 @@ chk(allBlank === 0, "no book has untitled chapters", `${allBlank} book(s)`);
 chk(unknownAuthors === 0, "no book has an unknown author", `${unknownAuthors} book(s)`);
 chk(blankTitles === 0, "no chapter anywhere is untitled", `${blankTitles} chapter(s)`);
 // Floor, not an equality -- more books may be added.
-chk(totalChapters >= 11904, "corpus chapter count has not gone backwards", `${totalChapters}`);
+chk(totalChapters >= 11918, "corpus chapter count has not gone backwards", `${totalChapters}`);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
