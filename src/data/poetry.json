@@ -1,14 +1,16 @@
 [
   {
-    "id": "po-dickinson-hope",
+    "id": "p-dickinson-hope-is-thing-with-feathers",
     "title": "Hope is the thing with feathers",
     "author": "Emily Dickinson",
     "year": 1891,
-    "source": "Public domain",
+    "source": "Poems by Emily Dickinson",
     "tags": [
-      "hope"
+      "hope",
+      "soul",
+      "resilience"
     ],
-    "text": "Hope is the thing with feathers\nThat perches in the soul,\nAnd sings the tune without the words,\nAnd never stops at all,\n\nAnd sweetest in the gale is heard;\nAnd sore must be the storm\nThat could abash the little bird\nThat kept so many warm."
+    "text": "Hope is the thing with feathers\nThat perches in the soul,\nAnd sings the tune without the words,\nAnd never stops at all,\n\nAnd sweetest in the gale is heard;\nAnd sore must be the storm\nThat could abash the little bird\nThat kept so many warm.\n\nI've heard it in the chillest land,\nAnd on the strangest sea;\nYet, never, in extremity,\nIt asked a crumb of me."
   },
   {
     "id": "po-whitman-myself",
@@ -46,16 +48,20 @@
     "text": "A thing of beauty is a joy for ever:\nIts loveliness increases; it will never\nPass into nothingness; but still will keep\nA bower quiet for us, and a sleep\nFull of sweet dreams, and health, and quiet breathing."
   },
   {
-    "id": "po-blake-tyger",
+    "id": "p-blake-tyger",
     "title": "The Tyger",
     "author": "William Blake",
     "year": 1794,
-    "source": "Public domain",
+    "source": "Songs of Experience",
     "tags": [
       "nature",
-      "mystery"
+      "mystery",
+      "wonder",
+      "creation",
+      "fear",
+      "awe"
     ],
-    "text": "Tyger Tyger, burning bright,\nIn the forests of the night;\nWhat immortal hand or eye,\nCould frame thy fearful symmetry?\n\nIn what distant deeps or skies,\nBurnt the fire of thine eyes?\nOn what wings dare he aspire?\nWhat the hand, dare seize the fire?"
+    "text": "Tyger Tyger, burning bright,\nIn the forests of the night;\nWhat immortal hand or eye,\nCould frame thy fearful symmetry?\n\nIn what distant deeps or skies,\nBurnt the fire of thine eyes?\nOn what wings dare he aspire?\nWhat the hand, dare seize the fire?\n\nAnd what shoulder, & what art,\nCould twist the sinews of thy heart?\nAnd when thy heart began to beat,\nWhat dread hand? & what dread feet?\n\nWhat the hammer? what the chain?\nIn what furnace was thy brain?\nWhat the anvil? what dread grasp,\nDare its deadly terrors clasp?\n\nWhen the stars threw down their spears\nAnd water'd heaven with their tears,\nDid he smile his work to see?\nDid he who made the Lamb make thee?\n\nTyger Tyger burning bright,\nIn the forests of the night;\nWhat immortal hand or eye,\nDare frame thy fearful symmetry?"
   },
   {
     "id": "po-rossetti-uphill",
@@ -80,15 +86,17 @@
     "text": "Once upon a midnight dreary, while I pondered, weak and weary,\nOver many a quaint and curious volume of forgotten lore,\nWhile I nodded, nearly napping, suddenly there came a tapping,\nAs of some one gently rapping, rapping at my chamber door.\n\"'Tis some visitor,\" I muttered, \"tapping at my chamber door --\n            Only this, and nothing more.\""
   },
   {
-    "id": "po-wordsworth-daffodils",
+    "id": "p-wordsworth-daffodils",
     "title": "I Wandered Lonely as a Cloud",
     "author": "William Wordsworth",
     "year": 1807,
-    "source": "Public domain",
+    "source": "Poems in Two Volumes",
     "tags": [
-      "nature"
+      "nature",
+      "memory",
+      "joy"
     ],
-    "text": "I wandered lonely as a cloud\nThat floats on high o'er vales and hills,\nWhen all at once I saw a crowd,\nA host, of golden daffodils;\nBeside the lake, beneath the trees,\nFluttering and dancing in the breeze."
+    "text": "I wandered lonely as a cloud\nThat floats on high o'er vales and hills,\nWhen all at once I saw a crowd,\nA host, of golden daffodils;\nBeside the lake, beneath the trees,\nFluttering and dancing in the breeze.\n\nContinuous as the stars that shine\nAnd twinkle on the milky way,\nThey stretched in never-ending line\nAlong the margin of a bay:\nTen thousand saw I at a glance,\nTossing their heads in sprightly dance.\n\nThe waves beside them danced; but they\nOut-did the sparkling waves in glee:\nA poet could not but be gay,\nIn such a jocund company:\nI gazed -- and gazed -- but little thought\nWhat wealth the show to me had brought:\n\nFor oft, when on my couch I lie\nIn vacant or in pensive mood,\nThey flash upon that inward eye\nWhich is the bliss of solitude;\nAnd then my heart with pleasure fills,\nAnd dances with the daffodils."
   },
   {
     "id": "po-shakespeare-29",
@@ -155,29 +163,31 @@
     "text": "My heart aches, and a drowsy numbness pains\n   My sense, as though of hemlock I had drunk,\nOr emptied some dull opiate to the drains\n   One minute past, and Lethe-wards had sunk:\n'Tis not through envy of thy happy lot,\n   But being too happy in thine happiness, --\n      That thou, light-winged Dryad of the trees,\n         In some melodious plot\n   Of beechen green, and shadows numberless,\n      Singest of summer in full-throated ease."
   },
   {
-    "id": "po-shelley-ozymandias",
+    "id": "p-shelley-ozymandias",
     "title": "Ozymandias",
     "author": "Percy Bysshe Shelley",
-    "year": "1818",
-    "source": "Public domain",
+    "year": 1818,
+    "source": "The Examiner",
     "tags": [
       "sonnet",
       "ruin",
-      "power"
+      "power",
+      "time"
     ],
-    "text": "I met a traveller from an antique land,\nWho said -- \"Two vast and trunkless legs of stone\nStand in the desert. . . . Near them, on the sand,\nHalf sunk a shattered visage lies, whose frown,\nAnd wrinkled lip, and sneer of cold command,\nTell that its sculptor well those passions read\nWhich yet survive, stamped on these lifeless things,\nThe hand that mocked them, and the heart that fed;\nAnd on the pedestal, these words appear:\nMy name is Ozymandias, King of Kings;\nLook on my Works, ye Mighty, and despair!\nNothing beside remains. Round the decay\nOf that colossal Wreck, boundless and bare\nThe lone and level sands stretch far away.\""
+    "text": "I met a traveller from an antique land,\nWho said--\"Two vast and trunkless legs of stone\nStand in the desert. . . . Near them, on the sand,\nHalf sunk a shattered visage lies, whose frown,\nAnd wrinkled lip, and sneer of cold command,\nTell that its sculptor well those passions read\nWhich yet survive, stamped on these lifeless things,\nThe hand that mocked them, and the heart that fed;\n\nAnd on the pedestal, these words appear:\nMy name is Ozymandias, King of Kings;\nLook on my Works, ye Mighty, and despair!\nNothing beside remains. Round the decay\nOf that colossal Wreck, boundless and bare\nThe lone and level sands stretch far away.\""
   },
   {
-    "id": "po-byron-she-walks",
+    "id": "p-byron-she-walks-in-beauty",
     "title": "She Walks in Beauty",
     "author": "Lord Byron",
-    "year": "1814",
-    "source": "Public domain",
+    "year": 1815,
+    "source": "Hebrew Melodies",
     "tags": [
       "love",
-      "beauty"
+      "beauty",
+      "romanticism"
     ],
-    "text": "She walks in beauty, like the night\n   Of cloudless climes and starry skies;\nAnd all that's best of dark and bright\n   Meet in her aspect and her eyes;\nThus mellowed to that tender light\n   Which heaven to gaudy day denies.\n\nOne shade the more, one ray the less,\n   Had half impaired the nameless grace\nWhich waves in every raven tress,\n   Or softly lightens o'er her face;\nWhere thoughts serenely sweet express,\n   How pure, how dear their dwelling-place.\n\nAnd on that cheek, and o'er that brow,\n   So soft, so calm, yet eloquent,\nThe smiles that win, the tints that glow,\n   But tell of days in goodness spent,\nA mind at peace with all below,\n   A heart whose love is innocent!"
+    "text": "She walks in beauty, like the night\nOf cloudless climes and starry skies;\nAnd all that's best of dark and bright\nMeet in her aspect and her eyes:\nThus mellowed to that tender light\nWhich heaven to gaudy day denies.\n\nOne shade the more, one ray the less,\nHad half impaired the nameless grace\nWhich waves in every raven tress,\nOr softly lightens o'er her face;\nWhere thoughts serenely sweet express\nHow pure, how dear their dwelling place.\n\nAnd on that cheek, and o'er that brow,\nSo soft, so calm, yet eloquent,\nThe smiles that win, the tints that glow,\nBut tell of days in goodness spent,\nA mind at peace with all below,\nA heart whose love is innocent!"
   },
   {
     "id": "po-wordsworth-prelude",
@@ -192,16 +202,18 @@
     "text": "And I have felt\nA presence that disturbs me with the joy\nOf elevated thoughts; a sense sublime\nOf something far more deeply interfused,\nWhose dwelling is the light of setting suns,\nAnd the round ocean and the living air,\nAnd the blue sky, and in the mind of man:\nA motion and a spirit, that impels\nAll thinking things, all objects of all thought,\nAnd rolls through all things."
   },
   {
-    "id": "po-coleridge-kubla",
-    "title": "Kubla Khan (opening)",
+    "id": "p-coleridge-kubla-khan-excerpt",
+    "title": "Kubla Khan (excerpt)",
     "author": "Samuel Taylor Coleridge",
-    "year": "1816",
-    "source": "Public domain",
+    "year": 1816,
+    "source": "Christabel, Kubla Khan, and the Pains of Sleep",
     "tags": [
       "dream",
-      "imagination"
+      "imagination",
+      "fantasy",
+      "romanticism"
     ],
-    "text": "In Xanadu did Kubla Khan\nA stately pleasure-dome decree:\nWhere Alph, the sacred river, ran\nThrough caverns measureless to man\n   Down to a sunless sea.\nSo twice five miles of fertile ground\nWith walls and towers were girdled round;\nAnd there were gardens bright with sinuous rills,\nWhere blossomed many an incense-bearing tree;\nAnd here were forests ancient as the hills,\nEnfolding sunny spots of greenery."
+    "text": "In Xanadu did Kubla Khan\nA stately pleasure-dome decree:\nWhere Alph, the sacred river, ran\nThrough caverns measureless to man\n  Down to a sunless sea.\nSo twice five miles of fertile ground\nWith walls and towers were girdled round;\nAnd there were gardens bright with sinuous rills,\nWhere blossomed many an incense-bearing tree;\nAnd here were forests ancient as the hills,\nEnfolding sunny spots of greenery."
   },
   {
     "id": "po-tennyson-ulysses",
@@ -276,14 +288,15 @@
     "text": "A narrow Fellow in the Grass\nOccasionally rides --\nYou may have met him? Did you not\nHis notice instant is --\n\nThe Grass divides as with a Comb,\nA spotted Shaft is seen,\nAnd then it closes at your Feet\nAnd opens further on --\n\nSeveral of Nature's People\nI know, and they know me;\nI feel for them a transport\nOf Cordiality;\n\nBut never met this Fellow,\nAttended or alone,\nWithout a tighter breathing,\nAnd Zero at the Bone."
   },
   {
-    "id": "po-dickinson-because",
+    "id": "p-dickinson-because-i-could-not-stop",
     "title": "Because I could not stop for Death",
     "author": "Emily Dickinson",
-    "year": "c. 1863",
-    "source": "Public domain",
+    "year": 1890,
+    "source": "Poems by Emily Dickinson",
     "tags": [
       "death",
-      "journey"
+      "journey",
+      "eternity"
     ],
     "text": "Because I could not stop for Death --\nHe kindly stopped for me --\nThe Carriage held but just Ourselves --\nAnd Immortality.\n\nWe slowly drove -- He knew no haste\nAnd I had put away\nMy labor and my leisure too,\nFor His Civility --\n\nWe passed the School, where Children strove\nAt Recess -- in the Ring --\nWe passed the Fields of Gazing Grain --\nWe passed the Setting Sun --"
   },
@@ -300,28 +313,32 @@
     "text": "I will arise and go now, and go to Innisfree,\nAnd a small cabin build there, of clay and wattles made;\nNine bean-rows will I have there, a hive for the honey-bee,\nAnd live alone in the bee-loud glade.\n\nAnd I shall have some peace there, for peace comes dropping slow,\nDropping from the veils of the morning to where the cricket sings;\nThere midnight's all a glimmer, and noon a purple glow,\nAnd evening full of the linnet's wings.\n\nI will arise and go now, for always night and day\nI hear lake water lapping with low sounds by the shore;\nWhile I stand on the roadway, or on the pavements grey,\nI hear it in the deep heart's core."
   },
   {
-    "id": "po-yeats-second-coming",
-    "title": "The Second Coming (opening)",
-    "author": "William Butler Yeats",
-    "year": "1919",
-    "source": "Public domain",
+    "id": "p-yeats-second-coming",
+    "title": "The Second Coming",
+    "author": "W.B. Yeats",
+    "year": 1920,
+    "source": "The Dial",
     "tags": [
       "apocalyptic",
-      "modern"
+      "modern",
+      "prophecy",
+      "apocalypse",
+      "modernity"
     ],
-    "text": "Turning and turning in the widening gyre\nThe falcon cannot hear the falconer;\nThings fall apart; the centre cannot hold;\nMere anarchy is loosed upon the world,\nThe blood-dimmed tide is loosed, and everywhere\nThe ceremony of innocence is drowned;\nThe best lack all conviction, while the worst\nAre full of passionate intensity."
+    "text": "Turning and turning in the widening gyre\nThe falcon cannot hear the falconer;\nThings fall apart; the centre cannot hold;\nMere anarchy is loosed upon the world,\nThe blood-dimmed tide is loosed, and everywhere\nThe ceremony of innocence is drowned;\nThe best lack all conviction, while the worst\nAre full of passionate intensity.\n\nSurely some revelation is at hand;\nSurely the Second Coming is at hand.\nThe Second Coming! Hardly are those words out\nWhen a vast image out of Spiritus Mundi\nTroubles my sight: somewhere in sands of the desert\nA shape with lion body and the head of a man,\nA gaze blank and pitiless as the sun,\nIs moving its slow thighs, while all about it\nReel shadows of the indignant desert birds.\nThe darkness drops again; but now I know\nThat twenty centuries of stony sleep\nWere vexed to nightmare by a rocking cradle,\nAnd what rough beast, its hour come round at last,\nSlouches towards Bethlehem to be born?"
   },
   {
-    "id": "po-hopkins-pied",
+    "id": "p-hopkins-pied-beauty",
     "title": "Pied Beauty",
     "author": "Gerard Manley Hopkins",
-    "year": "1877",
-    "source": "Public domain",
+    "year": 1877,
+    "source": "Poems",
     "tags": [
       "nature",
-      "praise"
+      "praise",
+      "variety"
     ],
-    "text": "Glory be to God for dappled things --\n   For skies of couple-colour as a brinded cow;\n      For rose-moles all in stipple upon trout that swim;\nFresh-firecoal chestnut-falls; finches' wings;\n   Landscape plotted and pieced -- fold, fallow, and plough;\n      And áll trádes, their gear and tackle and trim.\n\nAll things counter, original, spare, strange;\n   Whatever is fickle, freckled (who knows how?)\n      With swift, slow; sweet, sour; adazzle, dim;\nHe fathers-forth whose beauty is past change:\n            Praise him."
+    "text": "Glory be to God for dappled things --\n  For skies of couple-colour as a brinded cow;\n    For rose-moles all in stipple upon trout that swim;\nFresh-firecoal chestnut-falls; finches' wings;\n  Landscape plotted and pieced -- fold, fallow, and plough;\n    And all trades, their gear and tackle and trim.\n\nAll things counter, original, spare, strange;\n  Whatever is fickle, freckled (who knows how?)\n    With swift, slow; sweet, sour; adazzle, dim;\nHe fathers-forth whose beauty is past change:\n                                Praise him."
   },
   {
     "id": "po-hardy-darkling",
@@ -369,7 +386,7 @@
       "love",
       "death"
     ],
-    "text": "It was many and many a year ago,\n   In a kingdom by the sea,\nThat a maiden there lived whom you may know\n   By the name of Annabel Lee;\nAnd this maiden she lived with no other thought\n   Than to love and be loved by me.\n\nI was a child and she was a child,\n   In this kingdom by the sea,\nBut we loved with a love that was more than love --\n   I and my Annabel Lee --\nWith a love that the wingèd seraphs of Heaven\n   Coveted her and me."
+    "text": "It was many and many a year ago,\n   In a kingdom by the sea,\nThat a maiden there lived whom you may know\n   By the name of Annabel Lee;\nAnd this maiden she lived with no other thought\n   Than to love and be loved by me.\n\nI was a child and she was a child,\n   In this kingdom by the sea,\nBut we loved with a love that was more than love --\n   I and my Annabel Lee --\nWith a love that the winged seraphs of Heaven\n   Coveted her and me."
   },
   {
     "id": "po-poe-eldorado",
@@ -432,14 +449,15 @@
     "text": "A noiseless patient spider,\nI mark'd where on a little promontory it stood isolated,\nMark'd how to explore the vacant vast surrounding,\nIt launch'd forth filament, filament, filament, out of itself,\nEver unreeling them, ever tirelessly speeding them.\n\nAnd you O my soul where you stand,\nSurrounded, detached, in measureless oceans of space,\nCeaselessly musing, venturing, throwing, seeking the spheres to connect them,\nTill the bridge you will need be form'd, till the ductile anchor hold,\nTill the gossamer thread you fling catch somewhere, O my soul."
   },
   {
-    "id": "po-housman-lovliest",
-    "title": "Loveliest of trees, the cherry now",
-    "author": "A. E. Housman",
-    "year": "1896",
-    "source": "Public domain",
+    "id": "p-housman-loveliest-of-trees",
+    "title": "Loveliest of Trees",
+    "author": "A.E. Housman",
+    "year": 1896,
+    "source": "A Shropshire Lad",
     "tags": [
       "nature",
-      "time"
+      "time",
+      "spring"
     ],
     "text": "Loveliest of trees, the cherry now\nIs hung with bloom along the bough,\nAnd stands about the woodland ride\nWearing white for Eastertide.\n\nNow, of my threescore years and ten,\nTwenty will not come again,\nAnd take from seventy springs a score,\nIt only leaves me fifty more.\n\nAnd since to look at things in bloom\nFifty springs are little room,\nAbout the woodlands I will go\nTo see the cherry hung with snow."
   },
@@ -501,7 +519,7 @@
       "love",
       "time"
     ],
-    "text": "Had we but world enough and time,\nThis coyness, lady, were no crime.\nWe would sit down, and think which way\nTo walk, and pass our long love's day.\nBut at my back I always hear\nTime's wingèd chariot hurrying near;\nAnd yonder all before us lie\nDeserts of vast eternity.\nThy beauty shall no more be found;\nNor, in thy marble vault, shall sound\nMy echoing song; then worms shall try\nThat long-preserved virginity,\nAnd your quaint honour turn to dust,\nAnd into ashes all my lust:\nThe grave's a fine and private place,\nBut none, I think, do there embrace."
+    "text": "Had we but world enough and time,\nThis coyness, lady, were no crime.\nWe would sit down, and think which way\nTo walk, and pass our long love's day.\nBut at my back I always hear\nTime's winged chariot hurrying near;\nAnd yonder all before us lie\nDeserts of vast eternity.\nThy beauty shall no more be found;\nNor, in thy marble vault, shall sound\nMy echoing song; then worms shall try\nThat long-preserved virginity,\nAnd your quaint honour turn to dust,\nAnd into ashes all my lust:\nThe grave's a fine and private place,\nBut none, I think, do there embrace."
   },
   {
     "id": "po-pope-essay-criticism",
@@ -576,16 +594,19 @@
     "text": "We wear the mask that grins and lies,\nIt hides our cheeks and shades our eyes, --\nThis debt we pay to human guile;\nWith torn and bleeding hearts we smile,\nAnd mouth with myriad subtleties.\n\nWhy should the world be over-wise,\nIn counting all our tears and sighs?\nNay, let them only see us, while\n      We wear the mask.\n\nWe smile, but, O great Christ, our cries\nTo thee from tortured souls arise.\nWe sing, but oh the clay is vile\nBeneath our feet, and long the mile;\nBut let the world dream otherwise,\n      We wear the mask!"
   },
   {
-    "id": "po-millay-first-fig",
+    "id": "p-millay-first-fig",
     "title": "First Fig",
     "author": "Edna St. Vincent Millay",
-    "year": "1920",
-    "source": "Public domain",
+    "year": 1920,
+    "source": "A Few Figs from Thistles",
     "tags": [
       "short",
-      "life"
+      "life",
+      "youth",
+      "intensity",
+      "light"
     ],
-    "text": "My candle burns at both ends;\n   It will not last the night;\nBut ah, my foes, and oh, my friends --\n   It gives a lovely light!"
+    "text": "My candle burns at both ends;\n  It will not last the night;\nBut ah, my foes, and oh, my friends --\n  It gives a lovely light!"
   },
   {
     "id": "po-millay-renascence",
@@ -612,20 +633,22 @@
     "text": "That time of year thou mayst in me behold\nWhen yellow leaves, or none, or few, do hang\nUpon those boughs which shake against the cold,\nBare ruin'd choirs, where late the sweet birds sang.\nIn me thou see'st the twilight of such day\nAs after sunset fadeth in the west,\nWhich by and by black night doth take away,\nDeath's second self, that seals up all in rest.\nIn me thou see'st the glowing of such fire\nThat on the ashes of his youth doth lie,\nAs the death-bed whereon it must expire,\nConsum'd with that which it was nourish'd by.\n   This thou perceiv'st, which makes thy love more strong,\n   To love that well which thou must leave ere long."
   },
   {
-    "id": "po-keats-bright-star",
+    "id": "p-keats-bright-star",
     "title": "Bright Star",
     "author": "John Keats",
-    "year": "1819",
-    "source": "Public domain",
+    "year": 1819,
+    "source": "The Poems of John Keats",
     "tags": [
       "sonnet",
-      "love"
+      "love",
+      "constancy",
+      "stars"
     ],
-    "text": "Bright star, would I were stedfast as thou art --\n   Not in lone splendour hung aloft the night\nAnd watching, with eternal lids apart,\n   Like nature's patient, sleepless Eremite,\nThe moving waters at their priestlike task\n   Of pure ablution round earth's human shores,\nOr gazing on the new soft-fallen mask\n   Of snow upon the mountains and the moors --\nNo -- yet still stedfast, still unchangeable,\n   Pillow'd upon my fair love's ripening breast,\nTo feel for ever its soft fall and swell,\n   Awake for ever in a sweet unrest,\nStill, still to hear her tender-taken breath,\nAnd so live ever -- or else swoon to death."
+    "text": "Bright star, would I were stedfast as thou art --\nNot in lone splendour hung aloft the night\nAnd watching, with eternal lids apart,\nLike nature's patient, sleepless Eremite,\nThe moving waters at their priestlike task\nOf pure ablution round earth's human shores,\nOr gazing on the new soft-fallen mask\nOf snow upon the mountains and the moors --\nNo -- yet still stedfast, still unchangeable,\nPillow'd upon my fair love's ripening breast,\nTo feel for ever its soft fall and swell,\nAwake for ever in a sweet unrest,\nStill, still to hear her tender-taken breath,\nAnd so live ever -- or else swoon to death."
   },
   {
-    "id": "po-rossetti-song",
-    "title": "Song",
+    "id": "po-rossetti-when-i-am-dead",
+    "title": "When I am dead, my dearest",
     "author": "Christina Rossetti",
     "year": "1862",
     "source": "Public domain",
@@ -633,7 +656,7 @@
       "death",
       "memory"
     ],
-    "text": "When I am dead, my dearest,\n   Sing no sad songs for me;\nPlant thou no roses at my head,\n   Nor shady cypress tree:\nBe the green grass above me\n   With showers and dewdrops wet;\nAnd if thou wilt, remember,\n   And if thou wilt, forget."
+    "text": "When I am dead, my dearest,\n   Sing no sad songs for me;\nPlant thou no roses at my head,\n   Nor shady cypress tree:\nBe the green grass above me\n   With showers and dewdrops wet;\nAnd if thou wilt, remember,\n   And if thou wilt, forget.\n\nI shall not see the shadows,\n   I shall not feel the rain;\nI shall not hear the nightingale\n   Sing on, as if in pain:\nAnd dreaming through the twilight\n   That doth not rise nor set,\nHaply I may remember,\n   And haply may forget."
   },
   {
     "id": "po-stevenson-requiem",
@@ -693,18 +716,6 @@
       "prison"
     ],
     "text": "My hair is grey, but not with years,\n   Nor grew it white\n   In a single night,\nAs men's have grown from sudden fears:\nMy limbs are bow'd, though not with toil,\n   But rusted with a vile repose,\nFor they have been a dungeon's spoil,\n   And mine has been the fate of those\nTo whom the goodly earth and air\nAre bann'd, and barr'd -- forbidden fare."
-  },
-  {
-    "id": "po-blake-songs-experience",
-    "title": "The Tyger (full)",
-    "author": "William Blake",
-    "year": "1794",
-    "source": "Public domain",
-    "tags": [
-      "nature",
-      "awe"
-    ],
-    "text": "Tyger Tyger, burning bright,\nIn the forests of the night;\nWhat immortal hand or eye,\nCould frame thy fearful symmetry?\n\nIn what distant deeps or skies,\nBurnt the fire of thine eyes?\nOn what wings dare he aspire?\nWhat the hand, dare seize the fire?\n\nAnd what shoulder, & what art,\nCould twist the sinews of thy heart?\nAnd when thy heart began to beat,\nWhat dread hand? & what dread feet?"
   },
   {
     "id": "po-blake-jerusalem",
@@ -897,18 +908,6 @@
     "text": "One must have a mind of winter\nTo regard the frost and the boughs\nOf the pine-trees crusted with snow;\n\nAnd have been cold a long time\nTo behold the junipers shagged with ice,\nThe spruces rough in the distant glitter\n\nOf the January sun; and not to think\nOf any misery in the sound of the wind,\nIn the sound of a few leaves,\n\nWhich is the sound of the land\nFull of the same wind\nThat is blowing in the same bare place\n\nFor the listener, who listens in the snow,\nAnd, nothing himself, beholds\nNothing that is not there and the nothing that is."
   },
   {
-    "id": "po-rossetti-when-i-am-dead",
-    "title": "When I am dead, my dearest",
-    "author": "Christina Rossetti",
-    "year": "1862",
-    "source": "Public domain",
-    "tags": [
-      "death",
-      "memory"
-    ],
-    "text": "When I am dead, my dearest,\n   Sing no sad songs for me;\nPlant thou no roses at my head,\n   Nor shady cypress tree:\nBe the green grass above me\n   With showers and dewdrops wet;\nAnd if thou wilt, remember,\n   And if thou wilt, forget.\n\nI shall not see the shadows,\n   I shall not feel the rain;\nI shall not hear the nightingale\n   Sing on, as if in pain:\nAnd dreaming through the twilight\n   That doth not rise nor set,\nHaply I may remember,\n   And haply may forget."
-  },
-  {
     "id": "po-shakespeare-fear-no-more",
     "title": "Fear No More (Cymbeline)",
     "author": "William Shakespeare",
@@ -981,18 +980,6 @@
     "text": "Tears, idle tears, I know not what they mean,\nTears from the depth of some divine despair\nRise in the heart, and gather to the eyes,\nIn looking on the happy Autumn-fields,\nAnd thinking of the days that are no more.\n\nFresh as the first beam glittering on a sail,\nThat brings our friends up from the underworld,\nSad as the last which reddens over one\nThat sinks with all we love below the verge;\nSo sad, so fresh, the days that are no more."
   },
   {
-    "id": "po-millay-love-not-all",
-    "title": "Love is not all",
-    "author": "Edna St. Vincent Millay",
-    "year": "1931",
-    "source": "Public domain",
-    "tags": [
-      "love",
-      "sonnet"
-    ],
-    "text": "Love is not all: it is not meat nor drink\nNor slumber nor a roof against the rain;\nNor yet a floating spar to men that sink\nAnd rise and sink and rise and sink again;\nLove can not fill the thickened lung with breath,\nNor clean the blood, nor set the fractured bone;\nYet many a man is making friends with death\nEven as I speak, for lack of love alone."
-  },
-  {
     "id": "po-cullen-yet-do-i-marvel",
     "title": "Yet Do I Marvel",
     "author": "Countee Cullen",
@@ -1029,16 +1016,19 @@
     "text": "Lift every voice and sing,\nTill earth and heaven ring,\nRing with the harmonies of Liberty;\nLet our rejoicing rise\nHigh as the listening skies,\nLet it resound loud as the rolling sea.\nSing a song full of the faith that the dark past has taught us,\nSing a song full of the hope that the present has brought us;\nFacing the rising sun of our new day begun,\nLet us march on till victory is won."
   },
   {
-    "id": "po-stevens-thirteen",
-    "title": "Thirteen Ways of Looking at a Blackbird (excerpt)",
+    "id": "p-stevens-thirteen-blackbird-i",
+    "title": "Thirteen Ways of Looking at a Blackbird (I-IV)",
     "author": "Wallace Stevens",
-    "year": "1917",
-    "source": "Public domain",
+    "year": 1917,
+    "source": "Others: An Anthology of the New Verse",
     "tags": [
       "modern",
-      "perception"
+      "perception",
+      "modernism",
+      "perspective",
+      "nature"
     ],
-    "text": "I\nAmong twenty snowy mountains,\nThe only moving thing\nWas the eye of the blackbird.\n\nII\nI was of three minds,\nLike a tree\nIn which there are three blackbirds.\n\nIII\nThe blackbird whirled in the autumn winds.\nIt was a small part of the pantomime."
+    "text": "I\n\nAmong twenty snowy mountains,\nThe only moving thing\nWas the eye of the blackbird.\n\nII\n\nI was of three minds,\nLike a tree\nIn which there are three blackbirds.\n\nIII\n\nThe blackbird whirled in the autumn winds.\nIt was a small part of the pantomime.\n\nIV\n\nA man and a woman\nAre one.\nA man and a woman and a blackbird\nAre one."
   },
   {
     "id": "po-millay-recuerdo",
@@ -1101,28 +1091,30 @@
     "text": "Say not the struggle naught availeth,\n   The labour and the wounds are vain,\nThe enemy faints not, nor faileth,\n   And as things have been they remain.\n\nIf hopes were dupes, fears may be liars;\n   It may be, in yon smoke conceal'd,\nYour comrades chase e'en now the fliers,\n   And, but for you, possess the field."
   },
   {
-    "id": "po-kipling-if",
-    "title": "If—",
+    "id": "p-kipling-if",
+    "title": "If--",
     "author": "Rudyard Kipling",
-    "year": "1910",
-    "source": "Public domain",
+    "year": 1910,
+    "source": "Rewards and Fairies",
     "tags": [
       "wisdom",
-      "character"
+      "character",
+      "manhood"
     ],
-    "text": "If you can keep your head when all about you\n   Are losing theirs and blaming it on you,\nIf you can trust yourself when all men doubt you,\n   But make allowance for their doubting too;\nIf you can wait and not be tired by waiting,\n   Or being lied about, don't deal in lies,\nOr being hated, don't give way to hating,\n   And yet don't look too good, nor talk too wise:\n\nIf you can dream -- and not make dreams your master;\n   If you can think -- and not make thoughts your aim;\nIf you can meet with Triumph and Disaster\n   And treat those two impostors just the same."
+    "text": "If you can keep your head when all about you\n  Are losing theirs and blaming it on you,\nIf you can trust yourself when all men doubt you,\n  But make allowance for their doubting too;\nIf you can wait and not be tired by waiting,\n  Or being lied about, don't deal in lies,\nOr being hated, don't give way to hating,\n  And yet don't look too good, nor talk too wise:\n\nIf you can dream -- and not make dreams your master;\n  If you can think -- and not make thoughts your aim;\nIf you can meet with Triumph and Disaster\n  And treat those two impostors just the same;\nIf you can bear to hear the truth you've spoken\n  Twisted by knaves to make a trap for fools,\nOr watch the things you gave your life to, broken,\n  And stoop and build 'em up with worn-out tools:\n\nIf you can talk with crowds and keep your virtue,\n  Or walk with Kings -- nor lose the common touch,\nIf neither foes nor loving friends can hurt you,\n  If all men count with you, but none too much;\nIf you can fill the unforgiving minute\n  With sixty seconds' worth of distance run,\nYours is the Earth and everything that's in it,\n  And -- which is more -- you'll be a Man, my son!"
   },
   {
-    "id": "po-henley-invictus",
+    "id": "p-henley-invictus",
     "title": "Invictus",
     "author": "William Ernest Henley",
-    "year": "1888",
-    "source": "Public domain",
+    "year": 1888,
+    "source": "Book of Verses",
     "tags": [
       "resilience",
-      "courage"
+      "courage",
+      "defiance"
     ],
-    "text": "Out of the night that covers me,\n   Black as the pit from pole to pole,\nI thank whatever gods may be\n   For my unconquerable soul.\n\nIn the fell clutch of circumstance\n   I have not winced nor cried aloud.\nUnder the bludgeonings of chance\n   My head is bloody, but unbowed.\n\nBeyond this place of wrath and tears\n   Looms but the Horror of the shade,\nAnd yet the menace of the years\n   Finds and shall find me unafraid.\n\nIt matters not how strait the gate,\n   How charged with punishments the scroll,\nI am the master of my fate,\n   I am the captain of my soul."
+    "text": "Out of the night that covers me,\n      Black as the pit from pole to pole,\nI thank whatever gods may be\n      For my unconquerable soul.\n\nIn the fell clutch of circumstance\n      I have not winced nor cried aloud.\nUnder the bludgeonings of chance\n      My head is bloody, but unbowed.\n\nBeyond this place of wrath and tears\n      Looms but the Horror of the shade,\nAnd yet the menace of the years\n      Finds, and shall find, me unafraid.\n\nIt matters not how strait the gate,\n      How charged with punishments the scroll,\nI am the master of my fate:\n      I am the captain of my soul."
   },
   {
     "id": "po-shelley-mont-blanc",
@@ -1244,16 +1236,17 @@
     "text": "Out of the cradle endlessly rocking,\nOut of the mocking-bird's throat, the musical shuttle,\nOut of the Ninth-month midnight,\nOver the sterile sands and the fields beyond, where the child leaving his bed wander'd alone, bareheaded, barefoot,\nDown from the shower'd halo,\nUp from the mystic play of shadows twining and twisting as if they were alive."
   },
   {
-    "id": "po-whitman-i-hear",
+    "id": "p-whitman-i-hear-america",
     "title": "I Hear America Singing",
     "author": "Walt Whitman",
-    "year": "1860",
-    "source": "Public domain",
+    "year": 1860,
+    "source": "Leaves of Grass",
     "tags": [
       "america",
-      "work"
+      "work",
+      "unity"
     ],
-    "text": "I hear America singing, the varied carols I hear,\nThose of mechanics, each one singing his as it should be blithe and strong,\nThe carpenter singing his as he measures his plank or beam,\nThe mason singing his as he makes ready for work, or leaves off work,\nThe boatman singing what belongs to him in his boat, the deckhand singing on the steamboat deck."
+    "text": "I hear America singing, the varied carols I hear,\nThose of mechanics, each one singing his as it should be blithe and strong,\nThe carpenter singing his as he measures his plank or beam,\nThe mason singing his as he makes ready for work, or leaves off work,\nThe boatman singing what belongs to him in his boat, the deckhand singing on the steamboat deck,\nThe shoemaker singing as he sits on his bench, the hatter singing as he stands,\nThe wood-cutter's song, the ploughboy's on his way in the morning, or at noon intermission or at sundown,\nThe delicious singing of the mother, or of the young wife at work, or of the girl sewing or washing,\nEach singing what belongs to him or her and to none else,\nThe day what belongs to the day -- at night the party of young fellows, robust, friendly,\nSinging with open mouths their strong melodious songs."
   },
   {
     "id": "po-yeats-coole",
@@ -1409,32 +1402,6 @@
     "text": "Calm was the day, and through the trembling air\nSweet breathing Zephyrus did softly play,\nA gentle spirit, that lightly did delay\nHot Titan's beams, which then did glister fair;\nWhen I (whom sullen care,\nThrough discontent of my long fruitless stay\nIn princes' court, and expectation vain\nOf idle hopes, which still do fly away,\nLike empty shadows, did afflict my brain)\nWalked forth to ease my pain."
   },
   {
-    "id": "p-dickinson-hope-is-thing-with-feathers",
-    "title": "Hope is the thing with feathers",
-    "author": "Emily Dickinson",
-    "year": 1891,
-    "source": "Poems by Emily Dickinson",
-    "tags": [
-      "hope",
-      "soul",
-      "resilience"
-    ],
-    "text": "Hope is the thing with feathers\nThat perches in the soul,\nAnd sings the tune without the words,\nAnd never stops at all,\n\nAnd sweetest in the gale is heard;\nAnd sore must be the storm\nThat could abash the little bird\nThat kept so many warm.\n\nI've heard it in the chillest land,\nAnd on the strangest sea;\nYet, never, in extremity,\nIt asked a crumb of me."
-  },
-  {
-    "id": "p-blake-tyger",
-    "title": "The Tyger",
-    "author": "William Blake",
-    "year": 1794,
-    "source": "Songs of Experience",
-    "tags": [
-      "wonder",
-      "creation",
-      "fear"
-    ],
-    "text": "Tyger Tyger, burning bright,\nIn the forests of the night;\nWhat immortal hand or eye,\nCould frame thy fearful symmetry?\n\nIn what distant deeps or skies,\nBurnt the fire of thine eyes?\nOn what wings dare he aspire?\nWhat the hand, dare seize the fire?\n\nAnd what shoulder, & what art,\nCould twist the sinews of thy heart?\nAnd when thy heart began to beat,\nWhat dread hand? & what dread feet?\n\nWhat the hammer? what the chain?\nIn what furnace was thy brain?\nWhat the anvil? what dread grasp,\nDare its deadly terrors clasp?\n\nWhen the stars threw down their spears\nAnd water'd heaven with their tears,\nDid he smile his work to see?\nDid he who made the Lamb make thee?\n\nTyger Tyger burning bright,\nIn the forests of the night;\nWhat immortal hand or eye,\nDare frame thy fearful symmetry?"
-  },
-  {
     "id": "p-shakespeare-sonnet-18",
     "title": "Sonnet 18: Shall I compare thee to a summer's day?",
     "author": "William Shakespeare",
@@ -1471,59 +1438,7 @@
       "mourning",
       "gothic"
     ],
-    "text": "Once upon a midnight dreary, while I pondered, weak and weary,\nOver many a quaint and curious volume of forgotten lore —\nWhile I nodded, nearly napping, suddenly there came a tapping,\nAs of some one gently rapping, rapping at my chamber door.\n\"'Tis some visitor,\" I muttered, \"tapping at my chamber door —\n            Only this and nothing more.\"\n\nAh, distinctly I remember it was in the bleak December;\nAnd each separate dying ember wrought its ghost upon the floor.\nEagerly I wished the morrow; — vainly I had sought to borrow\nFrom my books surcease of sorrow — sorrow for the lost Lenore —\nFor the rare and radiant maiden whom the angels name Lenore —\n            Nameless here for evermore."
-  },
-  {
-    "id": "p-whitman-i-hear-america",
-    "title": "I Hear America Singing",
-    "author": "Walt Whitman",
-    "year": 1860,
-    "source": "Leaves of Grass",
-    "tags": [
-      "america",
-      "work",
-      "unity"
-    ],
-    "text": "I hear America singing, the varied carols I hear,\nThose of mechanics, each one singing his as it should be blithe and strong,\nThe carpenter singing his as he measures his plank or beam,\nThe mason singing his as he makes ready for work, or leaves off work,\nThe boatman singing what belongs to him in his boat, the deckhand singing on the steamboat deck,\nThe shoemaker singing as he sits on his bench, the hatter singing as he stands,\nThe wood-cutter's song, the ploughboy's on his way in the morning, or at noon intermission or at sundown,\nThe delicious singing of the mother, or of the young wife at work, or of the girl sewing or washing,\nEach singing what belongs to him or her and to none else,\nThe day what belongs to the day — at night the party of young fellows, robust, friendly,\nSinging with open mouths their strong melodious songs."
-  },
-  {
-    "id": "p-keats-bright-star",
-    "title": "Bright Star",
-    "author": "John Keats",
-    "year": 1819,
-    "source": "The Poems of John Keats",
-    "tags": [
-      "love",
-      "constancy",
-      "stars"
-    ],
-    "text": "Bright star, would I were stedfast as thou art —\nNot in lone splendour hung aloft the night\nAnd watching, with eternal lids apart,\nLike nature's patient, sleepless Eremite,\nThe moving waters at their priestlike task\nOf pure ablution round earth's human shores,\nOr gazing on the new soft-fallen mask\nOf snow upon the mountains and the moors —\nNo — yet still stedfast, still unchangeable,\nPillow'd upon my fair love's ripening breast,\nTo feel for ever its soft fall and swell,\nAwake for ever in a sweet unrest,\nStill, still to hear her tender-taken breath,\nAnd so live ever — or else swoon to death."
-  },
-  {
-    "id": "p-wordsworth-daffodils",
-    "title": "I Wandered Lonely as a Cloud",
-    "author": "William Wordsworth",
-    "year": 1807,
-    "source": "Poems in Two Volumes",
-    "tags": [
-      "nature",
-      "memory",
-      "joy"
-    ],
-    "text": "I wandered lonely as a cloud\nThat floats on high o'er vales and hills,\nWhen all at once I saw a crowd,\nA host, of golden daffodils;\nBeside the lake, beneath the trees,\nFluttering and dancing in the breeze.\n\nContinuous as the stars that shine\nAnd twinkle on the milky way,\nThey stretched in never-ending line\nAlong the margin of a bay:\nTen thousand saw I at a glance,\nTossing their heads in sprightly dance.\n\nThe waves beside them danced; but they\nOut-did the sparkling waves in glee:\nA poet could not but be gay,\nIn such a jocund company:\nI gazed — and gazed — but little thought\nWhat wealth the show to me had brought:\n\nFor oft, when on my couch I lie\nIn vacant or in pensive mood,\nThey flash upon that inward eye\nWhich is the bliss of solitude;\nAnd then my heart with pleasure fills,\nAnd dances with the daffodils."
-  },
-  {
-    "id": "p-yeats-second-coming",
-    "title": "The Second Coming",
-    "author": "W.B. Yeats",
-    "year": 1920,
-    "source": "The Dial",
-    "tags": [
-      "prophecy",
-      "apocalypse",
-      "modernity"
-    ],
-    "text": "Turning and turning in the widening gyre\nThe falcon cannot hear the falconer;\nThings fall apart; the centre cannot hold;\nMere anarchy is loosed upon the world,\nThe blood-dimmed tide is loosed, and everywhere\nThe ceremony of innocence is drowned;\nThe best lack all conviction, while the worst\nAre full of passionate intensity.\n\nSurely some revelation is at hand;\nSurely the Second Coming is at hand.\nThe Second Coming! Hardly are those words out\nWhen a vast image out of Spiritus Mundi\nTroubles my sight: somewhere in sands of the desert\nA shape with lion body and the head of a man,\nA gaze blank and pitiless as the sun,\nIs moving its slow thighs, while all about it\nReel shadows of the indignant desert birds.\nThe darkness drops again; but now I know\nThat twenty centuries of stony sleep\nWere vexed to nightmare by a rocking cradle,\nAnd what rough beast, its hour come round at last,\nSlouches towards Bethlehem to be born?"
+    "text": "Once upon a midnight dreary, while I pondered, weak and weary,\nOver many a quaint and curious volume of forgotten lore --\nWhile I nodded, nearly napping, suddenly there came a tapping,\nAs of some one gently rapping, rapping at my chamber door.\n\"'Tis some visitor,\" I muttered, \"tapping at my chamber door --\n            Only this and nothing more.\"\n\nAh, distinctly I remember it was in the bleak December;\nAnd each separate dying ember wrought its ghost upon the floor.\nEagerly I wished the morrow; -- vainly I had sought to borrow\nFrom my books surcease of sorrow -- sorrow for the lost Lenore --\nFor the rare and radiant maiden whom the angels name Lenore --\n            Nameless here for evermore."
   },
   {
     "id": "p-tennyson-ulysses-excerpt",
@@ -1539,32 +1454,6 @@
     "text": "Tho' much is taken, much abides; and tho'\nWe are not now that strength which in old days\nMoved earth and heaven; that which we are, we are;\nOne equal temper of heroic hearts,\nMade weak by time and fate, but strong in will\nTo strive, to seek, to find, and not to yield."
   },
   {
-    "id": "p-henley-invictus",
-    "title": "Invictus",
-    "author": "William Ernest Henley",
-    "year": 1888,
-    "source": "Book of Verses",
-    "tags": [
-      "resilience",
-      "courage",
-      "defiance"
-    ],
-    "text": "Out of the night that covers me,\n      Black as the pit from pole to pole,\nI thank whatever gods may be\n      For my unconquerable soul.\n\nIn the fell clutch of circumstance\n      I have not winced nor cried aloud.\nUnder the bludgeonings of chance\n      My head is bloody, but unbowed.\n\nBeyond this place of wrath and tears\n      Looms but the Horror of the shade,\nAnd yet the menace of the years\n      Finds, and shall find, me unafraid.\n\nIt matters not how strait the gate,\n      How charged with punishments the scroll,\nI am the master of my fate:\n      I am the captain of my soul."
-  },
-  {
-    "id": "p-kipling-if",
-    "title": "If—",
-    "author": "Rudyard Kipling",
-    "year": 1910,
-    "source": "Rewards and Fairies",
-    "tags": [
-      "character",
-      "wisdom",
-      "manhood"
-    ],
-    "text": "If you can keep your head when all about you\n  Are losing theirs and blaming it on you,\nIf you can trust yourself when all men doubt you,\n  But make allowance for their doubting too;\nIf you can wait and not be tired by waiting,\n  Or being lied about, don't deal in lies,\nOr being hated, don't give way to hating,\n  And yet don't look too good, nor talk too wise:\n\nIf you can dream — and not make dreams your master;\n  If you can think — and not make thoughts your aim;\nIf you can meet with Triumph and Disaster\n  And treat those two impostors just the same;\nIf you can bear to hear the truth you've spoken\n  Twisted by knaves to make a trap for fools,\nOr watch the things you gave your life to, broken,\n  And stoop and build 'em up with worn-out tools:\n\nIf you can talk with crowds and keep your virtue,\n  Or walk with Kings — nor lose the common touch,\nIf neither foes nor loving friends can hurt you,\n  If all men count with you, but none too much;\nIf you can fill the unforgiving minute\n  With sixty seconds' worth of distance run,\nYours is the Earth and everything that's in it,\n  And — which is more — you'll be a Man, my son!"
-  },
-  {
     "id": "p-emerson-concord-hymn",
     "title": "Concord Hymn",
     "author": "Ralph Waldo Emerson",
@@ -1576,19 +1465,6 @@
       "memorial"
     ],
     "text": "By the rude bridge that arched the flood,\n  Their flag to April's breeze unfurled,\nHere once the embattled farmers stood\n  And fired the shot heard round the world.\n\nThe foe long since in silence slept;\n  Alike the conqueror silent sleeps;\nAnd Time the ruined bridge has swept\n  Down the dark stream which seaward creeps.\n\nOn this green bank, by this soft stream,\n  We set today a votive stone;\nThat memory may their deed redeem,\n  When, like our sires, our sons are gone.\n\nSpirit, that made those heroes dare\n  To die, and leave their children free,\nBid Time and Nature gently spare\n  The shaft we raise to them and thee."
-  },
-  {
-    "id": "p-housman-loveliest-of-trees",
-    "title": "Loveliest of Trees",
-    "author": "A.E. Housman",
-    "year": 1896,
-    "source": "A Shropshire Lad",
-    "tags": [
-      "nature",
-      "time",
-      "spring"
-    ],
-    "text": "Loveliest of trees, the cherry now\nIs hung with bloom along the bough,\nAnd stands about the woodland ride\nWearing white for Eastertide.\n\nNow, of my threescore years and ten,\nTwenty will not come again,\nAnd take from seventy springs a score,\nIt only leaves me fifty more.\n\nAnd since to look at things in bloom\nFifty springs are little room,\nAbout the woodlands I will go\nTo see the cherry hung with snow."
   },
   {
     "id": "p-longfellow-rainy-day",
@@ -1614,97 +1490,6 @@
       "courage",
       "love"
     ],
-    "text": "Fear death? — to feel the fog in my throat,\n  The mist in my face,\nWhen the snows begin, and the blasts denote\n  I am nearing the place,\nThe power of the night, the press of the storm,\n  The post of the foe;\nWhere he stands, the Arch Fear in a visible form,\n  Yet the strong man must go:\nFor the journey is done and the summit attained,\n  And the barriers fall,\nThough a battle's to fight ere the guerdon be gained,\n  The reward of it all."
-  },
-  {
-    "id": "p-coleridge-kubla-khan-excerpt",
-    "title": "Kubla Khan (excerpt)",
-    "author": "Samuel Taylor Coleridge",
-    "year": 1816,
-    "source": "Christabel, Kubla Khan, and the Pains of Sleep",
-    "tags": [
-      "dream",
-      "fantasy",
-      "romanticism"
-    ],
-    "text": "In Xanadu did Kubla Khan\nA stately pleasure-dome decree:\nWhere Alph, the sacred river, ran\nThrough caverns measureless to man\n  Down to a sunless sea.\nSo twice five miles of fertile ground\nWith walls and towers were girdled round;\nAnd there were gardens bright with sinuous rills,\nWhere blossomed many an incense-bearing tree;\nAnd here were forests ancient as the hills,\nEnfolding sunny spots of greenery."
-  },
-  {
-    "id": "p-dickinson-because-i-could-not-stop",
-    "title": "Because I could not stop for Death",
-    "author": "Emily Dickinson",
-    "year": 1890,
-    "source": "Poems by Emily Dickinson",
-    "tags": [
-      "death",
-      "journey",
-      "eternity"
-    ],
-    "text": "Because I could not stop for Death —\nHe kindly stopped for me —\nThe Carriage held but just Ourselves —\nAnd Immortality.\n\nWe slowly drove — He knew no haste\nAnd I had put away\nMy labor and my leisure too,\nFor His Civility —\n\nWe passed the School, where Children strove\nAt Recess — in the Ring —\nWe passed the Fields of Gazing Grain —\nWe passed the Setting Sun —"
-  },
-  {
-    "id": "p-shelley-ozymandias",
-    "title": "Ozymandias",
-    "author": "Percy Bysshe Shelley",
-    "year": 1818,
-    "source": "The Examiner",
-    "tags": [
-      "power",
-      "time",
-      "ruin"
-    ],
-    "text": "I met a traveller from an antique land,\nWho said—\"Two vast and trunkless legs of stone\nStand in the desert. . . . Near them, on the sand,\nHalf sunk a shattered visage lies, whose frown,\nAnd wrinkled lip, and sneer of cold command,\nTell that its sculptor well those passions read\nWhich yet survive, stamped on these lifeless things,\nThe hand that mocked them, and the heart that fed;\n\nAnd on the pedestal, these words appear:\nMy name is Ozymandias, King of Kings;\nLook on my Works, ye Mighty, and despair!\nNothing beside remains. Round the decay\nOf that colossal Wreck, boundless and bare\nThe lone and level sands stretch far away.\""
-  },
-  {
-    "id": "p-byron-she-walks-in-beauty",
-    "title": "She Walks in Beauty",
-    "author": "Lord Byron",
-    "year": 1815,
-    "source": "Hebrew Melodies",
-    "tags": [
-      "beauty",
-      "love",
-      "romanticism"
-    ],
-    "text": "She walks in beauty, like the night\nOf cloudless climes and starry skies;\nAnd all that's best of dark and bright\nMeet in her aspect and her eyes:\nThus mellowed to that tender light\nWhich heaven to gaudy day denies.\n\nOne shade the more, one ray the less,\nHad half impaired the nameless grace\nWhich waves in every raven tress,\nOr softly lightens o'er her face;\nWhere thoughts serenely sweet express\nHow pure, how dear their dwelling place.\n\nAnd on that cheek, and o'er that brow,\nSo soft, so calm, yet eloquent,\nThe smiles that win, the tints that glow,\nBut tell of days in goodness spent,\nA mind at peace with all below,\nA heart whose love is innocent!"
-  },
-  {
-    "id": "p-hopkins-pied-beauty",
-    "title": "Pied Beauty",
-    "author": "Gerard Manley Hopkins",
-    "year": 1877,
-    "source": "Poems",
-    "tags": [
-      "nature",
-      "praise",
-      "variety"
-    ],
-    "text": "Glory be to God for dappled things —\n  For skies of couple-colour as a brinded cow;\n    For rose-moles all in stipple upon trout that swim;\nFresh-firecoal chestnut-falls; finches' wings;\n  Landscape plotted and pieced — fold, fallow, and plough;\n    And áll trádes, their gear and tackle and trim.\n\nAll things counter, original, spare, strange;\n  Whatever is fickle, freckled (who knows how?)\n    With swift, slow; sweet, sour; adazzle, dim;\nHe fathers-forth whose beauty is past change:\n                                Praise him."
-  },
-  {
-    "id": "p-millay-first-fig",
-    "title": "First Fig",
-    "author": "Edna St. Vincent Millay",
-    "year": 1920,
-    "source": "A Few Figs from Thistles",
-    "tags": [
-      "youth",
-      "intensity",
-      "light"
-    ],
-    "text": "My candle burns at both ends;\n  It will not last the night;\nBut ah, my foes, and oh, my friends —\n  It gives a lovely light!"
-  },
-  {
-    "id": "p-stevens-thirteen-blackbird-i",
-    "title": "Thirteen Ways of Looking at a Blackbird (I-IV)",
-    "author": "Wallace Stevens",
-    "year": 1917,
-    "source": "Others: An Anthology of the New Verse",
-    "tags": [
-      "modernism",
-      "perspective",
-      "nature"
-    ],
-    "text": "I\n\nAmong twenty snowy mountains,\nThe only moving thing\nWas the eye of the blackbird.\n\nII\n\nI was of three minds,\nLike a tree\nIn which there are three blackbirds.\n\nIII\n\nThe blackbird whirled in the autumn winds.\nIt was a small part of the pantomime.\n\nIV\n\nA man and a woman\nAre one.\nA man and a woman and a blackbird\nAre one."
+    "text": "Fear death? -- to feel the fog in my throat,\n  The mist in my face,\nWhen the snows begin, and the blasts denote\n  I am nearing the place,\nThe power of the night, the press of the storm,\n  The post of the foe;\nWhere he stands, the Arch Fear in a visible form,\n  Yet the strong man must go:\nFor the journey is done and the summit attained,\n  And the barriers fall,\nThough a battle's to fight ere the guerdon be gained,\n  The reward of it all."
   }
 ]
