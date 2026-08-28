@@ -33,7 +33,8 @@
     "nav-scroll": "node scripts/check-nav-scroll.mjs",
     "typing-perf": "node scripts/check-typing-perf.mjs",
     "caret-follow": "node scripts/check-caret-follow.mjs",
-    "idioms": "node scripts/check-idioms.mjs"
+    "idioms": "node scripts/check-idioms.mjs",
+    "poetry": "node scripts/check-poetry.mjs"
   },
   "dependencies": {
     "@11ty/eleventy": "^3.0.0",
