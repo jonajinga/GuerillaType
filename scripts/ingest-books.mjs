@@ -43,17 +43,17 @@ const PG_END   = /\*+ ?END OF (?:THIS |THE )?PROJECT GUTENBERG.*?\*+/i;
 // all-caps clause must end with a letter or period -- never a comma --
 // so plaque inscriptions like "SACRED TO THE MEMORY OF ROBERT LONG,"
 // don't false-positive.
-const CHAPTER_HEAD = /^\s*(?:(?:CHAPTER|Chapter|PART|Part|BOOK|Book|SECTION|Section)[\s\.]+(?:[IVXLCDM\d]+)\b.*|[A-Z][A-Z][A-Z ,'.\-]{12,88}[A-Z.])\s*$/;
+const CHAPTER_HEAD = /^\s*(?:(?:CHAPTER|Chapter|PART|Part|BOOK|Book|SECTION|Section|STAVE|Stave)[\s\.]+(?:[IVXLCDM\d]+)\b.*|[A-Z][A-Z][A-Z ,'.\-]{12,88}[A-Z.])\s*$/;
 
 /* A head that is nothing but a label and a numeral -- "CHAPTER I.",
    "Part 2". In the common Project Gutenberg layout the chapter's actual
    title sits on the very next line, and it is ordinary mixed case. */
-const BARE_LABEL_HEAD = /^(?:CHAPTER|Chapter|PART|Part|BOOK|Book|SECTION|Section)[\s.]+[IVXLCDM\d]+\.?$/;
+const BARE_LABEL_HEAD = /^(?:CHAPTER|Chapter|PART|Part|BOOK|Book|SECTION|Section|STAVE|Stave)[\s.]+[IVXLCDM\d]+\.?$/;
 
 /* Same, but allowing a title after the numeral: "Chapter I. Into the
    Primitive" as well as "CHAPTER I.". Used to decide whether a head
    swept into a contents run is a real chapter worth rescuing. */
-const CHAPTER_LABEL_PREFIX = /^(?:CHAPTER|Chapter|PART|Part|BOOK|Book|SECTION|Section)[\s.]+[IVXLCDM\d]+\b/;
+const CHAPTER_LABEL_PREFIX = /^(?:CHAPTER|Chapter|PART|Part|BOOK|Book|SECTION|Section|STAVE|Stave)[\s.]+[IVXLCDM\d]+\b/;
 
 // Numeric chapter heading: "01 My Early Home", "1. The Hunt".
 const NUMERIC_HEAD = /^\s*(\d{1,3})[\s\.]+([A-Z][\w\s,.'"\-]{1,80})\s*$/;
@@ -155,7 +155,7 @@ const SECTION_KEYWORDS = /\b(PREFACE|FOREWORD|INTRODUCTION|EPILOGUE|PROLOGUE|AFT
 function isLikelyChapterHeading(line) {
   const t = line.trim();
   if (!CHAPTER_HEAD.test(t)) return false;
-  if (/^(?:CHAPTER|Chapter|PART|Part|BOOK|Book|SECTION|Section)\b/.test(t)) return true;
+  if (/^(?:CHAPTER|Chapter|PART|Part|BOOK|Book|SECTION|Section|STAVE|Stave)\b/.test(t)) return true;
   const wordCount = t.replace(/[^A-Za-z\s]/g, " ").trim().split(/\s+/).filter(Boolean).length;
   if (wordCount >= 3) return true;
   // 2-word fallback for common section headings.
@@ -468,8 +468,13 @@ function smartTitleCase(s, { force = false } = {}) {
     // Roman numerals and bare numeric prefixes reset the title context
     // -- "Chapter I. THE..." should yield "Chapter I. The...", and
     // "2. the Hunt" should yield "2. The Hunt".
-    if (/^[IVXLCDM]+\.?$/.test(tok)) { needsCap = true; return tok; }
-    if (/^\d+\.?$/.test(tok)) { needsCap = true; return tok; }
+    // The separator may be a colon as well as a full stop: "STAVE II:
+    // THE FIRST OF THE THREE SPIRITS". Without the colon here "II:" is
+    // not recognised as a numeral, so it is mis-cased to "Ii:" AND it
+    // fails to reset the title context, which drops the next word to
+    // lowercase -- "the First of the Three Spirits".
+    if (/^[IVXLCDM]+[.:]?$/.test(tok)) { needsCap = true; return tok; }
+    if (/^\d+[.:]?$/.test(tok)) { needsCap = true; return tok; }
     // Dotted abbreviations: "M.A.", "U.S.A.", "H.L." preserve as-is.
     if (/^[A-Z](?:\.[A-Z])+\.?$/i.test(tok) && tok.length <= 8) {
       needsCap = false;
