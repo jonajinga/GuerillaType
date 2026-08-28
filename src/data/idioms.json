@@ -2,7 +2,7 @@
   {
     "id": "id-bucket",
     "text": "kick the bucket",
-    "meaning": "to die",
+    "meaning": "die",
     "tags": [
       "death",
       "old-english"
@@ -36,7 +36,7 @@
   {
     "id": "id-piece",
     "text": "a piece of cake",
-    "meaning": "very easy",
+    "meaning": "something very easy",
     "tags": [
       "ease"
     ]
@@ -61,7 +61,7 @@
   {
     "id": "id-cake-eat",
     "text": "you can't have your cake and eat it too",
-    "meaning": "you can't have two contradictory things",
+    "meaning": "you can't enjoy two desirable but mutually exclusive things",
     "tags": [
       "choice"
     ]
@@ -71,13 +71,15 @@
     "text": "don't put all your eggs in one basket",
     "meaning": "don't risk everything on a single venture",
     "tags": [
-      "risk"
+      "risk",
+      "caution",
+      "prudence"
     ]
   },
   {
     "id": "id-hour-stitch",
     "text": "a stitch in time saves nine",
-    "meaning": "fix small problems before they grow",
+    "meaning": "fixing a problem early prevents bigger problems later",
     "tags": [
       "prevention"
     ]
@@ -85,7 +87,7 @@
   {
     "id": "id-cooks-broth",
     "text": "too many cooks spoil the broth",
-    "meaning": "too many people on a task ruins it",
+    "meaning": "too many people working on a task ruin it",
     "tags": [
       "teamwork"
     ]
@@ -101,7 +103,7 @@
   {
     "id": "id-water-bridge",
     "text": "water under the bridge",
-    "meaning": "past conflicts that no longer matter",
+    "meaning": "past events that are no longer worth worrying about",
     "tags": [
       "forgiveness"
     ]
@@ -109,9 +111,11 @@
   {
     "id": "id-ball-court",
     "text": "the ball is in your court",
-    "meaning": "it is your turn to act",
+    "meaning": "it's your turn to make a decision",
     "tags": [
-      "responsibility"
+      "responsibility",
+      "decision",
+      "american-english"
     ]
   },
   {
@@ -127,15 +131,17 @@
     "text": "once in a blue moon",
     "meaning": "very rarely",
     "tags": [
-      "frequency"
+      "frequency",
+      "time"
     ]
   },
   {
-    "id": "id-cold-feet",
-    "text": "cold feet",
-    "meaning": "loss of nerve before a big decision",
+    "id": "id-get-cold-feet",
+    "text": "get cold feet",
+    "meaning": "become nervous about doing something",
     "tags": [
-      "fear"
+      "fear",
+      "hesitation"
     ]
   },
   {
@@ -165,9 +171,10 @@
   {
     "id": "id-actions-words",
     "text": "actions speak louder than words",
-    "meaning": "what you do matters more than what you say",
+    "meaning": "what someone does is more telling than what they say",
     "tags": [
-      "wisdom"
+      "wisdom",
+      "action"
     ]
   },
   {
@@ -181,15 +188,16 @@
   {
     "id": "id-tip-iceberg",
     "text": "the tip of the iceberg",
-    "meaning": "a small visible part of a much larger issue",
+    "meaning": "only a small, visible part of a much larger situation",
     "tags": [
-      "scale"
+      "scale",
+      "surface"
     ]
   },
   {
     "id": "id-cut-corners",
     "text": "cut corners",
-    "meaning": "do something the cheapest or quickest way",
+    "meaning": "save time or money by skipping proper steps, at a cost to quality",
     "tags": [
       "shortcuts"
     ]
@@ -197,15 +205,16 @@
   {
     "id": "id-bite-bullet",
     "text": "bite the bullet",
-    "meaning": "endure something painful or unpleasant",
+    "meaning": "face a difficult or unpleasant situation with courage",
     "tags": [
-      "courage"
+      "courage",
+      "american-english"
     ]
   },
   {
     "id": "id-pot-kettle",
     "text": "the pot calling the kettle black",
-    "meaning": "accusing someone of a fault you yourself have",
+    "meaning": "criticizing someone for a fault you have yourself",
     "tags": [
       "hypocrisy"
     ]
@@ -229,7 +238,7 @@
   {
     "id": "id-early-bird",
     "text": "the early bird catches the worm",
-    "meaning": "those who act first succeed",
+    "meaning": "those who act first have the advantage",
     "tags": [
       "timing"
     ]
@@ -237,7 +246,7 @@
   {
     "id": "id-light-tunnel",
     "text": "light at the end of the tunnel",
-    "meaning": "a sign of hope after a long difficulty",
+    "meaning": "the prospect of better times after difficulties",
     "tags": [
       "hope"
     ]
@@ -267,17 +276,9 @@
     ]
   },
   {
-    "id": "id-bite-bullet",
-    "text": "bite the bullet",
-    "meaning": "endure something painful or difficult with courage",
-    "tags": [
-      "courage"
-    ]
-  },
-  {
     "id": "id-hit-nail",
     "text": "hit the nail on the head",
-    "meaning": "describe something exactly right",
+    "meaning": "do or say something exactly right",
     "tags": [
       "accuracy"
     ]
@@ -287,13 +288,14 @@
     "text": "raining cats and dogs",
     "meaning": "raining very heavily",
     "tags": [
-      "weather"
+      "weather",
+      "british-english"
     ]
   },
   {
     "id": "id-skeleton-closet",
     "text": "a skeleton in the closet",
-    "meaning": "a hidden secret, often shameful",
+    "meaning": "an embarrassing or shameful secret",
     "tags": [
       "secrets"
     ]
@@ -301,7 +303,7 @@
   {
     "id": "id-elephant-room",
     "text": "the elephant in the room",
-    "meaning": "an obvious problem nobody wants to discuss",
+    "meaning": "an obvious problem that no one wants to discuss",
     "tags": [
       "avoidance"
     ]
@@ -325,9 +327,10 @@
   {
     "id": "id-bury-hatchet",
     "text": "bury the hatchet",
-    "meaning": "make peace after an argument",
+    "meaning": "make peace after a conflict",
     "tags": [
-      "reconciliation"
+      "reconciliation",
+      "peace"
     ]
   },
   {
@@ -349,9 +352,10 @@
   {
     "id": "id-best-both-worlds",
     "text": "the best of both worlds",
-    "meaning": "an ideal situation combining the advantages of two options",
+    "meaning": "an ideal situation in which two desirable but seemingly contradictory things are possible",
     "tags": [
-      "fortune"
+      "fortune",
+      "balance"
     ]
   },
   {
@@ -367,7 +371,8 @@
     "text": "a rule of thumb",
     "meaning": "a rough practical guideline rather than a precise rule",
     "tags": [
-      "wisdom"
+      "wisdom",
+      "principle"
     ]
   },
   {
@@ -415,7 +420,8 @@
     "text": "curiosity killed the cat",
     "meaning": "being too inquisitive can be dangerous",
     "tags": [
-      "caution"
+      "caution",
+      "curiosity"
     ]
   },
   {
@@ -423,7 +429,8 @@
     "text": "a dime a dozen",
     "meaning": "very common, easy to find, of little value",
     "tags": [
-      "value"
+      "value",
+      "american-english"
     ]
   },
   {
@@ -437,9 +444,10 @@
   {
     "id": "id-face-music",
     "text": "face the music",
-    "meaning": "accept the consequences of your actions",
+    "meaning": "accept the consequences of one's actions",
     "tags": [
-      "responsibility"
+      "responsibility",
+      "consequence"
     ]
   },
   {
@@ -463,7 +471,8 @@
     "text": "put your foot in your mouth",
     "meaning": "say something inappropriate or embarrassing",
     "tags": [
-      "mistakes"
+      "mistake",
+      "embarrassment"
     ]
   },
   {
@@ -483,25 +492,26 @@
     ]
   },
   {
-    "id": "id-head-clouds",
-    "text": "head in the clouds",
+    "id": "id-have-your-head-in-the-clouds",
+    "text": "have your head in the clouds",
     "meaning": "daydreaming, out of touch with reality",
     "tags": [
-      "daydreaming"
+      "daydreaming",
+      "dreaming"
     ]
   },
   {
     "id": "id-heart-sleeve",
     "text": "wear your heart on your sleeve",
-    "meaning": "openly show your emotions",
+    "meaning": "display emotions openly",
     "tags": [
-      "emotions"
+      "emotion"
     ]
   },
   {
     "id": "id-hold-horses",
     "text": "hold your horses",
-    "meaning": "wait, slow down",
+    "meaning": "wait or slow down",
     "tags": [
       "patience"
     ]
@@ -519,7 +529,8 @@
     "text": "jump on the bandwagon",
     "meaning": "join a popular trend or activity",
     "tags": [
-      "trends"
+      "trends",
+      "conformity"
     ]
   },
   {
@@ -575,13 +586,14 @@
     "text": "miss the boat",
     "meaning": "lose an opportunity",
     "tags": [
-      "timing"
+      "timing",
+      "opportunity"
     ]
   },
   {
-    "id": "id-on-cloud-nine",
-    "text": "on cloud nine",
-    "meaning": "extremely happy",
+    "id": "id-be-on-cloud-nine",
+    "text": "be on cloud nine",
+    "meaning": "be extremely happy",
     "tags": [
       "happiness"
     ]
@@ -623,7 +635,8 @@
     "text": "read between the lines",
     "meaning": "understand the hidden meaning behind what is said",
     "tags": [
-      "interpretation"
+      "interpretation",
+      "comprehension"
     ]
   },
   {
@@ -679,7 +692,8 @@
     "text": "sleep on it",
     "meaning": "delay a decision overnight to think it through",
     "tags": [
-      "patience"
+      "patience",
+      "decision"
     ]
   },
   {
@@ -717,25 +731,27 @@
   {
     "id": "id-turn-blind-eye",
     "text": "turn a blind eye",
-    "meaning": "deliberately ignore wrongdoing",
+    "meaning": "ignore something deliberately",
     "tags": [
-      "avoidance"
+      "avoidance",
+      "ignoring"
     ]
   },
   {
     "id": "id-twist-arm",
     "text": "twist someone's arm",
-    "meaning": "persuade someone reluctantly",
+    "meaning": "pressure someone into doing something they are reluctant to do",
     "tags": [
       "persuasion"
     ]
   },
   {
-    "id": "id-under-weather",
-    "text": "under the weather",
+    "id": "id-feeling-under-the-weather",
+    "text": "feeling under the weather",
     "meaning": "feeling slightly ill",
     "tags": [
-      "illness"
+      "illness",
+      "health"
     ]
   },
   {
@@ -799,7 +815,8 @@
     "text": "break the ice",
     "meaning": "begin a conversation in a tense or unfamiliar situation",
     "tags": [
-      "social"
+      "social",
+      "communication"
     ]
   },
   {
@@ -807,21 +824,23 @@
     "text": "burning the midnight oil",
     "meaning": "working late into the night",
     "tags": [
-      "work"
+      "work",
+      "effort"
     ]
   },
   {
     "id": "id-cross-bridge",
     "text": "cross that bridge when you come to it",
-    "meaning": "deal with a problem when it actually happens",
+    "meaning": "deal with a problem when it arises, not before",
     "tags": [
-      "patience"
+      "patience",
+      "procrastination"
     ]
   },
   {
     "id": "id-go-extra-mile",
     "text": "go the extra mile",
-    "meaning": "do more than is expected or required",
+    "meaning": "make a special effort to achieve something",
     "tags": [
       "effort"
     ]
@@ -853,23 +872,15 @@
   {
     "id": "id-no-pain-gain",
     "text": "no pain, no gain",
-    "meaning": "achievement requires effort",
+    "meaning": "you must work hard to achieve worthwhile goals",
     "tags": [
       "effort"
     ]
   },
   {
-    "id": "id-pot-kettle",
-    "text": "the pot calling the kettle black",
-    "meaning": "criticizing someone for a fault you have yourself",
-    "tags": [
-      "hypocrisy"
-    ]
-  },
-  {
     "id": "id-silver-lining",
     "text": "every cloud has a silver lining",
-    "meaning": "every difficulty has some positive aspect",
+    "meaning": "even bad situations have some positive aspect",
     "tags": [
       "optimism"
     ]
@@ -896,14 +907,6 @@
     "meaning": "criticism that has no effect on someone",
     "tags": [
       "resilience"
-    ]
-  },
-  {
-    "id": "id-iron-will",
-    "text": "an iron will",
-    "meaning": "great determination",
-    "tags": [
-      "resolve"
     ]
   },
   {
@@ -944,18 +947,20 @@
   {
     "id": "id-bark-tree",
     "text": "barking up the wrong tree",
-    "meaning": "pursuing a mistaken line of thought",
+    "meaning": "pursuing a mistaken or misguided line of thought or action",
     "tags": [
-      "mistake"
+      "mistake",
+      "american-english"
     ]
   },
   {
     "id": "id-beat-around",
     "text": "beat around the bush",
-    "meaning": "avoid speaking directly",
+    "meaning": "avoid talking about something directly",
     "tags": [
       "avoidance",
-      "speech"
+      "speech",
+      "communication"
     ]
   },
   {
@@ -1025,7 +1030,7 @@
   {
     "id": "id-cat-tongue",
     "text": "cat got your tongue",
-    "meaning": "why aren't you speaking",
+    "meaning": "said to someone who stays unexpectedly silent",
     "tags": [
       "silence"
     ]
@@ -1033,17 +1038,10 @@
   {
     "id": "id-chip-shoulder",
     "text": "a chip on your shoulder",
-    "meaning": "lingering resentment",
+    "meaning": "an angry attitude or grudge",
     "tags": [
-      "grievance"
-    ]
-  },
-  {
-    "id": "id-clear-cut",
-    "text": "clear-cut",
-    "meaning": "obvious and unambiguous",
-    "tags": [
-      "clarity"
+      "grievance",
+      "resentment"
     ]
   },
   {
@@ -1075,15 +1073,17 @@
     "text": "the devil is in the details",
     "meaning": "trouble hides in small specifics",
     "tags": [
-      "caution"
+      "caution",
+      "detail"
     ]
   },
   {
     "id": "id-drop-hat",
     "text": "at the drop of a hat",
-    "meaning": "without hesitation",
+    "meaning": "without any hesitation; instantly",
     "tags": [
-      "readiness"
+      "readiness",
+      "spontaneity"
     ]
   },
   {
@@ -1137,7 +1137,7 @@
   {
     "id": "id-foot-door",
     "text": "a foot in the door",
-    "meaning": "an initial opportunity",
+    "meaning": "an initial small success leading to bigger things",
     "tags": [
       "opportunity"
     ]
@@ -1185,7 +1185,7 @@
   {
     "id": "id-hands-tied",
     "text": "my hands are tied",
-    "meaning": "I cannot act due to constraints",
+    "meaning": "unable to act due to constraints",
     "tags": [
       "constraint"
     ]
@@ -1203,15 +1203,17 @@
     "text": "hit the sack",
     "meaning": "go to bed",
     "tags": [
-      "sleep"
+      "sleep",
+      "american-english"
     ]
   },
   {
     "id": "id-horse-mouth",
     "text": "straight from the horse's mouth",
-    "meaning": "from the original source",
+    "meaning": "directly from the original source",
     "tags": [
-      "truth"
+      "truth",
+      "source"
     ]
   },
   {
@@ -1228,12 +1230,13 @@
     "meaning": "act before the proper time",
     "tags": [
       "timing",
-      "mistake"
+      "mistake",
+      "haste"
     ]
   },
   {
     "id": "id-keep-tabs",
-    "text": "keep tabs on",
+    "text": "keep tabs on someone",
     "meaning": "monitor closely",
     "tags": [
       "surveillance"
@@ -1298,7 +1301,7 @@
   {
     "id": "id-nip-bud",
     "text": "nip it in the bud",
-    "meaning": "stop something early",
+    "meaning": "stop a problem before it grows",
     "tags": [
       "prevention"
     ]
@@ -1306,7 +1309,7 @@
   {
     "id": "id-old-hat",
     "text": "old hat",
-    "meaning": "outdated or familiar",
+    "meaning": "so familiar it is no longer new or interesting",
     "tags": [
       "familiarity"
     ]
@@ -1338,7 +1341,7 @@
   {
     "id": "id-play-ear",
     "text": "play it by ear",
-    "meaning": "improvise as you go",
+    "meaning": "improvise as the situation develops",
     "tags": [
       "improvisation"
     ]
@@ -1466,7 +1469,7 @@
   {
     "id": "id-tongue-tied",
     "text": "tongue-tied",
-    "meaning": "speechless from emotion",
+    "meaning": "unable to speak from shyness or nervousness",
     "tags": [
       "speech"
     ]
@@ -1512,11 +1515,13 @@
     ]
   },
   {
-    "id": "id-by-skin-teeth",
-    "text": "by the skin of your teeth",
-    "meaning": "by the narrowest margin",
+    "id": "id-skin-teeth",
+    "text": "by the skin of one's teeth",
+    "meaning": "just barely; by a narrow margin",
     "tags": [
-      "narrow"
+      "narrow",
+      "narrow-escape",
+      "escape"
     ]
   },
   {
@@ -1530,7 +1535,7 @@
   {
     "id": "id-rest-laurels",
     "text": "rest on your laurels",
-    "meaning": "rely on past success without further effort",
+    "meaning": "be content with past achievements without striving further",
     "tags": [
       "complacency"
     ]
@@ -1544,9 +1549,9 @@
     ]
   },
   {
-    "id": "id-back-square",
-    "text": "back to the drawing board",
-    "meaning": "start over from the beginning",
+    "id": "id-go-board",
+    "text": "go back to the drawing board",
+    "meaning": "starting over after a failed attempt",
     "tags": [
       "restart"
     ]
@@ -1612,12 +1617,13 @@
     "text": "the bottom line",
     "meaning": "the final result or most important point",
     "tags": [
-      "summary"
+      "summary",
+      "essence"
     ]
   },
   {
     "id": "id-brain-storm",
-    "text": "a brain storm",
+    "text": "a brainstorm",
     "meaning": "a sudden idea or burst of thinking",
     "tags": [
       "thinking"
@@ -1637,14 +1643,6 @@
     "meaning": "a minor obstacle",
     "tags": [
       "obstacle"
-    ]
-  },
-  {
-    "id": "id-burn-out",
-    "text": "burn out",
-    "meaning": "exhaust oneself completely",
-    "tags": [
-      "fatigue"
     ]
   },
   {
@@ -1714,9 +1712,10 @@
   {
     "id": "id-clear-air",
     "text": "clear the air",
-    "meaning": "resolve a misunderstanding",
+    "meaning": "resolve misunderstandings",
     "tags": [
-      "reconciliation"
+      "reconciliation",
+      "resolution"
     ]
   },
   {
@@ -1748,7 +1747,8 @@
     "text": "cross your fingers",
     "meaning": "hope for good luck",
     "tags": [
-      "luck"
+      "luck",
+      "hope"
     ]
   },
   {
@@ -1778,7 +1778,7 @@
   {
     "id": "id-dead-water",
     "text": "dead in the water",
-    "meaning": "unable to move forward",
+    "meaning": "stalled, unable to proceed",
     "tags": [
       "stuck"
     ]
@@ -1890,15 +1890,16 @@
   {
     "id": "id-flesh-blood",
     "text": "flesh and blood",
-    "meaning": "human, with feelings",
+    "meaning": "a relative or family member",
     "tags": [
-      "human"
+      "human",
+      "family"
     ]
   },
   {
     "id": "id-fly-handle",
     "text": "fly off the handle",
-    "meaning": "lose your temper suddenly",
+    "meaning": "lose one's temper suddenly",
     "tags": [
       "anger"
     ]
@@ -1922,7 +1923,7 @@
   {
     "id": "id-get-act",
     "text": "get your act together",
-    "meaning": "organize yourself",
+    "meaning": "organize yourself or improve your behavior",
     "tags": [
       "organization"
     ]
@@ -1930,7 +1931,7 @@
   {
     "id": "id-give-up-ghost",
     "text": "give up the ghost",
-    "meaning": "stop trying or stop functioning",
+    "meaning": "die, or stop working",
     "tags": [
       "surrender"
     ]
@@ -1988,7 +1989,8 @@
     "text": "hit the books",
     "meaning": "study intensely",
     "tags": [
-      "study"
+      "study",
+      "american-english"
     ]
   },
   {
@@ -2009,7 +2011,7 @@
   },
   {
     "id": "id-ill-wind",
-    "text": "an ill wind that blows nobody good",
+    "text": "it's an ill wind that blows nobody any good",
     "meaning": "a misfortune that benefits someone",
     "tags": [
       "fortune"
@@ -2050,7 +2052,7 @@
   {
     "id": "id-kid-block",
     "text": "a chip off the old block",
-    "meaning": "very similar to a parent",
+    "meaning": "a child who resembles their parent",
     "tags": [
       "family"
     ]
@@ -2058,7 +2060,7 @@
   {
     "id": "id-knee-deep",
     "text": "knee-deep in something",
-    "meaning": "deeply involved in",
+    "meaning": "deeply involved in something",
     "tags": [
       "involvement"
     ]
@@ -2120,11 +2122,12 @@
     ]
   },
   {
-    "id": "id-lose-touch",
-    "text": "lose touch",
-    "meaning": "stop communicating with someone",
+    "id": "id-lose-your-touch",
+    "text": "lose your touch",
+    "meaning": "no longer have a skill you once had",
     "tags": [
-      "communication"
+      "communication",
+      "loss"
     ]
   },
   {
@@ -2194,7 +2197,7 @@
   {
     "id": "id-no-strings",
     "text": "no strings attached",
-    "meaning": "without conditions",
+    "meaning": "with no conditions or restrictions",
     "tags": [
       "freedom"
     ]
@@ -2226,7 +2229,7 @@
   {
     "id": "id-on-roll",
     "text": "on a roll",
-    "meaning": "experiencing continuous success",
+    "meaning": "experiencing a series of successes",
     "tags": [
       "success"
     ]
@@ -2362,7 +2365,7 @@
   {
     "id": "id-sleeping-dog",
     "text": "let sleeping dogs lie",
-    "meaning": "don't stir up trouble",
+    "meaning": "leave a problem alone if it's not causing trouble",
     "tags": [
       "caution"
     ]
@@ -2370,7 +2373,7 @@
   {
     "id": "id-spit-image",
     "text": "the spitting image",
-    "meaning": "looks exactly like",
+    "meaning": "an exact likeness of someone",
     "tags": [
       "resemblance"
     ]
@@ -2386,7 +2389,7 @@
   {
     "id": "id-stand-ground",
     "text": "stand your ground",
-    "meaning": "refuse to back down",
+    "meaning": "refuse to retreat or yield",
     "tags": [
       "resolve"
     ]
@@ -2394,14 +2397,14 @@
   {
     "id": "id-steal-thunder",
     "text": "steal someone's thunder",
-    "meaning": "take credit for their idea or moment",
+    "meaning": "take credit for or attention from someone else's accomplishment",
     "tags": [
       "credit"
     ]
   },
   {
     "id": "id-steer-clear",
-    "text": "steer clear of",
+    "text": "steer clear of something",
     "meaning": "avoid entirely",
     "tags": [
       "avoidance"
@@ -2706,7 +2709,7 @@
   {
     "id": "id-when-pigs",
     "text": "when pigs fly",
-    "meaning": "never",
+    "meaning": "something that will never happen",
     "tags": [
       "impossibility"
     ]
@@ -2826,9 +2829,9 @@
   {
     "id": "id-all-bark",
     "text": "all bark and no bite",
-    "meaning": "threatens but doesn't act",
+    "meaning": "someone who threatens but doesn't act",
     "tags": [
-      "threats"
+      "threat"
     ]
   },
   {
@@ -2842,9 +2845,10 @@
   {
     "id": "id-apple-eye",
     "text": "the apple of my eye",
-    "meaning": "the person I cherish most",
+    "meaning": "someone cherished above all others",
     "tags": [
-      "affection"
+      "affection",
+      "love"
     ]
   },
   {
@@ -2969,7 +2973,7 @@
   },
   {
     "id": "id-beat-drum",
-    "text": "beat the drum for",
+    "text": "beat the drum for something",
     "meaning": "publicly support",
     "tags": [
       "advocacy"
@@ -2986,17 +2990,18 @@
   {
     "id": "id-bend-backwards",
     "text": "bend over backwards",
-    "meaning": "make great effort to please",
+    "meaning": "try very hard to please someone",
     "tags": [
       "effort"
     ]
   },
   {
-    "id": "id-bent-pretzel",
-    "text": "bent out of shape",
+    "id": "id-get-bent-out-of-shape",
+    "text": "get bent out of shape",
     "meaning": "upset or annoyed",
     "tags": [
-      "emotion"
+      "emotion",
+      "upset"
     ]
   },
   {
@@ -3010,7 +3015,7 @@
   {
     "id": "id-better-mousetrap",
     "text": "build a better mousetrap",
-    "meaning": "make an improved version",
+    "meaning": "make something so much better that it attracts people by itself",
     "tags": [
       "innovation"
     ]
@@ -3053,14 +3058,6 @@
     "meaning": "extremely energetic",
     "tags": [
       "energy"
-    ]
-  },
-  {
-    "id": "id-brand-new",
-    "text": "brand-new",
-    "meaning": "completely new",
-    "tags": [
-      "new"
     ]
   },
   {
@@ -3124,7 +3121,7 @@
     "text": "an old trick",
     "meaning": "a familiar tactic",
     "tags": [
-      "familiar"
+      "familiarity"
     ]
   },
   {
@@ -3148,7 +3145,8 @@
     "text": "caught in the act",
     "meaning": "discovered while doing something wrong",
     "tags": [
-      "discovery"
+      "discovery",
+      "caught"
     ]
   },
   {
@@ -3188,7 +3186,7 @@
     "text": "chickens come home to roost",
     "meaning": "consequences return to you",
     "tags": [
-      "consequences"
+      "consequence"
     ]
   },
   {
@@ -3233,7 +3231,7 @@
   },
   {
     "id": "id-comb-fine",
-    "text": "go through with a fine-tooth comb",
+    "text": "go over it with a fine-tooth comb",
     "meaning": "examine carefully",
     "tags": [
       "thoroughness"
@@ -3250,7 +3248,7 @@
   {
     "id": "id-corner-eye",
     "text": "out of the corner of my eye",
-    "meaning": "barely noticed",
+    "meaning": "seen at the edge of your vision",
     "tags": [
       "observation"
     ]
@@ -3276,7 +3274,8 @@
     "text": "the cream of the crop",
     "meaning": "the very best",
     "tags": [
-      "quality"
+      "quality",
+      "best"
     ]
   },
   {
@@ -3354,7 +3353,7 @@
   {
     "id": "id-dollars-cents",
     "text": "down to dollars and cents",
-    "meaning": "in the smallest detail",
+    "meaning": "when it comes to the actual cost",
     "tags": [
       "detail"
     ]
@@ -3370,15 +3369,16 @@
   {
     "id": "id-draw-line",
     "text": "draw the line",
-    "meaning": "set a limit",
+    "meaning": "set a limit on what one will accept",
     "tags": [
-      "limit"
+      "limit",
+      "boundary"
     ]
   },
   {
     "id": "id-drop-bucket",
     "text": "a drop in the bucket",
-    "meaning": "a tiny amount compared to what is needed",
+    "meaning": "a very small amount compared to what is needed",
     "tags": [
       "small"
     ]
@@ -3421,14 +3421,6 @@
     "meaning": "be very observant",
     "tags": [
       "awareness"
-    ]
-  },
-  {
-    "id": "id-fade-away",
-    "text": "fade away",
-    "meaning": "gradually disappear",
-    "tags": [
-      "disappearance"
     ]
   },
   {
@@ -3538,9 +3530,10 @@
   {
     "id": "id-foot-bill",
     "text": "foot the bill",
-    "meaning": "pay for it",
+    "meaning": "pay for something",
     "tags": [
-      "payment"
+      "payment",
+      "money"
     ]
   },
   {
@@ -3557,14 +3550,6 @@
     "meaning": "match perfectly",
     "tags": [
       "fit"
-    ]
-  },
-  {
-    "id": "id-go-board",
-    "text": "go back to the drawing board",
-    "meaning": "start again from scratch",
-    "tags": [
-      "restart"
     ]
   },
   {
@@ -3600,232 +3585,26 @@
     ]
   },
   {
-    "id": "id-barking-up-the-wrong-tree",
-    "text": "barking up the wrong tree",
-    "meaning": "pursuing a mistaken or misguided line of thought or action",
-    "tags": [
-      "mistake",
-      "american-english"
-    ]
-  },
-  {
-    "id": "id-beat-around-the-bush",
-    "text": "beat around the bush",
-    "meaning": "to avoid talking about something directly",
-    "tags": [
-      "communication"
-    ]
-  },
-  {
-    "id": "id-bite-the-bullet",
-    "text": "bite the bullet",
-    "meaning": "to face a difficult or unpleasant situation with courage",
-    "tags": [
-      "courage",
-      "american-english"
-    ]
-  },
-  {
-    "id": "id-break-the-ice",
-    "text": "break the ice",
-    "meaning": "to begin a conversation in a friendly way",
-    "tags": [
-      "communication"
-    ]
-  },
-  {
-    "id": "id-call-it-a-day",
-    "text": "call it a day",
-    "meaning": "to stop work on something",
-    "tags": [
-      "work"
-    ]
-  },
-  {
-    "id": "id-cost-an-arm-and-a-leg",
-    "text": "cost an arm and a leg",
-    "meaning": "to be very expensive",
-    "tags": [
-      "money"
-    ]
-  },
-  {
     "id": "id-cut-to-the-chase",
     "text": "cut to the chase",
-    "meaning": "to get to the point quickly",
+    "meaning": "get to the point quickly",
     "tags": [
       "communication",
       "american-english"
     ]
   },
   {
-    "id": "id-once-in-a-blue-moon",
-    "text": "once in a blue moon",
-    "meaning": "very rarely",
-    "tags": [
-      "time"
-    ]
-  },
-  {
-    "id": "id-piece-of-cake",
-    "text": "piece of cake",
-    "meaning": "something very easy",
-    "tags": [
-      "ease"
-    ]
-  },
-  {
-    "id": "id-raining-cats-and-dogs",
-    "text": "raining cats and dogs",
-    "meaning": "raining very heavily",
-    "tags": [
-      "weather",
-      "british-english"
-    ]
-  },
-  {
-    "id": "id-spill-the-beans",
-    "text": "spill the beans",
-    "meaning": "to reveal a secret",
-    "tags": [
-      "secrets"
-    ]
-  },
-  {
-    "id": "id-the-ball-is-in-your-court",
-    "text": "the ball is in your court",
-    "meaning": "it's your turn to make a decision",
-    "tags": [
-      "decision",
-      "american-english"
-    ]
-  },
-  {
-    "id": "id-under-the-weather",
-    "text": "under the weather",
-    "meaning": "feeling unwell",
-    "tags": [
-      "health"
-    ]
-  },
-  {
-    "id": "id-when-pigs-fly",
-    "text": "when pigs fly",
-    "meaning": "something that will never happen",
-    "tags": [
-      "impossibility"
-    ]
-  },
-  {
-    "id": "id-a-blessing-in-disguise",
-    "text": "a blessing in disguise",
-    "meaning": "an apparent misfortune that turns out well",
-    "tags": [
-      "fortune"
-    ]
-  },
-  {
-    "id": "id-a-dime-a-dozen",
-    "text": "a dime a dozen",
-    "meaning": "very common and of little value",
-    "tags": [
-      "value",
-      "american-english"
-    ]
-  },
-  {
-    "id": "id-actions-speak-louder-than-words",
-    "text": "actions speak louder than words",
-    "meaning": "what someone does is more telling than what they say",
-    "tags": [
-      "action"
-    ]
-  },
-  {
     "id": "id-add-insult-to-injury",
     "text": "add insult to injury",
-    "meaning": "to make a bad situation worse",
+    "meaning": "worsen an injury by adding humiliation to it",
     "tags": [
       "worsening"
     ]
   },
   {
-    "id": "id-at-the-drop-of-a-hat",
-    "text": "at the drop of a hat",
-    "meaning": "without any hesitation; instantly",
-    "tags": [
-      "spontaneity"
-    ]
-  },
-  {
-    "id": "id-back-to-the-drawing-board",
-    "text": "back to the drawing board",
-    "meaning": "starting over after a failed attempt",
-    "tags": [
-      "restart"
-    ]
-  },
-  {
-    "id": "id-be-on-cloud-nine",
-    "text": "be on cloud nine",
-    "meaning": "to be extremely happy",
-    "tags": [
-      "happiness"
-    ]
-  },
-  {
-    "id": "id-bend-over-backwards",
-    "text": "bend over backwards",
-    "meaning": "to try very hard to please someone",
-    "tags": [
-      "effort"
-    ]
-  },
-  {
-    "id": "id-best-of-both-worlds",
-    "text": "best of both worlds",
-    "meaning": "an ideal situation in which two desirable but seemingly contradictory things are possible",
-    "tags": [
-      "balance"
-    ]
-  },
-  {
-    "id": "id-bite-off-more-than-you-can-chew",
-    "text": "bite off more than you can chew",
-    "meaning": "to take on more than you can handle",
-    "tags": [
-      "overcommitment"
-    ]
-  },
-  {
-    "id": "id-blessing-in-disguise",
-    "text": "blessing in disguise",
-    "meaning": "an apparent misfortune that has a fortunate outcome",
-    "tags": [
-      "fortune"
-    ]
-  },
-  {
-    "id": "id-burning-the-midnight-oil",
-    "text": "burning the midnight oil",
-    "meaning": "working late into the night",
-    "tags": [
-      "work",
-      "effort"
-    ]
-  },
-  {
-    "id": "id-by-the-skin-of-your-teeth",
-    "text": "by the skin of your teeth",
-    "meaning": "barely succeeding",
-    "tags": [
-      "narrow-escape"
-    ]
-  },
-  {
     "id": "id-catch-someone-red-handed",
     "text": "catch someone red-handed",
-    "meaning": "to catch someone in the act of doing something wrong",
+    "meaning": "catch someone in the act of doing something wrong",
     "tags": [
       "caught"
     ]
@@ -3839,14 +3618,6 @@
     ]
   },
   {
-    "id": "id-chip-on-your-shoulder",
-    "text": "chip on your shoulder",
-    "meaning": "an angry attitude or grudge",
-    "tags": [
-      "resentment"
-    ]
-  },
-  {
     "id": "id-come-hell-or-high-water",
     "text": "come hell or high water",
     "meaning": "no matter what difficulties arise",
@@ -3855,33 +3626,16 @@
     ]
   },
   {
-    "id": "id-cross-that-bridge-when-you-come-to-it",
-    "text": "cross that bridge when you come to it",
-    "meaning": "deal with a problem when it arises, not before",
-    "tags": [
-      "procrastination"
-    ]
-  },
-  {
     "id": "id-cry-over-spilled-milk",
     "text": "cry over spilled milk",
-    "meaning": "to complain about something that has already happened and cannot be changed",
+    "meaning": "complain about something that has already happened and cannot be changed",
     "tags": [
       "regret"
     ]
   },
   {
-    "id": "id-curiosity-killed-the-cat",
-    "text": "curiosity killed the cat",
-    "meaning": "being inquisitive can lead to trouble",
-    "tags": [
-      "caution",
-      "curiosity"
-    ]
-  },
-  {
     "id": "id-devils-advocate",
-    "text": "devil's advocate",
+    "text": "play devil's advocate",
     "meaning": "one who argues an opposing position for the sake of debate",
     "tags": [
       "argument"
@@ -3897,15 +3651,6 @@
     ]
   },
   {
-    "id": "id-dont-put-all-your-eggs-in-one-basket",
-    "text": "don't put all your eggs in one basket",
-    "meaning": "don't risk everything on a single venture",
-    "tags": [
-      "caution",
-      "prudence"
-    ]
-  },
-  {
     "id": "id-down-to-the-wire",
     "text": "down to the wire",
     "meaning": "until the last possible moment",
@@ -3914,35 +3659,11 @@
     ]
   },
   {
-    "id": "id-draw-the-line",
-    "text": "draw the line",
-    "meaning": "to set a limit on what one will accept",
-    "tags": [
-      "boundaries"
-    ]
-  },
-  {
-    "id": "id-drop-in-the-bucket",
-    "text": "drop in the bucket",
-    "meaning": "a very small amount compared to what is needed",
-    "tags": [
-      "small"
-    ]
-  },
-  {
     "id": "id-easy-does-it",
     "text": "easy does it",
     "meaning": "go slowly and carefully",
     "tags": [
       "caution"
-    ]
-  },
-  {
-    "id": "id-every-cloud-has-a-silver-lining",
-    "text": "every cloud has a silver lining",
-    "meaning": "even bad situations have some positive aspect",
-    "tags": [
-      "optimism"
     ]
   },
   {
@@ -3962,34 +3683,17 @@
     ]
   },
   {
-    "id": "id-get-cold-feet",
-    "text": "get cold feet",
-    "meaning": "to become nervous about doing something",
-    "tags": [
-      "fear",
-      "hesitation"
-    ]
-  },
-  {
     "id": "id-get-out-of-hand",
     "text": "get out of hand",
-    "meaning": "to become uncontrollable",
+    "meaning": "become uncontrollable",
     "tags": [
       "control"
     ]
   },
   {
-    "id": "id-get-your-act-together",
-    "text": "get your act together",
-    "meaning": "to organize yourself or improve your behavior",
-    "tags": [
-      "organization"
-    ]
-  },
-  {
     "id": "id-give-the-benefit-of-the-doubt",
     "text": "give the benefit of the doubt",
-    "meaning": "to believe someone's account, even if it's questionable",
+    "meaning": "believe someone's account, even if it's questionable",
     "tags": [
       "trust"
     ]
@@ -3997,17 +3701,9 @@
   {
     "id": "id-go-on-a-wild-goose-chase",
     "text": "go on a wild goose chase",
-    "meaning": "to pursue something that proves to be a waste of time",
+    "meaning": "pursue something that proves to be a waste of time",
     "tags": [
       "futility"
-    ]
-  },
-  {
-    "id": "id-go-the-extra-mile",
-    "text": "go the extra mile",
-    "meaning": "to make a special effort to achieve something",
-    "tags": [
-      "effort"
     ]
   },
   {
@@ -4021,51 +3717,9 @@
   {
     "id": "id-have-a-chip-on-your-shoulder",
     "text": "have a chip on your shoulder",
-    "meaning": "to hold a grudge or feel resentment",
+    "meaning": "hold a grudge or feel resentment",
     "tags": [
       "resentment"
-    ]
-  },
-  {
-    "id": "id-have-your-head-in-the-clouds",
-    "text": "have your head in the clouds",
-    "meaning": "to be daydreaming or unrealistic",
-    "tags": [
-      "dreaming"
-    ]
-  },
-  {
-    "id": "id-hit-the-books",
-    "text": "hit the books",
-    "meaning": "to study hard",
-    "tags": [
-      "study",
-      "american-english"
-    ]
-  },
-  {
-    "id": "id-hit-the-nail-on-the-head",
-    "text": "hit the nail on the head",
-    "meaning": "to do or say something exactly right",
-    "tags": [
-      "accuracy"
-    ]
-  },
-  {
-    "id": "id-hit-the-sack",
-    "text": "hit the sack",
-    "meaning": "to go to bed",
-    "tags": [
-      "sleep",
-      "american-english"
-    ]
-  },
-  {
-    "id": "id-hold-your-horses",
-    "text": "hold your horses",
-    "meaning": "wait or slow down",
-    "tags": [
-      "patience"
     ]
   },
   {
@@ -4077,34 +3731,18 @@
     ]
   },
   {
-    "id": "id-it-takes-two-to-tango",
-    "text": "it takes two to tango",
-    "meaning": "more than one person is responsible for an action or situation",
-    "tags": [
-      "responsibility"
-    ]
-  },
-  {
-    "id": "id-jump-on-the-bandwagon",
-    "text": "jump on the bandwagon",
-    "meaning": "to join a popular trend",
-    "tags": [
-      "conformity"
-    ]
-  },
-  {
     "id": "id-jump-through-hoops",
     "text": "jump through hoops",
-    "meaning": "to do many different tasks to achieve a goal",
+    "meaning": "do many different tasks to achieve a goal",
     "tags": [
       "effort",
-      "obstacles"
+      "obstacle"
     ]
   },
   {
     "id": "id-keep-an-eye-on",
-    "text": "keep an eye on",
-    "meaning": "to watch carefully",
+    "text": "keep an eye on something",
+    "meaning": "watch carefully",
     "tags": [
       "watchfulness"
     ]
@@ -4120,25 +3758,9 @@
   {
     "id": "id-kill-two-birds-with-one-stone",
     "text": "kill two birds with one stone",
-    "meaning": "to accomplish two things with a single action",
+    "meaning": "accomplish two things with a single action",
     "tags": [
       "efficiency"
-    ]
-  },
-  {
-    "id": "id-leave-no-stone-unturned",
-    "text": "leave no stone unturned",
-    "meaning": "to search exhaustively",
-    "tags": [
-      "thoroughness"
-    ]
-  },
-  {
-    "id": "id-let-the-cat-out-of-the-bag",
-    "text": "let the cat out of the bag",
-    "meaning": "to reveal a secret",
-    "tags": [
-      "secrets"
     ]
   },
   {
@@ -4147,22 +3769,6 @@
     "meaning": "very similar",
     "tags": [
       "similarity"
-    ]
-  },
-  {
-    "id": "id-miss-the-boat",
-    "text": "miss the boat",
-    "meaning": "to miss an opportunity",
-    "tags": [
-      "opportunity"
-    ]
-  },
-  {
-    "id": "id-no-pain-no-gain",
-    "text": "no pain, no gain",
-    "meaning": "you must work hard to achieve worthwhile goals",
-    "tags": [
-      "effort"
     ]
   },
   {
@@ -4190,33 +3796,9 @@
     ]
   },
   {
-    "id": "id-on-the-fence",
-    "text": "on the fence",
-    "meaning": "undecided",
-    "tags": [
-      "indecision"
-    ]
-  },
-  {
-    "id": "id-out-of-the-blue",
-    "text": "out of the blue",
-    "meaning": "unexpectedly",
-    "tags": [
-      "surprise"
-    ]
-  },
-  {
-    "id": "id-pass-the-buck",
-    "text": "pass the buck",
-    "meaning": "to shift responsibility to someone else",
-    "tags": [
-      "responsibility"
-    ]
-  },
-  {
     "id": "id-pay-through-the-nose",
     "text": "pay through the nose",
-    "meaning": "to pay an exorbitant amount",
+    "meaning": "pay an exorbitant amount",
     "tags": [
       "money"
     ]
@@ -4230,22 +3812,6 @@
     ]
   },
   {
-    "id": "id-pull-someones-leg",
-    "text": "pull someone's leg",
-    "meaning": "to tease or joke with someone",
-    "tags": [
-      "humor"
-    ]
-  },
-  {
-    "id": "id-read-between-the-lines",
-    "text": "read between the lines",
-    "meaning": "to understand the implied meaning",
-    "tags": [
-      "comprehension"
-    ]
-  },
-  {
     "id": "id-right-as-rain",
     "text": "right as rain",
     "meaning": "feeling fine and healthy",
@@ -4254,36 +3820,11 @@
     ]
   },
   {
-    "id": "id-rule-of-thumb",
-    "text": "rule of thumb",
-    "meaning": "a general principle",
-    "tags": [
-      "principle"
-    ]
-  },
-  {
-    "id": "id-see-eye-to-eye",
-    "text": "see eye to eye",
-    "meaning": "to agree",
-    "tags": [
-      "agreement"
-    ]
-  },
-  {
     "id": "id-sit-on-the-fence",
     "text": "sit on the fence",
-    "meaning": "to be undecided",
+    "meaning": "be undecided",
     "tags": [
       "indecision"
-    ]
-  },
-  {
-    "id": "id-sleep-on-it",
-    "text": "sleep on it",
-    "meaning": "take time to think before deciding",
-    "tags": [
-      "decision",
-      "patience"
     ]
   },
   {
@@ -4295,17 +3836,9 @@
     ]
   },
   {
-    "id": "id-steal-someones-thunder",
-    "text": "steal someone's thunder",
-    "meaning": "to take credit for or attention from someone else's accomplishment",
-    "tags": [
-      "credit"
-    ]
-  },
-  {
     "id": "id-take-it-with-a-grain-of-salt",
     "text": "take it with a grain of salt",
-    "meaning": "to be skeptical about what you hear",
+    "meaning": "be skeptical about what you hear",
     "tags": [
       "skepticism"
     ]
@@ -4313,30 +3846,14 @@
   {
     "id": "id-take-the-bull-by-the-horns",
     "text": "take the bull by the horns",
-    "meaning": "to confront a problem directly",
+    "meaning": "confront a problem directly",
     "tags": [
       "courage"
     ]
   },
   {
-    "id": "id-the-early-bird-catches-the-worm",
-    "text": "the early bird catches the worm",
-    "meaning": "those who act first have the advantage",
-    "tags": [
-      "timing"
-    ]
-  },
-  {
-    "id": "id-the-elephant-in-the-room",
-    "text": "the elephant in the room",
-    "meaning": "an obvious problem that no one wants to discuss",
-    "tags": [
-      "avoidance"
-    ]
-  },
-  {
     "id": "id-the-last-laugh",
-    "text": "the last laugh",
+    "text": "have the last laugh",
     "meaning": "ultimate triumph after apparent defeat",
     "tags": [
       "victory"
@@ -4345,31 +3862,15 @@
   {
     "id": "id-throw-caution-to-the-wind",
     "text": "throw caution to the wind",
-    "meaning": "to take a risk",
+    "meaning": "take a risk",
     "tags": [
       "risk"
     ]
   },
   {
-    "id": "id-throw-in-the-towel",
-    "text": "throw in the towel",
-    "meaning": "to give up",
-    "tags": [
-      "surrender"
-    ]
-  },
-  {
-    "id": "id-tip-of-the-iceberg",
-    "text": "tip of the iceberg",
-    "meaning": "only a small, visible part of a much larger situation",
-    "tags": [
-      "surface"
-    ]
-  },
-  {
     "id": "id-to-make-a-long-story-short",
     "text": "to make a long story short",
-    "meaning": "to summarize",
+    "meaning": "summarize",
     "tags": [
       "brevity"
     ]
@@ -4377,7 +3878,7 @@
   {
     "id": "id-touch-base",
     "text": "touch base",
-    "meaning": "to make brief contact",
+    "meaning": "make brief contact",
     "tags": [
       "contact"
     ]
@@ -4385,7 +3886,7 @@
   {
     "id": "id-turn-over-a-new-leaf",
     "text": "turn over a new leaf",
-    "meaning": "to start fresh, change one's behavior",
+    "meaning": "start fresh, change one's behavior",
     "tags": [
       "change"
     ]
@@ -4415,14 +3916,6 @@
     ]
   },
   {
-    "id": "id-wear-your-heart-on-your-sleeve",
-    "text": "wear your heart on your sleeve",
-    "meaning": "to display emotions openly",
-    "tags": [
-      "emotion"
-    ]
-  },
-  {
     "id": "id-wet-behind-the-ears",
     "text": "wet behind the ears",
     "meaning": "young and inexperienced",
@@ -4441,25 +3934,17 @@
   {
     "id": "id-wrap-your-head-around",
     "text": "wrap your head around",
-    "meaning": "to understand something complex",
+    "meaning": "understand something complex",
     "tags": [
       "comprehension"
     ]
   },
   {
     "id": "id-wrong-side-of-the-bed",
-    "text": "wrong side of the bed",
+    "text": "get up on the wrong side of the bed",
     "meaning": "in a bad mood",
     "tags": [
       "mood"
-    ]
-  },
-  {
-    "id": "id-you-cant-have-your-cake-and-eat-it-too",
-    "text": "you can't have your cake and eat it too",
-    "meaning": "you can't enjoy two desirable but mutually exclusive things",
-    "tags": [
-      "choice"
     ]
   },
   {
@@ -4471,43 +3956,11 @@
     ]
   },
   {
-    "id": "id-a-chip-off-the-old-block",
-    "text": "a chip off the old block",
-    "meaning": "a child who resembles their parent",
-    "tags": [
-      "family"
-    ]
-  },
-  {
-    "id": "id-a-stitch-in-time-saves-nine",
-    "text": "a stitch in time saves nine",
-    "meaning": "fixing a problem early prevents bigger problems later",
-    "tags": [
-      "prevention"
-    ]
-  },
-  {
-    "id": "id-all-bark-and-no-bite",
-    "text": "all bark and no bite",
-    "meaning": "someone who threatens but doesn't act",
-    "tags": [
-      "threat"
-    ]
-  },
-  {
     "id": "id-all-hands-on-deck",
     "text": "all hands on deck",
     "meaning": "everyone needs to help",
     "tags": [
       "teamwork"
-    ]
-  },
-  {
-    "id": "id-apple-of-ones-eye",
-    "text": "apple of one's eye",
-    "meaning": "someone cherished above all others",
-    "tags": [
-      "love"
     ]
   },
   {
@@ -4519,25 +3972,19 @@
     ]
   },
   {
-    "id": "id-at-the-eleventh-hour",
-    "text": "at the eleventh hour",
-    "meaning": "at the last possible moment",
-    "tags": [
-      "timing"
-    ]
-  },
-  {
-    "id": "id-bark-is-worse-than-their-bite",
-    "text": "bark is worse than their bite",
+    "id": "id-bark-worse-bite",
+    "text": "his bark is worse than his bite",
     "meaning": "their threatening manner is worse than their actions",
     "tags": [
-      "threat"
+      "threat",
+      "appearance",
+      "character"
     ]
   },
   {
     "id": "id-bear-a-grudge",
     "text": "bear a grudge",
-    "meaning": "to hold resentment",
+    "meaning": "hold resentment",
     "tags": [
       "resentment"
     ]
@@ -4545,7 +3992,7 @@
   {
     "id": "id-beat-a-dead-horse",
     "text": "beat a dead horse",
-    "meaning": "to continue an effort that's already failed",
+    "meaning": "continue an effort that's already failed",
     "tags": [
       "futility"
     ]
@@ -4553,7 +4000,7 @@
   {
     "id": "id-bend-the-truth",
     "text": "bend the truth",
-    "meaning": "to lie slightly",
+    "meaning": "lie slightly",
     "tags": [
       "honesty"
     ]
@@ -4568,7 +4015,7 @@
   },
   {
     "id": "id-birds-eye-view",
-    "text": "bird's eye view",
+    "text": "a bird's-eye view",
     "meaning": "an overview from above",
     "tags": [
       "perspective"
@@ -4585,7 +4032,7 @@
   {
     "id": "id-blow-off-steam",
     "text": "blow off steam",
-    "meaning": "to release pent-up frustration",
+    "meaning": "release pent-up frustration",
     "tags": [
       "release"
     ]
@@ -4593,46 +4040,14 @@
   {
     "id": "id-blow-your-own-horn",
     "text": "blow your own horn",
-    "meaning": "to brag about yourself",
+    "meaning": "brag about yourself",
     "tags": [
       "pride"
     ]
   },
   {
-    "id": "id-bury-the-hatchet",
-    "text": "bury the hatchet",
-    "meaning": "to make peace after a conflict",
-    "tags": [
-      "peace"
-    ]
-  },
-  {
-    "id": "id-caught-in-the-act",
-    "text": "caught in the act",
-    "meaning": "caught while doing something wrong",
-    "tags": [
-      "caught"
-    ]
-  },
-  {
-    "id": "id-change-of-heart",
-    "text": "change of heart",
-    "meaning": "a change in feelings or opinion",
-    "tags": [
-      "change"
-    ]
-  },
-  {
-    "id": "id-clear-the-air",
-    "text": "clear the air",
-    "meaning": "to resolve misunderstandings",
-    "tags": [
-      "resolution"
-    ]
-  },
-  {
     "id": "id-close-but-no-cigar",
-    "text": "close, but no cigar",
+    "text": "close but no cigar",
     "meaning": "very nearly successful but not quite",
     "tags": [
       "near-miss"
@@ -4641,7 +4056,7 @@
   {
     "id": "id-come-full-circle",
     "text": "come full circle",
-    "meaning": "to return to the original state",
+    "meaning": "return to the original state",
     "tags": [
       "return"
     ]
@@ -4655,27 +4070,11 @@
     ]
   },
   {
-    "id": "id-cross-your-fingers",
-    "text": "cross your fingers",
-    "meaning": "to hope for good luck",
-    "tags": [
-      "hope"
-    ]
-  },
-  {
     "id": "id-dance-to-someones-tune",
     "text": "dance to someone's tune",
-    "meaning": "to do whatever someone says",
+    "meaning": "do whatever someone says",
     "tags": [
       "compliance"
-    ]
-  },
-  {
-    "id": "id-dead-in-the-water",
-    "text": "dead in the water",
-    "meaning": "stalled, unable to proceed",
-    "tags": [
-      "stuck"
     ]
   },
   {
@@ -4697,7 +4096,7 @@
   {
     "id": "id-draw-a-blank",
     "text": "draw a blank",
-    "meaning": "to be unable to think of something",
+    "meaning": "be unable to think of something",
     "tags": [
       "forgetting"
     ]
@@ -4705,7 +4104,7 @@
   {
     "id": "id-drop-a-bombshell",
     "text": "drop a bombshell",
-    "meaning": "to deliver shocking news",
+    "meaning": "deliver shocking news",
     "tags": [
       "news"
     ]
@@ -4713,49 +4112,17 @@
   {
     "id": "id-eat-humble-pie",
     "text": "eat humble pie",
-    "meaning": "to apologize and admit being wrong",
+    "meaning": "apologize and admit being wrong",
     "tags": [
       "apology"
     ]
   },
   {
-    "id": "id-face-the-music",
-    "text": "face the music",
-    "meaning": "to accept the consequences of one's actions",
-    "tags": [
-      "consequences"
-    ]
-  },
-  {
-    "id": "id-fair-and-square",
-    "text": "fair and square",
-    "meaning": "honestly and according to the rules",
-    "tags": [
-      "honesty"
-    ]
-  },
-  {
     "id": "id-fall-flat",
     "text": "fall flat",
-    "meaning": "to fail completely",
+    "meaning": "fail completely",
     "tags": [
       "failure"
-    ]
-  },
-  {
-    "id": "id-feeling-under-the-weather",
-    "text": "feeling under the weather",
-    "meaning": "feeling slightly ill",
-    "tags": [
-      "health"
-    ]
-  },
-  {
-    "id": "id-fish-out-of-water",
-    "text": "fish out of water",
-    "meaning": "out of one's element",
-    "tags": [
-      "discomfort"
     ]
   },
   {
@@ -4767,27 +4134,11 @@
     ]
   },
   {
-    "id": "id-flesh-and-blood",
-    "text": "flesh and blood",
-    "meaning": "a relative or family member",
-    "tags": [
-      "family"
-    ]
-  },
-  {
     "id": "id-flip-the-script",
     "text": "flip the script",
-    "meaning": "to reverse a situation or expectation",
+    "meaning": "reverse a situation or expectation",
     "tags": [
       "reversal"
-    ]
-  },
-  {
-    "id": "id-fly-off-the-handle",
-    "text": "fly off the handle",
-    "meaning": "to lose one's temper suddenly",
-    "tags": [
-      "anger"
     ]
   },
   {
@@ -4796,22 +4147,6 @@
     "meaning": "something to think about",
     "tags": [
       "reflection"
-    ]
-  },
-  {
-    "id": "id-foot-in-the-door",
-    "text": "foot in the door",
-    "meaning": "an initial small success leading to bigger things",
-    "tags": [
-      "opportunity"
-    ]
-  },
-  {
-    "id": "id-foot-the-bill",
-    "text": "foot the bill",
-    "meaning": "to pay for something",
-    "tags": [
-      "money"
     ]
   },
   {
@@ -4832,24 +4167,16 @@
   },
   {
     "id": "id-get-a-kick-out-of",
-    "text": "get a kick out of",
-    "meaning": "to enjoy something a lot",
+    "text": "get a kick out of something",
+    "meaning": "enjoy something a lot",
     "tags": [
       "enjoyment"
     ]
   },
   {
-    "id": "id-get-bent-out-of-shape",
-    "text": "get bent out of shape",
-    "meaning": "to become upset",
-    "tags": [
-      "upset"
-    ]
-  },
-  {
     "id": "id-get-the-ball-rolling",
     "text": "get the ball rolling",
-    "meaning": "to start something happening",
+    "meaning": "start something happening",
     "tags": [
       "beginning"
     ]
@@ -4857,7 +4184,7 @@
   {
     "id": "id-go-down-in-flames",
     "text": "go down in flames",
-    "meaning": "to fail spectacularly",
+    "meaning": "fail spectacularly",
     "tags": [
       "failure"
     ]
@@ -4873,39 +4200,23 @@
   {
     "id": "id-hand-over-fist",
     "text": "hand over fist",
-    "meaning": "rapidly, in large amounts",
+    "meaning": "rapidly and in large amounts, especially of making money",
     "tags": [
       "rapidity"
     ]
   },
   {
-    "id": "id-hands-are-tied",
-    "text": "hands are tied",
-    "meaning": "unable to act due to constraints",
-    "tags": [
-      "constraint"
-    ]
-  },
-  {
     "id": "id-have-a-soft-spot-for",
-    "text": "have a soft spot for",
-    "meaning": "to have affection for",
+    "text": "have a soft spot for someone",
+    "meaning": "have affection for",
     "tags": [
       "affection"
     ]
   },
   {
-    "id": "id-head-over-heels",
-    "text": "head over heels",
-    "meaning": "completely in love",
-    "tags": [
-      "love"
-    ]
-  },
-  {
     "id": "id-hit-a-snag",
     "text": "hit a snag",
-    "meaning": "to encounter a problem",
+    "meaning": "encounter a problem",
     "tags": [
       "problem"
     ]
@@ -4913,7 +4224,7 @@
   {
     "id": "id-hit-rock-bottom",
     "text": "hit rock bottom",
-    "meaning": "to reach the lowest possible point",
+    "meaning": "reach the lowest possible point",
     "tags": [
       "low"
     ]
@@ -4921,7 +4232,7 @@
   {
     "id": "id-hit-the-road",
     "text": "hit the road",
-    "meaning": "to leave or begin a journey",
+    "meaning": "leave or begin a journey",
     "tags": [
       "departure"
     ]
@@ -4935,27 +4246,11 @@
     ]
   },
   {
-    "id": "id-icing-on-the-cake",
-    "text": "icing on the cake",
-    "meaning": "an extra benefit",
-    "tags": [
-      "bonus"
-    ]
-  },
-  {
     "id": "id-in-a-nutshell",
     "text": "in a nutshell",
     "meaning": "in summary",
     "tags": [
       "brevity"
-    ]
-  },
-  {
-    "id": "id-in-hot-water",
-    "text": "in hot water",
-    "meaning": "in trouble",
-    "tags": [
-      "trouble"
     ]
   },
   {
@@ -4967,17 +4262,9 @@
     ]
   },
   {
-    "id": "id-jump-the-gun",
-    "text": "jump the gun",
-    "meaning": "to act prematurely",
-    "tags": [
-      "haste"
-    ]
-  },
-  {
     "id": "id-keep-your-fingers-crossed",
     "text": "keep your fingers crossed",
-    "meaning": "to hope for the best",
+    "meaning": "hope for the best",
     "tags": [
       "hope"
     ]
@@ -4985,49 +4272,27 @@
   {
     "id": "id-kick-the-can-down-the-road",
     "text": "kick the can down the road",
-    "meaning": "to delay dealing with a problem",
+    "meaning": "delay dealing with a problem",
     "tags": [
       "procrastination"
     ]
   },
   {
-    "id": "id-knee-jerk-reaction",
-    "text": "knee-jerk reaction",
+    "id": "id-knee-jerk",
+    "text": "a knee-jerk reaction",
     "meaning": "an automatic, unthinking response",
     "tags": [
-      "impulse"
+      "impulse",
+      "reaction",
+      "impulsive"
     ]
   },
   {
     "id": "id-learn-the-ropes",
     "text": "learn the ropes",
-    "meaning": "to learn how to do something",
+    "meaning": "learn the basics of a job or activity",
     "tags": [
       "learning"
-    ]
-  },
-  {
-    "id": "id-let-bygones-be-bygones",
-    "text": "let bygones be bygones",
-    "meaning": "to forgive and forget",
-    "tags": [
-      "forgiveness"
-    ]
-  },
-  {
-    "id": "id-let-sleeping-dogs-lie",
-    "text": "let sleeping dogs lie",
-    "meaning": "to leave a problem alone if it's not causing trouble",
-    "tags": [
-      "caution"
-    ]
-  },
-  {
-    "id": "id-light-at-the-end-of-the-tunnel",
-    "text": "light at the end of the tunnel",
-    "meaning": "the prospect of better times after difficulties",
-    "tags": [
-      "hope"
     ]
   },
   {
@@ -5047,14 +4312,6 @@
     ]
   },
   {
-    "id": "id-lose-your-touch",
-    "text": "lose your touch",
-    "meaning": "to no longer have a skill you once had",
-    "tags": [
-      "loss"
-    ]
-  },
-  {
     "id": "id-make-hay-while-the-sun-shines",
     "text": "make hay while the sun shines",
     "meaning": "take advantage of favorable circumstances",
@@ -5065,7 +4322,7 @@
   {
     "id": "id-miss-the-mark",
     "text": "miss the mark",
-    "meaning": "to fail to achieve a goal",
+    "meaning": "fail to achieve a goal",
     "tags": [
       "failure"
     ]
@@ -5076,22 +4333,6 @@
     "meaning": "money is hard to come by",
     "tags": [
       "money"
-    ]
-  },
-  {
-    "id": "id-nip-it-in-the-bud",
-    "text": "nip it in the bud",
-    "meaning": "to stop a problem before it grows",
-    "tags": [
-      "prevention"
-    ]
-  },
-  {
-    "id": "id-no-strings-attached",
-    "text": "no strings attached",
-    "meaning": "with no conditions or restrictions",
-    "tags": [
-      "freedom"
     ]
   },
   {
@@ -5116,14 +4357,6 @@
     "meaning": "spontaneously, without preparation",
     "tags": [
       "spontaneity"
-    ]
-  },
-  {
-    "id": "id-on-a-roll",
-    "text": "on a roll",
-    "meaning": "experiencing a series of successes",
-    "tags": [
-      "success"
     ]
   },
   {
@@ -5167,17 +4400,9 @@
     ]
   },
   {
-    "id": "id-paint-the-town-red",
-    "text": "paint the town red",
-    "meaning": "to celebrate boisterously",
-    "tags": [
-      "celebration"
-    ]
-  },
-  {
     "id": "id-pass-with-flying-colors",
     "text": "pass with flying colors",
-    "meaning": "to succeed brilliantly",
+    "meaning": "succeed brilliantly",
     "tags": [
       "success"
     ]
@@ -5192,7 +4417,7 @@
   },
   {
     "id": "id-penny-for-your-thoughts",
-    "text": "penny for your thoughts",
+    "text": "a penny for your thoughts",
     "meaning": "what are you thinking?",
     "tags": [
       "curiosity"
@@ -5200,7 +4425,7 @@
   },
   {
     "id": "id-picture-is-worth-a-thousand-words",
-    "text": "picture is worth a thousand words",
+    "text": "a picture is worth a thousand words",
     "meaning": "an image conveys more than language can",
     "tags": [
       "communication"
@@ -5215,17 +4440,9 @@
     ]
   },
   {
-    "id": "id-play-it-by-ear",
-    "text": "play it by ear",
-    "meaning": "to improvise as the situation develops",
-    "tags": [
-      "improvisation"
-    ]
-  },
-  {
     "id": "id-pour-your-heart-out",
     "text": "pour your heart out",
-    "meaning": "to express feelings openly",
+    "meaning": "express feelings openly",
     "tags": [
       "expression"
     ]
@@ -5241,7 +4458,7 @@
   {
     "id": "id-pull-the-wool-over-someones-eyes",
     "text": "pull the wool over someone's eyes",
-    "meaning": "to deceive someone",
+    "meaning": "deceive someone",
     "tags": [
       "deception"
     ]
@@ -5249,63 +4466,39 @@
   {
     "id": "id-push-the-envelope",
     "text": "push the envelope",
-    "meaning": "to go beyond accepted limits",
+    "meaning": "go beyond accepted limits",
     "tags": [
-      "limits"
+      "limit"
     ]
   },
   {
     "id": "id-put-your-foot-down",
     "text": "put your foot down",
-    "meaning": "to assert your authority",
+    "meaning": "assert your authority",
     "tags": [
       "assertion"
     ]
   },
   {
-    "id": "id-put-your-foot-in-your-mouth",
-    "text": "put your foot in your mouth",
-    "meaning": "to say something embarrassing",
-    "tags": [
-      "embarrassment"
-    ]
-  },
-  {
     "id": "id-raise-the-bar",
     "text": "raise the bar",
-    "meaning": "to set a higher standard",
+    "meaning": "set a higher standard",
     "tags": [
-      "standards"
-    ]
-  },
-  {
-    "id": "id-rest-on-your-laurels",
-    "text": "rest on your laurels",
-    "meaning": "to be content with past achievements without striving further",
-    "tags": [
-      "complacency"
+      "standard"
     ]
   },
   {
     "id": "id-rock-the-boat",
     "text": "rock the boat",
-    "meaning": "to disturb a stable situation",
+    "meaning": "disturb a stable situation",
     "tags": [
       "disturbance"
     ]
   },
   {
-    "id": "id-rule-the-roost",
-    "text": "rule the roost",
-    "meaning": "to be in charge",
-    "tags": [
-      "authority"
-    ]
-  },
-  {
     "id": "id-save-face",
     "text": "save face",
-    "meaning": "to preserve one's dignity",
+    "meaning": "preserve one's dignity",
     "tags": [
       "dignity"
     ]
@@ -5313,7 +4506,7 @@
   {
     "id": "id-see-the-light",
     "text": "see the light",
-    "meaning": "to suddenly understand something",
+    "meaning": "suddenly understand something",
     "tags": [
       "understanding"
     ]
@@ -5351,14 +4544,6 @@
     ]
   },
   {
-    "id": "id-skeleton-in-the-closet",
-    "text": "skeleton in the closet",
-    "meaning": "an embarrassing or shameful secret",
-    "tags": [
-      "secrets"
-    ]
-  },
-  {
     "id": "id-snails-pace",
     "text": "snail's pace",
     "meaning": "very slow speed",
@@ -5383,17 +4568,9 @@
     ]
   },
   {
-    "id": "id-stand-your-ground",
-    "text": "stand your ground",
-    "meaning": "refuse to retreat or yield",
-    "tags": [
-      "resolve"
-    ]
-  },
-  {
     "id": "id-start-from-scratch",
     "text": "start from scratch",
-    "meaning": "to begin from nothing",
+    "meaning": "begin from nothing",
     "tags": [
       "beginning"
     ]
@@ -5401,23 +4578,15 @@
   {
     "id": "id-stick-to-your-guns",
     "text": "stick to your guns",
-    "meaning": "to maintain your position",
+    "meaning": "maintain your position",
     "tags": [
       "resolve"
     ]
   },
   {
-    "id": "id-straight-from-the-horses-mouth",
-    "text": "straight from the horse's mouth",
-    "meaning": "directly from the original source",
-    "tags": [
-      "source"
-    ]
-  },
-  {
     "id": "id-take-a-rain-check",
     "text": "take a rain check",
-    "meaning": "to postpone an invitation",
+    "meaning": "postpone an invitation",
     "tags": [
       "postponement",
       "american-english"
@@ -5434,7 +4603,7 @@
   {
     "id": "id-take-the-cake",
     "text": "take the cake",
-    "meaning": "to be the most extreme example",
+    "meaning": "be the most extreme example",
     "tags": [
       "extremity"
     ]
@@ -5442,7 +4611,7 @@
   {
     "id": "id-take-the-high-road",
     "text": "take the high road",
-    "meaning": "to act with integrity rather than retaliating",
+    "meaning": "act with integrity rather than retaliating",
     "tags": [
       "integrity"
     ]
@@ -5450,17 +4619,9 @@
   {
     "id": "id-talk-the-talk-and-walk-the-walk",
     "text": "talk the talk and walk the walk",
-    "meaning": "to back up your words with actions",
+    "meaning": "back up your words with actions",
     "tags": [
       "integrity"
-    ]
-  },
-  {
-    "id": "id-the-bottom-line",
-    "text": "the bottom line",
-    "meaning": "the final, essential point",
-    "tags": [
-      "essence"
     ]
   },
   {
@@ -5469,22 +4630,6 @@
     "meaning": "a final wonderful addition",
     "tags": [
       "bonus"
-    ]
-  },
-  {
-    "id": "id-the-cream-of-the-crop",
-    "text": "the cream of the crop",
-    "meaning": "the very best",
-    "tags": [
-      "best"
-    ]
-  },
-  {
-    "id": "id-the-devil-is-in-the-details",
-    "text": "the devil is in the details",
-    "meaning": "details can cause problems",
-    "tags": [
-      "details"
     ]
   },
   {
@@ -5498,7 +4643,7 @@
   {
     "id": "id-the-long-and-short-of-it",
     "text": "the long and short of it",
-    "meaning": "the final summary",
+    "meaning": "the essential point, put briefly",
     "tags": [
       "summary"
     ]
@@ -5522,7 +4667,7 @@
   {
     "id": "id-think-outside-the-box",
     "text": "think outside the box",
-    "meaning": "to think creatively, unconventionally",
+    "meaning": "think creatively, unconventionally",
     "tags": [
       "creativity"
     ]
@@ -5530,15 +4675,15 @@
   {
     "id": "id-throw-a-wrench-in-the-works",
     "text": "throw a wrench in the works",
-    "meaning": "to disrupt",
+    "meaning": "disrupt",
     "tags": [
       "disruption"
     ]
   },
   {
     "id": "id-throw-cold-water-on",
-    "text": "throw cold water on",
-    "meaning": "to discourage",
+    "text": "throw cold water on something",
+    "meaning": "discourage",
     "tags": [
       "discouragement"
     ]
@@ -5546,7 +4691,7 @@
   {
     "id": "id-throw-under-the-bus",
     "text": "throw under the bus",
-    "meaning": "to betray for personal gain",
+    "meaning": "betray for personal gain",
     "tags": [
       "betrayal"
     ]
@@ -5601,17 +4746,9 @@
     ]
   },
   {
-    "id": "id-turn-a-blind-eye",
-    "text": "turn a blind eye",
-    "meaning": "to ignore something deliberately",
-    "tags": [
-      "ignoring"
-    ]
-  },
-  {
     "id": "id-turn-the-other-cheek",
     "text": "turn the other cheek",
-    "meaning": "to respond to insult with patience",
+    "meaning": "respond to insult with patience",
     "tags": [
       "patience"
     ]
@@ -5627,7 +4764,7 @@
   {
     "id": "id-up-the-ante",
     "text": "up the ante",
-    "meaning": "to raise the stakes",
+    "meaning": "raise the stakes",
     "tags": [
       "risk"
     ]
@@ -5635,7 +4772,7 @@
   {
     "id": "id-walk-on-eggshells",
     "text": "walk on eggshells",
-    "meaning": "to be cautious to avoid offense",
+    "meaning": "be cautious to avoid offense",
     "tags": [
       "caution"
     ]
@@ -5643,17 +4780,9 @@
   {
     "id": "id-walk-the-line",
     "text": "walk the line",
-    "meaning": "to behave correctly",
+    "meaning": "behave correctly",
     "tags": [
       "behavior"
-    ]
-  },
-  {
-    "id": "id-water-under-the-bridge",
-    "text": "water under the bridge",
-    "meaning": "past events that are no longer worth worrying about",
-    "tags": [
-      "forgiveness"
     ]
   },
   {
@@ -5665,35 +4794,11 @@
     ]
   },
   {
-    "id": "id-whole-nine-yards",
-    "text": "whole nine yards",
-    "meaning": "everything; the entirety",
-    "tags": [
-      "completeness"
-    ]
-  },
-  {
     "id": "id-with-flying-colors",
     "text": "with flying colors",
     "meaning": "with great success",
     "tags": [
       "success"
-    ]
-  },
-  {
-    "id": "id-worth-its-weight-in-gold",
-    "text": "worth its weight in gold",
-    "meaning": "extremely valuable",
-    "tags": [
-      "value"
-    ]
-  },
-  {
-    "id": "id-wrap-up",
-    "text": "wrap up",
-    "meaning": "to conclude",
-    "tags": [
-      "conclusion"
     ]
   },
   {
@@ -5705,27 +4810,11 @@
     ]
   },
   {
-    "id": "id-zip-your-lip",
-    "text": "zip your lip",
-    "meaning": "stay silent",
-    "tags": [
-      "silence"
-    ]
-  },
-  {
     "id": "id-a-dogs-life",
     "text": "a dog's life",
     "meaning": "a hard, miserable life",
     "tags": [
       "hardship"
-    ]
-  },
-  {
-    "id": "id-a-fish-out-of-water",
-    "text": "a fish out of water",
-    "meaning": "uncomfortable in a new situation",
-    "tags": [
-      "discomfort"
     ]
   },
   {
@@ -5763,7 +4852,7 @@
   {
     "id": "id-cat-among-pigeons",
     "text": "put the cat among the pigeons",
-    "meaning": "to do or say something that causes trouble and makes people angry",
+    "meaning": "do or say something that causes trouble and makes people angry",
     "tags": [
       "mischief",
       "animals"
@@ -5799,7 +4888,7 @@
   {
     "id": "id-eat-crow",
     "text": "eat crow",
-    "meaning": "to admit one was wrong, often humiliatingly",
+    "meaning": "admit one was wrong, often humiliatingly",
     "tags": [
       "regret",
       "truth"
@@ -5808,7 +4897,7 @@
   {
     "id": "id-monkey-back",
     "text": "get the monkey off one's back",
-    "meaning": "to free oneself of a long-standing problem or burden",
+    "meaning": "free oneself of a long-standing problem or burden",
     "tags": [
       "relief",
       "struggle"
@@ -5844,7 +4933,7 @@
   {
     "id": "id-fish-other-fry",
     "text": "have other fish to fry",
-    "meaning": "to have more important things to do",
+    "meaning": "have more important things to do",
     "tags": [
       "priority",
       "work"
@@ -5880,7 +4969,7 @@
   {
     "id": "id-rabbit-hat",
     "text": "pull a rabbit out of a hat",
-    "meaning": "to produce an unexpected solution at the last moment",
+    "meaning": "produce an unexpected solution at the last moment",
     "tags": [
       "surprise",
       "problem-solving"
@@ -5889,7 +4978,7 @@
   {
     "id": "id-rabbit-hole",
     "text": "go down the rabbit hole",
-    "meaning": "to enter into a complex, bewildering, or absorbing situation",
+    "meaning": "enter into a complex, bewildering, or absorbing situation",
     "tags": [
       "complexity",
       "exploration"
@@ -5907,7 +4996,7 @@
   {
     "id": "id-sitting-duck",
     "text": "a sitting duck",
-    "meaning": "someone or something easy to attack or deceive",
+    "meaning": "an easy, defenceless target",
     "tags": [
       "vulnerable",
       "easy"
@@ -5961,7 +5050,7 @@
   {
     "id": "id-dog-fight",
     "text": "fight like cats and dogs",
-    "meaning": "to argue or quarrel constantly",
+    "meaning": "argue or quarrel constantly",
     "tags": [
       "conflict",
       "argument"
@@ -5986,15 +5075,6 @@
     ]
   },
   {
-    "id": "id-bark-worse-bite",
-    "text": "his bark is worse than his bite",
-    "meaning": "someone seems harsher than they really are",
-    "tags": [
-      "appearance",
-      "character"
-    ]
-  },
-  {
     "id": "id-shoulder-cry",
     "text": "a shoulder to cry on",
     "meaning": "a sympathetic listener in times of distress",
@@ -6010,15 +5090,6 @@
     "tags": [
       "space",
       "freedom"
-    ]
-  },
-  {
-    "id": "id-knee-jerk",
-    "text": "a knee-jerk reaction",
-    "meaning": "an automatic, unthinking response",
-    "tags": [
-      "reaction",
-      "impulsive"
     ]
   },
   {
@@ -6051,7 +5122,7 @@
   {
     "id": "id-nose-grindstone",
     "text": "keep your nose to the grindstone",
-    "meaning": "to work hard and steadily",
+    "meaning": "work hard and steadily",
     "tags": [
       "work",
       "diligence"
@@ -6059,8 +5130,8 @@
   },
   {
     "id": "id-nose-out-joint",
-    "text": "put one's nose out of joint",
-    "meaning": "to offend or annoy",
+    "text": "put someone's nose out of joint",
+    "meaning": "offend or annoy",
     "tags": [
       "offense",
       "social"
@@ -6078,7 +5149,7 @@
   {
     "id": "id-stick-neck-out",
     "text": "stick your neck out",
-    "meaning": "to take a risk to help someone",
+    "meaning": "take a risk, especially by saying or doing something bold",
     "tags": [
       "risk",
       "courage"
@@ -6096,7 +5167,7 @@
   {
     "id": "id-breathe-down-neck",
     "text": "breathe down someone's neck",
-    "meaning": "to monitor or pressure someone closely",
+    "meaning": "monitor or pressure someone closely",
     "tags": [
       "pressure",
       "oversight"
@@ -6105,7 +5176,7 @@
   {
     "id": "id-head-water",
     "text": "keep your head above water",
-    "meaning": "to manage to survive a difficult situation",
+    "meaning": "manage to survive a difficult situation",
     "tags": [
       "survival",
       "struggle"
@@ -6114,7 +5185,7 @@
   {
     "id": "id-lose-head",
     "text": "lose your head",
-    "meaning": "to panic or become uncontrollably emotional",
+    "meaning": "panic or become uncontrollably emotional",
     "tags": [
       "panic",
       "emotion"
@@ -6123,7 +5194,7 @@
   {
     "id": "id-bite-head-off",
     "text": "bite someone's head off",
-    "meaning": "to respond to someone harshly and angrily",
+    "meaning": "respond to someone harshly and angrily",
     "tags": [
       "anger",
       "harshness"
@@ -6132,7 +5203,7 @@
   {
     "id": "id-hand-mouth",
     "text": "live from hand to mouth",
-    "meaning": "to have just enough money to survive day to day",
+    "meaning": "have just enough money to survive day to day",
     "tags": [
       "poverty",
       "survival"
@@ -6150,7 +5221,7 @@
   {
     "id": "id-give-hand",
     "text": "give someone a hand",
-    "meaning": "to help, or to applaud",
+    "meaning": "help, or to applaud",
     "tags": [
       "help",
       "support"
@@ -6159,7 +5230,7 @@
   {
     "id": "id-leg-up",
     "text": "give someone a leg up",
-    "meaning": "to help someone succeed or get started",
+    "meaning": "help someone succeed or get started",
     "tags": [
       "help",
       "support"
@@ -6168,7 +5239,7 @@
   {
     "id": "id-not-leg-stand",
     "text": "not have a leg to stand on",
-    "meaning": "to have no support for one's position",
+    "meaning": "have no support for one's position",
     "tags": [
       "weakness",
       "argument"
@@ -6177,7 +5248,7 @@
   {
     "id": "id-thumbs-up",
     "text": "give the thumbs up",
-    "meaning": "to indicate approval",
+    "meaning": "indicate approval",
     "tags": [
       "approval",
       "communication"
@@ -6186,7 +5257,7 @@
   {
     "id": "id-finger-pulse",
     "text": "have your finger on the pulse",
-    "meaning": "to be fully aware of current developments",
+    "meaning": "be fully aware of current developments",
     "tags": [
       "awareness",
       "trends"
@@ -6195,7 +5266,7 @@
   {
     "id": "id-finger-pies",
     "text": "have a finger in every pie",
-    "meaning": "to be involved in many different activities",
+    "meaning": "be involved in many different activities",
     "tags": [
       "involvement",
       "busy"
@@ -6204,7 +5275,7 @@
   {
     "id": "id-pointing-finger",
     "text": "point the finger",
-    "meaning": "to accuse or blame someone",
+    "meaning": "accuse or blame someone",
     "tags": [
       "blame",
       "accusation"
@@ -6213,7 +5284,7 @@
   {
     "id": "id-bring-home-bacon",
     "text": "bring home the bacon",
-    "meaning": "to earn money for the family",
+    "meaning": "earn money for the family",
     "tags": [
       "money",
       "work"
@@ -6222,7 +5293,7 @@
   {
     "id": "id-burn-candle",
     "text": "burn the candle at both ends",
-    "meaning": "to exhaust yourself by overworking",
+    "meaning": "exhaust yourself by overworking",
     "tags": [
       "exhaustion",
       "overwork"
@@ -6240,7 +5311,7 @@
   {
     "id": "id-not-penny-rub",
     "text": "not have two pennies to rub together",
-    "meaning": "to be very poor",
+    "meaning": "be very poor",
     "tags": [
       "poverty",
       "money"
@@ -6258,7 +5329,7 @@
   {
     "id": "id-rolling-dough",
     "text": "rolling in dough",
-    "meaning": "to be very wealthy",
+    "meaning": "be very wealthy",
     "tags": [
       "wealth",
       "money"
@@ -6267,7 +5338,7 @@
   {
     "id": "id-pay-piper",
     "text": "pay the piper",
-    "meaning": "to face the consequences of past actions",
+    "meaning": "face the consequences of past actions",
     "tags": [
       "consequence",
       "payment"
@@ -6285,7 +5356,7 @@
   {
     "id": "id-strike-gold",
     "text": "strike gold",
-    "meaning": "to find or achieve something very valuable",
+    "meaning": "find or achieve something very valuable",
     "tags": [
       "success",
       "discovery"
@@ -6294,7 +5365,7 @@
   {
     "id": "id-bring-table",
     "text": "bring something to the table",
-    "meaning": "to contribute something valuable in a discussion or partnership",
+    "meaning": "contribute something valuable in a discussion or partnership",
     "tags": [
       "contribution",
       "value"
@@ -6302,8 +5373,8 @@
   },
   {
     "id": "id-tighten-screws",
-    "text": "tighten the screws on",
-    "meaning": "to apply pressure to force action",
+    "text": "tighten the screws on someone",
+    "meaning": "apply pressure to force action",
     "tags": [
       "pressure",
       "force"
@@ -6312,7 +5383,7 @@
   {
     "id": "id-pulling-strings",
     "text": "pull some strings",
-    "meaning": "to use personal influence to obtain a favor",
+    "meaning": "use personal influence to obtain a favor",
     "tags": [
       "influence",
       "favor"
@@ -6321,7 +5392,7 @@
   {
     "id": "id-time-flies",
     "text": "time flies",
-    "meaning": "time passes quickly, especially when you're enjoying it",
+    "meaning": "time passes quickly",
     "tags": [
       "time",
       "perception"
@@ -6348,7 +5419,7 @@
   {
     "id": "id-clock-watch",
     "text": "watch the clock",
-    "meaning": "to count the minutes until something ends",
+    "meaning": "count the minutes until something ends",
     "tags": [
       "impatience",
       "boredom"
@@ -6357,7 +5428,7 @@
   {
     "id": "id-against-clock",
     "text": "race against the clock",
-    "meaning": "to hurry to finish before a deadline",
+    "meaning": "hurry to finish before a deadline",
     "tags": [
       "urgency",
       "deadline"
@@ -6366,7 +5437,7 @@
   {
     "id": "id-out-frying-pan",
     "text": "out of the frying pan and into the fire",
-    "meaning": "to escape one bad situation only to enter a worse one",
+    "meaning": "escape one bad situation only to enter a worse one",
     "tags": [
       "trouble",
       "escape"
@@ -6375,9 +5446,9 @@
   {
     "id": "id-irons-fire",
     "text": "have too many irons in the fire",
-    "meaning": "to be involved in too many activities at once",
+    "meaning": "be involved in too many activities at once",
     "tags": [
-      "overcommit",
+      "overcommitment",
       "busy"
     ]
   },
@@ -6393,7 +5464,7 @@
   {
     "id": "id-leap-of-faith",
     "text": "take a leap of faith",
-    "meaning": "to believe in or attempt something despite uncertainty",
+    "meaning": "believe in or attempt something despite uncertainty",
     "tags": [
       "risk",
       "trust"
@@ -6402,7 +5473,7 @@
   {
     "id": "id-blow-fuse",
     "text": "blow a fuse",
-    "meaning": "to lose one's temper suddenly",
+    "meaning": "lose one's temper suddenly",
     "tags": [
       "anger",
       "outburst"
@@ -6411,7 +5482,7 @@
   {
     "id": "id-blow-top",
     "text": "blow your top",
-    "meaning": "to become extremely angry",
+    "meaning": "become extremely angry",
     "tags": [
       "anger",
       "outburst"
@@ -6420,7 +5491,7 @@
   {
     "id": "id-hit-roof",
     "text": "hit the roof",
-    "meaning": "to react with intense anger",
+    "meaning": "react with intense anger",
     "tags": [
       "anger",
       "reaction"
@@ -6438,7 +5509,7 @@
   {
     "id": "id-cards-vest",
     "text": "play your cards close to the vest",
-    "meaning": "to keep your plans secret",
+    "meaning": "keep your plans secret",
     "tags": [
       "secrecy",
       "caution"
@@ -6465,7 +5536,7 @@
   {
     "id": "id-running-tight",
     "text": "run a tight ship",
-    "meaning": "to manage strictly and efficiently",
+    "meaning": "manage strictly and efficiently",
     "tags": [
       "discipline",
       "management"
@@ -6474,7 +5545,7 @@
   {
     "id": "id-jump-ship",
     "text": "jump ship",
-    "meaning": "to abandon a project or organization in trouble",
+    "meaning": "abandon a project or organization in trouble",
     "tags": [
       "abandonment",
       "crisis"
@@ -6482,8 +5553,8 @@
   },
   {
     "id": "id-pulled-rug",
-    "text": "pull the rug out from under",
-    "meaning": "to withdraw support suddenly",
+    "text": "pull the rug out from under someone",
+    "meaning": "withdraw support suddenly",
     "tags": [
       "betrayal",
       "abandonment"
@@ -6492,7 +5563,7 @@
   {
     "id": "id-swim-against-current",
     "text": "swim against the current",
-    "meaning": "to act against prevailing opinion",
+    "meaning": "act against prevailing opinion",
     "tags": [
       "nonconformity",
       "resistance"
@@ -6501,7 +5572,7 @@
   {
     "id": "id-rise-occasion",
     "text": "rise to the occasion",
-    "meaning": "to perform well in a challenging situation",
+    "meaning": "perform well in a challenging situation",
     "tags": [
       "excellence",
       "challenge"
@@ -6537,7 +5608,7 @@
   {
     "id": "id-call-spade",
     "text": "call a spade a spade",
-    "meaning": "to speak plainly without euphemism",
+    "meaning": "speak plainly without euphemism",
     "tags": [
       "honesty",
       "plainness"
@@ -6546,7 +5617,7 @@
   {
     "id": "id-fingers-burnt",
     "text": "get your fingers burnt",
-    "meaning": "to suffer because of an unwise involvement",
+    "meaning": "suffer because of an unwise involvement",
     "tags": [
       "regret",
       "consequence"
@@ -6600,7 +5671,7 @@
   {
     "id": "id-spilling-tea",
     "text": "spill the tea",
-    "meaning": "to share gossip or revealing information",
+    "meaning": "share gossip or revealing information",
     "tags": [
       "gossip",
       "sharing"
@@ -6618,7 +5689,7 @@
   {
     "id": "id-cut-long",
     "text": "to cut a long story short",
-    "meaning": "to summarize the key point of a longer tale",
+    "meaning": "summarize the key point of a longer tale",
     "tags": [
       "brevity",
       "summary"
@@ -6627,7 +5698,7 @@
   {
     "id": "id-walk-mile",
     "text": "walk a mile in someone's shoes",
-    "meaning": "to try to see things from another's perspective",
+    "meaning": "try to see things from another's perspective",
     "tags": [
       "empathy",
       "perspective"
@@ -6636,7 +5707,7 @@
   {
     "id": "id-cross-line",
     "text": "cross the line",
-    "meaning": "to behave unacceptably",
+    "meaning": "behave unacceptably",
     "tags": [
       "offense",
       "boundary"
@@ -6644,7 +5715,7 @@
   },
   {
     "id": "id-fine-line",
-    "text": "a fine line between",
+    "text": "a fine line between love and hate",
     "meaning": "a small but important distinction",
     "tags": [
       "distinction",
@@ -6653,7 +5724,7 @@
   },
   {
     "id": "id-creme-creme",
-    "text": "the crème de la crème",
+    "text": "the creme de la creme",
     "meaning": "the finest of all",
     "tags": [
       "best",
@@ -6663,7 +5734,7 @@
   {
     "id": "id-bottom-barrel",
     "text": "scrape the bottom of the barrel",
-    "meaning": "to use the least desirable option because nothing else is left",
+    "meaning": "use the least desirable option because nothing else is left",
     "tags": [
       "last-resort",
       "poor"
@@ -6697,18 +5768,9 @@
     ]
   },
   {
-    "id": "id-bread-winner",
-    "text": "the breadwinner",
-    "meaning": "the person whose income supports the family",
-    "tags": [
-      "money",
-      "family"
-    ]
-  },
-  {
     "id": "id-bring-bacon",
     "text": "save someone's bacon",
-    "meaning": "to rescue someone from trouble",
+    "meaning": "rescue someone from trouble",
     "tags": [
       "rescue",
       "help"
@@ -6717,7 +5779,7 @@
   {
     "id": "id-cold-turkey",
     "text": "go cold turkey",
-    "meaning": "to quit something addictive abruptly",
+    "meaning": "quit something addictive abruptly",
     "tags": [
       "quitting",
       "health"
@@ -6726,7 +5788,7 @@
   {
     "id": "id-talk-turkey",
     "text": "talk turkey",
-    "meaning": "to discuss something seriously and frankly",
+    "meaning": "discuss something seriously and frankly",
     "tags": [
       "honesty",
       "business"
@@ -6735,19 +5797,10 @@
   {
     "id": "id-egg-someone-on",
     "text": "egg someone on",
-    "meaning": "to encourage someone to do something foolish",
+    "meaning": "encourage someone to do something foolish",
     "tags": [
       "encouragement",
       "mischief"
-    ]
-  },
-  {
-    "id": "id-piping-hot",
-    "text": "piping hot",
-    "meaning": "extremely hot, freshly cooked",
-    "tags": [
-      "food",
-      "hot"
     ]
   },
   {
@@ -6762,19 +5815,10 @@
   {
     "id": "id-chew-fat",
     "text": "chew the fat",
-    "meaning": "to talk informally about random topics",
+    "meaning": "talk informally about random topics",
     "tags": [
       "conversation",
       "relaxed"
-    ]
-  },
-  {
-    "id": "id-side-tracked",
-    "text": "get sidetracked",
-    "meaning": "to be distracted from the main task",
-    "tags": [
-      "distraction",
-      "focus"
     ]
   },
   {
@@ -6798,7 +5842,7 @@
   {
     "id": "id-pin-down",
     "text": "pin someone down",
-    "meaning": "to get someone to commit definitely",
+    "meaning": "get someone to commit definitely",
     "tags": [
       "commitment",
       "specifics"
@@ -6807,7 +5851,7 @@
   {
     "id": "id-toe-line",
     "text": "toe the line",
-    "meaning": "to follow rules and meet expectations",
+    "meaning": "follow rules and meet expectations",
     "tags": [
       "obedience",
       "conformity"
@@ -6825,7 +5869,7 @@
   {
     "id": "id-pull-plug",
     "text": "pull the plug",
-    "meaning": "to terminate or end something",
+    "meaning": "terminate or end something",
     "tags": [
       "ending",
       "cancel"
@@ -6841,15 +5885,6 @@
     ]
   },
   {
-    "id": "id-skin-teeth",
-    "text": "by the skin of one's teeth",
-    "meaning": "just barely; by a narrow margin",
-    "tags": [
-      "narrow",
-      "escape"
-    ]
-  },
-  {
     "id": "id-hair-trigger",
     "text": "on a hair trigger",
     "meaning": "ready to react explosively at the slightest provocation",
@@ -6860,7 +5895,7 @@
   },
   {
     "id": "id-toothpaste-tube",
-    "text": "you can't put toothpaste back in the tube",
+    "text": "you can't put the toothpaste back in the tube",
     "meaning": "some things, once done or said, cannot be undone",
     "tags": [
       "finality",
