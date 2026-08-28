@@ -20,6 +20,101 @@ export class Renderer {
     this.chars = []; // {el, ch, isSpace}
     this.cursor = 0;
     this.scrollPx = 0;
+
+    /* Character position cache.
+
+       moveCaretTo runs on EVERY keystroke. It used to call
+       getBoundingClientRect() two or three times per press, and because
+       the engine mutates classes/textContent immediately before it, each
+       read forced a synchronous layout -- the classic typing-jank
+       pattern, and it got worse the longer the passage was.
+
+       Instead we measure every char ONCE into a flat Float32Array
+       [x, y, w, h, x, y, w, h, ...] and read from that. Positions are
+       stored relative to `inner`, not the container, which makes them
+       invariant under the translate we put on `inner` for scrolling and
+       for tape -- char and parent shift together, so the delta never
+       changes. A scroll or a tape slide therefore does NOT invalidate
+       the cache.
+
+       The cache only goes stale when the box actually reflows: setText
+       (new spans), appendText (more spans), a container resize, or a
+       webfont swapping in. Notably NOT on setIncorrect -- the typing
+       font is monospace, so swapping one glyph for another keeps the
+       same advance width. */
+    this._pos = null;
+    this._posCount = 0;   // chars measured so far
+    this._dirty = true;   // full re-measure needed
+    this._contW = 0;
+    this._innerOffX = 0;  // inner's offset inside container, pre-transform
+    this._innerOffY = 0;
+    this._reflowHandle = null;
+
+    // A resize changes wrapping, so every position moves.
+    if (typeof ResizeObserver !== "undefined") {
+      this._ro = new ResizeObserver(() => this._onReflow());
+      this._ro.observe(container);
+    }
+    // A webfont swapping in after first paint changes every advance
+    // width. Without this the caret sits fractionally off until the
+    // next resize.
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => this._onReflow()).catch(() => {});
+    }
+  }
+
+  /* Something reflowed the text box. Drop the cache and re-place the
+     caret next frame -- the user may not be typing, and without this the
+     caret would sit at a stale position until the next keypress. */
+  _onReflow() {
+    this._dirty = true;
+    if (this._reflowHandle) return;
+    this._reflowHandle = requestAnimationFrame(() => {
+      this._reflowHandle = null;
+      if (this.chars.length) this.moveCaretTo(this.cursor);
+    });
+  }
+
+  _ensureCapacity(n) {
+    if (this._pos && this._pos.length >= n * 4) return;
+    const next = new Float32Array(Math.max(n, 64) * 8);
+    if (this._pos) next.set(this._pos);
+    this._pos = next;
+  }
+
+  /* Measure chars [from, n) in one batched read pass. Appending never
+     shifts earlier content in normal LTR flow, so appendText measures
+     only the new tail instead of re-walking thousands of spans -- which
+     keeps long zen / adaptive streams from degrading to O(n^2). */
+  _measure(from = 0) {
+    const n = this.chars.length;
+    if (!n) { this._posCount = 0; this._dirty = false; return; }
+    this._ensureCapacity(n);
+
+    const cr = this.container.getBoundingClientRect();
+    const ir = this.inner.getBoundingClientRect();
+    this._contW = cr.width;
+    // ir is post-transform; add back the shift we applied so the caret
+    // math stays correct when measured mid-scroll or mid-tape-slide.
+    this._innerOffX = (ir.left - cr.left) + (this._tapeShift || 0);
+    this._innerOffY = (ir.top - cr.top) + (this.scrollPx || 0);
+
+    const pos = this._pos;
+    for (let k = from; k < n; k++) {
+      const r = this.chars[k].el.getBoundingClientRect();
+      const o = k * 4;
+      pos[o]     = r.left - ir.left;
+      pos[o + 1] = r.top - ir.top;
+      pos[o + 2] = r.width;
+      pos[o + 3] = r.height;
+    }
+    this._posCount = n;
+    this._dirty = false;
+  }
+
+  _sync() {
+    if (this._dirty) this._measure(0);
+    else if (this._posCount < this.chars.length) this._measure(this._posCount);
   }
 
   setText(target) {
@@ -87,18 +182,18 @@ export class Renderer {
     this.scrollPx = 0;
     this._tapeShift = 0;
     this._tapeTarget = 0;
-    this._tapeChar0X = null;        // cached on first moveCaretTo
     if (this._tapeAnimHandle) {
       cancelAnimationFrame(this._tapeAnimHandle);
       this._tapeAnimHandle = null;
     }
     this.inner.style.transform = "";
-    // Force layout so the very first getBoundingClientRect in
-    // moveCaretTo sees the newly inserted spans (instead of a
-    // stale empty inner). Without this, the first char's r.left
-    // can come back equal to the container's left -- collapsing
-    // the tape math to "always at 0".
-    void this.inner.offsetWidth;
+    // Every span is new, so every cached position is meaningless.
+    // _measure (via moveCaretTo -> _sync) does its own reads, which
+    // implicitly flushes the pending layout for the spans we just
+    // inserted -- so the old explicit `void this.inner.offsetWidth`
+    // reflow-forcer is no longer needed.
+    this._dirty = true;
+    this._posCount = 0;
     this.moveCaretTo(0);
   }
 
@@ -175,19 +270,29 @@ export class Renderer {
 
   moveCaretTo(i) {
     this.cursor = i;
-    const c = this.chars[i];
     const cont = this.container;
-    if (!c) {
-      const last = this.chars[this.chars.length - 1];
-      if (!last) return;
-      const r = last.el.getBoundingClientRect();
-      const cr = cont.getBoundingClientRect();
-      this.caret.style.left = (r.right - cr.left) + "px";
-      this.caret.style.top = (r.top - cr.top) + "px";
-      return;
-    }
-    const cr = cont.getBoundingClientRect();
-    let r = c.el.getBoundingClientRect();
+    const n = this.chars.length;
+    if (!n) return;
+
+    // Reads the cache; only measures when something actually reflowed.
+    // Nothing below this line touches the DOM for layout, which is what
+    // keeps a keystroke off the forced-synchronous-layout path.
+    this._sync();
+
+    // Anchor point relative to `inner`. Past the final char (end of a
+    // finished passage) we pin to that char's trailing edge instead.
+    // The old code early-returned here and so skipped the tape and
+    // full/reader branches entirely, which left the caret misplaced at
+    // end-of-text in those modes; the unified path fixes that.
+    const past = i >= n || !this.chars[i];
+    const k = (past ? n - 1 : i) * 4;
+    const x = past ? this._pos[k] + this._pos[k + 2] : this._pos[k];
+    const y = this._pos[k + 1];
+    const h = this._pos[k + 3];
+
+    // Pre-transform position in container coordinates.
+    const contX = this._innerOffX + x;
+    const contY = this._innerOffY + y;
 
     // Tape mode FIRST -- the tape class is mutually exclusive with
     // --full and --reader, but if a stale class lingers from a prior
@@ -196,29 +301,11 @@ export class Renderer {
     // ordering would short-circuit on a leftover --reader class and
     // emit translateY(0) instead of tape's translateX.
     if (cont.classList.contains("tt-text--tape")) {
-      const anchorX = cr.width * 0.3;
-      const first = this.chars[0];
-      if (!first || !first.el) {
-        this.caret.style.left = "0px";
-        this.caret.style.top = (r.top - cr.top) + "px";
-        return;
-      }
-      const fr = first.el.getBoundingClientRect();
-      // Cache char0's pre-transform x on the very first frame so
-      // subsequent reads stay correct regardless of any current
-      // transform on the inner.
-      if (this._tapeChar0X == null) {
-        this._tapeChar0X = fr.left - cr.left;
-      }
-      // charN.left - char0.left is invariant under translateX
-      // (both shift identically), so this delta is stable mid-
-      // animation -- which lets the rAF interpolator below run
-      // smoothly without fighting the position math.
-      const charPreX = this._tapeChar0X + (r.left - fr.left);
-      const target = Math.max(0, charPreX - anchorX);
-      this._tapeTarget = target;
-      this._tapeAnchorTop = r.top - cr.top;
-      this._tapeCaretContentX = charPreX;
+      // contX is already the char's untransformed x, so the old
+      // char0-delta bookkeeping (_tapeChar0X) is no longer needed.
+      this._tapeTarget = Math.max(0, contX - this._contW * 0.3);
+      this._tapeAnchorTop = contY;
+      this._tapeCaretContentX = contX;
       this._startTapeAnim();
       return;
     }
@@ -232,20 +319,21 @@ export class Renderer {
         this.scrollPx = 0;
         this.inner.style.transform = "";
       }
-      this.caret.style.left = (r.left - cr.left) + "px";
-      this.caret.style.top = (r.top - cr.top) + "px";
+      this.caret.style.left = contX + "px";
+      this.caret.style.top = contY + "px";
       return;
     }
 
-    // Char's bounding rect height = line-height in pixels (since
-    // .tt-char is inline its rect spans the full line box). Reliable
-    // in pixels, unlike getComputedStyle().lineHeight which returns
-    // the unitless value (e.g. "1.55") for unitless line-height.
-    const lineHeight = r.height || parseFloat(getComputedStyle(this.inner).lineHeight) || 28;
+    // Cached char rect height = line-height in pixels (since .tt-char is
+    // inline, its rect spans the full line box). Reliable in pixels,
+    // unlike getComputedStyle().lineHeight which returns the unitless
+    // value (e.g. "1.55") for a unitless line-height. The computed-style
+    // fallback only fires if measurement somehow yielded zero.
+    const lineHeight = h || parseFloat(getComputedStyle(this.inner).lineHeight) || 28;
 
-    // r.top is in viewport coords; cr.top + currentTransform = inner top.
-    // caretViewportTop = where the caret sits within the visible viewport.
-    let caretViewportTop = r.top - cr.top;
+    // contY is untransformed; subtracting the current scroll gives where
+    // the caret sits within the visible viewport.
+    let caretViewportTop = contY - this.scrollPx;
 
     // Slide up: caret has wrapped past line 2 of the visible viewport.
     let scrolled = false;
@@ -265,7 +353,7 @@ export class Renderer {
       this.inner.style.transform = this.scrollPx > 0 ? `translateY(-${this.scrollPx}px)` : "";
     }
 
-    this.caret.style.left = (r.left - cr.left) + "px";
+    this.caret.style.left = contX + "px";
     this.caret.style.top = caretViewportTop + "px";
   }
 
@@ -306,6 +394,20 @@ export class Renderer {
   }
 
   destroy() {
+    // Mode switches build a fresh Renderer against the same container,
+    // so an un-disconnected observer would keep firing against detached
+    // nodes and slowly stack up across a session.
+    if (this._ro) { this._ro.disconnect(); this._ro = null; }
+    if (this._reflowHandle) {
+      cancelAnimationFrame(this._reflowHandle);
+      this._reflowHandle = null;
+    }
+    if (this._tapeAnimHandle) {
+      cancelAnimationFrame(this._tapeAnimHandle);
+      this._tapeAnimHandle = null;
+    }
+    this._pos = null;
+    this.chars = [];
     this.container.innerHTML = "";
   }
 }
