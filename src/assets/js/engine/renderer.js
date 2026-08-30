@@ -169,6 +169,20 @@ export class Renderer {
       pos[o + 2] = r.width;
       pos[o + 3] = r.height;
     }
+    /* Is this surface actually monospace? The widths are already in the
+       cache, so this costs no extra layout read. It matters because the
+       reader surface renders in Lora, a proportional serif with 21
+       distinct advance widths -- see _glyphChanged below. */
+    this._monospace = true;
+    let ref = -1;
+    for (let k = 0; k < n; k++) {
+      if (this.chars[k] && this.chars[k].isSpace) continue;
+      const w = pos[k * 4 + 2];
+      if (w <= 0) continue;
+      if (ref < 0) { ref = w; continue; }
+      if (Math.abs(w - ref) > 0.5) { this._monospace = false; break; }
+    }
+
     this._posCount = n;
     this._dirty = false;
   }
@@ -285,13 +299,41 @@ export class Renderer {
   }
   _lastIsSpace() { return this.chars.length && this.chars[this.chars.length - 1].isSpace; }
 
+  /* A glyph was swapped in or out at index i.
+
+     On a monospace surface this changes nothing: one advance width is
+     the same as another, which is why the position cache deliberately
+     ignores it. On a PROPORTIONAL surface it is not -- and the reader
+     styling (books, quotes, idioms, poems, parables) renders in Lora.
+     Substituting a narrow glyph for a wide one there shifts every
+     character after it, and with the cache untouched the caret stays
+     where the old positions said. Measured before this fix: 24
+     wide-to-narrow substitutions left the caret 646px adrift, to the
+     left of the character it belonged on, and the error accumulated
+     with every further mistake.
+
+     Re-measure from the start of the affected WORD, not from i: the
+     word is an inline-block and can re-wrap as a unit, which moves the
+     characters before i within it. Everything earlier is untouched, so
+     this is far cheaper than a full re-measure and leaves the monospace
+     path at exactly zero extra reads. */
+  _glyphChanged(i) {
+    if (this._monospace !== false) return;
+    let w = i;
+    while (w > 0 && this.chars[w - 1] && !this.chars[w - 1].isSpace) w--;
+    if (w < this._posCount) this._posCount = w;
+  }
+
   setCorrect(i) {
     const c = this.chars[i]; if (!c) return;
     c.el.classList.remove("tt-char--incorrect", "tt-char--extra");
     c.el.classList.add("tt-char--correct");
     // Restore the original target char in case it was swapped to the
     // user's typed char by a prior setIncorrect.
-    if (!c.isSpace && c.el.textContent !== c.ch) c.el.textContent = c.ch;
+    if (!c.isSpace && c.el.textContent !== c.ch) {
+      c.el.textContent = c.ch;
+      this._glyphChanged(i);
+    }
   }
   setIncorrect(i, typedCh) {
     const c = this.chars[i]; if (!c) return;
@@ -304,9 +346,11 @@ export class Renderer {
       // chars. Whitespace typed against a letter target would
       // visually erase the character ("hello" -> "h ello"), so we
       // keep the target char visible and just mark as incorrect.
+      const swapped = c.el.textContent !== typedCh;
       c.el.textContent = typedCh;
       c.el.dataset.typed = typedCh;
       c.el.dataset.target = c.ch;
+      if (swapped) this._glyphChanged(i);
     } else if (typedCh) {
       // Whitespace-typed error: target char stays visible, just
       // the incorrect class applies its red strikethrough/tint.
