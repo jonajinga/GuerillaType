@@ -44,6 +44,7 @@ export class Renderer {
        same advance width. */
     this._pos = null;
     this._posCount = 0;   // chars measured so far
+    this._zeroWidth = false;  // passage contains 0px chars (para breaks)
     this._dirty = true;   // full re-measure needed
     this._contW = 0;
     this._innerOffX = 0;  // inner's offset inside container, pre-transform
@@ -183,6 +184,17 @@ export class Renderer {
       if (Math.abs(w - ref) > 0.5) { this._monospace = false; break; }
     }
 
+    /* Does the passage contain a zero-width character? Paragraph breaks
+       render as one. They void the monospace assumption below: swapping
+       a visible glyph in beside a 0px character changes THAT character's
+       width too, so the rest of the line shifts even though every glyph
+       is nominally the same width. Costs no layout read -- the widths
+       are already in the cache. */
+    this._zeroWidth = false;
+    for (let k = 0; k < n; k++) {
+      if (pos[k * 4 + 2] <= 0) { this._zeroWidth = true; break; }
+    }
+
     this._posCount = n;
     this._dirty = false;
   }
@@ -318,7 +330,13 @@ export class Renderer {
      this is far cheaper than a full re-measure and leaves the monospace
      path at exactly zero extra reads. */
   _glyphChanged(i) {
-    if (this._monospace !== false) return;
+    /* The monospace fast-path is only sound when every glyph really does
+       occupy the same width. A paragraph break is 0px wide, and typing a
+       visible character against it expands the following break to a full
+       column -- measured on the custom reader as every character after
+       the chapter title moving one column right, which left the caret
+       exactly one character to the LEFT of its target. */
+    if (this._monospace !== false && !this._zeroWidth) return;
     let w = i;
     while (w > 0 && this.chars[w - 1] && !this.chars[w - 1].isSpace) w--;
     if (w < this._posCount) this._posCount = w;
@@ -360,7 +378,12 @@ export class Renderer {
   setUntyped(i) {
     const c = this.chars[i]; if (!c) return;
     c.el.classList.remove("tt-char--correct", "tt-char--incorrect", "tt-char--extra");
-    if (!c.isSpace && c.el.textContent !== c.ch) c.el.textContent = c.ch;
+    if (!c.isSpace && c.el.textContent !== c.ch) {
+      c.el.textContent = c.ch;
+      // Same reflow as setCorrect/setIncorrect: undoing a substitution
+      // moves the line back, so the cache is just as stale either way.
+      this._glyphChanged(i);
+    }
   }
   insertExtra(i, ch) {
     // Render an extra (typed but not in target) char inline.
