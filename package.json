@@ -36,7 +36,8 @@
     "idioms": "node scripts/check-idioms.mjs",
     "poetry": "node scripts/check-poetry.mjs",
     "quotes": "node scripts/check-quotes.mjs",
-    "parables": "node scripts/check-parables.mjs"
+    "parables": "node scripts/check-parables.mjs",
+    "caret-proportional": "node scripts/check-caret-proportional.mjs"
   },
   "dependencies": {
     "@11ty/eleventy": "^3.0.0",
