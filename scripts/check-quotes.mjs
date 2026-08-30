@@ -58,7 +58,23 @@ const longest = a.filter((q) => String(q.text || "").length > 260);
 chk(longest.length === 0, "no quote has grown into a long extract",
   longest.length ? longest.map((q) => `${q.id} (${q.text.length} chars)`).join(", ") : "longest is under 260 chars");
 
-chk(a.length >= 747, "corpus has not shrunk unexpectedly", `${a.length}`);
+/* Nothing that failed the attribution audit may come back. This is the
+   check that matters most: the corpus was assembled from quote
+   aggregators and inherited their canon of misattributions, so the
+   pressure is always toward re-importing the same sediment. */
+const verdicts = JSON.parse(readFileSync(resolve("scripts/quotes-verification.json"), "utf8"));
+const returned = a.filter((q) => verdicts.discard.includes(q.id));
+chk(returned.length === 0, "no discarded quotation has returned",
+  returned.length ? returned.slice(0, 3).map((q) => q.id).join(", ") : `${verdicts.discard.length} on the list`);
+
+/* And the corrected attributions must stay corrected. */
+const reverted = Object.entries(verdicts.reattribute)
+  .map(([id, author]) => [a.find((q) => q.id === id), author])
+  .filter(([q, author]) => q && q.author !== author);
+chk(reverted.length === 0, "reattributed quotations kept their true author",
+  reverted.length ? reverted.slice(0, 3).map(([q, w]) => `${q.id} should be ${w}`).join("; ") : `${Object.keys(verdicts.reattribute).length} corrected`);
+
+chk(a.length >= 441, "corpus has not shrunk unexpectedly", `${a.length}`);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

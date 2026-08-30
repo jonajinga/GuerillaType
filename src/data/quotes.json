@@ -9,35 +9,6 @@
     ]
   },
   {
-    "id": "q-difficulty-opportunity",
-    "text": "In the middle of difficulty lies opportunity.",
-    "author": "Albert Einstein",
-    "tags": [
-      "motivation",
-      "opportunity",
-      "difficulty",
-      "science"
-    ]
-  },
-  {
-    "id": "q-be-change",
-    "text": "Be the change that you wish to see in the world.",
-    "author": "Mahatma Gandhi",
-    "tags": [
-      "motivation",
-      "change"
-    ]
-  },
-  {
-    "id": "q-happiness",
-    "text": "Happiness depends upon ourselves.",
-    "author": "Aristotle",
-    "tags": [
-      "philosophy",
-      "happiness"
-    ]
-  },
-  {
     "id": "q-thousand-miles",
     "text": "The journey of a thousand miles begins with a single step.",
     "author": "Lao Tzu",
@@ -47,51 +18,6 @@
       "journey",
       "beginning",
       "perseverance"
-    ]
-  },
-  {
-    "id": "q-think-become",
-    "text": "What we think, we become.",
-    "author": "Buddha",
-    "tags": [
-      "philosophy",
-      "mind",
-      "becoming"
-    ]
-  },
-  {
-    "id": "q-knowing-yourself",
-    "text": "Knowing yourself is the beginning of all wisdom.",
-    "author": "Aristotle",
-    "tags": [
-      "philosophy",
-      "self-knowledge",
-      "wisdom"
-    ]
-  },
-  {
-    "id": "q-investment",
-    "text": "An investment in knowledge pays the best interest.",
-    "author": "Benjamin Franklin",
-    "tags": [
-      "learning",
-      "knowledge"
-    ]
-  },
-  {
-    "id": "q-future-present",
-    "text": "The future depends on what we do in the present.",
-    "author": "Mahatma Gandhi",
-    "tags": [
-      "motivation"
-    ]
-  },
-  {
-    "id": "q-darkest-moments",
-    "text": "It is during our darkest moments that we must focus to see the light. Nothing is impossible to a willing heart, and a small spark can light a great flame in the heart of every person who chooses courage over fear.",
-    "author": "Aristotle",
-    "tags": [
-      "motivation"
     ]
   },
   {
@@ -111,25 +37,6 @@
     "author": "Neil Armstrong",
     "tags": [
       "history"
-    ]
-  },
-  {
-    "id": "q-mistake-new",
-    "text": "A person who never made a mistake never tried anything new.",
-    "author": "Albert Einstein",
-    "tags": [
-      "motivation",
-      "mistakes",
-      "innovation",
-      "science"
-    ]
-  },
-  {
-    "id": "q-be-kind",
-    "text": "You must be the change you wish to see in the world. Be kind whenever possible. It is always possible.",
-    "author": "Dalai Lama",
-    "tags": [
-      "kindness"
     ]
   },
   {
@@ -154,25 +61,9 @@
     ]
   },
   {
-    "id": "q-unexamined-life-2",
-    "text": "The secret of happiness is not found in seeking more, but in developing the capacity to enjoy less.",
-    "author": "Socrates",
-    "tags": [
-      "philosophy"
-    ]
-  },
-  {
-    "id": "q-unexamined-life-3",
-    "text": "Happiness is the meaning and the purpose of life, the whole aim and end of human existence.",
-    "author": "Aristotle",
-    "tags": [
-      "philosophy"
-    ]
-  },
-  {
     "id": "q-trail-1",
     "text": "Do not go where the path may lead, go instead where there is no path and leave a trail.",
-    "author": "Ralph Waldo Emerson",
+    "author": "Muriel Strode",
     "tags": [
       "philosophy",
       "humor",
@@ -181,42 +72,13 @@
     ]
   },
   {
-    "id": "q-trail-2",
-    "text": "Always remember that you are absolutely unique. Just like everyone else.",
-    "author": "Margaret Mead",
-    "tags": [
-      "philosophy",
-      "humor"
-    ]
-  },
-  {
     "id": "q-rising-1",
     "text": "The greatest glory in living lies not in never falling, but in rising every time we fall.",
-    "author": "Nelson Mandela",
+    "author": "Oliver Goldsmith",
     "tags": [
       "motivation",
       "resilience",
       "perseverance"
-    ]
-  },
-  {
-    "id": "q-rising-2",
-    "text": "Our greatest weakness lies in giving up. The most certain way to succeed is always to try just one more time.",
-    "author": "Thomas Edison",
-    "tags": [
-      "motivation",
-      "persistence",
-      "success"
-    ]
-  },
-  {
-    "id": "q-rising-3",
-    "text": "Believe you can and you're halfway there.",
-    "author": "Theodore Roosevelt",
-    "tags": [
-      "motivation",
-      "belief",
-      "confidence"
     ]
   },
   {
@@ -226,17 +88,6 @@
     "tags": [
       "science",
       "learning"
-    ]
-  },
-  {
-    "id": "q-shoulders-giants-2",
-    "text": "Logic will get you from A to B. Imagination will take you everywhere.",
-    "author": "Albert Einstein",
-    "tags": [
-      "science",
-      "learning",
-      "imagination",
-      "logic"
     ]
   },
   {
@@ -253,7 +104,7 @@
   {
     "id": "q-hamlet",
     "text": "To be, or not to be, that is the question.",
-    "author": "Shakespeare",
+    "author": "William Shakespeare",
     "tags": [
       "literature"
     ],
@@ -317,15 +168,6 @@
     "source": "Following the Equator"
   },
   {
-    "id": "q-twain-good-friends",
-    "text": "Good friends, good books, and a sleepy conscience: this is the ideal life.",
-    "author": "Mark Twain",
-    "tags": [
-      "friendship",
-      "books"
-    ]
-  },
-  {
     "id": "q-twain-courage",
     "text": "Courage is resistance to fear, mastery of fear -- not absence of fear.",
     "author": "Mark Twain",
@@ -336,7 +178,7 @@
   {
     "id": "q-twain-twenty-years",
     "text": "Twenty years from now you will be more disappointed by the things that you didn't do than by the ones you did do.",
-    "author": "Mark Twain",
+    "author": "Sarah Frances Brown",
     "tags": [
       "regret",
       "life",
@@ -346,18 +188,10 @@
   {
     "id": "q-twain-kindness",
     "text": "Kindness is the language which the deaf can hear and the blind can see.",
-    "author": "Mark Twain",
+    "author": "Christian Nestell Bovee",
     "tags": [
       "kindness",
       "communication"
-    ]
-  },
-  {
-    "id": "q-twain-history",
-    "text": "History does not repeat itself, but it often rhymes.",
-    "author": "Mark Twain",
-    "tags": [
-      "history"
     ]
   },
   {
@@ -380,42 +214,6 @@
     "source": "First Inaugural Address"
   },
   {
-    "id": "q-lincoln-character",
-    "text": "Nearly all men can stand adversity, but if you want to test a man's character, give him power.",
-    "author": "Abraham Lincoln",
-    "tags": [
-      "character",
-      "power"
-    ]
-  },
-  {
-    "id": "q-lincoln-people",
-    "text": "You can fool all the people some of the time, and some of the people all the time, but you cannot fool all the people all the time.",
-    "author": "Abraham Lincoln",
-    "tags": [
-      "truth"
-    ]
-  },
-  {
-    "id": "q-lincoln-tree",
-    "text": "Give me six hours to chop down a tree and I will spend the first four sharpening the axe.",
-    "author": "Abraham Lincoln",
-    "tags": [
-      "preparation",
-      "work"
-    ]
-  },
-  {
-    "id": "q-wilde-be-yourself",
-    "text": "Be yourself; everyone else is already taken.",
-    "author": "Oscar Wilde",
-    "tags": [
-      "authenticity",
-      "individuality",
-      "literature"
-    ]
-  },
-  {
     "id": "q-wilde-stars",
     "text": "We are all in the gutter, but some of us are looking at the stars.",
     "author": "Oscar Wilde",
@@ -426,15 +224,6 @@
       "literature"
     ],
     "source": "Lady Windermere's Fan"
-  },
-  {
-    "id": "q-wilde-tell-truth",
-    "text": "If you want to tell people the truth, make them laugh, otherwise they'll kill you.",
-    "author": "Oscar Wilde",
-    "tags": [
-      "truth",
-      "humor"
-    ]
   },
   {
     "id": "q-wilde-experience",
@@ -458,15 +247,6 @@
     ]
   },
   {
-    "id": "q-emerson-self-reliance",
-    "text": "To be yourself in a world that is constantly trying to make you something else is the greatest accomplishment.",
-    "author": "Ralph Waldo Emerson",
-    "tags": [
-      "authenticity",
-      "self"
-    ]
-  },
-  {
     "id": "q-emerson-friend",
     "text": "The only way to have a friend is to be one.",
     "author": "Ralph Waldo Emerson",
@@ -477,7 +257,7 @@
   {
     "id": "q-emerson-deep",
     "text": "What lies behind us and what lies before us are tiny matters compared to what lies within us.",
-    "author": "Ralph Waldo Emerson",
+    "author": "Henry Stanley Haskins",
     "tags": [
       "self",
       "wisdom",
@@ -550,25 +330,6 @@
     "source": "Song of Myself"
   },
   {
-    "id": "q-whitman-simple",
-    "text": "Keep your face always toward the sunshine -- and shadows will fall behind you.",
-    "author": "Walt Whitman",
-    "tags": [
-      "optimism",
-      "poetry"
-    ]
-  },
-  {
-    "id": "q-whitman-curious",
-    "text": "Be curious, not judgmental.",
-    "author": "Walt Whitman",
-    "tags": [
-      "curiosity",
-      "openness",
-      "poetry"
-    ]
-  },
-  {
     "id": "q-franklin-time",
     "text": "Lost time is never found again.",
     "author": "Benjamin Franklin",
@@ -586,30 +347,12 @@
     ]
   },
   {
-    "id": "q-franklin-stop",
-    "text": "By failing to prepare, you are preparing to fail.",
-    "author": "Benjamin Franklin",
-    "tags": [
-      "preparation",
-      "planning"
-    ]
-  },
-  {
     "id": "q-franklin-good-deed",
     "text": "Well done is better than well said.",
     "author": "Benjamin Franklin",
     "tags": [
       "action",
       "words"
-    ]
-  },
-  {
-    "id": "q-franklin-tell-me",
-    "text": "Tell me and I forget. Teach me and I remember. Involve me and I learn.",
-    "author": "Benjamin Franklin",
-    "tags": [
-      "learning",
-      "education"
     ]
   },
   {
@@ -656,46 +399,12 @@
     ]
   },
   {
-    "id": "q-douglass-easier",
-    "text": "It is easier to build strong children than to repair broken men.",
-    "author": "Frederick Douglass",
-    "tags": [
-      "children",
-      "society"
-    ]
-  },
-  {
     "id": "q-douglass-power",
     "text": "Power concedes nothing without a demand. It never did and it never will.",
     "author": "Frederick Douglass",
     "tags": [
       "power",
       "justice"
-    ]
-  },
-  {
-    "id": "q-douglass-once-you-learn",
-    "text": "Once you learn to read, you will be forever free.",
-    "author": "Frederick Douglass",
-    "tags": [
-      "reading",
-      "freedom"
-    ]
-  },
-  {
-    "id": "q-james-as-if",
-    "text": "Act as if what you do makes a difference. It does.",
-    "author": "William James",
-    "tags": [
-      "action"
-    ]
-  },
-  {
-    "id": "q-james-greatest-discovery",
-    "text": "The greatest discovery of my generation is that a human being can alter his life by altering his attitudes.",
-    "author": "William James",
-    "tags": [
-      "mindset"
     ]
   },
   {
@@ -719,45 +428,11 @@
     "source": "Twilight of the Idols"
   },
   {
-    "id": "q-nietzsche-dance",
-    "text": "And those who were seen dancing were thought to be insane by those who could not hear the music.",
-    "author": "Friedrich Nietzsche",
-    "tags": [
-      "individuality"
-    ]
-  },
-  {
     "id": "q-aristotle-friend",
     "text": "What is a friend? A single soul dwelling in two bodies.",
     "author": "Aristotle",
     "tags": [
       "friendship"
-    ]
-  },
-  {
-    "id": "q-aristotle-educate-mind",
-    "text": "Educating the mind without educating the heart is no education at all.",
-    "author": "Aristotle",
-    "tags": [
-      "education"
-    ]
-  },
-  {
-    "id": "q-plato-music",
-    "text": "Music gives a soul to the universe, wings to the mind, flight to the imagination, and life to everything.",
-    "author": "Plato",
-    "tags": [
-      "art",
-      "music"
-    ]
-  },
-  {
-    "id": "q-plato-wise",
-    "text": "Wise men speak because they have something to say; fools because they have to say something.",
-    "author": "Plato",
-    "tags": [
-      "wisdom",
-      "speech"
     ]
   },
   {
@@ -772,53 +447,17 @@
     "source": "The Republic"
   },
   {
-    "id": "q-socrates-only-true-wisdom",
-    "text": "The only true wisdom is in knowing you know nothing.",
-    "author": "Socrates",
-    "tags": [
-      "wisdom",
-      "humility"
-    ]
-  },
-  {
     "id": "q-socrates-strong-minds",
     "text": "Strong minds discuss ideas, average minds discuss events, weak minds discuss people.",
-    "author": "Socrates",
+    "author": "Henry Thomas Buckle",
     "tags": [
       "thinking"
     ]
   },
   {
-    "id": "q-confucius-go-not-stop",
-    "text": "It does not matter how slowly you go as long as you do not stop.",
-    "author": "Confucius",
-    "tags": [
-      "persistence",
-      "perseverance",
-      "progress"
-    ]
-  },
-  {
-    "id": "q-confucius-three-methods",
-    "text": "By three methods we may learn wisdom: first, by reflection, which is noblest; second, by imitation, which is easiest; and third by experience, which is the bitterest.",
-    "author": "Confucius",
-    "tags": [
-      "wisdom",
-      "learning"
-    ]
-  },
-  {
-    "id": "q-confucius-everything-beauty",
-    "text": "Everything has beauty, but not everyone sees it.",
-    "author": "Confucius",
-    "tags": [
-      "beauty"
-    ]
-  },
-  {
     "id": "q-confucius-our-greatest-glory",
     "text": "Our greatest glory is not in never falling, but in rising every time we fall.",
-    "author": "Confucius",
+    "author": "Oliver Goldsmith",
     "tags": [
       "resilience",
       "perseverance"
@@ -836,25 +475,6 @@
     "source": "Tao Te Ching"
   },
   {
-    "id": "q-laotzu-be-yourself",
-    "text": "When I let go of what I am, I become what I might be.",
-    "author": "Lao Tzu",
-    "tags": [
-      "change",
-      "growth",
-      "letting-go"
-    ]
-  },
-  {
-    "id": "q-laotzu-water",
-    "text": "Water is fluid, soft, and yielding. But water will wear away rock, which is rigid and cannot yield. As a rule, whatever is fluid, soft, and yielding will overcome whatever is rigid and hard.",
-    "author": "Lao Tzu",
-    "tags": [
-      "philosophy"
-    ],
-    "source": "Tao Te Ching"
-  },
-  {
     "id": "q-shakespeare-this-above",
     "text": "This above all: to thine own self be true.",
     "author": "William Shakespeare",
@@ -864,14 +484,6 @@
       "self"
     ],
     "source": "Hamlet"
-  },
-  {
-    "id": "q-shakespeare-better",
-    "text": "It is better to be a lion for a day than a sheep all your life.",
-    "author": "William Shakespeare",
-    "tags": [
-      "courage"
-    ]
   },
   {
     "id": "q-shakespeare-no-legacy",
@@ -932,24 +544,6 @@
     "source": "Ode on a Grecian Urn"
   },
   {
-    "id": "q-marie-curie-be-less-curious",
-    "text": "Be less curious about people and more curious about ideas.",
-    "author": "Marie Curie",
-    "tags": [
-      "curiosity",
-      "ideas",
-      "science"
-    ]
-  },
-  {
-    "id": "q-marie-curie-nothing-to-fear",
-    "text": "Nothing in life is to be feared, it is only to be understood. Now is the time to understand more, so that we may fear less.",
-    "author": "Marie Curie",
-    "tags": [
-      "understanding"
-    ]
-  },
-  {
     "id": "q-bronte-am-no-bird",
     "text": "I am no bird; and no net ensnares me; I am a free human being with an independent will.",
     "author": "Charlotte Brontë",
@@ -970,70 +564,11 @@
     ]
   },
   {
-    "id": "q-stevenson-make-judgments",
-    "text": "Don't judge each day by the harvest you reap but by the seeds that you plant.",
-    "author": "Robert Louis Stevenson",
-    "tags": [
-      "work"
-    ]
-  },
-  {
-    "id": "q-eleanor-roosevelt-future",
-    "text": "The future belongs to those who believe in the beauty of their dreams.",
-    "author": "Eleanor Roosevelt",
-    "tags": [
-      "dreams",
-      "future"
-    ]
-  },
-  {
-    "id": "q-eleanor-roosevelt-no-one",
-    "text": "No one can make you feel inferior without your consent.",
-    "author": "Eleanor Roosevelt",
-    "tags": [
-      "self-worth",
-      "independence"
-    ]
-  },
-  {
-    "id": "q-eleanor-roosevelt-do-one-thing",
-    "text": "Do one thing every day that scares you.",
-    "author": "Eleanor Roosevelt",
-    "tags": [
-      "courage",
-      "growth"
-    ]
-  },
-  {
-    "id": "q-helen-keller-best-things",
-    "text": "The best and most beautiful things in this world cannot be seen or even heard, but must be felt with the heart.",
-    "author": "Helen Keller",
-    "tags": [
-      "beauty"
-    ]
-  },
-  {
-    "id": "q-helen-keller-alone-we",
-    "text": "Alone we can do so little; together we can do so much.",
-    "author": "Helen Keller",
-    "tags": [
-      "community"
-    ]
-  },
-  {
     "id": "q-ingersoll-happiness",
     "text": "Happiness is the only good. The time to be happy is now. The place to be happy is here. The way to be happy is to make others so.",
     "author": "Robert G. Ingersoll",
     "tags": [
       "happiness"
-    ]
-  },
-  {
-    "id": "q-ingersoll-doubt",
-    "text": "It is a thousand times better to have common sense without education than to have education without common sense.",
-    "author": "Robert G. Ingersoll",
-    "tags": [
-      "wisdom"
     ]
   },
   {
@@ -1054,28 +589,11 @@
     ]
   },
   {
-    "id": "q-darwin-friendship",
-    "text": "A man's friendships are one of the best measures of his worth.",
-    "author": "Charles Darwin",
-    "tags": [
-      "friendship"
-    ]
-  },
-  {
     "id": "q-darwin-survives",
     "text": "It is not the strongest of the species that survives, nor the most intelligent that survives. It is the one that is most adaptable to change.",
-    "author": "Charles Darwin",
+    "author": "Leon C. Megginson",
     "tags": [
       "change"
-    ]
-  },
-  {
-    "id": "q-tagore-let-life",
-    "text": "Let your life lightly dance on the edges of time like dew on the tip of a leaf.",
-    "author": "Rabindranath Tagore",
-    "tags": [
-      "life",
-      "poetry"
     ]
   },
   {
@@ -1084,32 +602,6 @@
     "author": "Rabindranath Tagore",
     "tags": [
       "faith"
-    ]
-  },
-  {
-    "id": "q-rumi-wound",
-    "text": "The wound is the place where the Light enters you.",
-    "author": "Rumi",
-    "tags": [
-      "healing",
-      "light",
-      "poetry"
-    ]
-  },
-  {
-    "id": "q-rumi-listen",
-    "text": "Listen with ears of tolerance. See through the eyes of compassion. Speak with the language of love.",
-    "author": "Rumi",
-    "tags": [
-      "compassion"
-    ]
-  },
-  {
-    "id": "q-rumi-go-trust",
-    "text": "As you start to walk on the way, the way appears.",
-    "author": "Rumi",
-    "tags": [
-      "beginnings"
     ]
   },
   {
@@ -1134,32 +626,11 @@
     "source": "Meditations"
   },
   {
-    "id": "q-marcus-the-happiness-of-your-life",
-    "text": "The happiness of your life depends upon the quality of your thoughts.",
-    "author": "Marcus Aurelius",
-    "tags": [
-      "happiness",
-      "mind",
-      "stoicism"
-    ],
-    "source": "Meditations"
-  },
-  {
     "id": "q-seneca-while-we-wait",
     "text": "While we wait for life, life passes.",
     "author": "Seneca",
     "tags": [
       "life"
-    ]
-  },
-  {
-    "id": "q-seneca-luck",
-    "text": "Luck is what happens when preparation meets opportunity.",
-    "author": "Seneca",
-    "tags": [
-      "preparation",
-      "luck",
-      "opportunity"
     ]
   },
   {
@@ -1171,31 +642,11 @@
     ]
   },
   {
-    "id": "q-epictetus-not-what-happens",
-    "text": "It's not what happens to you, but how you react to it that matters.",
-    "author": "Epictetus",
-    "tags": [
-      "mindset",
-      "philosophy",
-      "stoicism",
-      "attitude",
-      "mind"
-    ]
-  },
-  {
     "id": "q-epictetus-two-ears",
     "text": "We have two ears and one mouth so that we can listen twice as much as we speak.",
-    "author": "Epictetus",
+    "author": "Zeno of Citium",
     "tags": [
       "listening"
-    ]
-  },
-  {
-    "id": "q-buddha-three-things",
-    "text": "Three things cannot be long hidden: the sun, the moon, and the truth.",
-    "author": "Buddha",
-    "tags": [
-      "truth"
     ]
   },
   {
@@ -1204,14 +655,6 @@
     "author": "Buddha",
     "tags": [
       "self-reliance"
-    ]
-  },
-  {
-    "id": "q-buddha-anger",
-    "text": "Holding on to anger is like grasping a hot coal with the intent of throwing it at someone else; you are the one who gets burned.",
-    "author": "Buddha",
-    "tags": [
-      "anger"
     ]
   },
   {
@@ -1248,64 +691,6 @@
       "science",
       "self",
       "honesty"
-    ]
-  },
-  {
-    "id": "q-feynman-doubt",
-    "text": "I would rather have questions that can't be answered than answers that can't be questioned.",
-    "author": "Richard Feynman",
-    "tags": [
-      "science",
-      "curiosity",
-      "questions"
-    ]
-  },
-  {
-    "id": "q-hawking-clever",
-    "text": "Intelligence is the ability to adapt to change.",
-    "author": "Stephen Hawking",
-    "tags": [
-      "intelligence",
-      "change",
-      "science"
-    ]
-  },
-  {
-    "id": "q-hawking-quiet",
-    "text": "Quiet people have the loudest minds.",
-    "author": "Stephen Hawking",
-    "tags": [
-      "mind",
-      "introversion",
-      "quiet",
-      "science"
-    ]
-  },
-  {
-    "id": "q-russell-fool",
-    "text": "The whole problem with the world is that fools and fanatics are always so certain of themselves, and wiser people so full of doubts.",
-    "author": "Bertrand Russell",
-    "tags": [
-      "wisdom",
-      "doubt"
-    ]
-  },
-  {
-    "id": "q-russell-time",
-    "text": "The time you enjoy wasting is not wasted time.",
-    "author": "Bertrand Russell",
-    "tags": [
-      "time",
-      "leisure"
-    ]
-  },
-  {
-    "id": "q-orwell-truth",
-    "text": "In a time of universal deceit, telling the truth is a revolutionary act.",
-    "author": "George Orwell",
-    "tags": [
-      "truth",
-      "politics"
     ]
   },
   {
@@ -1374,7 +759,7 @@
   {
     "id": "q-angelou-treat",
     "text": "I've learned that people will forget what you said, people will forget what you did, but people will never forget how you made them feel.",
-    "author": "Maya Angelou",
+    "author": "Carl W. Buehner",
     "tags": [
       "empathy",
       "feeling",
@@ -1465,14 +850,6 @@
     ]
   },
   {
-    "id": "q-arendt-thinking",
-    "text": "Thinking without a banister is the only kind of thinking worthy of the name.",
-    "author": "Hannah Arendt",
-    "tags": [
-      "thought"
-    ]
-  },
-  {
     "id": "q-kierkegaard-life",
     "text": "Life can only be understood backwards; but it must be lived forwards.",
     "author": "Søren Kierkegaard",
@@ -1520,31 +897,12 @@
     ]
   },
   {
-    "id": "q-voltaire-judges",
-    "text": "Judge a man by his questions rather than by his answers.",
-    "author": "Voltaire",
-    "tags": [
-      "wisdom",
-      "questions",
-      "judgment",
-      "philosophy"
-    ]
-  },
-  {
     "id": "q-rousseau-chains",
     "text": "Man is born free, and everywhere he is in chains.",
     "author": "Jean-Jacques Rousseau",
     "tags": [
       "freedom",
       "politics"
-    ]
-  },
-  {
-    "id": "q-hemingway-write",
-    "text": "There is nothing to writing. All you do is sit down at a typewriter and bleed.",
-    "author": "Ernest Hemingway",
-    "tags": [
-      "writing"
     ]
   },
   {
@@ -1586,30 +944,6 @@
     ]
   },
   {
-    "id": "q-eliot-mistakes",
-    "text": "It is never too late to be what you might have been.",
-    "author": "George Eliot",
-    "tags": [
-      "growth"
-    ]
-  },
-  {
-    "id": "q-bukowski-find",
-    "text": "Find what you love and let it kill you.",
-    "author": "Charles Bukowski",
-    "tags": [
-      "passion"
-    ]
-  },
-  {
-    "id": "q-thompson-edge",
-    "text": "Anything worth doing is worth doing right.",
-    "author": "Hunter S. Thompson",
-    "tags": [
-      "work"
-    ]
-  },
-  {
     "id": "q-hitchens-evidence",
     "text": "What can be asserted without evidence can also be dismissed without evidence.",
     "author": "Christopher Hitchens",
@@ -1624,22 +958,6 @@
     "author": "T. S. Eliot",
     "tags": [
       "beginnings"
-    ]
-  },
-  {
-    "id": "q-auden-poet",
-    "text": "A real book is not one that we read, but one that reads us.",
-    "author": "W. H. Auden",
-    "tags": [
-      "books"
-    ]
-  },
-  {
-    "id": "q-yeats-fire",
-    "text": "Education is not the filling of a pail, but the lighting of a fire.",
-    "author": "William Butler Yeats",
-    "tags": [
-      "education"
     ]
   },
   {
@@ -1659,37 +977,11 @@
     ]
   },
   {
-    "id": "q-vangogh-dream",
-    "text": "I dream my painting and I paint my dream.",
-    "author": "Vincent van Gogh",
-    "tags": [
-      "art",
-      "dreams"
-    ]
-  },
-  {
     "id": "q-vangogh-sea",
     "text": "The fishermen know that the sea is dangerous and the storm terrible, but they have never found these dangers sufficient reason for remaining ashore.",
     "author": "Vincent van Gogh",
     "tags": [
       "courage"
-    ]
-  },
-  {
-    "id": "q-picasso-child",
-    "text": "Every child is an artist. The problem is how to remain an artist once we grow up.",
-    "author": "Pablo Picasso",
-    "tags": [
-      "art",
-      "creativity"
-    ]
-  },
-  {
-    "id": "q-picasso-action",
-    "text": "Action is the foundational key to all success.",
-    "author": "Pablo Picasso",
-    "tags": [
-      "action"
     ]
   },
   {
@@ -1701,77 +993,11 @@
     ]
   },
   {
-    "id": "q-okeeffe-flower",
-    "text": "To create one's own world takes courage.",
-    "author": "Georgia O'Keeffe",
-    "tags": [
-      "creativity",
-      "courage"
-    ]
-  },
-  {
-    "id": "q-matisse-creating",
-    "text": "Creativity takes courage.",
-    "author": "Henri Matisse",
-    "tags": [
-      "creativity"
-    ]
-  },
-  {
-    "id": "q-warhol-art",
-    "text": "Don't think about making art, just get it done.",
-    "author": "Andy Warhol",
-    "tags": [
-      "art",
-      "action"
-    ]
-  },
-  {
-    "id": "q-stravinsky-tradition",
-    "text": "A good composer does not imitate; he steals.",
-    "author": "Igor Stravinsky",
-    "tags": [
-      "art"
-    ]
-  },
-  {
-    "id": "q-beethoven-music",
-    "text": "Music is a higher revelation than all wisdom and philosophy.",
-    "author": "Ludwig van Beethoven",
-    "tags": [
-      "music"
-    ]
-  },
-  {
-    "id": "q-chaplin-day",
-    "text": "A day without laughter is a day wasted.",
-    "author": "Charlie Chaplin",
-    "tags": [
-      "humor"
-    ]
-  },
-  {
-    "id": "q-hitchcock-suspense",
-    "text": "There is no terror in the bang, only in the anticipation of it.",
-    "author": "Alfred Hitchcock",
-    "tags": [
-      "film"
-    ]
-  },
-  {
     "id": "q-kubrick-light",
     "text": "However vast the darkness, we must supply our own light.",
     "author": "Stanley Kubrick",
     "tags": [
       "hope"
-    ]
-  },
-  {
-    "id": "q-welles-art",
-    "text": "The enemy of art is the absence of limitations.",
-    "author": "Orson Welles",
-    "tags": [
-      "art"
     ]
   },
   {
@@ -1781,22 +1007,6 @@
     "tags": [
       "work",
       "genius"
-    ]
-  },
-  {
-    "id": "q-edison-fail",
-    "text": "I have not failed. I've just found 10,000 ways that won't work.",
-    "author": "Thomas Edison",
-    "tags": [
-      "persistence"
-    ]
-  },
-  {
-    "id": "q-ford-think",
-    "text": "Whether you think you can, or you think you can't -- you're right.",
-    "author": "Henry Ford",
-    "tags": [
-      "mindset"
     ]
   },
   {
@@ -1811,31 +1021,11 @@
   {
     "id": "q-drucker-future",
     "text": "The best way to predict the future is to create it.",
-    "author": "Peter Drucker",
+    "author": "Alan Kay",
     "tags": [
       "future",
       "action",
       "creation"
-    ]
-  },
-  {
-    "id": "q-churchill-success",
-    "text": "Success is not final, failure is not fatal: it is the courage to continue that counts.",
-    "author": "Winston Churchill",
-    "tags": [
-      "resilience",
-      "courage",
-      "perseverance"
-    ]
-  },
-  {
-    "id": "q-churchill-history",
-    "text": "History will be kind to me, for I intend to write it.",
-    "author": "Winston Churchill",
-    "tags": [
-      "history",
-      "ambition",
-      "intention"
     ]
   },
   {
@@ -1895,17 +1085,6 @@
     ]
   },
   {
-    "id": "q-asimov-true-delight",
-    "text": "The true delight is in the finding out rather than in the knowing.",
-    "author": "Isaac Asimov",
-    "tags": [
-      "curiosity",
-      "discovery",
-      "learning",
-      "science"
-    ]
-  },
-  {
     "id": "q-clarke-magic",
     "text": "Any sufficiently advanced technology is indistinguishable from magic.",
     "author": "Arthur C. Clarke",
@@ -1914,33 +1093,17 @@
     ]
   },
   {
-    "id": "q-galileo-doubt",
-    "text": "All truths are easy to understand once they are discovered; the point is to discover them.",
-    "author": "Galileo Galilei",
-    "tags": [
-      "science"
-    ]
-  },
-  {
     "id": "q-heisenberg-knowledge",
     "text": "Not only is the universe stranger than we think, it is stranger than we can think.",
-    "author": "Werner Heisenberg",
+    "author": "J.B.S. Haldane",
     "tags": [
       "science"
-    ]
-  },
-  {
-    "id": "q-bohr-expert",
-    "text": "An expert is a person who has made all the mistakes that can be made in a very narrow field.",
-    "author": "Niels Bohr",
-    "tags": [
-      "expertise"
     ]
   },
   {
     "id": "q-turing-machine",
     "text": "Sometimes it is the people no one imagines anything of who do the things that no one can imagine.",
-    "author": "Alan Turing",
+    "author": "Graham Moore",
     "tags": [
       "genius"
     ]
@@ -1963,27 +1126,11 @@
     ]
   },
   {
-    "id": "q-truth-aint",
-    "text": "Ain't I a woman?",
-    "author": "Sojourner Truth",
-    "tags": [
-      "rights"
-    ]
-  },
-  {
     "id": "q-anthony-failure",
     "text": "Failure is impossible.",
     "author": "Susan B. Anthony",
     "tags": [
       "resolve"
-    ]
-  },
-  {
-    "id": "q-tubman-step",
-    "text": "Every great dream begins with a dreamer.",
-    "author": "Harriet Tubman",
-    "tags": [
-      "dreams"
     ]
   },
   {
@@ -2038,36 +1185,11 @@
     ]
   },
   {
-    "id": "q-twain-fool",
-    "text": "It is easier to fool people than to convince them that they have been fooled.",
-    "author": "Mark Twain",
-    "tags": [
-      "wisdom"
-    ]
-  },
-  {
-    "id": "q-twain-difference",
-    "text": "The two most important days in your life are the day you are born and the day you find out why.",
-    "author": "Mark Twain",
-    "tags": [
-      "purpose",
-      "life"
-    ]
-  },
-  {
     "id": "q-shaw-progress",
     "text": "Progress is impossible without change, and those who cannot change their minds cannot change anything.",
     "author": "George Bernard Shaw",
     "tags": [
       "change"
-    ]
-  },
-  {
-    "id": "q-shaw-youth",
-    "text": "Youth is wasted on the young.",
-    "author": "George Bernard Shaw",
-    "tags": [
-      "youth"
     ]
   },
   {
@@ -2084,31 +1206,6 @@
     "author": "Mark Twain",
     "tags": [
       "wisdom"
-    ]
-  },
-  {
-    "id": "q-twain-vote",
-    "text": "If voting made any difference they wouldn't let us do it.",
-    "author": "Mark Twain",
-    "tags": [
-      "politics",
-      "humor"
-    ]
-  },
-  {
-    "id": "q-emerson-build",
-    "text": "Build a better mousetrap, and the world will beat a path to your door.",
-    "author": "Ralph Waldo Emerson",
-    "tags": [
-      "innovation"
-    ]
-  },
-  {
-    "id": "q-emerson-hero",
-    "text": "A hero is no braver than an ordinary man, but he is brave five minutes longer.",
-    "author": "Ralph Waldo Emerson",
-    "tags": [
-      "courage"
     ]
   },
   {
@@ -2134,15 +1231,6 @@
     "author": "Bertrand Russell",
     "tags": [
       "happiness"
-    ]
-  },
-  {
-    "id": "q-feynman-physics",
-    "text": "Physics is like sex: sure, it may give some practical results, but that's not why we do it.",
-    "author": "Richard Feynman",
-    "tags": [
-      "science",
-      "humor"
     ]
   },
   {
@@ -2173,14 +1261,6 @@
     ]
   },
   {
-    "id": "q-einstein-stupid",
-    "text": "Two things are infinite: the universe and human stupidity; and I'm not sure about the universe.",
-    "author": "Albert Einstein",
-    "tags": [
-      "humor"
-    ]
-  },
-  {
     "id": "q-einstein-bicycle",
     "text": "Life is like riding a bicycle. To keep your balance, you must keep moving.",
     "author": "Albert Einstein",
@@ -2193,7 +1273,7 @@
   {
     "id": "q-darwin-survive",
     "text": "It is not the strongest of the species that survives, but the most adaptable.",
-    "author": "Charles Darwin",
+    "author": "Leon C. Megginson",
     "tags": [
       "adaptation"
     ]
@@ -2207,17 +1287,6 @@
     ]
   },
   {
-    "id": "q-tesla-electricity",
-    "text": "The present is theirs; the future, for which I really worked, is mine.",
-    "author": "Nikola Tesla",
-    "tags": [
-      "innovation",
-      "future",
-      "work",
-      "science"
-    ]
-  },
-  {
     "id": "q-tesla-think",
     "text": "Be alone, that is the secret of invention; be alone, that is when ideas are born.",
     "author": "Nikola Tesla",
@@ -2227,43 +1296,9 @@
     ]
   },
   {
-    "id": "q-jobs-different",
-    "text": "Here's to the crazy ones. The misfits. The rebels. The troublemakers. The round pegs in the square holes.",
-    "author": "Steve Jobs",
-    "tags": [
-      "creativity"
-    ]
-  },
-  {
-    "id": "q-jobs-stay",
-    "text": "Stay hungry. Stay foolish.",
-    "author": "Steve Jobs",
-    "tags": [
-      "motivation",
-      "curiosity",
-      "ambition"
-    ]
-  },
-  {
     "id": "q-musk-impossible",
     "text": "When something is important enough, you do it even if the odds are not in your favor.",
     "author": "Elon Musk",
-    "tags": [
-      "determination"
-    ]
-  },
-  {
-    "id": "q-bezos-leverage",
-    "text": "If you double the number of experiments you do per year, you're going to double your inventiveness.",
-    "author": "Jeff Bezos",
-    "tags": [
-      "experimentation"
-    ]
-  },
-  {
-    "id": "q-rand-not-think",
-    "text": "The question isn't who is going to let me; it's who is going to stop me.",
-    "author": "Ayn Rand",
     "tags": [
       "determination"
     ]
@@ -2293,14 +1328,6 @@
     ]
   },
   {
-    "id": "q-camus-grandfather",
-    "text": "Should I kill myself, or have a cup of coffee?",
-    "author": "Albert Camus",
-    "tags": [
-      "absurd"
-    ]
-  },
-  {
     "id": "q-camus-rebel",
     "text": "I rebel; therefore we exist.",
     "author": "Albert Camus",
@@ -2314,14 +1341,6 @@
     "author": "Jean-Paul Sartre",
     "tags": [
       "philosophy"
-    ]
-  },
-  {
-    "id": "q-beauvoir-marriage",
-    "text": "Marriage is the price men pay for sex; sex is the price women pay for marriage.",
-    "author": "Simone de Beauvoir",
-    "tags": [
-      "gender"
     ]
   },
   {
@@ -2360,16 +1379,6 @@
     ]
   },
   {
-    "id": "q-kafka-truth",
-    "text": "Anyone who keeps the ability to see beauty never grows old.",
-    "author": "Franz Kafka",
-    "tags": [
-      "beauty",
-      "youth",
-      "literature"
-    ]
-  },
-  {
     "id": "q-dostoevsky-suffer",
     "text": "The mystery of human existence lies not in just staying alive, but in finding something to live for.",
     "author": "Fyodor Dostoevsky",
@@ -2382,27 +1391,11 @@
   {
     "id": "q-dostoevsky-love",
     "text": "To love is to suffer and there can be no love otherwise.",
-    "author": "Fyodor Dostoevsky",
+    "author": "Woody Allen",
     "tags": [
       "love",
       "suffering",
       "literature"
-    ]
-  },
-  {
-    "id": "q-chekhov-never",
-    "text": "Don't tell me the moon is shining; show me the glint of light on broken glass.",
-    "author": "Anton Chekhov",
-    "tags": [
-      "writing"
-    ]
-  },
-  {
-    "id": "q-marquez-life",
-    "text": "It is not true that people stop pursuing dreams because they grow old, they grow old because they stop pursuing dreams.",
-    "author": "Gabriel García Márquez",
-    "tags": [
-      "dreams"
     ]
   },
   {
@@ -2421,14 +1414,6 @@
       "truth",
       "complexity",
       "literature"
-    ]
-  },
-  {
-    "id": "q-wilde-friend",
-    "text": "True friends stab you in the front.",
-    "author": "Oscar Wilde",
-    "tags": [
-      "friendship"
     ]
   },
   {
@@ -2474,32 +1459,6 @@
     ]
   },
   {
-    "id": "q-mandela-impossible",
-    "text": "It always seems impossible until it's done.",
-    "author": "Nelson Mandela",
-    "tags": [
-      "determination",
-      "impossible",
-      "perseverance"
-    ]
-  },
-  {
-    "id": "q-mandela-revenge",
-    "text": "Resentment is like drinking poison and then hoping it will kill your enemies.",
-    "author": "Nelson Mandela",
-    "tags": [
-      "forgiveness"
-    ]
-  },
-  {
-    "id": "q-gandhi-eye",
-    "text": "An eye for an eye only ends up making the whole world blind.",
-    "author": "Mahatma Gandhi",
-    "tags": [
-      "peace"
-    ]
-  },
-  {
     "id": "q-keller-window",
     "text": "When one door of happiness closes, another opens.",
     "author": "Helen Keller",
@@ -2516,14 +1475,6 @@
     ]
   },
   {
-    "id": "q-thatcher-power",
-    "text": "Being powerful is like being a lady. If you have to tell people you are, you aren't.",
-    "author": "Margaret Thatcher",
-    "tags": [
-      "power"
-    ]
-  },
-  {
     "id": "q-cicero-friendship",
     "text": "Friendship makes prosperity more shining and lessens adversity by dividing and sharing it.",
     "author": "Cicero",
@@ -2537,16 +1488,6 @@
     "author": "Cicero",
     "tags": [
       "history"
-    ]
-  },
-  {
-    "id": "q-aurelius-power",
-    "text": "You have power over your mind -- not outside events. Realize this, and you will find strength.",
-    "author": "Marcus Aurelius",
-    "tags": [
-      "stoicism",
-      "philosophy",
-      "mind"
     ]
   },
   {
@@ -2582,22 +1523,6 @@
     ]
   },
   {
-    "id": "q-plato-prison",
-    "text": "We can easily forgive a child who is afraid of the dark; the real tragedy of life is when men are afraid of the light.",
-    "author": "Plato",
-    "tags": [
-      "fear"
-    ]
-  },
-  {
-    "id": "q-socrates-wise",
-    "text": "I know that I know nothing.",
-    "author": "Socrates",
-    "tags": [
-      "wisdom"
-    ]
-  },
-  {
     "id": "q-socrates-self",
     "text": "An unexamined life is not worth living.",
     "author": "Socrates",
@@ -2630,17 +1555,9 @@
     ]
   },
   {
-    "id": "q-locke-mind",
-    "text": "What worries you, masters you.",
-    "author": "John Locke",
-    "tags": [
-      "mind"
-    ]
-  },
-  {
     "id": "q-hume-experience",
     "text": "It's when we start working together that the real healing takes place.",
-    "author": "David Hume",
+    "author": "John Hume",
     "tags": [
       "cooperation"
     ]
@@ -2679,54 +1596,11 @@
     ]
   },
   {
-    "id": "q-faraday-truth",
-    "text": "The five essential entrepreneurial skills for success are concentration, discrimination, organization, innovation, and communication.",
-    "author": "Michael Faraday",
-    "tags": [
-      "entrepreneurship"
-    ]
-  },
-  {
     "id": "q-pasteur-prepared",
     "text": "Chance favors the prepared mind.",
     "author": "Louis Pasteur",
     "tags": [
       "preparation"
-    ]
-  },
-  {
-    "id": "q-mead-small",
-    "text": "Never doubt that a small group of thoughtful, committed citizens can change the world; indeed, it's the only thing that ever has.",
-    "author": "Margaret Mead",
-    "tags": [
-      "change",
-      "activism"
-    ]
-  },
-  {
-    "id": "q-davinci-art",
-    "text": "Simplicity is the ultimate sophistication.",
-    "author": "Leonardo da Vinci",
-    "tags": [
-      "simplicity",
-      "art"
-    ]
-  },
-  {
-    "id": "q-davinci-experience",
-    "text": "Learning never exhausts the mind.",
-    "author": "Leonardo da Vinci",
-    "tags": [
-      "learning",
-      "mind"
-    ]
-  },
-  {
-    "id": "q-michelangelo-david",
-    "text": "I saw the angel in the marble and carved until I set him free.",
-    "author": "Michelangelo",
-    "tags": [
-      "art"
     ]
   },
   {
@@ -2758,18 +1632,9 @@
   {
     "id": "q-aristotle-habit",
     "text": "We are what we repeatedly do.",
-    "author": "Aristotle",
+    "author": "Will Durant",
     "tags": [
       "habits"
-    ]
-  },
-  {
-    "id": "q-confucius-language",
-    "text": "Wheresoever you go, go with all your heart.",
-    "author": "Confucius",
-    "tags": [
-      "wholeheartedness",
-      "commitment"
     ]
   },
   {
@@ -2862,7 +1727,7 @@
   {
     "id": "q-twain-think",
     "text": "It ain't what you don't know that gets you into trouble. It's what you know for sure that just ain't so.",
-    "author": "Mark Twain",
+    "author": "Josh Billings",
     "tags": [
       "knowledge"
     ]
@@ -2891,22 +1756,6 @@
       "suffering",
       "intelligence",
       "literature"
-    ]
-  },
-  {
-    "id": "q-chekhov-knowledge",
-    "text": "Knowledge is of no value unless you put it into practice.",
-    "author": "Anton Chekhov",
-    "tags": [
-      "knowledge"
-    ]
-  },
-  {
-    "id": "q-pasternak-spring",
-    "text": "It is no longer possible to keep one's voice down. We have to scream.",
-    "author": "Boris Pasternak",
-    "tags": [
-      "expression"
     ]
   },
   {
@@ -2939,40 +1788,6 @@
     "author": "Umberto Eco",
     "tags": [
       "meaning"
-    ]
-  },
-  {
-    "id": "q-camus-judge",
-    "text": "Don't walk in front of me; I may not follow. Don't walk behind me; I may not lead. Just walk beside me and be my friend.",
-    "author": "Albert Camus",
-    "tags": [
-      "friendship"
-    ]
-  },
-  {
-    "id": "q-sartre-other",
-    "text": "We are our choices.",
-    "author": "Jean-Paul Sartre",
-    "tags": [
-      "choice"
-    ]
-  },
-  {
-    "id": "q-arendt-political",
-    "text": "Forgiveness is the key to action and freedom.",
-    "author": "Hannah Arendt",
-    "tags": [
-      "forgiveness"
-    ]
-  },
-  {
-    "id": "q-rilke-loneliness",
-    "text": "The only journey is the one within.",
-    "author": "Rainer Maria Rilke",
-    "tags": [
-      "self",
-      "journey",
-      "poetry"
     ]
   },
   {
@@ -3024,14 +1839,6 @@
     ]
   },
   {
-    "id": "q-vonnegut-everyone",
-    "text": "Be kind. Be useful. Be cheerful. Be honest.",
-    "author": "Kurt Vonnegut",
-    "tags": [
-      "virtue"
-    ]
-  },
-  {
     "id": "q-vonnegut-tiger",
     "text": "I am a humanist, which means, in part, that I have tried to behave decently without expectations of rewards or punishments after I'm dead.",
     "author": "Kurt Vonnegut",
@@ -3056,14 +1863,6 @@
     ]
   },
   {
-    "id": "q-walker-sometimes",
-    "text": "The most common way people give up their power is by thinking they don't have any.",
-    "author": "Alice Walker",
-    "tags": [
-      "empowerment"
-    ]
-  },
-  {
     "id": "q-atwood-context",
     "text": "Context is all.",
     "author": "Margaret Atwood",
@@ -3077,14 +1876,6 @@
     "author": "Ursula K. Le Guin",
     "tags": [
       "reading"
-    ]
-  },
-  {
-    "id": "q-leguin-revolution",
-    "text": "We are the universe trying to understand itself.",
-    "author": "Ursula K. Le Guin",
-    "tags": [
-      "science"
     ]
   },
   {
@@ -3173,7 +1964,7 @@
   {
     "id": "q-voltaire-disagree",
     "text": "I disapprove of what you say, but I will defend to the death your right to say it.",
-    "author": "Voltaire",
+    "author": "Evelyn Beatrice Hall",
     "tags": [
       "liberty",
       "freedom",
@@ -3222,14 +2013,6 @@
     ]
   },
   {
-    "id": "q-lincoln-better",
-    "text": "Better to remain silent and be thought a fool than to speak and remove all doubt.",
-    "author": "Abraham Lincoln",
-    "tags": [
-      "humor"
-    ]
-  },
-  {
     "id": "q-roosevelt-tr",
     "text": "Speak softly and carry a big stick; you will go far.",
     "author": "Theodore Roosevelt",
@@ -3246,68 +2029,11 @@
     ]
   },
   {
-    "id": "q-keller-vision",
-    "text": "The only thing worse than being blind is having sight but no vision.",
-    "author": "Helen Keller",
-    "tags": [
-      "vision"
-    ]
-  },
-  {
     "id": "q-jobs-die",
     "text": "Remembering that I'll be dead soon is the most important tool I've ever encountered to help me make the big choices in life.",
     "author": "Steve Jobs",
     "tags": [
       "life"
-    ]
-  },
-  {
-    "id": "q-jobs-think",
-    "text": "Innovation distinguishes between a leader and a follower.",
-    "author": "Steve Jobs",
-    "tags": [
-      "innovation",
-      "leadership"
-    ]
-  },
-  {
-    "id": "q-edison-busy",
-    "text": "Being busy does not always mean real work.",
-    "author": "Thomas Edison",
-    "tags": [
-      "work"
-    ]
-  },
-  {
-    "id": "q-edison-idea",
-    "text": "Just because something doesn't do what you planned it to do doesn't mean it's useless.",
-    "author": "Thomas Edison",
-    "tags": [
-      "innovation"
-    ]
-  },
-  {
-    "id": "q-disney-impossible",
-    "text": "It's kind of fun to do the impossible.",
-    "author": "Walt Disney",
-    "tags": [
-      "dreams"
-    ]
-  },
-  {
-    "id": "q-disney-believe",
-    "text": "All our dreams can come true, if we have the courage to pursue them.",
-    "author": "Walt Disney",
-    "tags": [
-      "dreams"
-    ]
-  },
-  {
-    "id": "q-buffett-reputation",
-    "text": "It takes 20 years to build a reputation and five minutes to ruin it.",
-    "author": "Warren Buffett",
-    "tags": [
-      "reputation"
     ]
   },
   {
@@ -3327,27 +2053,11 @@
     ]
   },
   {
-    "id": "q-musk-fail",
-    "text": "Failure is an option here. If things are not failing, you are not innovating enough.",
-    "author": "Elon Musk",
-    "tags": [
-      "innovation"
-    ]
-  },
-  {
     "id": "q-thatcher-victory",
     "text": "I am extraordinarily patient, provided I get my own way in the end.",
     "author": "Margaret Thatcher",
     "tags": [
       "patience"
-    ]
-  },
-  {
-    "id": "q-james-w-attitude",
-    "text": "The greatest discovery of my generation is that human beings can alter their lives by altering their attitudes of mind.",
-    "author": "William James",
-    "tags": [
-      "mindset"
     ]
   },
   {
@@ -3359,35 +2069,11 @@
     ]
   },
   {
-    "id": "q-dewey-experience",
-    "text": "Education is not preparation for life; education is life itself.",
-    "author": "John Dewey",
-    "tags": [
-      "education"
-    ]
-  },
-  {
     "id": "q-thoreau-time",
     "text": "As if you could kill time without injuring eternity.",
     "author": "Henry David Thoreau",
     "tags": [
       "time"
-    ]
-  },
-  {
-    "id": "q-emerson-character",
-    "text": "What you do speaks so loudly that I cannot hear what you say.",
-    "author": "Ralph Waldo Emerson",
-    "tags": [
-      "action"
-    ]
-  },
-  {
-    "id": "q-orwell-1984-truth",
-    "text": "The further a society drifts from truth, the more it will hate those who speak it.",
-    "author": "George Orwell",
-    "tags": [
-      "truth"
     ]
   },
   {
@@ -3431,14 +2117,6 @@
     ]
   },
   {
-    "id": "q-wharton-mirror",
-    "text": "If only we'd stop trying to be happy we could have a pretty good time.",
-    "author": "Edith Wharton",
-    "tags": [
-      "happiness"
-    ]
-  },
-  {
     "id": "q-james-h-experience",
     "text": "Live all you can; it's a mistake not to.",
     "author": "Henry James",
@@ -3447,25 +2125,9 @@
     ]
   },
   {
-    "id": "q-james-h-house",
-    "text": "The house of fiction has many windows.",
-    "author": "Henry James",
-    "tags": [
-      "writing"
-    ]
-  },
-  {
-    "id": "q-london-living",
-    "text": "I would rather be ashes than dust!",
-    "author": "Jack London",
-    "tags": [
-      "intensity"
-    ]
-  },
-  {
     "id": "q-london-imagination",
     "text": "Life is not always a matter of holding good cards, but sometimes, playing a poor hand well.",
-    "author": "Jack London",
+    "author": "Josh Billings",
     "tags": [
       "resilience"
     ]
@@ -3545,14 +2207,6 @@
     ]
   },
   {
-    "id": "q-angelou-survive",
-    "text": "I can be changed by what happens to me. But I refuse to be reduced by it.",
-    "author": "Maya Angelou",
-    "tags": [
-      "resilience"
-    ]
-  },
-  {
     "id": "q-orwell-1984-power",
     "text": "If you want a picture of the future, imagine a boot stamping on a human face -- forever.",
     "author": "George Orwell",
@@ -3581,16 +2235,6 @@
     "text": "There is but one truly serious philosophical problem, and that is suicide.",
     "author": "Albert Camus",
     "tags": [
-      "philosophy"
-    ]
-  },
-  {
-    "id": "q-sartre-no-exit",
-    "text": "Freedom is what you do with what's been done to you.",
-    "author": "Jean-Paul Sartre",
-    "tags": [
-      "freedom",
-      "response",
       "philosophy"
     ]
   },
@@ -3624,7 +2268,7 @@
   {
     "id": "q-frankl-meaning",
     "text": "Those who have a why to live, can bear with almost any how.",
-    "author": "Viktor Frankl",
+    "author": "Friedrich Nietzsche",
     "tags": [
       "meaning",
       "purpose",
@@ -3643,18 +2287,10 @@
   {
     "id": "q-jung-self",
     "text": "The privilege of a lifetime is to become who you truly are.",
-    "author": "Carl Jung",
+    "author": "Joseph Campbell",
     "tags": [
       "self",
       "authenticity",
-      "psychology"
-    ]
-  },
-  {
-    "id": "q-freud-dreams",
-    "text": "Dreams are the royal road to the unconscious.",
-    "author": "Sigmund Freud",
-    "tags": [
       "psychology"
     ]
   },
@@ -3664,14 +2300,6 @@
     "author": "Carl Rogers",
     "tags": [
       "growth"
-    ]
-  },
-  {
-    "id": "q-maslow-hammer",
-    "text": "If the only tool you have is a hammer, you tend to see every problem as a nail.",
-    "author": "Abraham Maslow",
-    "tags": [
-      "perspective"
     ]
   },
   {
@@ -3824,30 +2452,6 @@
     ]
   },
   {
-    "id": "q-tagore-quote",
-    "text": "You can't cross the sea merely by standing and staring at the water.",
-    "author": "Rabindranath Tagore",
-    "tags": [
-      "action"
-    ]
-  },
-  {
-    "id": "q-confucius-music",
-    "text": "Music produces a kind of pleasure which human nature cannot do without.",
-    "author": "Confucius",
-    "tags": [
-      "music"
-    ]
-  },
-  {
-    "id": "q-confucius-revenge",
-    "text": "Before you embark on a journey of revenge, dig two graves.",
-    "author": "Confucius",
-    "tags": [
-      "revenge"
-    ]
-  },
-  {
     "id": "q-stevens-boredom",
     "text": "Boredom is the dream bird that hatches the egg of experience.",
     "author": "Walter Benjamin",
@@ -3866,7 +2470,7 @@
   {
     "id": "q-marcus-aurelius-when-you-arise-in-the-morning-think-of-w",
     "text": "When you arise in the morning, think of what a precious privilege it is to be alive - to breathe, to think, to enjoy, to love.",
-    "author": "Marcus Aurelius",
+    "author": "Elbert Hubbard",
     "tags": [
       "life",
       "gratitude",
@@ -3876,7 +2480,7 @@
   {
     "id": "q-marcus-aurelius-the-object-of-life-is-not-to-be-on-the-s",
     "text": "The object of life is not to be on the side of the majority, but to escape finding oneself in the ranks of the insane.",
-    "author": "Marcus Aurelius",
+    "author": "Leo Tolstoy",
     "tags": [
       "truth",
       "independence",
@@ -3933,16 +2537,6 @@
     ]
   },
   {
-    "id": "q-seneca-he-who-is-brave-is-free",
-    "text": "He who is brave is free.",
-    "author": "Seneca",
-    "tags": [
-      "courage",
-      "freedom",
-      "stoicism"
-    ]
-  },
-  {
     "id": "q-seneca-as-long-as-you-live-keep-learning-how-to",
     "text": "As long as you live, keep learning how to live.",
     "author": "Seneca",
@@ -3963,36 +2557,6 @@
     ]
   },
   {
-    "id": "q-seneca-difficulties-strengthen-the-mind-as-labo",
-    "text": "Difficulties strengthen the mind, as labor does the body.",
-    "author": "Seneca",
-    "tags": [
-      "growth",
-      "strength",
-      "stoicism"
-    ]
-  },
-  {
-    "id": "q-seneca-every-new-beginning-comes-from-some-othe",
-    "text": "Every new beginning comes from some other beginning's end.",
-    "author": "Seneca",
-    "tags": [
-      "change",
-      "beginning",
-      "stoicism"
-    ]
-  },
-  {
-    "id": "q-epictetus-no-man-is-free-who-is-not-master-of-hims",
-    "text": "No man is free who is not master of himself.",
-    "author": "Epictetus",
-    "tags": [
-      "freedom",
-      "self-mastery",
-      "stoicism"
-    ]
-  },
-  {
     "id": "q-epictetus-first-say-to-yourself-what-you-would-be-",
     "text": "First say to yourself what you would be; and then do what you have to do.",
     "author": "Epictetus",
@@ -4003,87 +2567,12 @@
     ]
   },
   {
-    "id": "q-epictetus-wealth-consists-not-in-having-great-poss",
-    "text": "Wealth consists not in having great possessions, but in having few wants.",
-    "author": "Epictetus",
-    "tags": [
-      "wealth",
-      "contentment",
-      "stoicism"
-    ]
-  },
-  {
-    "id": "q-epictetus-he-who-laughs-at-himself-never-runs-out-",
-    "text": "He who laughs at himself never runs out of things to laugh at.",
-    "author": "Epictetus",
-    "tags": [
-      "humor",
-      "humility"
-    ]
-  },
-  {
-    "id": "q-confucius-real-knowledge-is-to-know-the-extent-of-",
-    "text": "Real knowledge is to know the extent of one's ignorance.",
-    "author": "Confucius",
-    "tags": [
-      "humility",
-      "knowledge",
-      "wisdom"
-    ]
-  },
-  {
-    "id": "q-confucius-when-it-is-obvious-that-the-goals-cannot",
-    "text": "When it is obvious that the goals cannot be reached, don't adjust the goals, adjust the action steps.",
-    "author": "Confucius",
-    "tags": [
-      "goals",
-      "strategy"
-    ]
-  },
-  {
-    "id": "q-confucius-the-man-who-moves-a-mountain-begins-by-c",
-    "text": "The man who moves a mountain begins by carrying away small stones.",
-    "author": "Confucius",
-    "tags": [
-      "progress",
-      "persistence"
-    ]
-  },
-  {
-    "id": "q-confucius-better-a-diamond-with-a-flaw-than-a-pebb",
-    "text": "Better a diamond with a flaw than a pebble without.",
-    "author": "Confucius",
-    "tags": [
-      "character",
-      "value"
-    ]
-  },
-  {
-    "id": "q-confucius-choose-a-job-you-love-and-you-will-never",
-    "text": "Choose a job you love, and you will never have to work a day in your life.",
-    "author": "Confucius",
-    "tags": [
-      "work",
-      "passion"
-    ]
-  },
-  {
     "id": "q-lao-tzu-knowing-others-is-intelligence-knowing-y",
     "text": "Knowing others is intelligence; knowing yourself is true wisdom. Mastering others is strength; mastering yourself is true power.",
     "author": "Lao Tzu",
     "tags": [
       "wisdom",
       "self-mastery"
-    ]
-  },
-  {
-    "id": "q-lao-tzu-nature-does-not-hurry-yet-everything-is-",
-    "text": "Nature does not hurry, yet everything is accomplished.",
-    "author": "Lao Tzu",
-    "tags": [
-      "patience",
-      "nature",
-      "taoism"
     ]
   },
   {
@@ -4116,18 +2605,9 @@
     ]
   },
   {
-    "id": "q-plato-music-is-a-moral-law-it-gives-soul-to-th",
-    "text": "Music is a moral law. It gives soul to the universe, wings to the mind, flight to the imagination, and life to everything.",
-    "author": "Plato",
-    "tags": [
-      "music",
-      "art"
-    ]
-  },
-  {
     "id": "q-plato-be-kind-for-everyone-you-meet-is-fightin",
     "text": "Be kind, for everyone you meet is fighting a hard battle.",
-    "author": "Plato",
+    "author": "Ian Maclaren",
     "tags": [
       "kindness",
       "empathy"
@@ -4143,39 +2623,12 @@
     ]
   },
   {
-    "id": "q-aristotle-patience-is-bitter-but-its-fruit-is-swee",
-    "text": "Patience is bitter, but its fruit is sweet.",
-    "author": "Aristotle",
-    "tags": [
-      "patience",
-      "virtue"
-    ]
-  },
-  {
     "id": "q-aristotle-quality-is-not-an-act-it-is-a-habit",
     "text": "Quality is not an act, it is a habit.",
-    "author": "Aristotle",
+    "author": "Will Durant",
     "tags": [
       "quality",
       "habit"
-    ]
-  },
-  {
-    "id": "q-aristotle-the-whole-is-greater-than-the-sum-of-its",
-    "text": "The whole is greater than the sum of its parts.",
-    "author": "Aristotle",
-    "tags": [
-      "unity",
-      "systems"
-    ]
-  },
-  {
-    "id": "q-aristotle-he-who-has-overcome-his-fears-will-truly",
-    "text": "He who has overcome his fears will truly be free.",
-    "author": "Aristotle",
-    "tags": [
-      "fear",
-      "freedom"
     ]
   },
   {
@@ -4268,84 +2721,12 @@
     ]
   },
   {
-    "id": "q-ralph-waldo-emerson-the-only-person-you-are-destined-to-beco",
-    "text": "The only person you are destined to become is the person you decide to be.",
-    "author": "Ralph Waldo Emerson",
-    "tags": [
-      "destiny",
-      "choice"
-    ]
-  },
-  {
-    "id": "q-ralph-waldo-emerson-once-you-make-a-decision-the-universe-co",
-    "text": "Once you make a decision, the universe conspires to make it happen.",
-    "author": "Ralph Waldo Emerson",
-    "tags": [
-      "decision",
-      "commitment"
-    ]
-  },
-  {
-    "id": "q-ralph-waldo-emerson-adopt-the-pace-of-nature-her-secret-is-p",
-    "text": "Adopt the pace of nature: her secret is patience.",
-    "author": "Ralph Waldo Emerson",
-    "tags": [
-      "nature",
-      "patience"
-    ]
-  },
-  {
-    "id": "q-ralph-waldo-emerson-for-every-minute-you-are-angry-you-lose-",
-    "text": "For every minute you are angry you lose sixty seconds of happiness.",
-    "author": "Ralph Waldo Emerson",
-    "tags": [
-      "anger",
-      "happiness"
-    ]
-  },
-  {
     "id": "q-ralph-waldo-emerson-the-earth-laughs-in-flowers",
     "text": "The earth laughs in flowers.",
     "author": "Ralph Waldo Emerson",
     "tags": [
       "nature",
       "joy"
-    ]
-  },
-  {
-    "id": "q-ralph-waldo-emerson-without-ambition-one-starts-nothing-with",
-    "text": "Without ambition one starts nothing. Without work one finishes nothing.",
-    "author": "Ralph Waldo Emerson",
-    "tags": [
-      "ambition",
-      "work"
-    ]
-  },
-  {
-    "id": "q-henry-david-thoreau-go-confidently-in-the-direction-of-your-",
-    "text": "Go confidently in the direction of your dreams. Live the life you have imagined.",
-    "author": "Henry David Thoreau",
-    "tags": [
-      "dreams",
-      "confidence"
-    ]
-  },
-  {
-    "id": "q-henry-david-thoreau-the-price-of-anything-is-the-amount-of-l",
-    "text": "The price of anything is the amount of life you exchange for it.",
-    "author": "Henry David Thoreau",
-    "tags": [
-      "value",
-      "life"
-    ]
-  },
-  {
-    "id": "q-henry-david-thoreau-its-not-what-you-look-at-that-matters-it",
-    "text": "It's not what you look at that matters, it's what you see.",
-    "author": "Henry David Thoreau",
-    "tags": [
-      "perception",
-      "awareness"
     ]
   },
   {
@@ -4358,120 +2739,12 @@
     ]
   },
   {
-    "id": "q-henry-david-thoreau-many-men-go-fishing-all-of-their-lives-w",
-    "text": "Many men go fishing all of their lives without knowing that it is not fish they are after.",
-    "author": "Henry David Thoreau",
-    "tags": [
-      "meaning",
-      "purpose"
-    ]
-  },
-  {
     "id": "q-henry-david-thoreau-i-went-to-the-woods-because-i-wished-to-",
     "text": "I went to the woods because I wished to live deliberately.",
     "author": "Henry David Thoreau",
     "tags": [
       "intention",
       "nature"
-    ]
-  },
-  {
-    "id": "q-mark-twain-the-secret-of-getting-ahead-is-getting-s",
-    "text": "The secret of getting ahead is getting started.",
-    "author": "Mark Twain",
-    "tags": [
-      "beginning",
-      "action"
-    ]
-  },
-  {
-    "id": "q-mark-twain-a-clear-conscience-is-the-sure-sign-of-a",
-    "text": "A clear conscience is the sure sign of a bad memory.",
-    "author": "Mark Twain",
-    "tags": [
-      "humor",
-      "memory"
-    ]
-  },
-  {
-    "id": "q-mark-twain-continuous-improvement-is-better-than-de",
-    "text": "Continuous improvement is better than delayed perfection.",
-    "author": "Mark Twain",
-    "tags": [
-      "progress",
-      "improvement"
-    ]
-  },
-  {
-    "id": "q-mark-twain-dont-let-schooling-interfere-with-your-e",
-    "text": "Don't let schooling interfere with your education.",
-    "author": "Mark Twain",
-    "tags": [
-      "education",
-      "learning"
-    ]
-  },
-  {
-    "id": "q-mark-twain-the-man-who-does-not-read-has-no-advanta",
-    "text": "The man who does not read has no advantage over the man who cannot read.",
-    "author": "Mark Twain",
-    "tags": [
-      "reading",
-      "education"
-    ]
-  },
-  {
-    "id": "q-abraham-lincoln-whatever-you-are-be-a-good-one",
-    "text": "Whatever you are, be a good one.",
-    "author": "Abraham Lincoln",
-    "tags": [
-      "character",
-      "excellence"
-    ]
-  },
-  {
-    "id": "q-abraham-lincoln-i-am-a-slow-walker-but-i-never-walk-back",
-    "text": "I am a slow walker, but I never walk back.",
-    "author": "Abraham Lincoln",
-    "tags": [
-      "perseverance",
-      "progress"
-    ]
-  },
-  {
-    "id": "q-abraham-lincoln-you-cannot-escape-the-responsibility-of-",
-    "text": "You cannot escape the responsibility of tomorrow by evading it today.",
-    "author": "Abraham Lincoln",
-    "tags": [
-      "responsibility",
-      "action"
-    ]
-  },
-  {
-    "id": "q-abraham-lincoln-folks-are-usually-about-as-happy-as-they",
-    "text": "Folks are usually about as happy as they make their minds up to be.",
-    "author": "Abraham Lincoln",
-    "tags": [
-      "happiness",
-      "mind"
-    ]
-  },
-  {
-    "id": "q-benjamin-franklin-honesty-is-the-best-policy",
-    "text": "Honesty is the best policy.",
-    "author": "Benjamin Franklin",
-    "tags": [
-      "honesty",
-      "ethics"
-    ]
-  },
-  {
-    "id": "q-benjamin-franklin-energy-and-persistence-conquer-all-thing",
-    "text": "Energy and persistence conquer all things.",
-    "author": "Benjamin Franklin",
-    "tags": [
-      "persistence",
-      "energy"
     ]
   },
   {
@@ -4493,15 +2766,6 @@
     ]
   },
   {
-    "id": "q-leonardo-da-vinci-time-stays-long-enough-for-anyone-who-wi",
-    "text": "Time stays long enough for anyone who will use it.",
-    "author": "Leonardo da Vinci",
-    "tags": [
-      "time",
-      "use"
-    ]
-  },
-  {
     "id": "q-leonardo-da-vinci-he-who-thinks-little-errs-much",
     "text": "He who thinks little, errs much.",
     "author": "Leonardo da Vinci",
@@ -4511,61 +2775,12 @@
     ]
   },
   {
-    "id": "q-leonardo-da-vinci-art-is-never-finished-only-abandoned",
-    "text": "Art is never finished, only abandoned.",
-    "author": "Leonardo da Vinci",
-    "tags": [
-      "art",
-      "perfectionism"
-    ]
-  },
-  {
     "id": "q-albert-einstein-try-not-to-become-a-man-of-success-but-r",
     "text": "Try not to become a man of success, but rather try to become a man of value.",
     "author": "Albert Einstein",
     "tags": [
       "success",
       "value",
-      "science"
-    ]
-  },
-  {
-    "id": "q-albert-einstein-anyone-who-has-never-made-a-mistake-has-",
-    "text": "Anyone who has never made a mistake has never tried anything new.",
-    "author": "Albert Einstein",
-    "tags": [
-      "mistakes",
-      "innovation",
-      "science"
-    ]
-  },
-  {
-    "id": "q-albert-einstein-the-true-sign-of-intelligence-is-not-kno",
-    "text": "The true sign of intelligence is not knowledge but imagination.",
-    "author": "Albert Einstein",
-    "tags": [
-      "intelligence",
-      "imagination",
-      "science"
-    ]
-  },
-  {
-    "id": "q-albert-einstein-we-cannot-solve-our-problems-with-the-sa",
-    "text": "We cannot solve our problems with the same thinking we used when we created them.",
-    "author": "Albert Einstein",
-    "tags": [
-      "thinking",
-      "problems",
-      "science"
-    ]
-  },
-  {
-    "id": "q-albert-einstein-insanity-is-doing-the-same-thing-over-an",
-    "text": "Insanity is doing the same thing over and over again and expecting different results.",
-    "author": "Albert Einstein",
-    "tags": [
-      "change",
-      "action",
       "science"
     ]
   },
@@ -4580,40 +2795,12 @@
     ]
   },
   {
-    "id": "q-albert-einstein-strive-not-to-be-a-success-but-rather-to",
-    "text": "Strive not to be a success, but rather to be of value.",
-    "author": "Albert Einstein",
-    "tags": [
-      "value",
-      "success",
-      "science"
-    ]
-  },
-  {
     "id": "q-nelson-mandela-education-is-the-most-powerful-weapon-wh",
     "text": "Education is the most powerful weapon which you can use to change the world.",
     "author": "Nelson Mandela",
     "tags": [
       "education",
       "change"
-    ]
-  },
-  {
-    "id": "q-nelson-mandela-i-never-lose-i-either-win-or-learn",
-    "text": "I never lose. I either win or learn.",
-    "author": "Nelson Mandela",
-    "tags": [
-      "learning",
-      "resilience"
-    ]
-  },
-  {
-    "id": "q-nelson-mandela-a-good-head-and-a-good-heart-are-always-",
-    "text": "A good head and a good heart are always a formidable combination.",
-    "author": "Nelson Mandela",
-    "tags": [
-      "mind",
-      "heart"
     ]
   },
   {
@@ -4626,93 +2813,12 @@
     ]
   },
   {
-    "id": "q-mahatma-gandhi-you-must-not-lose-faith-in-humanity-huma",
-    "text": "You must not lose faith in humanity. Humanity is an ocean; if a few drops are dirty, the ocean does not become dirty.",
-    "author": "Mahatma Gandhi",
-    "tags": [
-      "faith",
-      "humanity"
-    ]
-  },
-  {
-    "id": "q-mahatma-gandhi-live-as-if-you-were-to-die-tomorrow-lear",
-    "text": "Live as if you were to die tomorrow. Learn as if you were to live forever.",
-    "author": "Mahatma Gandhi",
-    "tags": [
-      "life",
-      "learning"
-    ]
-  },
-  {
-    "id": "q-mahatma-gandhi-happiness-is-when-what-you-think-what-yo",
-    "text": "Happiness is when what you think, what you say, and what you do are in harmony.",
-    "author": "Mahatma Gandhi",
-    "tags": [
-      "happiness",
-      "integrity"
-    ]
-  },
-  {
-    "id": "q-mahatma-gandhi-the-future-depends-on-what-you-do-today",
-    "text": "The future depends on what you do today.",
-    "author": "Mahatma Gandhi",
-    "tags": [
-      "future",
-      "action"
-    ]
-  },
-  {
-    "id": "q-mahatma-gandhi-earth-provides-enough-to-satisfy-every-m",
-    "text": "Earth provides enough to satisfy every man's needs, but not every man's greed.",
-    "author": "Mahatma Gandhi",
-    "tags": [
-      "greed",
-      "sustainability"
-    ]
-  },
-  {
     "id": "q-mahatma-gandhi-first-they-ignore-you-then-they-laugh-at",
     "text": "First they ignore you, then they laugh at you, then they fight you, then you win.",
-    "author": "Mahatma Gandhi",
+    "author": "Nicholas Klein",
     "tags": [
       "perseverance",
       "change"
-    ]
-  },
-  {
-    "id": "q-socrates-i-cannot-teach-anybody-anything-i-can-on",
-    "text": "I cannot teach anybody anything. I can only make them think.",
-    "author": "Socrates",
-    "tags": [
-      "teaching",
-      "thinking"
-    ]
-  },
-  {
-    "id": "q-socrates-an-honest-man-is-always-a-child",
-    "text": "An honest man is always a child.",
-    "author": "Socrates",
-    "tags": [
-      "honesty",
-      "character"
-    ]
-  },
-  {
-    "id": "q-socrates-he-is-richest-who-is-content-with-the-le",
-    "text": "He is richest who is content with the least, for content is the wealth of nature.",
-    "author": "Socrates",
-    "tags": [
-      "contentment",
-      "wealth"
-    ]
-  },
-  {
-    "id": "q-socrates-to-find-yourself-think-for-yourself",
-    "text": "To find yourself, think for yourself.",
-    "author": "Socrates",
-    "tags": [
-      "self",
-      "independence"
     ]
   },
   {
@@ -4752,30 +2858,12 @@
     ]
   },
   {
-    "id": "q-helen-keller-walking-with-a-friend-in-the-dark-is-bet",
-    "text": "Walking with a friend in the dark is better than walking alone in the light.",
-    "author": "Helen Keller",
-    "tags": [
-      "friendship",
-      "companionship"
-    ]
-  },
-  {
     "id": "q-theodore-roosevelt-the-more-you-read-the-more-things-you-wi",
     "text": "The more you read, the more things you will know.",
-    "author": "Theodore Roosevelt",
+    "author": "Dr. Seuss",
     "tags": [
       "reading",
       "knowledge"
-    ]
-  },
-  {
-    "id": "q-theodore-roosevelt-comparison-is-the-thief-of-joy",
-    "text": "Comparison is the thief of joy.",
-    "author": "Theodore Roosevelt",
-    "tags": [
-      "comparison",
-      "joy"
     ]
   },
   {
@@ -4808,91 +2896,19 @@
   {
     "id": "q-eleanor-roosevelt-great-minds-discuss-ideas-average-minds-",
     "text": "Great minds discuss ideas; average minds discuss events; small minds discuss people.",
-    "author": "Eleanor Roosevelt",
+    "author": "Henry Thomas Buckle",
     "tags": [
       "mind",
       "conversation"
     ]
   },
   {
-    "id": "q-eleanor-roosevelt-with-the-new-day-comes-new-strength-and-",
-    "text": "With the new day comes new strength and new thoughts.",
-    "author": "Eleanor Roosevelt",
-    "tags": [
-      "renewal",
-      "hope"
-    ]
-  },
-  {
-    "id": "q-winston-churchill-if-youre-going-through-hell-keep-going",
-    "text": "If you're going through hell, keep going.",
-    "author": "Winston Churchill",
-    "tags": [
-      "perseverance",
-      "resilience"
-    ]
-  },
-  {
-    "id": "q-winston-churchill-attitude-is-a-little-thing-that-makes-a-",
-    "text": "Attitude is a little thing that makes a big difference.",
-    "author": "Winston Churchill",
-    "tags": [
-      "attitude",
-      "mindset"
-    ]
-  },
-  {
-    "id": "q-winston-churchill-we-make-a-living-by-what-we-get-but-we-m",
-    "text": "We make a living by what we get, but we make a life by what we give.",
-    "author": "Winston Churchill",
-    "tags": [
-      "giving",
-      "life"
-    ]
-  },
-  {
-    "id": "q-winston-churchill-success-is-going-from-failure-to-failure",
-    "text": "Success is going from failure to failure without losing your enthusiasm.",
-    "author": "Winston Churchill",
-    "tags": [
-      "success",
-      "enthusiasm"
-    ]
-  },
-  {
     "id": "q-winston-churchill-a-pessimist-sees-the-difficulty-in-every",
     "text": "A pessimist sees the difficulty in every opportunity; an optimist sees the opportunity in every difficulty.",
-    "author": "Winston Churchill",
+    "author": "Bertram Carr",
     "tags": [
       "optimism",
       "mindset"
-    ]
-  },
-  {
-    "id": "q-thomas-edison-i-have-not-failed-ive-just-found-ten-tho",
-    "text": "I have not failed. I've just found ten thousand ways that won't work.",
-    "author": "Thomas Edison",
-    "tags": [
-      "failure",
-      "persistence"
-    ]
-  },
-  {
-    "id": "q-thomas-edison-many-of-lifes-failures-are-people-who-di",
-    "text": "Many of life's failures are people who did not realize how close they were to success when they gave up.",
-    "author": "Thomas Edison",
-    "tags": [
-      "failure",
-      "persistence"
-    ]
-  },
-  {
-    "id": "q-thomas-edison-vision-without-execution-is-hallucinatio",
-    "text": "Vision without execution is hallucination.",
-    "author": "Thomas Edison",
-    "tags": [
-      "vision",
-      "execution"
     ]
   },
   {
@@ -4906,31 +2922,12 @@
     ]
   },
   {
-    "id": "q-nikola-tesla-if-you-want-to-find-the-secrets-of-the-u",
-    "text": "If you want to find the secrets of the universe, think in terms of energy, frequency and vibration.",
-    "author": "Nikola Tesla",
-    "tags": [
-      "universe",
-      "science"
-    ]
-  },
-  {
     "id": "q-friedrich-nietzsche-he-who-has-a-why-to-live-for-can-bear-al",
     "text": "He who has a why to live for can bear almost any how.",
     "author": "Friedrich Nietzsche",
     "tags": [
       "purpose",
       "resilience",
-      "philosophy"
-    ]
-  },
-  {
-    "id": "q-friedrich-nietzsche-you-have-your-way-i-have-my-way-as-for-t",
-    "text": "You have your way. I have my way. As for the right way, the correct way, and the only way, it does not exist.",
-    "author": "Friedrich Nietzsche",
-    "tags": [
-      "truth",
-      "perspective",
       "philosophy"
     ]
   },
@@ -4965,26 +2962,6 @@
     ]
   },
   {
-    "id": "q-albert-camus-you-will-never-be-happy-if-you-continue-",
-    "text": "You will never be happy if you continue to search for what happiness consists of.",
-    "author": "Albert Camus",
-    "tags": [
-      "happiness",
-      "seeking",
-      "literature"
-    ]
-  },
-  {
-    "id": "q-albert-camus-dont-walk-in-front-of-me-i-may-not-follo",
-    "text": "Don't walk in front of me; I may not follow. Don't walk behind me; I may not lead. Just walk beside me.",
-    "author": "Albert Camus",
-    "tags": [
-      "friendship",
-      "equality",
-      "literature"
-    ]
-  },
-  {
     "id": "q-ernest-hemingway-the-world-breaks-everyone-and-afterward-",
     "text": "The world breaks everyone, and afterward, some are strong at the broken places.",
     "author": "Ernest Hemingway",
@@ -4997,19 +2974,10 @@
   {
     "id": "q-ernest-hemingway-there-is-nothing-noble-in-being-superior",
     "text": "There is nothing noble in being superior to your fellow man; true nobility is being superior to your former self.",
-    "author": "Ernest Hemingway",
+    "author": "Walter L. Sheldon",
     "tags": [
       "growth",
       "character",
-      "literature"
-    ]
-  },
-  {
-    "id": "q-ernest-hemingway-the-best-way-to-find-out-if-you-can-trus",
-    "text": "The best way to find out if you can trust somebody is to trust them.",
-    "author": "Ernest Hemingway",
-    "tags": [
-      "trust",
       "literature"
     ]
   },
@@ -5054,16 +3022,6 @@
     ]
   },
   {
-    "id": "q-oscar-wilde-always-forgive-your-enemies-nothing-anno",
-    "text": "Always forgive your enemies; nothing annoys them so much.",
-    "author": "Oscar Wilde",
-    "tags": [
-      "forgiveness",
-      "humor",
-      "literature"
-    ]
-  },
-  {
     "id": "q-oscar-wilde-i-am-so-clever-that-sometimes-i-dont-und",
     "text": "I am so clever that sometimes I don't understand a single word of what I am saying.",
     "author": "Oscar Wilde",
@@ -5090,16 +3048,6 @@
     "tags": [
       "reading",
       "books",
-      "literature"
-    ]
-  },
-  {
-    "id": "q-jane-austen-it-is-not-what-we-say-or-think-that-defi",
-    "text": "It is not what we say or think that defines us, but what we do.",
-    "author": "Jane Austen",
-    "tags": [
-      "action",
-      "character",
       "literature"
     ]
   },
@@ -5155,7 +3103,7 @@
   {
     "id": "q-leo-tolstoy-if-you-want-to-be-happy-be",
     "text": "If you want to be happy, be.",
-    "author": "Leo Tolstoy",
+    "author": "Kozma Prutkov",
     "tags": [
       "happiness",
       "simplicity",
@@ -5175,19 +3123,10 @@
   {
     "id": "q-kahlil-gibran-out-of-suffering-have-emerged-the-strong",
     "text": "Out of suffering have emerged the strongest souls; the most massive characters are seared with scars.",
-    "author": "Kahlil Gibran",
+    "author": "Edwin Hubbell Chapin",
     "tags": [
       "suffering",
       "character"
-    ]
-  },
-  {
-    "id": "q-kahlil-gibran-faith-is-a-knowledge-within-the-heart-be",
-    "text": "Faith is a knowledge within the heart, beyond the reach of proof.",
-    "author": "Kahlil Gibran",
-    "tags": [
-      "faith",
-      "heart"
     ]
   },
   {
@@ -5196,15 +3135,6 @@
     "author": "Kahlil Gibran",
     "tags": [
       "beauty",
-      "eternity"
-    ]
-  },
-  {
-    "id": "q-kahlil-gibran-trust-in-dreams-for-in-them-is-hidden-th",
-    "text": "Trust in dreams, for in them is hidden the gate to eternity.",
-    "author": "Kahlil Gibran",
-    "tags": [
-      "dreams",
       "eternity"
     ]
   },
@@ -5224,65 +3154,6 @@
     "tags": [
       "art",
       "poetry"
-    ]
-  },
-  {
-    "id": "q-rumi-yesterday-i-was-clever-so-i-wanted-to-ch",
-    "text": "Yesterday I was clever, so I wanted to change the world. Today I am wise, so I am changing myself.",
-    "author": "Rumi",
-    "tags": [
-      "wisdom",
-      "self",
-      "poetry"
-    ]
-  },
-  {
-    "id": "q-rumi-you-were-born-with-wings-why-prefer-to-c",
-    "text": "You were born with wings, why prefer to crawl through life?",
-    "author": "Rumi",
-    "tags": [
-      "potential",
-      "life",
-      "poetry"
-    ]
-  },
-  {
-    "id": "q-rumi-what-you-seek-is-seeking-you",
-    "text": "What you seek is seeking you.",
-    "author": "Rumi",
-    "tags": [
-      "seeking",
-      "destiny",
-      "poetry"
-    ]
-  },
-  {
-    "id": "q-rumi-be-like-the-sun-for-grace-and-mercy-be-l",
-    "text": "Be like the sun for grace and mercy. Be like the night to cover others' faults.",
-    "author": "Rumi",
-    "tags": [
-      "mercy",
-      "character",
-      "poetry"
-    ]
-  },
-  {
-    "id": "q-rumi-when-you-do-things-from-your-soul-you-fe",
-    "text": "When you do things from your soul, you feel a river moving in you, a joy.",
-    "author": "Rumi",
-    "tags": [
-      "soul",
-      "joy",
-      "poetry"
-    ]
-  },
-  {
-    "id": "q-carl-sagan-somewhere-something-incredible-is-waitin",
-    "text": "Somewhere, something incredible is waiting to be known.",
-    "author": "Carl Sagan",
-    "tags": [
-      "wonder",
-      "science"
     ]
   },
   {
@@ -5353,16 +3224,6 @@
     ]
   },
   {
-    "id": "q-marie-curie-nothing-in-life-is-to-be-feared-it-is-on",
-    "text": "Nothing in life is to be feared, it is only to be understood.",
-    "author": "Marie Curie",
-    "tags": [
-      "fear",
-      "understanding",
-      "science"
-    ]
-  },
-  {
     "id": "q-marie-curie-i-was-taught-that-the-way-of-progress-wa",
     "text": "I was taught that the way of progress was neither swift nor easy.",
     "author": "Marie Curie",
@@ -5370,16 +3231,6 @@
       "progress",
       "work",
       "science"
-    ]
-  },
-  {
-    "id": "q-bertrand-russell-the-whole-problem-with-the-world-is-that",
-    "text": "The whole problem with the world is that fools and fanatics are always so certain of themselves.",
-    "author": "Bertrand Russell",
-    "tags": [
-      "doubt",
-      "wisdom",
-      "philosophy"
     ]
   },
   {
@@ -5413,15 +3264,6 @@
     ]
   },
   {
-    "id": "q-carl-jung-until-you-make-the-unconscious-conscious",
-    "text": "Until you make the unconscious conscious, it will direct your life and you will call it fate.",
-    "author": "Carl Jung",
-    "tags": [
-      "consciousness",
-      "psychology"
-    ]
-  },
-  {
     "id": "q-carl-jung-knowing-your-own-darkness-is-the-best-me",
     "text": "Knowing your own darkness is the best method for dealing with the darknesses of other people.",
     "author": "Carl Jung",
@@ -5442,15 +3284,6 @@
     ]
   },
   {
-    "id": "q-maya-angelou-if-you-dont-like-something-change-it-if-",
-    "text": "If you don't like something, change it. If you can't change it, change your attitude.",
-    "author": "Maya Angelou",
-    "tags": [
-      "change",
-      "attitude"
-    ]
-  },
-  {
     "id": "q-maya-angelou-try-to-be-a-rainbow-in-someones-cloud",
     "text": "Try to be a rainbow in someone's cloud.",
     "author": "Maya Angelou",
@@ -5462,19 +3295,10 @@
   {
     "id": "q-maya-angelou-there-is-no-greater-agony-than-bearing-a",
     "text": "There is no greater agony than bearing an untold story inside you.",
-    "author": "Maya Angelou",
+    "author": "Zora Neale Hurston",
     "tags": [
       "story",
       "expression"
-    ]
-  },
-  {
-    "id": "q-maya-angelou-you-will-face-many-defeats-in-life-but-n",
-    "text": "You will face many defeats in life, but never let yourself be defeated.",
-    "author": "Maya Angelou",
-    "tags": [
-      "resilience",
-      "defeat"
     ]
   },
   {
@@ -5538,16 +3362,6 @@
     ]
   },
   {
-    "id": "q-franz-kafka-by-believing-passionately-in-something-t",
-    "text": "By believing passionately in something that still does not exist, we create it.",
-    "author": "Franz Kafka",
-    "tags": [
-      "belief",
-      "creation",
-      "literature"
-    ]
-  },
-  {
     "id": "q-carl-sandburg-time-is-the-coin-of-your-life-it-is-the-",
     "text": "Time is the coin of your life. It is the only coin you have, and only you can determine how it will be spent.",
     "author": "Carl Sandburg",
@@ -5566,48 +3380,12 @@
     ]
   },
   {
-    "id": "q-henry-ford-whether-you-think-you-can-or-you-think-y",
-    "text": "Whether you think you can, or you think you can't, you're right.",
-    "author": "Henry Ford",
-    "tags": [
-      "mindset",
-      "belief"
-    ]
-  },
-  {
-    "id": "q-henry-ford-anyone-who-stops-learning-is-old-whether",
-    "text": "Anyone who stops learning is old, whether at twenty or eighty.",
-    "author": "Henry Ford",
-    "tags": [
-      "learning",
-      "age"
-    ]
-  },
-  {
-    "id": "q-henry-ford-coming-together-is-a-beginning-keeping-t",
-    "text": "Coming together is a beginning; keeping together is progress; working together is success.",
-    "author": "Henry Ford",
-    "tags": [
-      "teamwork",
-      "success"
-    ]
-  },
-  {
     "id": "q-henry-ford-failure-is-simply-the-opportunity-to-beg",
     "text": "Failure is simply the opportunity to begin again, this time more intelligently.",
     "author": "Henry Ford",
     "tags": [
       "failure",
       "opportunity"
-    ]
-  },
-  {
-    "id": "q-henry-ford-you-cant-build-a-reputation-on-what-you-",
-    "text": "You can't build a reputation on what you are going to do.",
-    "author": "Henry Ford",
-    "tags": [
-      "reputation",
-      "action"
     ]
   },
   {
@@ -5638,60 +3416,11 @@
     ]
   },
   {
-    "id": "q-steve-jobs-i-want-to-put-a-ding-in-the-universe",
-    "text": "I want to put a ding in the universe.",
-    "author": "Steve Jobs",
-    "tags": [
-      "ambition",
-      "impact"
-    ]
-  },
-  {
-    "id": "q-c-s-lewis-you-are-never-too-old-to-set-another-goa",
-    "text": "You are never too old to set another goal or to dream a new dream.",
-    "author": "C.S. Lewis",
-    "tags": [
-      "goals",
-      "dreams",
-      "literature"
-    ]
-  },
-  {
-    "id": "q-c-s-lewis-we-are-what-we-believe-we-are",
-    "text": "We are what we believe we are.",
-    "author": "C.S. Lewis",
-    "tags": [
-      "belief",
-      "identity",
-      "literature"
-    ]
-  },
-  {
     "id": "q-c-s-lewis-friendship-is-born-at-that-moment-when-o",
     "text": "Friendship is born at that moment when one person says to another, 'What! You too?'",
     "author": "C.S. Lewis",
     "tags": [
       "friendship",
-      "literature"
-    ]
-  },
-  {
-    "id": "q-c-s-lewis-integrity-is-doing-the-right-thing-even-",
-    "text": "Integrity is doing the right thing, even when no one is watching.",
-    "author": "C.S. Lewis",
-    "tags": [
-      "integrity",
-      "character",
-      "literature"
-    ]
-  },
-  {
-    "id": "q-c-s-lewis-hardships-often-prepare-ordinary-people-",
-    "text": "Hardships often prepare ordinary people for an extraordinary destiny.",
-    "author": "C.S. Lewis",
-    "tags": [
-      "hardship",
-      "destiny",
       "literature"
     ]
   },
@@ -5702,16 +3431,6 @@
     "tags": [
       "journey",
       "seeking",
-      "literature"
-    ]
-  },
-  {
-    "id": "q-j-r-r-tolkien-even-the-smallest-person-can-change-the-",
-    "text": "Even the smallest person can change the course of the future.",
-    "author": "J.R.R. Tolkien",
-    "tags": [
-      "impact",
-      "future",
       "literature"
     ]
   },
@@ -5732,26 +3451,6 @@
     "tags": [
       "loyalty",
       "friendship",
-      "literature"
-    ]
-  },
-  {
-    "id": "q-a-a-milne-you-are-braver-than-you-believe-stronger",
-    "text": "You are braver than you believe, stronger than you seem, and smarter than you think.",
-    "author": "A.A. Milne",
-    "tags": [
-      "courage",
-      "strength",
-      "literature"
-    ]
-  },
-  {
-    "id": "q-a-a-milne-what-day-is-it-asked-pooh-its-today-sque",
-    "text": "What day is it?' asked Pooh. 'It's today,' squeaked Piglet. 'My favorite day,' said Pooh.",
-    "author": "A.A. Milne",
-    "tags": [
-      "present",
-      "joy",
       "literature"
     ]
   },
@@ -5805,16 +3504,6 @@
     ]
   },
   {
-    "id": "q-virginia-woolf-for-most-of-history-anonymous-was-a-woma",
-    "text": "For most of history, Anonymous was a woman.",
-    "author": "Virginia Woolf",
-    "tags": [
-      "history",
-      "women",
-      "literature"
-    ]
-  },
-  {
     "id": "q-virginia-woolf-no-need-to-hurry-no-need-to-sparkle-no-n",
     "text": "No need to hurry. No need to sparkle. No need to be anybody but oneself.",
     "author": "Virginia Woolf",
@@ -5837,7 +3526,7 @@
   {
     "id": "q-ana-s-nin-and-the-day-came-when-the-risk-to-remain",
     "text": "And the day came when the risk to remain tight in a bud was more painful than the risk it took to blossom.",
-    "author": "Anaïs Nin",
+    "author": "Elizabeth Appell",
     "tags": [
       "growth",
       "change",
@@ -5855,42 +3544,6 @@
     ]
   },
   {
-    "id": "q-plato-courage-is-knowing-what-not-to-fear",
-    "text": "Courage is knowing what not to fear.",
-    "author": "Plato",
-    "tags": [
-      "courage",
-      "wisdom"
-    ]
-  },
-  {
-    "id": "q-plato-the-greatest-wealth-is-to-live-content-w",
-    "text": "The greatest wealth is to live content with little.",
-    "author": "Plato",
-    "tags": [
-      "wealth",
-      "contentment"
-    ]
-  },
-  {
-    "id": "q-buddha-peace-comes-from-within-do-not-seek-it-w",
-    "text": "Peace comes from within. Do not seek it without.",
-    "author": "Buddha",
-    "tags": [
-      "peace",
-      "self"
-    ]
-  },
-  {
-    "id": "q-buddha-the-mind-is-everything-what-you-think-yo",
-    "text": "The mind is everything. What you think you become.",
-    "author": "Buddha",
-    "tags": [
-      "mind",
-      "thought"
-    ]
-  },
-  {
     "id": "q-buddha-better-than-a-thousand-hollow-words-is-o",
     "text": "Better than a thousand hollow words is one word that brings peace.",
     "author": "Buddha",
@@ -5900,18 +3553,9 @@
     ]
   },
   {
-    "id": "q-buddha-you-will-not-be-punished-for-your-anger-",
-    "text": "You will not be punished for your anger; you will be punished by your anger.",
-    "author": "Buddha",
-    "tags": [
-      "anger",
-      "wisdom"
-    ]
-  },
-  {
     "id": "q-buddha-holding-onto-anger-is-like-drinking-pois",
     "text": "Holding onto anger is like drinking poison and expecting the other person to die.",
-    "author": "Buddha",
+    "author": "Emmet Fox",
     "tags": [
       "anger",
       "forgiveness"
@@ -5975,15 +3619,6 @@
     ]
   },
   {
-    "id": "q-carl-sandburg-nothing-happens-unless-first-we-dream",
-    "text": "Nothing happens unless first we dream.",
-    "author": "Carl Sandburg",
-    "tags": [
-      "dreams",
-      "action"
-    ]
-  },
-  {
     "id": "q-henry-james-three-things-in-human-life-are-important",
     "text": "Three things in human life are important. The first is to be kind. The second is to be kind. The third is to be kind.",
     "author": "Henry James",
@@ -5995,7 +3630,7 @@
   {
     "id": "q-t-s-eliot-only-those-who-will-risk-going-too-far-c",
     "text": "Only those who will risk going too far can possibly find out how far one can go.",
-    "author": "T.S. Eliot",
+    "author": "T. S. Eliot",
     "tags": [
       "risk",
       "limits",
@@ -6005,7 +3640,7 @@
   {
     "id": "q-t-s-eliot-the-only-wisdom-we-can-hope-to-acquire-i",
     "text": "The only wisdom we can hope to acquire is the wisdom of humility.",
-    "author": "T.S. Eliot",
+    "author": "T. S. Eliot",
     "tags": [
       "wisdom",
       "humility",
@@ -6023,78 +3658,6 @@
     ]
   },
   {
-    "id": "q-joseph-campbell-follow-your-bliss-and-the-universe-will-",
-    "text": "Follow your bliss and the universe will open doors for you where there were only walls.",
-    "author": "Joseph Campbell",
-    "tags": [
-      "bliss",
-      "destiny"
-    ]
-  },
-  {
-    "id": "q-joseph-campbell-the-cave-you-fear-to-enter-holds-the-tre",
-    "text": "The cave you fear to enter holds the treasure you seek.",
-    "author": "Joseph Campbell",
-    "tags": [
-      "fear",
-      "treasure"
-    ]
-  },
-  {
-    "id": "q-joseph-campbell-we-must-let-go-of-the-life-we-have-plann",
-    "text": "We must let go of the life we have planned, so as to accept the one that is waiting for us.",
-    "author": "Joseph Campbell",
-    "tags": [
-      "change",
-      "acceptance"
-    ]
-  },
-  {
-    "id": "q-norman-vincent-peale-change-your-thoughts-and-you-change-your",
-    "text": "Change your thoughts and you change your world.",
-    "author": "Norman Vincent Peale",
-    "tags": [
-      "mind",
-      "change"
-    ]
-  },
-  {
-    "id": "q-norman-vincent-peale-empty-pockets-never-held-anyone-back-onl",
-    "text": "Empty pockets never held anyone back. Only empty heads and empty hearts can do that.",
-    "author": "Norman Vincent Peale",
-    "tags": [
-      "mindset",
-      "heart"
-    ]
-  },
-  {
-    "id": "q-viktor-frankl-between-stimulus-and-response-there-is-a",
-    "text": "Between stimulus and response there is a space. In that space is our power to choose our response.",
-    "author": "Viktor Frankl",
-    "tags": [
-      "choice",
-      "response",
-      "psychology"
-    ]
-  },
-  {
-    "id": "q-carl-sandburg-life-is-like-an-onion-you-peel-it-off-on",
-    "text": "Life is like an onion: You peel it off one layer at a time, and sometimes you weep.",
-    "author": "Carl Sandburg",
-    "tags": [
-      "life"
-    ]
-  },
-  {
-    "id": "q-coco-chanel-the-most-courageous-act-is-still-to-thin",
-    "text": "The most courageous act is still to think for yourself.",
-    "author": "Coco Chanel",
-    "tags": [
-      "courage",
-      "independence"
-    ]
-  },
-  {
     "id": "q-coco-chanel-in-order-to-be-irreplaceable-one-must-al",
     "text": "In order to be irreplaceable, one must always be different.",
     "author": "Coco Chanel",
@@ -6104,39 +3667,12 @@
     ]
   },
   {
-    "id": "q-coco-chanel-a-girl-should-be-two-things-who-and-what",
-    "text": "A girl should be two things: who and what she wants.",
-    "author": "Coco Chanel",
-    "tags": [
-      "self",
-      "authenticity"
-    ]
-  },
-  {
     "id": "q-bruce-lee-knowing-is-not-enough-we-must-apply-will",
     "text": "Knowing is not enough; we must apply. Willing is not enough; we must do.",
-    "author": "Bruce Lee",
+    "author": "Johann Wolfgang von Goethe",
     "tags": [
       "action",
       "application"
-    ]
-  },
-  {
-    "id": "q-bruce-lee-do-not-pray-for-an-easy-life-pray-for-th",
-    "text": "Do not pray for an easy life, pray for the strength to endure a difficult one.",
-    "author": "Bruce Lee",
-    "tags": [
-      "strength",
-      "endurance"
-    ]
-  },
-  {
-    "id": "q-bruce-lee-empty-your-cup-so-that-it-may-be-filled-",
-    "text": "Empty your cup so that it may be filled; become devoid to gain totality.",
-    "author": "Bruce Lee",
-    "tags": [
-      "openness",
-      "learning"
     ]
   },
   {
@@ -6157,87 +3693,6 @@
     ]
   },
   {
-    "id": "q-audrey-hepburn-nothing-is-impossible-the-word-itself-sa",
-    "text": "Nothing is impossible, the word itself says I'm possible!",
-    "author": "Audrey Hepburn",
-    "tags": [
-      "possibility",
-      "optimism"
-    ]
-  },
-  {
-    "id": "q-audrey-hepburn-the-most-important-thing-is-to-enjoy-you",
-    "text": "The most important thing is to enjoy your life - to be happy - it's all that matters.",
-    "author": "Audrey Hepburn",
-    "tags": [
-      "happiness",
-      "life"
-    ]
-  },
-  {
-    "id": "q-bob-marley-the-greatness-of-a-man-is-not-in-how-muc",
-    "text": "The greatness of a man is not in how much wealth he acquires, but in his integrity and his ability to affect those around him positively.",
-    "author": "Bob Marley",
-    "tags": [
-      "greatness",
-      "integrity"
-    ]
-  },
-  {
-    "id": "q-bob-marley-live-the-life-you-love-love-the-life-you",
-    "text": "Live the life you love. Love the life you live.",
-    "author": "Bob Marley",
-    "tags": [
-      "life",
-      "love"
-    ]
-  },
-  {
-    "id": "q-mother-teresa-if-you-cant-feed-a-hundred-people-then-f",
-    "text": "If you can't feed a hundred people, then feed just one.",
-    "author": "Mother Teresa",
-    "tags": [
-      "service",
-      "kindness"
-    ]
-  },
-  {
-    "id": "q-mother-teresa-spread-love-everywhere-you-go-let-no-one",
-    "text": "Spread love everywhere you go. Let no one ever come to you without leaving happier.",
-    "author": "Mother Teresa",
-    "tags": [
-      "love",
-      "kindness"
-    ]
-  },
-  {
-    "id": "q-mother-teresa-peace-begins-with-a-smile",
-    "text": "Peace begins with a smile.",
-    "author": "Mother Teresa",
-    "tags": [
-      "peace",
-      "kindness"
-    ]
-  },
-  {
-    "id": "q-oprah-winfrey-the-biggest-adventure-you-can-take-is-to",
-    "text": "The biggest adventure you can take is to live the life of your dreams.",
-    "author": "Oprah Winfrey",
-    "tags": [
-      "dreams",
-      "adventure"
-    ]
-  },
-  {
-    "id": "q-oprah-winfrey-turn-your-wounds-into-wisdom",
-    "text": "Turn your wounds into wisdom.",
-    "author": "Oprah Winfrey",
-    "tags": [
-      "wisdom",
-      "healing"
-    ]
-  },
-  {
     "id": "q-joan-baez-action-is-the-antidote-to-despair",
     "text": "Action is the antidote to despair.",
     "author": "Joan Baez",
@@ -6247,47 +3702,11 @@
     ]
   },
   {
-    "id": "q-tony-robbins-the-only-impossible-journey-is-the-one-y",
-    "text": "The only impossible journey is the one you never begin.",
-    "author": "Tony Robbins",
-    "tags": [
-      "beginning",
-      "journey"
-    ]
-  },
-  {
-    "id": "q-tony-robbins-setting-goals-is-the-first-step-in-turni",
-    "text": "Setting goals is the first step in turning the invisible into the visible.",
-    "author": "Tony Robbins",
-    "tags": [
-      "goals",
-      "vision"
-    ]
-  },
-  {
-    "id": "q-erica-jong-take-your-life-in-your-own-hands-and-wha",
-    "text": "Take your life in your own hands, and what happens? A terrible thing: no one to blame.",
-    "author": "Erica Jong",
-    "tags": [
-      "responsibility",
-      "life"
-    ]
-  },
-  {
     "id": "q-peter-drucker-management-is-doing-things-right-leaders",
     "text": "Management is doing things right; leadership is doing the right things.",
-    "author": "Peter Drucker",
+    "author": "Bennis and Nanus",
     "tags": [
       "leadership",
-      "management"
-    ]
-  },
-  {
-    "id": "q-peter-drucker-what-gets-measured-gets-managed",
-    "text": "What gets measured gets managed.",
-    "author": "Peter Drucker",
-    "tags": [
-      "measurement",
       "management"
     ]
   },
@@ -6338,48 +3757,12 @@
     ]
   },
   {
-    "id": "q-heraclitus-the-only-constant-in-life-is-change",
-    "text": "The only constant in life is change.",
-    "author": "Heraclitus",
-    "tags": [
-      "change",
-      "philosophy"
-    ]
-  },
-  {
     "id": "q-johann-wolfgang-von-goethe-knowing-is-not-enough-we-must-apply-wish",
     "text": "Knowing is not enough; we must apply. Wishing is not enough; we must do.",
     "author": "Johann Wolfgang von Goethe",
     "tags": [
       "action",
       "application"
-    ]
-  },
-  {
-    "id": "q-johann-wolfgang-von-goethe-magic-is-believing-in-yourself-if-you-ca",
-    "text": "Magic is believing in yourself. If you can do that, you can make anything happen.",
-    "author": "Johann Wolfgang von Goethe",
-    "tags": [
-      "belief",
-      "magic"
-    ]
-  },
-  {
-    "id": "q-johann-wolfgang-von-goethe-he-who-is-fixed-to-a-star-does-not-chang",
-    "text": "He who is fixed to a star does not change his mind.",
-    "author": "Johann Wolfgang von Goethe",
-    "tags": [
-      "constancy",
-      "purpose"
-    ]
-  },
-  {
-    "id": "q-johann-wolfgang-von-goethe-whatever-you-can-do-or-dream-you-can-beg",
-    "text": "Whatever you can do, or dream you can, begin it. Boldness has genius, power and magic in it.",
-    "author": "Johann Wolfgang von Goethe",
-    "tags": [
-      "boldness",
-      "action"
     ]
   },
   {
@@ -6399,26 +3782,6 @@
     "tags": [
       "anxiety",
       "freedom",
-      "philosophy"
-    ]
-  },
-  {
-    "id": "q-jean-paul-sartre-life-has-no-meaning-the-moment-you-lose-",
-    "text": "Life has no meaning the moment you lose the illusion of being eternal.",
-    "author": "Jean-Paul Sartre",
-    "tags": [
-      "life",
-      "meaning",
-      "philosophy"
-    ]
-  },
-  {
-    "id": "q-simone-de-beauvoir-change-your-life-today-dont-gamble-on-th",
-    "text": "Change your life today. Don't gamble on the future, act now, without delay.",
-    "author": "Simone de Beauvoir",
-    "tags": [
-      "change",
-      "action",
       "philosophy"
     ]
   },
@@ -6445,7 +3808,7 @@
   {
     "id": "q-dorothy-parker-the-cure-for-boredom-is-curiosity-there-",
     "text": "The cure for boredom is curiosity. There is no cure for curiosity.",
-    "author": "Dorothy Parker",
+    "author": "Ellen Parr",
     "tags": [
       "curiosity",
       "boredom",
@@ -6455,7 +3818,7 @@
   {
     "id": "q-e-e-cummings-the-most-wasted-of-all-days-is-one-witho",
     "text": "The most wasted of all days is one without laughter.",
-    "author": "E.E. Cummings",
+    "author": "Nicolas Chamfort",
     "tags": [
       "laughter",
       "life"
@@ -6508,57 +3871,12 @@
     ]
   },
   {
-    "id": "q-maya-angelou-nothing-will-work-unless-you-do",
-    "text": "Nothing will work unless you do.",
-    "author": "Maya Angelou",
-    "tags": [
-      "work",
-      "action"
-    ]
-  },
-  {
-    "id": "q-maya-angelou-when-you-know-better-do-better",
-    "text": "When you know better, do better.",
-    "author": "Maya Angelou",
-    "tags": [
-      "growth",
-      "ethics"
-    ]
-  },
-  {
-    "id": "q-quincy-jones-imagine-what-would-happen-if-everybody-i",
-    "text": "Imagine what would happen if everybody in the world realized how much they need each other.",
-    "author": "Quincy Jones",
-    "tags": [
-      "unity",
-      "need"
-    ]
-  },
-  {
-    "id": "q-chinese-proverb-the-best-time-to-plant-a-tree-was-20-yea",
-    "text": "The best time to plant a tree was 20 years ago. The second best time is now.",
-    "author": "Chinese Proverb",
-    "tags": [
-      "action",
-      "beginning"
-    ]
-  },
-  {
     "id": "q-japanese-proverb-fall-seven-times-stand-up-eight",
     "text": "Fall seven times, stand up eight.",
     "author": "Japanese Proverb",
     "tags": [
       "resilience",
       "perseverance"
-    ]
-  },
-  {
-    "id": "q-japanese-proverb-the-bamboo-that-bends-is-stronger-than-t",
-    "text": "The bamboo that bends is stronger than the oak that resists.",
-    "author": "Japanese Proverb",
-    "tags": [
-      "flexibility",
-      "strength"
     ]
   },
   {
@@ -6571,41 +3889,12 @@
     ]
   },
   {
-    "id": "q-neil-gaiman-a-book-is-a-dream-that-you-hold-in-your-",
-    "text": "A book is a dream that you hold in your hand.",
-    "author": "Neil Gaiman",
-    "tags": [
-      "books",
-      "dreams",
-      "literature"
-    ]
-  },
-  {
-    "id": "q-oprah-winfrey-you-get-in-life-what-you-have-the-courag",
-    "text": "You get in life what you have the courage to ask for.",
-    "author": "Oprah Winfrey",
-    "tags": [
-      "courage",
-      "asking"
-    ]
-  },
-  {
     "id": "q-carl-jung-the-shoe-that-fits-one-person-pinches-an",
     "text": "The shoe that fits one person pinches another; there is no recipe for living that suits all cases.",
     "author": "Carl Jung",
     "tags": [
       "individuality",
       "life",
-      "psychology"
-    ]
-  },
-  {
-    "id": "q-viktor-frankl-what-is-to-give-light-must-endure-burnin",
-    "text": "What is to give light must endure burning.",
-    "author": "Viktor Frankl",
-    "tags": [
-      "sacrifice",
-      "purpose",
       "psychology"
     ]
   },
@@ -6622,7 +3911,7 @@
   {
     "id": "q-isaac-asimov-those-people-who-think-they-know-everyth",
     "text": "Those people who think they know everything are a great annoyance to those of us who do.",
-    "author": "Isaac Asimov",
+    "author": "Harold Coffin",
     "tags": [
       "humor",
       "knowledge",
@@ -6649,30 +3938,12 @@
     ]
   },
   {
-    "id": "q-sam-levenson-dont-watch-the-clock-do-what-it-does-kee",
-    "text": "Don't watch the clock; do what it does. Keep going.",
-    "author": "Sam Levenson",
-    "tags": [
-      "perseverance",
-      "time"
-    ]
-  },
-  {
     "id": "q-john-ruskin-quality-is-never-an-accident-it-is-alway",
     "text": "Quality is never an accident; it is always the result of intelligent effort.",
-    "author": "John Ruskin",
+    "author": "Will A. Foster",
     "tags": [
       "quality",
       "effort"
-    ]
-  },
-  {
-    "id": "q-sean-oconnell-beautiful-things-dont-ask-for-attention",
-    "text": "Beautiful things don't ask for attention.",
-    "author": "Sean O'Connell",
-    "tags": [
-      "beauty",
-      "humility"
     ]
   },
   {
@@ -6701,16 +3972,6 @@
     "tags": [
       "choice",
       "character",
-      "literature"
-    ]
-  },
-  {
-    "id": "q-j-k-rowling-happiness-can-be-found-even-in-the-darke",
-    "text": "Happiness can be found, even in the darkest of times, if one only remembers to turn on the light.",
-    "author": "J.K. Rowling",
-    "tags": [
-      "happiness",
-      "hope",
       "literature"
     ]
   }
