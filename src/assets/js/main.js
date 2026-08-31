@@ -73,6 +73,34 @@ const _profile = getActive(); // ensure default profile exists
   // Theme preset: only override the no-flash script's choice if the
   // user explicitly picked one.
   if (prefs.themePreset) root.setAttribute("data-theme", prefs.themePreset);
+  /* A theme built on /settings/ is stored as preferences.theme =
+     "custom:<id>", with its tokens in preferences.customThemes[].
+     Nothing ever read that back: theme-builder.js sets the tokens as
+     inline style on the <html> of the page you are standing on, so a
+     saved custom theme applied on the settings page and then vanished
+     on the next navigation. Re-apply it here, on every page, alongside
+     the preset above.
+
+     Values are restricted to hex colours. The builder's inputs are
+     <input type="color"> and can produce nothing else, but a theme can
+     also arrive through Import from pasted JSON, and a CSS value is
+     allowed to contain url() -- which would fetch. This site makes no
+     third-party calls and a pasted theme is not going to be the first. */
+  const customId = typeof prefs.theme === "string" && prefs.theme.indexOf("custom:") === 0
+    ? prefs.theme.slice(7)
+    : null;
+  if (customId && Array.isArray(prefs.customThemes)) {
+    const saved = prefs.customThemes.find((t) => t && t.id === customId);
+    const tokens = (saved && saved.tokens) || null;
+    if (tokens) {
+      Object.keys(tokens).forEach((tok) => {
+        const val = tokens[tok];
+        if (/^--[a-z0-9-]+$/i.test(tok) && typeof val === "string" && /^#[0-9a-f]{3,8}$/i.test(val)) {
+          root.style.setProperty(tok, val);
+        }
+      });
+    }
+  }
   if (prefs.keyboardFingerColors) root.setAttribute("data-finger-colors", "true");
 })();
 
