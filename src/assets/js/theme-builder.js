@@ -119,8 +119,14 @@ if (builder) {
       if (p.preferences && Array.isArray(p.preferences.customThemes)) {
         p.preferences.customThemes = p.preferences.customThemes.filter((t) => t.id !== id);
       }
+      // Deleting the theme that is currently selected has to clear the
+      // selection too, or preferences.theme points at a theme that no
+      // longer exists and every page load looks it up and finds nothing.
+      if (p.preferences && p.preferences.theme === "custom:" + id) p.preferences.theme = null;
       return p;
     });
+    TOKENS.forEach((tok) => ROOT.style.removeProperty(tok));
+    syncInputsFromComputed();
     renderSavedList();
   }
 
@@ -143,6 +149,15 @@ if (builder) {
   resetBtn.addEventListener("click", () => {
     // Clear inline overrides so the active preset (or default) shows again.
     TOKENS.forEach((tok) => ROOT.style.removeProperty(tok));
+    // …and clear the stored selection, or main.js paints the custom
+    // theme straight back on the next page load and Reset looks broken.
+    updateActive((p) => {
+      if (p.preferences && typeof p.preferences.theme === "string"
+          && p.preferences.theme.indexOf("custom:") === 0) {
+        p.preferences.theme = null;
+      }
+      return p;
+    });
     syncInputsFromComputed();
     warn.hidden = true;
   });
