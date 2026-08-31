@@ -23,7 +23,15 @@
    the old pipeline to prove the bug was real.
 
    Usage: node scripts/check-import-whitespace.mjs   (no server needed) */
-import { sanitize, normalizeTypeable } from "../src/assets/js/engine/custom-text.js";
+import * as ct from "../src/assets/js/engine/custom-text.js";
+
+const { sanitize } = ct;
+/* Imported off the namespace rather than by name. If normalizeTypeable
+   is ever removed, a named import turns this whole suite into a module
+   error -- and a suite that cannot start looks nothing like a suite
+   that failed. This way the assertions still run and report which
+   guarantees were lost. */
+const normalizeTypeable = ct.normalizeTypeable || ((x) => String(x || ""));
 
 let pass = 0, fail = 0;
 const chk = (ok, n, x = "") => {
