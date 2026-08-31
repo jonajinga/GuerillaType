@@ -341,7 +341,21 @@ console.log("\n## 6. The storm builds — spawn rate measured, not read off a la
   chk(late > early, "the late window (15–21s) has more spawns than the early one", `early ${early}, late ${late}`);
   chk(early >= 2 && late >= early + 3, "…and meaningfully more, not one extra", `early ${early}, late ${late}`);
   chk(early >= 2 && late >= Math.ceil(early * 1.5), "…at least 1.5x the early rate", `early ${early}, late ${late}`);
-  chk(maxSeen >= 2, "…with more than one fragment on screen while it was measured", `max ${maxSeen}`);
+  /* A second, independent statistic on the same claim. The window
+     counts above could in principle be satisfied by one late burst; the
+     gap between consecutive spawns shrinking across the whole run
+     cannot. maxSeen is only reported: this loop clears the stage every
+     110ms on purpose, so it measures the test's own aggressiveness, not
+     the game. The "several on screen at once" claim is checked in
+     section 4, where nothing is being typed. */
+  const gaps = spawns.slice(1).map((t, i) => t - spawns[i]);
+  const median = (a) => { const b = a.slice().sort((x, y) => x - y); return b.length ? b[Math.floor(b.length / 2)] : 0; };
+  const firstHalf = gaps.slice(0, Math.floor(gaps.length / 2));
+  const secondHalf = gaps.slice(Math.floor(gaps.length / 2));
+  const mFirst = Math.round(median(firstHalf)), mSecond = Math.round(median(secondHalf));
+  chk(gaps.length >= 8 && mFirst > 0 && mSecond > 0 && mSecond < mFirst * 0.8,
+    "the gap between consecutive spawns shrank across the run, not just in one burst",
+    `median gap ${mFirst}ms -> ${mSecond}ms over ${gaps.length} gaps (max on screen while clearing: ${maxSeen})`);
 
   const intensity = await p.evaluate(() => document.querySelector("[data-intensity]").textContent);
   const asNum = parseFloat(intensity);
