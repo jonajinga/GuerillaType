@@ -20,6 +20,49 @@ const COMMON_FALLBACK_WORDS = [
   "thought", "between", "without", "another", "because", "through",
 ];
 
+/* ── Power-ups ────────────────────────────────────────────────────
+   A power-up is a BONUS WORD: an ordinary target that happens to be
+   marked (capsule + ring) and whose text names the effect it grants.
+   You get the effect by typing it, exactly like any other catch. If
+   it falls off the stage you get NOTHING -- no effect, and no miss
+   either, because being punished for declining a bonus is backwards.
+
+   Two effects, both named on the roadmap:
+     freeze  -- game time stops for FREEZE_MS. Nothing moves, no bomb
+                timer ticks, nothing spawns, no combo chain decays.
+     clear   -- every ordinary target on stage is destroyed and paid
+                out at CLEAR_PAYOUT of what typing it would have paid.
+
+   The words are literal ASCII ("freeze", "clear") so the target says
+   what it does. Site rule: typeable content is ASCII only.
+
+   Not every mode gets them. bomb and stroop are single-target modes
+   -- spawn() self-gates to one item -- so a screen-clear would clear
+   the only thing on screen and a freeze would pause the one clock
+   that IS the difficulty. Both effects are incoherent there, so those
+   two modes are excluded rather than given a thin version. */
+const POWER_DEFS = {
+  freeze: { word: "freeze", token: "--secondary" },
+  clear:  { word: "clear",  token: "--good" },
+};
+// Alternates freeze, clear, freeze, ... so a round always opens with
+// the effect that is easiest to read (everything visibly stops).
+const POWER_CYCLE = ["freeze", "clear"];
+const POWER_EVERY_CATCHES = 6;   // catches between power-up spawns
+const FREEZE_MS = 5000;
+const CLEAR_PAYOUT = 0.5;        // fraction of a typed catch, per cleared word
+const POWER_MODES = new Set([
+  "classic", "endless", "shooter", "asteroids", "tower", "combo-sprint",
+]);
+const POWER_HOWTO =
+  "<strong>Power-ups.</strong> Every " + POWER_EVERY_CATCHES + " catches a "
+  + "<strong>bonus word</strong> spawns wearing a coloured capsule. Type "
+  + "<code>freeze</code> to stop the clock for " + (FREEZE_MS / 1000)
+  + " seconds - nothing moves, nothing spawns, no timer ticks. Type "
+  + "<code>clear</code> to destroy every other target on the stage for "
+  + Math.round(CLEAR_PAYOUT * 100) + "% of what typing each would have paid. "
+  + "Let one fall and you get nothing, but it does not count as a miss either.";
+
 const profile = getActive();
 let words = [];           // candidate words to pull from
 let falling = [];         // active words on screen
@@ -49,9 +92,20 @@ const STROOP_COLOR_HEX = {
   yellow: "#e3b873", purple: "#9b6bd6", orange: "#e58060",
 };
 let stroopCurrentColor = null;
-// Combo Sprint: chain timer. Resets on idle.
-let lastCatchTs = 0;
+// Combo Sprint: chain timer. Resets on idle. Measured in GAME time
+// (see gameMs) rather than wall time, so a time-freeze cannot silently
+// eat your chain while the stage is stopped.
+let lastCatchGameMs = 0;
 const COMBO_CHAIN_IDLE_MS = 2200;
+/* Game time. Advances with the frame loop while the round is running
+   and NOT frozen. This is the clock a time-freeze stops -- wall time
+   keeps running, game time does not. Everything the player can see
+   move is driven off the same dt that feeds this. */
+let gameMs = 0;
+let freezeMsLeft = 0;            // > 0 means the stage is frozen
+let powerSpawnCount = 0;         // power-ups spawned this round
+let nextPowerAtCatch = POWER_EVERY_CATCHES;
+function isFrozen() { return freezeMsLeft > 0; }
 const initialSpeed = parseFloat(_gameParams.get("speed")) || 1.0;
 speedMult = initialSpeed;
 
@@ -75,6 +129,7 @@ const missedEl = document.querySelector("[data-missed]");
 const streakEl = document.querySelector("[data-streak]");
 const bestEl = document.querySelector("[data-best]");
 const multEl = document.querySelector("[data-mult]");
+const freezeEl = document.querySelector("[data-freeze]");
 
 /* Streak -> multiplier tier table. Visible reward for catching
    words in rapid succession -- tiers are wide enough that the
@@ -125,7 +180,26 @@ function buildPool() {
 
 function pickWord() {
   if (!words.length) return null;
-  return words[Math.floor(Math.random() * words.length)];
+  // Never hand back a word that an active power-up is already using.
+  // Otherwise typing "freeze" is ambiguous between the bonus and an
+  // ordinary target, and which one wins depends on array order.
+  const taken = new Set(falling.filter((f) => f.power).map((f) => f.word));
+  for (let tries = 0; tries < 8; tries++) {
+    const w = words[Math.floor(Math.random() * words.length)];
+    if (!taken.has(w)) return w;
+  }
+  return null;
+}
+
+/* Which power-up, if any, this spawn should be. Deterministic on
+   purpose: the player can feel one coming, which is the point of a
+   reward. One at a time -- a stage carrying two bonuses stops
+   reading as a bonus. */
+function choosePower() {
+  if (!POWER_MODES.has(gameMode)) return null;
+  if (stats.caught < nextPowerAtCatch) return null;
+  if (falling.some((f) => f.power)) return null;
+  return POWER_CYCLE[powerSpawnCount % POWER_CYCLE.length];
 }
 
 // Shared timer handle. Every startRound / pauseRound / endRound /
@@ -143,10 +217,15 @@ function reset() {
   falling = [];
   stats = { score: 0, caught: 0, missed: 0, streak: 0, bestStreak: 0 };
   baseHP = BASE_HP_MAX;
-  lastCatchTs = 0;
+  lastCatchGameMs = 0;
   stroopCurrentColor = null;
+  gameMs = 0;
+  freezeMsLeft = 0;
+  powerSpawnCount = 0;
+  nextPowerAtCatch = POWER_EVERY_CATCHES;
   paintStats();
-  if (svgSel) svgSel.selectAll("g.fall, g.fall-hud").remove();
+  paintPowerHUD();
+  if (svgSel) svgSel.selectAll("g.fall, g.fall-hud, g.fall-frost, g.fall-popup").remove();
   if (input) input.value = "";
 }
 
@@ -181,8 +260,13 @@ function paintStats() {
 }
 
 function spawn() {
-  const w = pickWord();
+  const power = choosePower();
+  const w = power ? POWER_DEFS[power].word : pickWord();
   if (!w) return;
+  if (power) {
+    powerSpawnCount++;
+    nextPowerAtCatch = stats.caught + POWER_EVERY_CATCHES;
+  }
   const halfW = Math.max(20, Math.ceil(w.length * 7));
   const margin = 16;
   const id = Math.random().toString(36).slice(2);
@@ -192,7 +276,7 @@ function spawn() {
     const maxY = Math.max(minY + 1, stageH - 110);
     const y = minY + Math.random() * (maxY - minY);
     const vx = 40 + Math.random() * 30 + stats.caught * 0.8;
-    falling.push({ id, word: w, x: -halfW - 6, y, vx: vx * speedMult, vy: 0, mode: "shooter" });
+    falling.push({ id, word: w, power, x: -halfW - 6, y, vx: vx * speedMult, vy: 0, mode: "shooter" });
     return;
   }
 
@@ -206,7 +290,7 @@ function spawn() {
     const baseSpeed = 55 + Math.random() * 35 + stats.caught * 0.9;
     const speed = baseSpeed * speedMult;
     falling.push({
-      id, word: w, x: startX, y: startY,
+      id, word: w, power, x: startX, y: startY,
       vx: -Math.cos(angle) * speed,
       vy: -Math.sin(angle) * speed,
       mode: "asteroids",
@@ -220,7 +304,7 @@ function spawn() {
     if (falling.length) return;
     const timer = Math.max(4, 10 - stats.caught * 0.4);  // 10s -> 4s
     falling.push({
-      id, word: w,
+      id, word: w, power,
       x: stageW / 2, y: stageH / 2 - 20,
       vx: 0, vy: 0, mode: "bomb",
       timerStart: timer * 1000,
@@ -234,7 +318,7 @@ function spawn() {
     const lane = Math.floor(Math.random() * TOWER_LANES.length);
     const baseSpeed = 50 + Math.random() * 30 + stats.caught * 0.8;
     falling.push({
-      id, word: w,
+      id, word: w, power,
       x: stageW + halfW + 8,
       y: TOWER_LANES[lane],
       vx: -baseSpeed * speedMult, vy: 0, mode: "tower",
@@ -251,7 +335,7 @@ function spawn() {
     // Speed ramps fast -- the "sprint" is genuine.
     const vx = 140 + Math.random() * 40 + stats.caught * 1.4;
     falling.push({
-      id, word: w, x: -halfW - 6, y,
+      id, word: w, power, x: -halfW - 6, y,
       vx: vx * speedMult, vy: 0, mode: "combo-sprint",
     });
     return;
@@ -285,14 +369,31 @@ function spawn() {
   const x = minX + Math.random() * (maxX - minX);
   const rampPerCatch = gameMode === "endless" ? 1.5 : 0.6;
   const baseSpeed = 50 + Math.random() * 30 + stats.caught * rampPerCatch;
-  falling.push({ id, word: w, x, y: -22, vx: 0, vy: baseSpeed * speedMult, mode: "fall" });
+  falling.push({ id, word: w, power, x, y: -22, vx: 0, vy: baseSpeed * speedMult, mode: "fall" });
 }
 
 function frame(elapsed) {
   if (!running) return;
   const now = performance.now();
-  const dt = Math.min(0.05, (now - lastFrameTs) / 1000 || 0);
+  const rawDt = Math.min(0.05, (now - lastFrameTs) / 1000 || 0);
   lastFrameTs = now;
+
+  /* TIME-FREEZE. `dt` is the only thing that moves a target, ticks a
+     bomb, or advances game time, so zeroing it here is what actually
+     stops the game -- not a flag that the render layer reads. The
+     freeze itself burns real time (rawDt), so it ends.
+
+     frame() only runs while `running`, so a pause holds the freeze
+     where it is instead of letting it drain behind the Pause button. */
+  const frozen = freezeMsLeft > 0;
+  const dt = frozen ? 0 : rawDt;
+  if (frozen) {
+    freezeMsLeft = Math.max(0, freezeMsLeft - rawDt * 1000);
+    if (freezeMsLeft === 0) thawStage();
+  } else {
+    gameMs += rawDt * 1000;
+  }
+  paintPowerHUD();
 
   // Per-mode spawn pacing. Single-target modes (bomb, stroop)
   // only spawn one item; the spawn() guard handles the cap.
@@ -305,7 +406,11 @@ function frame(elapsed) {
   else if (gameMode === "stroop")         spawnEvery = 0;
   else                                    spawnEvery = Math.max(700, 1400 - stats.caught * 40);
 
-  if (gameMode === "bomb" || gameMode === "stroop") {
+  if (frozen) {
+    // Nothing spawns into a frozen stage, and pacing does not bank up
+    // behind the freeze -- otherwise the thaw dumps a wave.
+    lastSpawnTs = now;
+  } else if (gameMode === "bomb" || gameMode === "stroop") {
     if (!falling.length) spawn();
   } else if (now - lastSpawnTs > spawnEvery) {
     spawn();
@@ -313,8 +418,9 @@ function frame(elapsed) {
   }
 
   // Combo-sprint chain decay: if no catch within COMBO_CHAIN_IDLE_MS, reset.
+  // Measured in game time, so a freeze cannot expire your chain.
   if (gameMode === "combo-sprint" && stats.streak > 0
-      && lastCatchTs > 0 && now - lastCatchTs > COMBO_CHAIN_IDLE_MS) {
+      && lastCatchGameMs > 0 && gameMs - lastCatchGameMs > COMBO_CHAIN_IDLE_MS) {
     stats.streak = 0;
     paintStats();
   }
@@ -358,6 +464,11 @@ function frame(elapsed) {
       if (f.y >= FLOOR_Y) missed = true;
     }
     if (!missed) return true;
+    /* A power-up you did not type grants nothing -- and costs nothing.
+       It is a bonus, not an obligation: it must not tick the miss
+       counter (which ends the round at 3 in most modes), must not
+       damage the tower base, and must not break your streak. */
+    if (f.power) return false;
     stats.missed++;
     if (f.mode === "tower") {
       // Each breach damages the base instead of incrementing a counter.
@@ -409,7 +520,7 @@ function paintFalling() {
       .attr("text-anchor", "middle")
       .attr("font-family", "var(--font-mono)")
       .attr("font-size", d.mode === "stroop" ? 64 : (d.mode === "bomb" ? 26 : 22))
-      .attr("font-weight", d.mode === "stroop" ? "800" : "500");
+      .attr("font-weight", d.power ? "700" : (d.mode === "stroop" ? "800" : "500"));
     // Stroop: render the literal word's letters in the MISMATCHED
     // color directly. No backdrop -- the conflict is the readable
     // word on one hand and the visible color of its ink on the
@@ -425,6 +536,7 @@ function paintFalling() {
         .attr("data-i", i)
         .text(c);
     });
+    if (d.power) decoratePowerTarget(sel, t, d);
   });
 
   // Update position + per-char fill on every frame.
@@ -434,6 +546,12 @@ function paintFalling() {
       const matchLen = (typed && d.word.startsWith(typed)) ? typed.length : 0;
       const sel = d3.select(this);
       sel.selectAll("tspan").attr("fill", function() {
+        // Bonus word: the letters sit on a filled capsule, so they are
+        // painted in the page background token, which every theme
+        // guarantees contrast against. Typed progress is shown by
+        // dimming (below), the same way stroop mode shows it -- a
+        // second colour here would be a second contrast problem.
+        if (d.power) return "var(--bg-0)";
         if (d.mode === "stroop") {
           // Every letter painted in the mismatched render-color.
           // Typed prefix dims slightly so the user sees their
@@ -444,7 +562,7 @@ function paintFalling() {
         if (i < matchLen) return "var(--accent)";
         return "var(--fg-0)";
       }).attr("opacity", function() {
-        if (d.mode !== "stroop") return null;
+        if (d.mode !== "stroop" && !d.power) return null;
         const i = +this.getAttribute("data-i");
         return i < matchLen ? 0.45 : 1;
       });
@@ -461,6 +579,56 @@ function paintFalling() {
 
   // Tower base HP bar -- repainted every frame on its own HUD group.
   paintTowerHUD();
+}
+
+/* Visual mark for a bonus word: a filled capsule behind the letters
+   plus a dashed ring around it.
+
+   THE COLOUR IS SET AS AN ATTRIBUTE, AND NOTHING IN CSS MAY SET
+   `fill` OR `stroke` ON THESE ELEMENTS. A CSS property beats an
+   SVG presentation attribute, so a stylesheet rule would silently
+   win and every theme would look identical. game.css therefore
+   animates opacity only, and scripts/check-game-powerups.mjs asserts
+   the COMPUTED fill matches the theme token -- not the attribute. */
+function decoratePowerTarget(sel, textSel, d) {
+  const def = POWER_DEFS[d.power];
+  if (!def) return;
+  sel.classed("fall--power", true).attr("data-power", d.power);
+  // Measure the rendered word so the capsule fits any word length.
+  let box = { x: -30, y: -18, width: 60, height: 24 };
+  try {
+    const measured = textSel.node().getBBox();
+    if (measured && measured.width > 0) box = measured;
+  } catch {}
+  const padX = 13, padY = 7;
+  sel.insert("rect", "text")
+    .attr("class", "fall__power-capsule")
+    .attr("x", box.x - padX).attr("y", box.y - padY)
+    .attr("width", box.width + padX * 2).attr("height", box.height + padY * 2)
+    .attr("rx", (box.height + padY * 2) / 2)
+    .attr("fill", `var(${def.token})`);
+  sel.insert("rect", "rect")
+    .attr("class", "fall__power-ring")
+    .attr("x", box.x - padX - 5).attr("y", box.y - padY - 5)
+    .attr("width", box.width + padX * 2 + 10).attr("height", box.height + padY * 2 + 10)
+    .attr("rx", (box.height + padY * 2 + 10) / 2)
+    .attr("fill", "none")
+    .attr("stroke", "var(--fg-0)")
+    .attr("stroke-width", 2)
+    .attr("stroke-dasharray", "5 5");
+}
+
+/* Frozen-clock readout. Lives in the page, not the SVG, so it inherits
+   the theme tokens the same way the combo badge does. */
+function paintPowerHUD() {
+  if (!freezeEl) return;
+  if (freezeMsLeft > 0) {
+    freezeEl.hidden = false;
+    freezeEl.textContent = `FROZEN ${(freezeMsLeft / 1000).toFixed(1)}s`;
+  } else {
+    freezeEl.hidden = true;
+    freezeEl.textContent = "";
+  }
 }
 
 function paintTowerHUD() {
@@ -512,14 +680,20 @@ function tryCatch(typed) {
   // where words stay on-stage (bomb, stroop, tower, asteroids,
   // combo-sprint) the FLOOR_Y check would wrongly reject mid-stage
   // matches, so the visibility predicate is mode-aware.
-  const i = falling.findIndex((f) => {
+  const onStage = (f) => {
     if (f.word !== typed) return false;
     if (f.mode === "bomb" || f.mode === "stroop") return true;
     if (f.mode === "tower") return f.x > 50;
     if (f.mode === "asteroids") return true;
     if (f.mode === "combo-sprint") return f.x > -80 && f.x < stageW + 80;
     return f.y > 0 && f.y < stageH - 80;
-  });
+  };
+  // Power-ups win ties. pickWord() already refuses to duplicate an
+  // active power-up's word, but a stale target from before the
+  // power-up spawned could still carry it, and the bonus is what the
+  // player meant.
+  let i = falling.findIndex((f) => f.power && onStage(f));
+  if (i === -1) i = falling.findIndex(onStage);
   if (i === -1) return false;
   const f = falling[i];
   falling.splice(i, 1);
@@ -544,10 +718,92 @@ function tryCatch(typed) {
   stats.caught++;
   stats.streak++;
   if (stats.streak > stats.bestStreak) stats.bestStreak = stats.streak;
-  lastCatchTs = performance.now();
+  lastCatchGameMs = gameMs;
+  // The bonus fires only on a correct type, and only here.
+  if (f.power) applyPower(f);
   paintStats();
   paintFalling();
+  paintPowerHUD();
   return true;
+}
+
+/* ── Power-up effects ─────────────────────────────────────────────
+   Both are applied to real game state, not to the renderer. A freeze
+   sets the counter frame() subtracts dt from; a clear empties the
+   `falling` array the frame loop and the catch matcher both read. */
+function applyPower(f) {
+  if (f.power === "freeze") return applyTimeFreeze(f);
+  if (f.power === "clear") return applyScreenClear(f);
+}
+
+function applyTimeFreeze(f) {
+  freezeMsLeft = FREEZE_MS;
+  if (svgSel) {
+    svgSel.selectAll("g.fall-frost").remove();
+    const frost = svgSel.append("g").attr("class", "fall-frost");
+    frost.append("rect")
+      .attr("x", 0).attr("y", 0)
+      .attr("width", stageW).attr("height", stageH)
+      .attr("fill", "var(--secondary)")
+      .attr("opacity", 0)
+      .transition().duration(180)
+      .attr("opacity", 0.16);
+  }
+  floatPowerLabel(f, "TIME FREEZE", "--secondary");
+}
+
+/* Every ordinary target is destroyed and paid out at CLEAR_PAYOUT of
+   what typing it would have paid. Cleared words do NOT count as
+   `caught` and do NOT extend the streak -- those two numbers mean
+   "words you typed", and inflating them would also inflate the
+   difficulty ramp and the lifetime totalCaught written to the
+   profile. Other power-ups survive a clear; you have to type those. */
+function applyScreenClear(f) {
+  const victims = falling.filter((v) => !v.power);
+  falling = falling.filter((v) => v.power);
+  let gained = 0;
+  for (const v of victims) {
+    gained += Math.round((10 + v.word.length * 2) * CLEAR_PAYOUT);
+    if (svgSel && d3) explodeAt(v.x, v.y);
+  }
+  stats.score += gained;
+  if (gameMode === "tower") {
+    // Consistent with a typed catch, which also patches the base.
+    for (const v of victims) {
+      baseHP = Math.min(BASE_HP_MAX, baseHP + Math.max(1, Math.floor(v.word.length * 0.3)));
+    }
+  }
+  floatPowerLabel(f, victims.length ? `SCREEN CLEAR +${gained}` : "SCREEN CLEAR", "--good");
+  paintStats();
+}
+
+/* Shared "what just happened" label. Rises and fades from where the
+   bonus word was typed. Color comes from a theme token, never a hex. */
+function floatPowerLabel(f, text, token) {
+  if (!svgSel || !d3) return;
+  const g = svgSel.append("g").attr("class", "fall-popup");
+  g.append("text")
+    .attr("x", Math.min(stageW - 90, Math.max(90, f.x)))
+    .attr("y", Math.max(30, f.y - 24))
+    .attr("text-anchor", "middle")
+    .attr("fill", `var(${token})`)
+    .attr("font-family", "var(--font-mono)")
+    .attr("font-size", "17").attr("font-weight", "700")
+    .attr("letter-spacing", "0.10em")
+    .attr("opacity", 0)
+    .text(text)
+    .transition().duration(90).attr("opacity", 1)
+    .transition().delay(420).duration(520).ease(d3.easeCubicOut)
+    .attr("y", Math.max(30, f.y - 24) - 44).attr("opacity", 0)
+    .on("end", () => g.remove());
+}
+
+/* Called the frame the freeze counter reaches zero. */
+function thawStage() {
+  if (svgSel) {
+    svgSel.selectAll("g.fall-frost")
+      .transition().duration(220).style("opacity", 0).remove();
+  }
 }
 
 /* Shooter-mode catch effect: the word becomes a "shot plane"
@@ -778,6 +1034,10 @@ function endRound() {
   // Clear the falling array so stale entries can't be caught
   // by typing through the game-over overlay.
   falling = [];
+  // A freeze must not survive the round that granted it.
+  freezeMsLeft = 0;
+  thawStage();
+  paintPowerHUD();
   input.value = "";
   startBtn.textContent = "Play again";
   startBtn.hidden = false;
@@ -1051,7 +1311,11 @@ function applyModeCopy() {
   const hl = document.getElementById("game-howto-list");
   if (ht) ht.textContent = c.howtoTitle || "How to play";
   if (hl && Array.isArray(c.howto)) {
-    hl.innerHTML = c.howto.map((line) => `<li>${line}</li>`).join("");
+    // One shared power-up line, appended to every mode that has them,
+    // rather than pasted into six howto arrays that would then drift.
+    const lines = c.howto.slice();
+    if (POWER_MODES.has(gameMode)) lines.push(POWER_HOWTO);
+    hl.innerHTML = lines.map((line) => `<li>${line}</li>`).join("");
   }
   document.querySelectorAll(".game-mode-switch__btn").forEach((btn) => {
     btn.classList.toggle("is-active", btn.dataset.gameMode === gameMode);
@@ -1121,7 +1385,7 @@ document.querySelectorAll(".game-mode-switch__btn").forEach((btn) => {
     // game has ever appended.
     reset();
     if (svgSel) {
-      svgSel.selectAll("g.fall, g.fall--dying, g.fall-popup, g.game-over-overlay, g.stage-hint").remove();
+      svgSel.selectAll("g.fall, g.fall--dying, g.fall-popup, g.fall-frost, g.game-over-overlay, g.stage-hint").remove();
     }
     startBtn.textContent = "Start";
     startBtn.hidden = false;
@@ -1131,6 +1395,45 @@ document.querySelectorAll(".game-mode-switch__btn").forEach((btn) => {
     paintHint();
   });
 });
+
+/* Read-only handle on the running game, in the same spirit as
+   window.__tt in practice-boot.js and window.__profileSessions in
+   stats-boot.js. It exists so a gate can assert what the game
+   actually DID -- that the clock stopped, that the targets are gone --
+   rather than that a CSS class turned up in the DOM. Everything it
+   returns is a copy; nothing here can be written back into the game. */
+window.__ttGame = {
+  power: {
+    FREEZE_MS,
+    CLEAR_PAYOUT,
+    EVERY_CATCHES: POWER_EVERY_CATCHES,
+    CYCLE: POWER_CYCLE.slice(),
+    MODES: Array.from(POWER_MODES),
+    WORDS: Object.fromEntries(Object.entries(POWER_DEFS).map(([k, v]) => [k, v.word])),
+    TOKENS: Object.fromEntries(Object.entries(POWER_DEFS).map(([k, v]) => [k, v.token])),
+  },
+  snapshot() {
+    return {
+      mode: gameMode,
+      running,
+      gameMs,
+      frozen: freezeMsLeft > 0,
+      freezeMsLeft,
+      score: stats.score,
+      caught: stats.caught,
+      missed: stats.missed,
+      streak: stats.streak,
+      bestStreak: stats.bestStreak,
+      baseHP,
+      powerSpawnCount,
+      nextPowerAtCatch,
+      falling: falling.map((f) => ({
+        id: f.id, word: f.word, x: f.x, y: f.y,
+        mode: f.mode, power: f.power || null,
+      })),
+    };
+  },
+};
 
 // Mobile typing uses the OS soft keyboard. The game-input has
 // inputmode="text" so iOS / Android surface their native keyboard

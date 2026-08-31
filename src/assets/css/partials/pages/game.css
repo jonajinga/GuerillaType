@@ -193,3 +193,42 @@
   }
   .game-howto{display:none}
 }
+
+/* ── Power-ups ───────────────────────────────────────────────────
+   A power-up is a bonus word: an ordinary falling target wearing a
+   filled capsule and a dashed ring. Type it and you get the effect.
+
+   NOTHING HERE MAY SET `fill` OR `stroke`. A CSS property beats an
+   SVG presentation attribute, so a rule like
+     .fall__power-capsule{fill:var(--secondary)}
+   would silently override the attribute game-boot.js sets and make
+   the per-effect colours unreachable. The colours are attributes,
+   set from theme tokens in decoratePowerTarget(); this block styles
+   opacity and animation only. scripts/check-game-powerups.mjs
+   asserts the COMPUTED fill, which is what catches a violation. */
+.game-svg rect.fall__power-ring{
+  animation:game-power-ring 1.2s ease-in-out infinite;
+}
+@keyframes game-power-ring{
+  0%,100%{opacity:.9}
+  50%    {opacity:.28}
+}
+@media (prefers-reduced-motion:reduce){
+  .game-svg rect.fall__power-ring{animation:none;opacity:.9}
+}
+
+/* Frozen-clock readout. Mirrors .game-mult on the opposite corner:
+   token-coloured fill, page-background ink, so it stays legible in
+   every bundled theme and in a user-built custom theme. */
+.game-freeze{
+  position:absolute;top:.65rem;left:.75rem;z-index:3;
+  display:inline-flex;align-items:center;justify-content:center;
+  height:2.2rem;padding:0 .9rem;
+  font-family:var(--font-mono);font-size:.85rem;font-weight:700;
+  font-variant-numeric:tabular-nums;letter-spacing:.1em;
+  color:var(--bg-0);background:var(--secondary);
+  border:0;border-radius:999px;
+  box-shadow:0 4px 14px color-mix(in oklab, var(--secondary) 40%, transparent);
+  pointer-events:none;
+}
+.game-freeze[hidden]{display:none}
