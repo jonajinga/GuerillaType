@@ -37,7 +37,12 @@
     "poetry": "node scripts/check-poetry.mjs",
     "quotes": "node scripts/check-quotes.mjs",
     "parables": "node scripts/check-parables.mjs",
-    "caret-proportional": "node scripts/check-caret-proportional.mjs"
+    "caret-proportional": "node scripts/check-caret-proportional.mjs",
+    "import-whitespace": "node scripts/check-import-whitespace.mjs",
+    "import-extraction": "node scripts/check-import-extraction.mjs",
+    "theme-persistence": "node scripts/check-theme-persistence.mjs",
+    "lesson-resume": "node scripts/check-lesson-resume.mjs",
+    "lesson-trends": "node scripts/check-lesson-trends.mjs"
   },
   "dependencies": {
     "@11ty/eleventy": "^3.0.0",

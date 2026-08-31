@@ -192,7 +192,17 @@ async function parsePdf(file, onProgress) {
       await breathe();
     }
   }
-  const text = pages.join("\n\n").replace(/\s+\n/g, "\n").trim();
+  /* De-hyphenate soft line breaks. A PDF text layer wraps by
+     typesetting the page, so a hyphen at the end of a line is almost
+     always a word broken in two -- "short-\nened" -- not a compound.
+     Rejoin those. The test is lowercase-to-lowercase, which leaves
+     "Anglo-\nSaxon" and "post-\nOffice" alone; anything this misses is
+     closed up by normalizeTypeable() with the hyphen KEPT, so the word
+     never gains a space either way -- it just keeps a hyphen that the
+     typesetter meant as a line break. */
+  const text = pages.join("\n\n").replace(/\s+\n/g, "\n")
+    .replace(/([a-z])-\n([a-z])/g, "$1$2")
+    .trim();
   if (!text) {
     throw new Error("This PDF has no extractable text — looks like a scanned image. Run OCR first, then upload the .txt.");
   }
@@ -203,6 +213,16 @@ function htmlToText(html) {
   let s = String(html || "");
   s = s.replace(/<script[\s\S]*?<\/script>/gi, "");
   s = s.replace(/<style[\s\S]*?<\/style>/gi, "");
+  /* An EPUB chapter is an XHTML document: it opens with an XML prolog
+     and a DOCTYPE, and its <head> carries a <title> that is the chapter
+     name rather than prose. Stripping tags alone leaves the prolog
+     (which starts "<?", so the tag pattern below never matched it) and
+     the title TEXT, both of which landed in the text the user was asked
+     to type -- every chapter began with `<?xml version="1.0" ...?>`. */
+  s = s.replace(/<\?[\s\S]*?\?>/g, "");
+  s = s.replace(/<!DOCTYPE[^>]*>/gi, "");
+  s = s.replace(/<!--[\s\S]*?-->/g, "");
+  s = s.replace(/<head\b[\s\S]*?<\/head>/gi, "");
   // Treat block tags as paragraph breaks.
   s = s.replace(/<\/?(p|div|section|article|h[1-6]|li|blockquote|br)\b[^>]*>/gi, "\n");
   s = s.replace(/<\/?[a-z][^>]*>/gi, "");

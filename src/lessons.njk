@@ -48,13 +48,24 @@ description: "Three hundred progressive lessons: home row drills, bigrams, speed
   const pinned = listLessonPinned();
   if (pinned.length) {
     stage.hidden = false;
-    grid.innerHTML = pinned.map((it) => `
-      <a class="lesson-card" href="/practice/?mode=custom&custom=${encodeURIComponent(it.id)}&seg=0">
+    /* Resume where the reader got to. This card used to hard-code
+       seg=0, so a pinned 481-segment book restarted from the beginning
+       every single time -- the bookmark that /custom/ writes on every
+       finished segment was being written and then ignored here. */
+    grid.innerHTML = pinned.map((it) => {
+      const count = segCountOf(it);
+      const seg = Math.min(Math.max(0, it.lastSeg | 0), Math.max(0, count - 1));
+      const resuming = seg > 0;
+      return `
+      <a class="lesson-card" href="/practice/?mode=custom&custom=${encodeURIComponent(it.id)}&seg=${seg}">
         <span class="lesson-card__num">Custom</span>
         <span class="lesson-card__title">${escape(it.title)}</span>
-        <span class="lesson-card__keys"><span class="lesson-card__key">${segCountOf(it)} segments</span></span>
+        <span class="lesson-card__keys"><span class="lesson-card__key">${count} segments</span>${
+          resuming ? `<span class="lesson-card__key">resuming at ${seg + 1} of ${count}</span>` : ""
+        }</span>
       </a>
-    `).join("");
+    `;
+    }).join("");
   }
   function escape(s){return String(s).replace(/[<>&"]/g,(c)=>({"<":"&lt;",">":"&gt;","&":"&amp;","\"":"&quot;"}[c]));}
 </script>

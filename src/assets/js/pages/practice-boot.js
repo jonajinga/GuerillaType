@@ -6,7 +6,7 @@ import { TypingEngine } from "../engine/typing-engine.js";
 import { AdaptiveModel } from "../engine/adaptive.js";
 import { buildPicker, uniformText } from "../engine/wordpicker.js";
 import { recordSession } from "../engine/session-recorder.js";
-import { setSegProgress, getSaved as getSavedCustom, listSaved as listSavedCustom, getSegments as getCustomSegments } from "../engine/custom-text.js";
+import { setSegProgress, getSaved as getSavedCustom, listSaved as listSavedCustom, getSegments as getCustomSegments, normalizeTypeable } from "../engine/custom-text.js";
 import { byId as achievementById } from "../engine/achievements.js";
 import { fingerForKey } from "../engine/layouts.js";
 import { bookStructureSig } from "../engine/book-structure.js";
@@ -361,7 +361,13 @@ async function buildText() {
      separate paragraphs. */
   function textToParagraphs(text) {
     if (!text) return text;
-    const paras = String(text)
+    // Run the same normalization the importer does. sanitize() already
+    // did this for anything saved since it landed, but a book imported
+    // BEFORE it is still sitting in IndexedDB full of non-breaking
+    // spaces and hyphen-broken words. Doing it here too repairs those
+    // in place, so nobody has to re-import a 600-page PDF to get a
+    // typeable target.
+    const paras = normalizeTypeable(text)
       .replace(/\r\n?/g, "\n")
       .split(/\n[ \t]*\n+/)
       .map((b) => b.replace(/\n/g, " ").replace(/[ \t]{2,}/g, " ").trim())
@@ -369,7 +375,7 @@ async function buildText() {
     if (paras.length > 1) return paras;
     // One block: hand back a plain string, and make sure no stray
     // newline survives to become an untypeable glyph.
-    return paras[0] || String(text).replace(/\s+/g, " ").trim();
+    return paras[0] || normalizeTypeable(text).replace(/\s+/g, " ").trim();
   }
 
   function pickFresh(all, kind) {

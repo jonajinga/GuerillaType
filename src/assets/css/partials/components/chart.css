@@ -12,6 +12,20 @@
 .chart__bar--ok{fill:var(--good, var(--accent))}
 .chart__bar-label{font-family:var(--font-mono);font-size:10px;fill:var(--fg-2);dominant-baseline:central}
 .chart__dot{fill:var(--accent)}
+/* Lesson-trends small multiples. .chart__line above sets stroke, and a
+   CSS property beats an SVG presentation attribute, so a per-series
+   stroke="" on the element is ignored -- these two rules are what
+   actually colour the lines. Same specificity as .chart__line, declared
+   after it, so they win. */
+.chart__line--wpm{stroke:var(--accent)}
+.chart__line--acc{stroke:var(--good, var(--accent))}
+.chart__panel-title{fill:var(--fg-1);font-weight:600}
+.chart__panel-caption{fill:var(--fg-2)}
+/* A lesson with a single attempt has no line to draw, only a marker.
+   These must NOT reuse .chart__line, which sets fill:none. */
+.chart__point{stroke:none}
+.chart__point--wpm{fill:var(--accent)}
+.chart__point--acc{fill:var(--good, var(--accent))}
 .stats-section__lede{margin:.25rem 0 .75rem;color:var(--fg-2);font-size:var(--fs-300);line-height:1.5}
 .stats-section__lede:empty{display:none}
 
