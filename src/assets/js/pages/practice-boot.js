@@ -340,6 +340,38 @@ async function buildText() {
     return out;
   }
 
+
+  /* Split an imported text into paragraph blocks.
+
+     User-uploaded text used to be handed to the renderer as one string
+     with its newlines still in it. The renderer's string path makes a
+     typeable character out of every character it is given, so each
+     newline became a glyph no key could satisfy: space scored a miss,
+     Enter did nothing, and the break sat inline instead of breaking the
+     line. On the Alice sample that cost an error at the chapter title
+     and one at every paragraph after it.
+
+     Books, poems and parables already avoid this by handing over an
+     ARRAY -- the renderer then builds real paragraph blocks joined by a
+     hidden separator that is typed as a single space. This routes
+     imported text through that same path.
+
+     A single newline inside a paragraph is a wrap in the source file,
+     not an intended break, so it collapses to a space; blank lines
+     separate paragraphs. */
+  function textToParagraphs(text) {
+    if (!text) return text;
+    const paras = String(text)
+      .replace(/\r\n?/g, "\n")
+      .split(/\n[ \t]*\n+/)
+      .map((b) => b.replace(/\n/g, " ").replace(/[ \t]{2,}/g, " ").trim())
+      .filter(Boolean);
+    if (paras.length > 1) return paras;
+    // One block: hand back a plain string, and make sure no stray
+    // newline survives to become an untypeable glyph.
+    return paras[0] || String(text).replace(/\s+/g, " ").trim();
+  }
+
   function pickFresh(all, kind) {
     if (!all || !all.length) return null;
     const lastId = state._lastCorpusId && state._lastCorpusId[kind];
@@ -444,7 +476,7 @@ async function buildText() {
     state._customLastSeg = segments.length - 1;
     const idx = Math.min(Math.max(0, state.customSeg), segments.length - 1);
     state.customSeg = idx;
-    return segments[idx];
+    return textToParagraphs(segments[idx]);
   }
   if (state.mode === "lesson") {
     const lesson = await getLesson(state.lessonId);

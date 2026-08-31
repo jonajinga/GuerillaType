@@ -59,6 +59,22 @@ const shape = await p.evaluate(() => {
 chk(shape.widths === 1, "the custom surface is monospace", `${shape.widths} advance width(s)`);
 chk(shape.zeroAt >= 0, "the passage contains a zero-width paragraph break", `first at index ${shape.zeroAt}`);
 
+/* An imported text must arrive as paragraph BLOCKS, not as one string
+   with newlines still in it. The renderer makes a typeable character out
+   of every character of a string target, so a newline became a glyph no
+   key could satisfy -- space scored a miss, Enter did nothing, and the
+   break sat inline instead of breaking the line. A reader typing the
+   Alice sample perfectly was pushed to 76% accuracy by it. */
+const blocks = await p.evaluate(() => ({
+  paragraphs: document.querySelectorAll(".tt-paragraph").length,
+  newlines: [...document.querySelectorAll(".tt-char")]
+    .filter((e) => e.textContent === "\n" || e.textContent === "\r").length,
+}));
+chk(blocks.newlines === 0, "no raw newline is rendered as a typeable character",
+  `${blocks.newlines} found`);
+chk(blocks.paragraphs > 1, "imported text renders as paragraph blocks",
+  `${blocks.paragraphs} blocks`);
+
 const read = () => p.evaluate(() => {
   const cs = [...document.querySelectorAll(".tt-char")].filter((e) => !e.classList.contains("tt-char--extra"));
   const caret = document.querySelector(".tt-caret");
@@ -90,6 +106,13 @@ while (guard++ < 400) {
 }
 const atBreak = await read();
 chk(!!atBreak, "reached the paragraph break");
+
+/* Typing the passage exactly must score exactly: every character the
+   surface shows has to be satisfiable by some key. */
+const mistakesAtBreak = await p.evaluate(() =>
+  document.querySelectorAll(".tt-char--incorrect").length);
+chk(mistakesAtBreak === 0, "typing the text exactly records no mistake",
+  `${mistakesAtBreak} mistake(s) before the break`);
 
 /* The trigger: a visible glyph typed against the break. This is what a
    reader does on hitting the blank line after a chapter title. */
