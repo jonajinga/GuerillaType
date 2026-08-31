@@ -262,6 +262,51 @@ console.log("\n## PDF — justified and hyphenated, extracted from the text laye
   assertTypeable(target, ".pdf");
 }
 
+console.log("\n## A book imported BEFORE the fix is repaired without re-importing.");
+/* Everything above imports FRESH text, so sanitize() has already
+   cleaned it and the second pass in practice-boot.js textToParagraphs()
+   never runs. That second pass is the whole point for existing users --
+   someone's 600-page PDF is already sitting in storage, dirty. Seed a
+   legacy record the way it would have been written before the fix
+   (inline segments, straight past sanitize) and read the real surface. */
+{
+  const dirty =
+    "Mr." + NBSP + "Smith read the short-\nened notice and the post-\noffice was " +
+    "shut" + SHY + "tered." + ZWSP + "\tHe left the affi" + ZWSP + "davit on the " +
+    "table" + FIGSP + "beside the daffodil.";
+
+  await page.goto(B + "/practice/", { waitUntil: "domcontentloaded" });
+  const id = await page.evaluate((body) => {
+    localStorage.clear();
+    localStorage.setItem("tt:custom-sample", JSON.stringify("dismissed"));
+    const rec = {
+      id: "c_legacy", title: "Legacy import", createdAt: new Date().toISOString(),
+      bytes: body.length, segCount: 1, lastSeg: 0, meta: null,
+      segments: [body],           // inline, exactly as the old code stored it
+    };
+    localStorage.setItem("tt:custom-texts", JSON.stringify([rec]));
+    return rec.id;
+  }, dirty);
+
+  await page.goto(`${B}/practice/?mode=custom&custom=${id}&seg=0`, { waitUntil: "domcontentloaded" });
+  await page.waitForSelector("#tt-text .tt-char", { timeout: 30000 });
+  const target = await page.evaluate(() =>
+    [...document.querySelectorAll("#tt-text .tt-char")]
+      .filter((el) => !el.classList.contains("tt-char--extra"))
+      .map((el) => (el.classList.contains("tt-char--space") ? " " : el.textContent))
+      .join(""));
+
+  assertTypeable(target, "legacy record");
+  chk(target.includes("Mr. Smith"), "legacy: the no-break space became a real space", JSON.stringify(target.slice(0, 40)));
+  chk(target.includes("shuttered"), "legacy: the soft hyphen closed the word up");
+  chk(/short-ened/.test(target), "legacy: the hyphen break closed up without a space",
+    JSON.stringify((target.match(/short\S* ?\S*/) || [])[0]));
+
+  // Anti-vacuity: the dirt really was there to begin with.
+  const stillDirty = [...dirty].some((c) => c.codePointAt(0) > 126);
+  chk(stillDirty && /-\n/.test(dirty), "legacy: the seeded record genuinely was dirty");
+}
+
 console.log("\n## The fixture is worth something — it really is hostile input.");
 {
   const t = typeset(GROUND);

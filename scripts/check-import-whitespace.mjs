@@ -108,6 +108,25 @@ eq(sanitize("a well-known post-office half-hour"), "a well-known post-office hal
 chk(sanitize("the quick brown fox jumps").split(" ").length === 5,
   "word boundaries still exist — five words in, five words out");
 
+console.log("\n## D2. Pieces of the normalizer nothing else locks in");
+/* Both of these survived a mutation run with every other check green,
+   which means they were live code with no test behind them. */
+
+eq(sanitize("He  said   nothing."), "He said nothing.",
+  "runs of spaces collapse to one");
+/* Not redundant with the display layer, which is the easy assumption:
+   textToParagraphs() also collapses, but it is only reached for
+   non-corpus custom segments. Quotes, idioms, parables and poems take
+   the corpusKinds branch in practice-boot.js, which joins segments
+   without it -- so for that content this collapse is the only defence. */
+eq(sanitize("A quote.  Another sentence.  A third."), "A quote. Another sentence. A third.",
+  "…including in corpus content, which never reaches the display-layer collapse");
+
+eq(sanitize('<?xml version="1.0" encoding="UTF-8"?><p>Hello there.</p>'), "Hello there.",
+  "a pasted XML prolog is not prose");
+eq(sanitize('<!DOCTYPE html><!-- an editor note --><p>Hello there.</p>'), "Hello there.",
+  "…nor a doctype, nor an HTML comment");
+
 console.log("\n## E. The whole product is typeable ASCII");
 
 const MESSY =
@@ -154,6 +173,11 @@ chk(fold(oldSanitize("a visible ef-\nfort")) === "a visible ef- fort",
   JSON.stringify(fold(oldSanitize("a visible ef-\nfort"))));
 chk(oldSanitize("the quick\tbrown").includes("\t"),
   "old: a lone tab survived");
+chk(oldSanitize("He  said   nothing.").includes("  "),
+  "old: runs of spaces reached storage intact");
+chk(oldSanitize('<?xml version="1.0"?><p>Hi.</p>').indexOf("<?xml") === 0,
+  "old: a pasted prolog survived — it starts with \"<?\", which the tag pattern never matched",
+  JSON.stringify(oldSanitize('<?xml version="1.0"?><p>Hi.</p>')));
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

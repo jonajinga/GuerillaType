@@ -197,8 +197,9 @@ async function parsePdf(file, onProgress) {
      always a word broken in two -- "short-\nened" -- not a compound.
      Rejoin those. The test is lowercase-to-lowercase, which leaves
      "Anglo-\nSaxon" and "post-\nOffice" alone; anything this misses is
-     closed up without a hyphen by normalizeTypeable(), so no invented
-     space survives either way. */
+     closed up by normalizeTypeable() with the hyphen KEPT, so the word
+     never gains a space either way -- it just keeps a hyphen that the
+     typesetter meant as a line break. */
   const text = pages.join("\n\n").replace(/\s+\n/g, "\n")
     .replace(/([a-z])-\n([a-z])/g, "$1$2")
     .trim();

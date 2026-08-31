@@ -21,6 +21,11 @@
 .chart__line--acc{stroke:var(--good, var(--accent))}
 .chart__panel-title{fill:var(--fg-1);font-weight:600}
 .chart__panel-caption{fill:var(--fg-2)}
+/* A lesson with a single attempt has no line to draw, only a marker.
+   These must NOT reuse .chart__line, which sets fill:none. */
+.chart__point{stroke:none}
+.chart__point--wpm{fill:var(--accent)}
+.chart__point--acc{fill:var(--good, var(--accent))}
 .stats-section__lede{margin:.25rem 0 .75rem;color:var(--fg-2);font-size:var(--fs-300);line-height:1.5}
 .stats-section__lede:empty{display:none}
 

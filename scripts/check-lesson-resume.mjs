@@ -98,6 +98,21 @@ for (const want of [3, 1, 0]) {
   }
 }
 
+console.log("\n## A bookmark past the end is clamped, not followed off the edge");
+/* setSegProgress floors at 0 but has no upper bound, so a shortened
+   re-import can leave lastSeg past the last segment. */
+await p.goto(B + "/custom/", { waitUntil: "domcontentloaded" });
+await p.waitForSelector(".saved-item", { timeout: 30000 });
+await p.evaluate(async (args) => {
+  const [tid, seg] = args;
+  const ct = await import("/assets/js/engine/custom-text.js");
+  ct.setSegProgress(tid, seg);
+}, [id, count + 50]);
+{
+  const { href } = await cardHref();
+  chk(href.includes(`seg=${count - 1}`), `a bookmark of ${count + 50} clamps to the last segment (${count - 1})`, href);
+}
+
 console.log("\n## The link actually lands on that segment");
 await p.evaluate(async (args) => {
   const [tid, seg] = args;

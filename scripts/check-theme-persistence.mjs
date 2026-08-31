@@ -93,6 +93,46 @@ await p.waitForTimeout(300);
 const bogus = await p.evaluate(() => document.documentElement.style.getPropertyValue("--not-a-real-token").trim());
 chk(bogus === "", "a token that was never saved is not invented");
 
+console.log("\n## A theme cannot smuggle in a network request");
+/* main.js restricts applied values to hex. The builder's own inputs are
+   <input type="color"> and cannot produce anything else, but a theme
+   also arrives through Import from pasted JSON, and a CSS value may
+   contain url(), which fetches. Nothing tested that guard. */
+{
+  const EVIL = "https://evil.example.invalid/pixel.png";
+  const requested = [];
+  const listener = (req) => { if (req.url().includes("evil.example.invalid")) requested.push(req.url()); };
+  p.on("request", listener);
+
+  await freshSettings();
+  // Written straight to the profile, bypassing the colour inputs — this
+  // is the shape a hand-edited or imported theme could take.
+  await p.evaluate(async (evil) => {
+    const prof = await import("/assets/js/profiles.js");
+    prof.updateActive((x) => {
+      x.preferences = x.preferences || {};
+      x.preferences.customThemes = [{
+        id: "t_evil", name: "Evil",
+        tokens: { "--bg-0": `url("${evil}")`, "--bg-2": "#abcdef" },
+      }];
+      x.preferences.theme = "custom:t_evil";
+      return x;
+    });
+  }, EVIL);
+
+  await p.goto(B + "/practice/", { waitUntil: "networkidle" });
+  await p.waitForTimeout(600);
+  const bg0 = await p.evaluate(() => document.documentElement.style.getPropertyValue("--bg-0").trim());
+  const bg2 = await p.evaluate(() => document.documentElement.style.getPropertyValue("--bg-2").trim());
+
+  chk(bg0 === "", "a url() value is refused", JSON.stringify(bg0));
+  chk(requested.length === 0, "…and no request is made to it", requested.join(","));
+  // Selective, not a blanket refusal: the hex token beside it still applies.
+  chk(bg2.toLowerCase() === "#abcdef", "…while the valid hex token in the same theme still applies",
+    JSON.stringify(bg2));
+  p.off("request", listener);
+}
+
 console.log("\n## Reset clears the selection, and it stays cleared");
 await p.goto(B + "/settings/", { waitUntil: "domcontentloaded" });
 await p.waitForSelector("#theme-builder-reset", { timeout: 30000 });

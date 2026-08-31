@@ -118,6 +118,68 @@ chk(g.panels.length === LESSONS && g.ticks.includes(String(GLOBAL_MAX_WPM)),
 chk(/accuracy \(\d+-100%\)/.test(g.text), "the legend states the accuracy range it is drawn against",
   JSON.stringify(g.text.slice(0, 90)));
 
+console.log("\n## The two curves are actually different colours");
+/* The gate counted elements carrying .chart__line--acc without ever
+   asking whether the class did anything. chart.css .chart__line sets
+   `stroke`, and a CSS property beats an SVG presentation attribute, so
+   deleting the new rules leaves both lines painted var(--accent) while
+   every count still matches. */
+for (const theme of ["dark", "light", "dracula"]) {
+  await p.evaluate((t) => localStorage.setItem("tt:theme", t), theme);
+  await p.reload({ waitUntil: "domcontentloaded" });
+  await p.waitForTimeout(600);
+  const strokes = await p.evaluate(() => {
+    const svg = document.getElementById("lesson-trends-svg");
+    const w = svg.querySelector(".chart__line--wpm"), a = svg.querySelector(".chart__line--acc");
+    return {
+      wpm: w ? getComputedStyle(w).stroke : null,
+      acc: a ? getComputedStyle(a).stroke : null,
+    };
+  });
+  chk(!!strokes.wpm && !!strokes.acc && strokes.wpm !== strokes.acc,
+    `${theme}: the accuracy line is a different colour from the WPM line`,
+    `wpm=${strokes.wpm} acc=${strokes.acc}`);
+}
+await p.evaluate(() => localStorage.removeItem("tt:theme"));
+
+console.log("\n## A single-attempt lesson gets a filled marker, not a hollow ring");
+/* .chart__line sets fill:none, so the one-point fallback must not carry
+   that class — the same override that catches `stroke` catches `fill`. */
+await seed(seeded.filter((r) => r.lessonId === 5).slice(0, 1));
+{
+  const marker = await p.evaluate(() => {
+    const svg = document.getElementById("lesson-trends-svg");
+    const el = svg.querySelector(".chart__point--acc");
+    return el ? { tag: el.tagName, fill: getComputedStyle(el).fill } : null;
+  });
+  chk(!!marker, "a one-attempt lesson renders an accuracy marker", JSON.stringify(marker));
+  chk(!!marker && marker.fill !== "none", "…and it is filled, not a ring", JSON.stringify(marker));
+}
+
+console.log("\n## The grid is bounded — 300 lessons must not make a 14-screen chart");
+{
+  const many = [];
+  for (let L = 1; L <= 40; L++) {
+    many.push({
+      lessonId: L, at: `2026-08-${String(1 + (L % 27)).padStart(2, "0")}T10:00:00.000Z`,
+      wpm: 30 + L, acc: 95, errors: 1, durMs: 60000, passed: true, sessionId: `m_${L}`,
+    });
+  }
+  await seed(many);
+  const g2 = await readGrid();
+  chk(g2.panels.length === 24, "40 lessons practiced → 24 panels, not 40", `got ${g2.panels.length}`);
+  chk(/24 most recently practiced of 40 lessons/.test(g2.text),
+    "…and the chart says which 24 it is showing", JSON.stringify(g2.text.slice(0, 120)));
+  const h = await p.evaluate(() => document.getElementById("lesson-trends-svg").getBoundingClientRect().height);
+  chk(h < 1200, "…so the section stays a readable height", `${Math.round(h)}px`);
+
+  // Under the cap, nothing is hidden and nothing claims to be.
+  await seed(many.filter((r) => r.lessonId <= 12));
+  const g3 = await readGrid();
+  chk(g3.panels.length === 12, "12 lessons → all 12 panels", `got ${g3.panels.length}`);
+  chk(!/most recently practiced/.test(g3.text), "…with no truncation notice");
+}
+
 console.log("\n## Anti-vacuity — the grid follows the data, it is not a fixed frame");
 await seed(seeded.filter((r) => r.lessonId === 3));
 g = await readGrid();

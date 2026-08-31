@@ -22,6 +22,18 @@ const PANEL_W = 168, PANEL_H = 112;
 const PAD_L = 26, PAD_R = 8, PAD_T = 22, PAD_B = 16;
 const MAX_COLS = 4;
 
+/* The curriculum is 300 lessons. Four columns with no row cap meant a
+   section 12,000px tall -- about fourteen screens -- for exactly the
+   user who has practiced the most, which is the opposite of the problem
+   this chart was rewritten to solve. Cap the grid at the lessons the
+   reader has touched most recently and say so on the chart.
+
+   This is a different thing from the truncation it replaced: the old
+   chart drew every lesson and then cut the LEGEND off at eight, so the
+   extra series were still on screen, overlapping, unlabelled and
+   unidentifiable. Here the set is chosen, bounded, and stated. */
+const MAX_PANELS = 24;
+
 export function renderLessonTrends(svg, lessonResults, opts = {}) {
   if (!lessonResults || !lessonResults.length) {
     emptyState(svg, "Complete a lesson to start the trend graph.");
@@ -39,18 +51,29 @@ export function renderLessonTrends(svg, lessonResults, opts = {}) {
   /* Lessons in curriculum order where the id is numeric, so the grid
      reads the way the lesson list does rather than in the order the
      user happened to attempt them. */
-  const series = Array.from(groups.entries())
-    .map(([id, arr]) => ({
-      id,
-      label: `Lesson ${id}`,
-      points: arr.map((r) => ({ wpm: num(r.wpm), acc: num(r.acc), at: r.at })),
-    }))
-    .sort((a, b) => {
-      const na = Number(a.id), nb = Number(b.id);
-      if (Number.isFinite(na) && Number.isFinite(nb)) return na - nb;
-      return String(a.id).localeCompare(String(b.id));
-    });
+  const byLesson = Array.from(groups.entries()).map(([id, arr]) => ({
+    id,
+    label: `Lesson ${id}`,
+    lastAt: String(arr[arr.length - 1].at || ""),
+    points: arr.map((r) => ({ wpm: num(r.wpm), acc: num(r.acc), at: r.at })),
+  }));
 
+  const inLessonOrder = (a, b) => {
+    const na = Number(a.id), nb = Number(b.id);
+    if (Number.isFinite(na) && Number.isFinite(nb)) return na - nb;
+    return String(a.id).localeCompare(String(b.id));
+  };
+
+  // Most recently practiced first, keep MAX_PANELS, then draw them in
+  // curriculum order so the grid reads the way the lesson list does.
+  const total = byLesson.length;
+  const truncated = total > MAX_PANELS;
+  const series = (truncated
+    ? byLesson.slice().sort((a, b) => b.lastAt.localeCompare(a.lastAt)).slice(0, MAX_PANELS)
+    : byLesson).sort(inLessonOrder);
+
+  // Scales come from what is DRAWN. Deriving them from lessons that are
+  // not on screen would label an axis maximum no panel reaches.
   const all = series.flatMap((s) => s.points);
   // Shared domains. Comparability across panels is the point of the form.
   const maxWpm = Math.max(...all.map((p) => p.wpm), 30);
@@ -79,6 +102,11 @@ export function renderLessonTrends(svg, lessonResults, opts = {}) {
     "stroke-dasharray": "3 2",
   }));
   legend.appendChild(text(78, 11, `accuracy (${minAcc}-100%)`, "chart__tick"));
+  if (truncated) {
+    legend.appendChild(text(W - 4, 11,
+      `${MAX_PANELS} most recently practiced of ${total} lessons`,
+      "chart__tick chart__panel-caption", "end"));
+  }
   svg.appendChild(legend);
 
   series.forEach((s, i) => {
@@ -137,7 +165,12 @@ function panel(s, ox, oy, scale) {
    looks broken; draw the marker instead. */
 function line(pts, attrs) {
   if (pts.length < 2) {
-    return el("circle", { cx: pts[0][0], cy: pts[0][1], r: 2.2, fill: attrs.stroke, class: attrs.class || "" });
+    /* NOT .chart__line -- that class sets fill:none, and a CSS property
+       beats the presentation attribute, so a fill="" here paints
+       nothing and the marker renders as a hollow ring. Same override
+       that catches `stroke`; it catches `fill` too. */
+    const variant = /--acc/.test(attrs.class || "") ? "chart__point--acc" : "chart__point--wpm";
+    return el("circle", { cx: pts[0][0], cy: pts[0][1], r: 2.4, class: "chart__point " + variant });
   }
   const d = pts.map(([x, y], i) => (i === 0 ? "M " : " L ") + x + " " + y).join("");
   return el("path", Object.assign({ d, fill: "none" }, attrs));

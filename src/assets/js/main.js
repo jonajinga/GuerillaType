@@ -84,8 +84,10 @@ const _profile = getActive(); // ensure default profile exists
      Values are restricted to hex colours. The builder's inputs are
      <input type="color"> and can produce nothing else, but a theme can
      also arrive through Import from pasted JSON, and a CSS value is
-     allowed to contain url() -- which would fetch. This site makes no
-     third-party calls and a pasted theme is not going to be the first. */
+     allowed to contain url() -- which would fetch. The site already
+     loads fonts, analytics and the import parsers from known third
+     parties; what it must not do is let a pasted string add an unknown
+     one, which is a request the user never agreed to and cannot see. */
   const customId = typeof prefs.theme === "string" && prefs.theme.indexOf("custom:") === 0
     ? prefs.theme.slice(7)
     : null;
