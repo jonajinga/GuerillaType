@@ -85,6 +85,7 @@ const CSS_ORDER = [
   "pages/race.css",
   "pages/boss.css",
   "pages/snake.css",
+  "pages/storm.css",
   "pages/story.css",
   "pages/tetris.css",
   "pages/hangman.css",
