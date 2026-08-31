@@ -67,12 +67,23 @@ const returned = a.filter((q) => verdicts.discard.includes(q.id));
 chk(returned.length === 0, "no discarded quotation has returned",
   returned.length ? returned.slice(0, 3).map((q) => q.id).join(", ") : `${verdicts.discard.length} on the list`);
 
-/* And the corrected attributions must stay corrected. */
-const reverted = Object.entries(verdicts.reattribute)
+/* And the corrected attributions must stay corrected.
+
+   Both halves matter. Checking only the authors let a corrected entry
+   pass by being DELETED -- `q &&` skipped the missing id and the message
+   still announced the full count it had never checked. So assert the
+   entries are present first, then that each carries its true author. */
+const wanted = Object.entries(verdicts.reattribute);
+const absent = wanted.filter(([id]) => !a.some((q) => q.id === id));
+chk(absent.length === 0, "every reattributed quotation is still in the corpus",
+  absent.length ? absent.slice(0, 3).map(([id]) => id).join(", ") : `all ${wanted.length} present`);
+
+const reverted = wanted
   .map(([id, author]) => [a.find((q) => q.id === id), author])
   .filter(([q, author]) => q && q.author !== author);
 chk(reverted.length === 0, "reattributed quotations kept their true author",
-  reverted.length ? reverted.slice(0, 3).map(([q, w]) => `${q.id} should be ${w}`).join("; ") : `${Object.keys(verdicts.reattribute).length} corrected`);
+  reverted.length ? reverted.slice(0, 3).map(([q, w]) => `${q.id} should be ${w}`).join("; ")
+                  : `${wanted.length - absent.length} verified`);
 
 chk(a.length >= 441, "corpus has not shrunk unexpectedly", `${a.length}`);
 
