@@ -39,7 +39,8 @@
     "parables": "node scripts/check-parables.mjs",
     "caret-proportional": "node scripts/check-caret-proportional.mjs",
     "theme-persistence": "node scripts/check-theme-persistence.mjs",
-    "lesson-resume": "node scripts/check-lesson-resume.mjs"
+    "lesson-resume": "node scripts/check-lesson-resume.mjs",
+    "lesson-trends": "node scripts/check-lesson-trends.mjs"
   },
   "dependencies": {
     "@11ty/eleventy": "^3.0.0",
