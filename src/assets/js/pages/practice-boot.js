@@ -4,7 +4,7 @@
 
 import { TypingEngine } from "../engine/typing-engine.js";
 import { AdaptiveModel } from "../engine/adaptive.js";
-import { buildPicker, uniformText } from "../engine/wordpicker.js";
+import { buildPicker, uniformText, drillText } from "../engine/wordpicker.js";
 import { recordSession } from "../engine/session-recorder.js";
 import { setSegProgress, getSaved as getSavedCustom, listSaved as listSavedCustom, getSegments as getCustomSegments, normalizeTypeable } from "../engine/custom-text.js";
 import { byId as achievementById } from "../engine/achievements.js";
@@ -565,6 +565,22 @@ async function buildText() {
       // Ordered drills (A→Z, Z→A) preserve sequence — uniformText
       // would shuffle and defeat the purpose.
       if (drill.ordered) return drill.words.slice(0, 40).join(" ");
+      /* Weight repetitions toward the characters in THIS drill the user
+         is worst at. `allowed` is the drill's own character inventory,
+         which is what makes the ranking happen inside the drill --
+         without it the picker ranks against the whole keyboard, where a
+         restricted drill's keys are usually absent from the global
+         top-15 -- leaving only scoreWord's length term, so the draw is
+         biased by word length and says nothing about the drill.
+
+         `adaptive: false` on a drill opts out, matching lessons. No
+         bundled drill sets it; it exists so a drill whose sequence is
+         meaningful can decline without needing `ordered`. */
+      if (drill.adaptive !== false) {
+        const allowed = Array.from(new Set(drill.words.join(""))).join("").replace(/\s/g, "");
+        const adaptive = drillText(drill.words, model, allowed, Math.min(40, drill.words.length * 2));
+        if (adaptive) return adaptive;
+      }
       return uniformText(drill.words, 40);
     }
     // Drill missing or malformed — defensive fallback to en-1k, never
