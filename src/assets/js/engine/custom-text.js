@@ -46,11 +46,59 @@ const MAX_TOTAL_CHARS = 60 * 1000 * 1000;  // everything saved, combined
 const FALLBACK_TEXT_CHARS = 512 * 1024;
 const FALLBACK_TOTAL_CHARS = 1024 * 1024;
 
+/* Whitespace and invisible characters, reduced to what a keyboard can
+   actually produce.
+
+   Imported books are full of characters that LOOK like a space and are
+   not one: a non-breaking space between "Mr." and "Smith", a thin space
+   before a semicolon, an ideographic space, a zero-width joiner left
+   behind by an EPUB's typesetting. Every one of them used to survive
+   into the typing target, where it renders as a gap the spacebar cannot
+   satisfy -- the user types a space, is marked wrong, and reports that
+   the import "added extra spaces".
+
+   The other half of that report is hyphenation. A word broken across a
+   line arrives as "short-\nened", and turning that newline into a space
+   -- which the display layer does -- puts a space INSIDE the word:
+   "short- ened". Joining without a space keeps every character typeable
+   and never destroys a real compound: "post-\noffice" stays
+   "post-office". parsePdf drops the hyphen as well for a
+   lowercase-to-lowercase break, because in a PDF text layer that is soft
+   hyphenation; plain text wraps at spaces rather than with soft hyphens,
+   so there the hyphen is usually real and is kept.
+
+   Exported so both ends use it: sanitize() cleans text on the way in,
+   and the practice page runs it again on the way out, which is what
+   repairs the books someone imported before this existed. */
+export function normalizeTypeable(input) {
+  let s = String(input || "");
+  // Invisible: soft hyphen, zero-width space / non-joiner / joiner,
+  // word joiner, BOM. None of these has a key on any keyboard.
+  s = s.replace(/[\u00AD\u200B\u200C\u200D\u2060\uFEFF]/g, "");
+  // Every other Unicode space becomes the one the spacebar makes.
+  s = s.replace(/[\u00A0\u1680\u2000-\u200A\u202F\u205F\u3000]/g, " ");
+  s = s.replace(/\t/g, " ");
+  s = s.replace(/\r\n?/g, "\n");
+  // A word broken across a line closes up. No space is invented.
+  s = s.replace(/([A-Za-z0-9])-[ ]*\n[ ]*([A-Za-z0-9])/g, "$1-$2");
+  // Runs of spaces collapse -- but only after a non-space, because
+  // leading indentation is load-bearing in verse.
+  s = s.replace(/(\S) {2,}/g, "$1 ");
+  s = s.replace(/ +\n/g, "\n");
+  return s;
+}
+
 export function sanitize(raw) {
   let s = String(raw || "");
   // Strip script/style blocks entirely
   s = s.replace(/<script[\s\S]*?<\/script>/gi, "");
   s = s.replace(/<style[\s\S]*?<\/style>/gi, "");
+  // Prologs, doctypes and comments do not start with a letter, so the
+  // tag pattern below never matched them and they survived into the
+  // typing target.
+  s = s.replace(/<\?[\s\S]*?\?>/g, "");
+  s = s.replace(/<!DOCTYPE[^>]*>/gi, "");
+  s = s.replace(/<!--[\s\S]*?-->/g, "");
   // Strip remaining HTML tags
   s = s.replace(/<\/?[a-z][^>]*>/gi, "");
   // Decode common entities
@@ -59,6 +107,8 @@ export function sanitize(raw) {
   s = s.replace(/\r\n?/g, "\n").replace(/\n{3,}/g, "\n\n");
   // Strip control chars except \t \n
   s = s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
+  // Reduce whitespace and invisibles to what a keyboard can produce.
+  s = normalizeTypeable(s);
   // Trim only. Truncation used to happen here and silently -- a 900 KB
   // PDF became 200 KB with nothing to tell the user their book had been
   // cut off two thirds of the way through. saveText decides now, and
