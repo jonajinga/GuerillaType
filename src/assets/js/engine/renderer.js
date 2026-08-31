@@ -184,15 +184,26 @@ export class Renderer {
       if (Math.abs(w - ref) > 0.5) { this._monospace = false; break; }
     }
 
-    /* Does the passage contain a zero-width character? Paragraph breaks
-       render as one. They void the monospace assumption below: swapping
-       a visible glyph in beside a 0px character changes THAT character's
-       width too, so the rest of the line shifts even though every glyph
-       is nominally the same width. Costs no layout read -- the widths
-       are already in the cache. */
-    this._zeroWidth = false;
-    for (let k = 0; k < n; k++) {
-      if (pos[k * 4 + 2] <= 0) { this._zeroWidth = true; break; }
+    /* Does the passage contain a character that can collapse to zero
+       width? Paragraph breaks do. They void the monospace assumption
+       below: swapping a visible glyph in beside a 0px character changes
+       THAT character's width too, so the rest of the line shifts even
+       though every glyph is nominally the same width.
+
+       Keyed off the TARGET characters, not their current rendered
+       widths, and never cleared here. Deriving it from widths alone was
+       self-defeating: once a substitution had expanded the break, no 0px
+       character remained, the flag cleared, and the guard switched off
+       exactly when backspacing needed it -- leaving the caret one column
+       RIGHT of its target, the mirror of the original defect. Reset
+       belongs with the passage, in setText. Costs no layout read. */
+    if (!this._zeroWidth) {
+      for (let k = 0; k < n; k++) {
+        const c = this.chars[k];
+        if ((c && (c.ch === "\n" || c.ch === "\r")) || pos[k * 4 + 2] <= 0) {
+          this._zeroWidth = true; break;
+        }
+      }
     }
 
     this._posCount = n;
@@ -281,6 +292,7 @@ export class Renderer {
     // reflow-forcer is no longer needed.
     this._dirty = true;
     this._posCount = 0;
+    this._zeroWidth = false;   // new passage, re-derive it
     this.moveCaretTo(0);
   }
 

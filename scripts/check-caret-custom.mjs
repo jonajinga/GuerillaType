@@ -65,9 +65,19 @@ const read = () => p.evaluate(() => {
   const n = cs.findIndex((e) => !e.classList.contains("tt-char--correct") && !e.classList.contains("tt-char--incorrect"));
   if (!caret || n < 0) return null;
   const t = cs[n].getBoundingClientRect(), c = caret.getBoundingClientRect();
-  return { n, dx: c.left - t.left, dy: c.top - t.top, w: t.width,
+  return { n, dx: c.left - t.left, dy: c.top - t.top, w: t.width, h: t.height,
            next: cs[n].classList.contains("tt-char--space") ? " " : cs[n].textContent };
 });
+
+
+/* At a line wrap the caret legitimately sits at the end of the previous
+   line while the next character starts the following one, so their left
+   edges differ by a whole line width. Comparing those is meaningless --
+   it manufactured several false readings while this bug was being
+   chased. Only samples on the same visual line are comparable; the
+   counts below assert the skipped ones stay a small minority, so this
+   filter can never quietly swallow the whole run. */
+const sameLine = (s) => s && s.w > 0 && Math.abs(s.dy) <= s.h * 0.5;
 
 await p.click(".tt-stage").catch(() => {});
 
@@ -86,11 +96,11 @@ chk(!!atBreak, "reached the paragraph break");
 await p.keyboard.type("A", { delay: 1 });
 await p.waitForTimeout(120);
 
-let worst = 0, samples = 0;
+let worst = 0, samples = 0, skipped = 0;
 for (let i = 0; i < 60; i++) {
   const s = await read();
   if (!s) break;
-  if (s.w > 0) { samples++; if (Math.abs(s.dx) > Math.abs(worst)) worst = s.dx; }
+  if (sameLine(s)) { samples++; if (Math.abs(s.dx) > Math.abs(worst)) worst = s.dx; } else if (s) skipped++;
   await p.keyboard.type(s.next === "\n" || s.next === "\r" ? " " : s.next, { delay: 1 });
 }
 chk(samples > 30, "caret was sampled past the break", `${samples} samples`);
@@ -99,11 +109,48 @@ chk(Math.abs(worst) <= 6, "caret stays on its character across a paragraph break
   `worst ${worst.toFixed(2)}px (${(worst / 19.7).toFixed(2)} chars; -19.68px before the fix)`);
 
 /* Backspacing restores the target glyph, which reflows the line exactly
-   as much as substituting it did -- setUntyped refreshed nothing. */
-for (let i = 0; i < 6; i++) { await p.keyboard.press("Backspace"); await p.waitForTimeout(40); }
-const after = await read();
-chk(!!after && Math.abs(after.dx) <= 6, "caret stays on its character after backspacing",
-  after ? `${after.dx.toFixed(2)}px` : "no reading");
+   as much as substituting it did -- setUntyped refreshed nothing either.
+
+   This has to walk back PAST the substituted character at the break. An
+   earlier version of this check backspaced only a few places, over
+   characters that had been typed correctly; setUntyped leaves those
+   alone (it only rewrites textContent when the glyph was swapped), so
+   nothing reflowed and the assertion passed even with the setUntyped
+   fix deleted. Verified by deleting it: this now fails, that did not. */
+const before = await read();
+const back = (before ? before.n : 0) - (shape.zeroAt - 2);
+let worstBack = 0, backSamples = 0;
+for (let i = 0; i < back; i++) {
+  await p.keyboard.press("Backspace");
+  await p.waitForTimeout(25);
+  const s = await read();
+  if (sameLine(s)) { backSamples++; if (Math.abs(s.dx) > Math.abs(worstBack)) worstBack = s.dx; } else if (s) skipped++;
+}
+chk(backSamples > 10, "caret was sampled while backspacing", `${backSamples} samples over ${back} deletions`);
+chk(Math.abs(worstBack) <= 6, "caret stays on its character while backspacing past a substitution",
+  `worst ${worstBack.toFixed(2)}px`);
+
+/* Undoing the substitution collapses the break back to 0px and pulls the
+   rest of the line LEFT again -- but only characters AFTER the break
+   move, and backspacing never visits those. So retype forward over them:
+   that is where a cache left stale by setUntyped shows up. Without the
+   setUntyped invalidation this reads +19.7px, the mirror image of the
+   original defect. */
+let worstFwd = 0, fwdSamples = 0;
+for (let i = 0; i < 45; i++) {
+  const s = await read();
+  if (!s) break;
+  await p.keyboard.type(s.next === "\n" || s.next === "\r" ? " " : s.next, { delay: 1 });
+  await p.waitForTimeout(20);
+  const t = await read();
+  if (sameLine(t)) { fwdSamples++; if (Math.abs(t.dx) > Math.abs(worstFwd)) worstFwd = t.dx; } else if (t) skipped++;
+}
+chk(fwdSamples > 20, "caret was sampled retyping over the restored break", `${fwdSamples} samples`);
+chk(Math.abs(worstFwd) <= 6, "caret stays on its character after an undone substitution",
+  `worst ${worstFwd.toFixed(2)}px`);
+
+chk(skipped < samples + backSamples + fwdSamples, "wrap-boundary samples are a minority",
+  `${skipped} skipped vs ${samples + backSamples + fwdSamples} compared`);
 
 await b.close();
 console.log(`\n${pass} passed, ${fail} failed`);
