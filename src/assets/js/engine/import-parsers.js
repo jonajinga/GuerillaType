@@ -115,6 +115,60 @@ async function parseEpub(file, onProgress) {
   return { title, text };
 }
 
+/* Join a page's text items into a line of text.
+
+   pdf.js does not hand back words. It hands back positioned FRAGMENTS,
+   and a single word is split wherever kerning, a font change or a
+   ligature interrupts it. Joining every fragment with a space -- which
+   this did -- manufactures a space at each of those seams, which is
+   where "beca use" and "T he" come from. The spaces are not in the PDF;
+   we were inventing them.
+
+   So concatenate, and insert a space only where the geometry shows a
+   real gap: the distance from the end of one fragment to the start of
+   the next, measured against the font size. A space is about a quarter
+   of an em in most faces, so a gap under ~0.18em is a kerning seam, not
+   a word break. hasEOL marks a genuine line end.
+
+   Exported for scripts/check-pdf-spacing.mjs, which feeds it recorded
+   pdf.js item streams -- both kinds, so it cannot pass by refusing to
+   emit spaces at all. */
+export function joinTextItems(items) {
+  let out = "";
+  let prevRight = null;   // x where the previous fragment ended
+  let prevY = null;
+  for (const raw of items || []) {
+    const it = raw || {};                 // a null item must not throw
+    const s = typeof it.str === "string" ? it.str : "";
+    const tr = (it && it.transform) || [];
+    const x = typeof tr[4] === "number" ? tr[4] : 0;
+    const y = typeof tr[5] === "number" ? tr[5] : 0;
+    const w = typeof it.width === "number" ? it.width : 0;
+    // Font size: pdf.js puts the scale in the transform; height is a
+    // reasonable fallback and 10 keeps a malformed item from dividing
+    // the threshold down to nothing.
+    const em = Math.abs(tr[3] || tr[0] || 0) || Math.abs(it.height || 0) || 10;
+
+    if (!s) {
+      if (it.hasEOL) { out += "\n"; prevRight = null; prevY = null; }
+      continue;
+    }
+
+    if (prevRight !== null) {
+      if (prevY !== null && Math.abs(y - prevY) > em * 0.5) {
+        out += "\n";                       // dropped to a new line
+      } else if (!/\s$/.test(out) && !/^\s/.test(s) && x - prevRight > em * 0.18) {
+        out += " ";                        // a real word gap
+      }
+    }
+    out += s;
+    prevRight = x + w;
+    prevY = y;
+    if (it.hasEOL) { out += "\n"; prevRight = null; prevY = null; }
+  }
+  return out;
+}
+
 async function parsePdf(file, onProgress) {
   const buf = new Uint8Array(await file.arrayBuffer());
   let lib;
@@ -128,7 +182,7 @@ async function parsePdf(file, onProgress) {
   for (let i = 1; i <= doc.numPages; i++) {
     const p = await doc.getPage(i);
     const tc = await p.getTextContent();
-    pages.push(tc.items.map((it) => it.str || "").join(" "));
+    pages.push(joinTextItems(tc.items));
     // Release the page's operator list and font data. Holding all 600
     // pages of a large PDF resident is how the tab runs out of memory
     // partway through and the import comes back short.
