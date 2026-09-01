@@ -37,8 +37,19 @@
    every noise glyph unconditionally, and the identity function -- and
    FAILS if any of them can satisfy it.
 
-   Usage: node scripts/check-ocr-cleanup.mjs   (no server needed) */
-import { readFileSync } from "node:fs";
+   Sections A-G need no browser, no server and no node_modules.
+   Section H does: it drives the real /custom/ page, because the panel
+   and its off-switch live in the page, not in the engine, and the gap
+   this file was extended to close -- a PASTE getting no preview -- is
+   invisible from the engine side. It serves the built _site itself, on
+   its own port, with /assets/js/** overlaid live from src/ so it can
+   never be reading a stale build. See the note above section H.
+
+   Usage: node scripts/check-ocr-cleanup.mjs
+          (needs `npm ci` and one `npm run build`; serves itself) */
+import { createServer } from "node:http";
+import { createReadStream, existsSync, readFileSync, statSync } from "node:fs";
+import { extname, join, normalize, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 /* saveText() writes the user's "leave my text alone" choice to the
@@ -402,5 +413,522 @@ chk(shared.length > 50 && !/cleanOcrNoise|cleanForDisplay/.test(shared),
 eq(normalizeTypeable(P.reported).includes("»Avex?..*"), true,
   "normalizeTypeable() does not clean either — it is the whitespace pass and is shared everywhere");
 
-console.log(`\n${pass} passed, ${fail} failed`);
-process.exit(fail ? 1 : 0);
+/* ══ H. The page ═══════════════════════════════════════════════════
+   Everything above tests the engine. None of it can tell whether the
+   PAGE offers a pasted text the same preview and the same off-switch
+   it offers an uploaded file -- and it did not. renderOcrPanel() was
+   only ever called from ingestFile(), so a paste was cleaned on save
+   with no panel, no counts, and nothing to untick. Someone pasting
+   Markdown lost "*italic*"; someone pasting a Windows path lost the
+   backslash out of "C:\Users"; neither was told.
+
+   So this half drives the real /custom/ page in a real browser: the
+   real textarea, the real checkbox, the real save button, the real
+   IndexedDB.
+
+   HOW THE PAGE IS SERVED, AND WHY IT CANNOT BE A STALE BUILD.
+   `_site` is an eleventy build and takes about three minutes. A suite
+   that silently drove the previous build would be worse than no suite.
+   The server below therefore serves /assets/js/** straight out of
+   src/assets/js/**, and only the HTML shell out of _site. eleventy
+   copies that directory through untouched
+   (`addPassthroughCopy("src/assets/js")` in eleventy.config.js), so
+   the module the browser runs is the file on disk, edit for edit --
+   and H0 proves it by comparing the bytes the browser fetched against
+   the bytes in src rather than taking it on trust.
+
+   A build is still needed once, for the HTML shell. If _site is
+   missing this section FAILS and says which command to run. It never
+   skips: a skipped check reads exactly like a passing one, which is
+   how a gate stops being a gate.
+
+   Two other things this section takes seriously, both learned here:
+     - it serves its own site on its own port and then asserts the
+       page that answered is this project. A 200 is not evidence; a
+       neighbouring project's dev server on a shared port has already
+       cost this fleet a full run.
+     - service workers are blocked. pwa.js reloads the page on
+       controllerchange, and a reload landing mid-test rebuilds the
+       page under whatever is being driven. */
+
+console.log("\n## H. The page: a paste is an import, and gets the same preview");
+
+const ROOT_DIR = fileURLToPath(new URL("..", import.meta.url));
+const SITE_DIR = join(ROOT_DIR, "_site");
+const SRC_JS_DIR = join(ROOT_DIR, "src", "assets", "js");
+const SHELL = join(SITE_DIR, "custom", "index.html");
+const BOOT_SRC = join(SRC_JS_DIR, "pages", "custom-boot.js");
+/* Chosen for this task, not out of habit. 8080/8181/8765/8229 are all
+   in use by other gates or other repositories on this machine. */
+const PORT = Number(process.env.OCR_PORT || 8934);
+const BASE = `http://127.0.0.1:${PORT}`;
+
+function finish(code) {
+  console.log(`\n${pass} passed, ${fail} failed`);
+  process.exit(code === undefined ? (fail ? 1 : 0) : code);
+}
+
+if (!existsSync(SHELL)) {
+  chk(false, "_site is built (the HTML shell for /custom/ exists)",
+    `missing ${SHELL} — run: npm run build`);
+  finish(1);
+}
+
+if (typeof sanitize !== "function") {
+  chk(false, "sanitize() is exported — section H's expected character counts come from it");
+  finish(1);
+}
+
+let chromium = null;
+try { ({ chromium } = await import("playwright")); } catch (e) {
+  chk(false, "playwright is installed", `${e.message.slice(0, 120)} — run: npm ci`);
+  finish(1);
+}
+
+/* ── the server ─────────────────────────────────────────────────── */
+const MIME = {
+  ".html": "text/html; charset=utf-8",
+  ".js": "text/javascript; charset=utf-8",
+  ".mjs": "text/javascript; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
+  ".json": "application/json; charset=utf-8",
+  ".webmanifest": "application/manifest+json",
+  ".svg": "image/svg+xml",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".ico": "image/x-icon",
+  ".woff2": "font/woff2",
+  ".txt": "text/plain; charset=utf-8",
+};
+
+function fileFor(urlPath) {
+  let p;
+  try { p = decodeURIComponent(urlPath.split("?")[0].split("#")[0]); }
+  catch { return null; }
+  if (p.endsWith("/")) p += "index.html";
+  const rel = normalize(p).replace(/^([/\\]|\.\.[/\\])+/, "");
+  // Live JS: the module under test is read from src, never from _site.
+  if (rel.startsWith("assets/js/")) {
+    const f = resolve(SRC_JS_DIR, rel.slice("assets/js/".length));
+    if (f.startsWith(SRC_JS_DIR) && existsSync(f) && statSync(f).isFile()) return f;
+  }
+  const f = resolve(SITE_DIR, rel);
+  if (!f.startsWith(SITE_DIR)) return null;
+  if (existsSync(f)) {
+    if (statSync(f).isFile()) return f;
+    const idx = join(f, "index.html");
+    if (existsSync(idx)) return idx;
+  }
+  return null;
+}
+
+const server = createServer((req, res) => {
+  const f = fileFor(req.url || "/");
+  if (!f) { res.writeHead(404, { "content-type": "text/plain" }); res.end("not found"); return; }
+  res.writeHead(200, {
+    "content-type": MIME[extname(f).toLowerCase()] || "application/octet-stream",
+    "cache-control": "no-store",
+  });
+  createReadStream(f).pipe(res);
+});
+
+/* Bind or fail. Attaching to whatever already holds the port is how a
+   suite ends up testing another project's site and reporting green. */
+await new Promise((res, rej) => {
+  server.once("error", rej);
+  server.listen(PORT, "127.0.0.1", res);
+}).catch((e) => {
+  chk(false, `this suite owns port ${PORT}`,
+    `${e.code || e.message} — something else is listening; set OCR_PORT to a free port`);
+  finish(1);
+});
+
+/* ── H0. Is the thing answering actually this project, and is the JS
+   it serves the JS on disk right now? ──────────────────────────── */
+/* The build minifies attribute quotes away, so match on the id value
+   rather than on a quoted attribute -- and match the heading too, so a
+   200 from some other project's dev server on this port cannot pass
+   for this page. */
+const shellHtml = await (await fetch(BASE + "/custom/")).text();
+const hasId = (id) => new RegExp(`id=["']?${id}["'\\s>]`).test(shellHtml);
+chk(/<h1>Custom text<\/h1>/.test(shellHtml) && hasId("ocr-panel"),
+  `the page answering ${BASE}/custom/ is this project's custom-text page`,
+  shellHtml.slice(0, 80).replace(/\n/g, " "));
+chk(hasId("ocr-clean") && hasId("paste-text") && shellHtml.includes("ocr-panel__hint"),
+  "…and the shell has the off-switch, the textarea and the hint line this section drives");
+
+const servedBoot = await (await fetch(BASE + "/assets/js/pages/custom-boot.js")).text();
+chk(servedBoot === readFileSync(BOOT_SRC, "utf8"),
+  "the browser is served the custom-boot.js that is on disk right now, byte for byte",
+  servedBoot === readFileSync(BOOT_SRC, "utf8") ? ""
+    : "the overlay is not live — this section would be testing a stale _site copy");
+
+const browser = await chromium.launch();
+const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, serviceWorkers: "block" });
+page.on("pageerror", (e) => console.log("  PAGEERROR:", String(e).slice(0, 200)));
+
+process.on("unhandledRejection", async (err) => {
+  console.log(`  FAIL  unhandled rejection — ${err?.message ?? err}`);
+  console.log("\nRUN ABORTED — counts below are partial.");
+  try { await browser.close(); } catch {}
+  try { server.close(); } catch {}
+  process.exit(1);
+});
+
+/* ── driving helpers ───────────────────────────────────────────── */
+
+/* Wait for custom-boot.js to have RUN, not merely for the DOM. The
+   saved-texts list is rendered by it, so "No saved texts yet." is the
+   only honest readiness signal on this page. */
+async function freshPage() {
+  await page.goto(BASE + "/custom/", { waitUntil: "domcontentloaded" });
+  await page.waitForSelector(".saved-item, .stats-empty", { timeout: 30000 });
+  await page.evaluate(async () => {
+    localStorage.clear();
+    // Stops ensureSample() seeding Alice, so the newest index record is
+    // always the one the case under test just saved.
+    localStorage.setItem("tt:custom-sample", JSON.stringify("dismissed"));
+    await new Promise((res) => {
+      const r = indexedDB.deleteDatabase("tt-custom");
+      r.onsuccess = r.onerror = r.onblocked = () => res();
+    });
+  });
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await page.waitForSelector(".stats-empty", { timeout: 30000 });
+}
+
+const panelState = () => page.evaluate(() => {
+  const el = document.querySelector("#ocr-panel");
+  const box = document.querySelector("#paste-text");
+  const notice = document.querySelector("#paste-notice");
+  const val = box ? box.value : "";
+  return {
+    panels: document.querySelectorAll("#ocr-panel").length,
+    hidden: el ? el.hidden : null,
+    source: (el && el.dataset.source) || null,
+    summary: (document.querySelector("#ocr-summary")?.textContent || "").trim(),
+    rows: [...document.querySelectorAll("#ocr-changes li")].map((li) => li.textContent.replace(/\s+/g, " ").trim()),
+    hint: (document.querySelector(".ocr-panel__hint")?.textContent || "").trim(),
+    checked: !!document.querySelector("#ocr-clean")?.checked,
+    boxLen: val.length,
+    box: val.length <= 4000 ? val : null,
+    notice: notice && !notice.hidden ? notice.textContent.trim() : "",
+  };
+});
+
+const shownPanel = () => page.waitForFunction(() => {
+  const el = document.querySelector("#ocr-panel");
+  return !!el && el.hidden === false;
+}, null, { timeout: 8000 });
+
+const panelSourceIs = (want) => page.waitForFunction((w) => {
+  const el = document.querySelector("#ocr-panel");
+  return !!el && el.hidden === false && el.dataset.source === w;
+}, want, { timeout: 8000 });
+
+/* "No panel appears" is a claim about a debounce that has had time to
+   run. Nothing to wait FOR, so wait past it -- generously. */
+const SETTLE = 1600;
+const settle = () => page.waitForTimeout(SETTLE);
+
+/* Read back what was actually stored: the index record from
+   localStorage and the body from wherever saveText put it. Every
+   branch resolves; a probe that hangs on a missing store turns a
+   failing gate into one that never finishes. */
+async function storedTop(needles = []) {
+  return page.evaluate(async (needles) => {
+    const rec = JSON.parse(localStorage.getItem("tt:custom-texts") || "[]")[0] || null;
+    if (!rec) return null;
+    let segs = Array.isArray(rec.segments) && rec.segments.length ? rec.segments : null;
+    if (!segs) {
+      segs = await new Promise((res) => {
+        let req;
+        try { req = indexedDB.open("tt-custom"); } catch { res(null); return; }
+        req.onerror = req.onblocked = () => res(null);
+        req.onsuccess = () => {
+          try {
+            const g = req.result.transaction("segments", "readonly").objectStore("segments").get(rec.id);
+            g.onsuccess = () => res(g.result ? g.result.segments : null);
+            g.onerror = () => res(null);
+          } catch { res(null); }
+        };
+      });
+    }
+    const body = segs ? segs.join(" ") : "";
+    return {
+      id: rec.id,
+      title: rec.title,
+      bytes: rec.bytes,
+      segCount: rec.segCount,
+      clean: "clean" in rec ? rec.clean : "(no clean field)",
+      bodyLen: body.length,
+      has: needles.map((n) => body.includes(n)),
+      head: body.slice(0, 90),
+    };
+  }, needles);
+}
+
+async function saveAndRead(needles) {
+  await page.click("#paste-save");
+  await page.waitForSelector(".saved-item", { timeout: 60000 });
+  await page.waitForFunction(() => !document.querySelector("#paste-save").disabled, null, { timeout: 60000 });
+  return storedTop(needles);
+}
+
+/* ── the texts ─────────────────────────────────────────────────── */
+
+/* Real scanner output, the same fixture the rest of this file uses.
+   Two passages, because P.reported alone cleans to exactly its own
+   length (»→" is 1:1, ?..→?... adds one, the stray * removes one) and
+   a character count that cannot tell the two answers apart is not an
+   assertion. Adding star-splits-word makes them differ. */
+const PASTE_NOISY = P.reported + "\n\n" + P["star-splits-word"];
+const PASTE_CLEAN = P["angle-as-symbol"];   // real prose, a real "<", nothing to repair
+const RAW_MARKS = "»Avex?..*";
+const CLEANED_MARKS = '"Avex?...';
+const SPLIT_WORD = "Mon*";
+
+const wantNoisyReport = ocrNoiseReport(PASTE_NOISY);
+const LEN_CLEANED = sanitize(PASTE_NOISY).length;
+const LEN_ORIGINAL = sanitize(PASTE_NOISY, { clean: false }).length;
+chk(LEN_CLEANED !== LEN_ORIGINAL,
+  "the pasted fixture's cleaned and original lengths differ, so a stored character count can tell them apart",
+  `${LEN_CLEANED} vs ${LEN_ORIGINAL}`);
+
+/* ── H1. A paste with noise shows the panel, with the right counts,
+       and does NOT rewrite what the user pasted ────────────────── */
+await freshPage();
+await page.fill("#paste-title", "pasted scan");
+await page.fill("#paste-text", PASTE_NOISY);
+await shownPanel().catch(() => {});
+let st = await panelState();
+
+chk(st.hidden === false, "pasting text with scanner noise in it shows the import preview",
+  st.hidden === false ? "" : "the panel never appeared — a paste still gets no preview");
+eq(st.source, "paste", "…and the panel says it is describing a paste, not a file");
+eq(st.summary,
+  `${wantNoisyReport.total} marks in this text look like scanning noise rather than writing, ` +
+  `and will be cleaned up when you save:`,
+  "…with the sentence a paste needs: what WILL happen, at save time");
+eq(st.rows.length, wantNoisyReport.changes.length,
+  "…one row per rule that fired");
+eq(st.rows.join(" | "),
+  wantNoisyReport.changes.map((c) => `${c.label} · ${c.count}`).join(" | "),
+  "…each naming the rule and its count, the same as an uploaded file gets");
+eq(st.checked, true, "…and the off-switch starts ticked");
+chk(st.hint.startsWith("Untick to save the text exactly as you pasted it"),
+  "…and the hint talks about the paste, not about \"the file\"", JSON.stringify(st.hint));
+eq(st.box, PASTE_NOISY,
+  "the textarea still holds exactly what was pasted — the scan does not rewrite it under the caret");
+eq(st.notice, "", "…and no long-text preview notice was raised for a short paste");
+
+/* ── H2. Unticking stores the ORIGINAL, and marks the record ───── */
+await page.uncheck("#ocr-clean");
+st = await panelState();
+eq(st.box, PASTE_NOISY, "unticking does not rewrite the box either — it already held the original");
+let rec = await saveAndRead([RAW_MARKS, SPLIT_WORD, CLEANED_MARKS]);
+chk(!!rec, "the pasted text saved");
+eq(rec && rec.clean, false, "unticked: the index record carries clean:false");
+eq(rec && rec.bytes, LEN_ORIGINAL,
+  "unticked: the stored text is the ORIGINAL, to the character");
+chk(!!rec && rec.has[0], "unticked: the scanner's own marks are still in the stored body", rec && rec.head);
+chk(!!rec && rec.has[1], "unticked: the word the scanner split is still split");
+chk(!!rec && !rec.has[2], "unticked: nothing was repaired behind the user's back");
+
+/* ── H3. Leaving it ticked stores the cleaned text ─────────────── */
+await freshPage();
+await page.fill("#paste-title", "pasted scan, cleaned");
+await page.fill("#paste-text", PASTE_NOISY);
+await shownPanel().catch(() => {});
+st = await panelState();
+eq(st.checked, true, "a fresh paste comes up ticked");
+rec = await saveAndRead([RAW_MARKS, SPLIT_WORD, CLEANED_MARKS, "»"]);
+eq(rec && rec.clean, "(no clean field)",
+  "ticked: no clean field is written, so \"saved before this existed\" and \"opted in\" stay apart");
+eq(rec && rec.bytes, LEN_CLEANED, "ticked: the stored text is the CLEANED one, to the character");
+chk(!!rec && !rec.has[0], "ticked: the scanner's marks are gone from the stored body");
+chk(!!rec && !rec.has[1], "ticked: the split word was rejoined");
+chk(!!rec && rec.has[2], "ticked: the clipped ellipsis was repaired");
+chk(!!rec && !rec.has[3], "ticked: no untypeable guillemet reached storage");
+
+/* ── H4. A paste with nothing to clean shows no panel ──────────── */
+/* Same rule the file path uses, and for the same reason: a panel
+   saying "0 changes" is noise. This passage is real prose containing a
+   real "<" that the cleaner is right to leave alone, so it also proves
+   the panel is driven by what the cleaner DID, not by what characters
+   happen to be present. */
+await freshPage();
+await page.fill("#paste-text", PASTE_CLEAN);
+await settle();
+st = await panelState();
+eq(st.hidden, true, "a paste with nothing to clean shows no panel");
+eq(st.source, null, "…and leaves no stale source on the hidden panel");
+eq(st.box, PASTE_CLEAN, "…and the text is untouched");
+
+/* ── H4b. Emptying the box puts the off-switch back ────────────── */
+await page.fill("#paste-text", PASTE_NOISY);
+await shownPanel().catch(() => {});
+await page.uncheck("#ocr-clean");
+await page.fill("#paste-text", "");
+await settle();
+st = await panelState();
+eq(st.hidden, true, "clearing the box takes the panel down");
+eq(st.checked, true,
+  "…and puts the off-switch back to its default — there is nothing on screen to hold the answer");
+
+/* ── H5. THE TRUNCATION TRAP ───────────────────────────────────
+   Upload a text longer than the 200,000-character preview, toggle the
+   checkbox, and save. The box only ever holds a preview; pendingFull
+   holds the rest. If the toggle's own write to the textarea is ever
+   mistaken for a manual edit, the stash is dropped and a 600-page book
+   saves as its first fragment. Asserted in stored characters, because
+   the toast says "Saved" either way. */
+function buildNoisyBook() {
+  const out = [];
+  for (let i = 0; i < 4200; i++) {
+    out.push(`Sentence number ${i} of the imported book, carrying enough words to look like real prose rather than filler.`);
+    if (i % 100 === 7) {
+      /* Two strays, not one. With a single "^" the cleanup was
+         length-neutral -- the removed stray and the dot the clipped
+         ellipsis gains cancel out -- and every assertion below that
+         compares stored character counts would have been true of
+         either answer. */
+      out.push(`The scanner left a mark here: ^stray and a |pipe too, with \u00absome quoted words\u00bb and a clipped ellipsis?.. right here.`);
+    }
+  }
+  return out.join(" ");
+}
+const BOOK = buildNoisyBook();
+const BOOK_CLEANED = sanitize(BOOK).length;
+const BOOK_ORIGINAL = sanitize(BOOK, { clean: false }).length;
+const PREVIEW_CHARS = 200000;
+const BOOK_TAIL = "Sentence number 4199 of the imported book";
+
+chk(BOOK.length > PREVIEW_CHARS * 2 && BOOK_CLEANED !== BOOK_ORIGINAL,
+  "the uploaded book is well past the preview ceiling and has noise in it",
+  `${BOOK.length} chars, cleaned ${BOOK_CLEANED} vs original ${BOOK_ORIGINAL}`);
+
+async function uploadBook() {
+  await page.setInputFiles("#uploader-file", {
+    name: "noisy-book.txt",
+    mimeType: "text/plain",
+    buffer: Buffer.from(BOOK, "utf8"),
+  });
+  await page.waitForFunction(() => document.querySelector("#paste-text").value.length > 0,
+    null, { timeout: 60000 });
+  await panelSourceIs("file");
+}
+
+await freshPage();
+await uploadBook();
+st = await panelState();
+eq(st.source, "file", "a long upload still shows the FILE panel");
+eq(st.boxLen, PREVIEW_CHARS,
+  "…and the box holds only the preview, so the stash is genuinely in play");
+chk(/whole text is saved/i.test(st.notice), "…and the notice says the whole text is kept",
+  JSON.stringify(st.notice.slice(0, 60)));
+chk(st.hint.startsWith("Untick to keep the file exactly as it came"),
+  "…with the file's own hint, not the paste one", JSON.stringify(st.hint));
+
+await page.uncheck("#ocr-clean");
+st = await panelState();
+eq(st.boxLen, PREVIEW_CHARS, "after unticking the box is still a preview, of the original");
+await settle();   // any scan the toggle wrongly scheduled would have fired by now
+st = await panelState();
+eq(st.source, "file", "…and the panel is still the file's — the toggle's own write is not a user edit");
+eq(st.boxLen, PREVIEW_CHARS, "…and the stash was not dropped");
+
+rec = await saveAndRead([BOOK_TAIL]);
+chk(!!rec && rec.bytes > PREVIEW_CHARS,
+  "toggled long upload: the WHOLE text was saved, not the 200,000-character preview",
+  rec ? `${rec.bytes.toLocaleString()} chars` : "(nothing saved)");
+eq(rec && rec.bytes, BOOK_ORIGINAL,
+  "toggled long upload, unticked: every character of the original is stored");
+eq(rec && rec.clean, false, "…and the record says the user opted out");
+chk(!!rec && rec.has[0], "…and the last sentence of the book is really in there");
+
+/* Same again, toggled OFF and back ON: the ticked answer must also
+   save in full, not just the unticked one. */
+await freshPage();
+await uploadBook();
+await page.uncheck("#ocr-clean");
+await page.check("#ocr-clean");
+await settle();
+st = await panelState();
+eq(st.boxLen, PREVIEW_CHARS, "toggled twice: still previewing, still stashed");
+rec = await saveAndRead([BOOK_TAIL]);
+eq(rec && rec.bytes, BOOK_CLEANED,
+  "toggled twice, left ticked: the whole cleaned text is stored");
+chk(!!rec && rec.bytes > PREVIEW_CHARS, "…which is past the preview ceiling",
+  rec ? `${rec.bytes.toLocaleString()} chars` : "");
+eq(rec && rec.clean, "(no clean field)", "…and no opt-out was recorded");
+chk(!!rec && rec.has[0], "…and the last sentence survived the round trip");
+
+/* ── H6. Pasting after an upload ───────────────────────────────── */
+/* Two panels and two stashes could exist at once here. There is one
+   panel element and one timer by construction, and the file's stash
+   has to be dropped the moment the box is edited -- otherwise the save
+   button reads pendingFull and stores the BOOK the user just replaced. */
+await freshPage();
+await uploadBook();
+st = await panelState();
+eq(st.source, "file", "start from an uploaded book");
+chk(st.notice !== "", "…with its preview notice up");
+
+await page.fill("#paste-text", PASTE_NOISY);
+await panelSourceIs("paste").catch(() => {});
+st = await panelState();
+eq(st.panels, 1, "after pasting over an upload there is exactly one panel on the page");
+eq(st.source, "paste", "…and it describes the paste, not the book that is no longer in the box");
+eq(st.notice, "", "…the book's preview notice is gone");
+eq(st.box, PASTE_NOISY, "…the box holds the paste");
+chk(st.hint.startsWith("Untick to save the text exactly as you pasted it"),
+  "…and the hint switched with it", JSON.stringify(st.hint));
+eq(st.summary,
+  `${wantNoisyReport.total} marks in this text look like scanning noise rather than writing, ` +
+  `and will be cleaned up when you save:`,
+  "…with the paste's counts, not the book's");
+
+rec = await saveAndRead([RAW_MARKS, BOOK_TAIL]);
+eq(rec && rec.bytes, LEN_CLEANED,
+  "…and saving stores the pasted text, not the uploaded book that was stashed behind it");
+chk(!!rec && !rec.has[1], "…no part of the book leaked into the saved record");
+
+/* ── H7. Uploading after a paste ───────────────────────────────── */
+/* The other direction, and the one that needs a cancelled timer. The
+   paste's input event and the file drop happen in the SAME tick, so
+   the debounce is guaranteed to still be pending when ingestFile()
+   runs. resetOcr() has to cancel it; if it does not, the scan fires
+   400ms later, reads the FILE's text out of the box and overwrites the
+   file's panel with a paste report -- or, since the file's text is by
+   then already cleaned, hides the panel entirely. */
+await freshPage();
+const SMALL_SCAN = P["caret-welded"];
+await page.evaluate(({ paste, fileText }) => {
+  const ta = document.querySelector("#paste-text");
+  ta.value = paste;
+  ta.dispatchEvent(new Event("input", { bubbles: true }));
+  const dt = new DataTransfer();
+  dt.items.add(new File([fileText], "scan.txt", { type: "text/plain" }));
+  document.querySelector("#uploader").dispatchEvent(
+    new DragEvent("drop", { bubbles: true, cancelable: true, dataTransfer: dt })
+  );
+}, { paste: PASTE_NOISY, fileText: SMALL_SCAN });
+
+await panelSourceIs("file").catch(() => {});
+st = await panelState();
+eq(st.source, "file", "dropping a file while a paste scan is pending shows the file's panel");
+await settle();
+st = await panelState();
+eq(st.hidden, false, "…and the pending scan does not take it away again");
+eq(st.source, "file", "…nor relabel the file's import as a paste");
+eq(st.box, cleanOcrNoise(SMALL_SCAN), "…and the box holds the file, cleaned, as an upload should");
+eq(st.summary,
+  `${ocrNoiseReport(SMALL_SCAN).total} mark in this file looked like scanning noise rather than the book, ` +
+  `and was cleaned up:`,
+  "…with the file's own sentence and count");
+
+await browser.close();
+server.close();
+
+finish();

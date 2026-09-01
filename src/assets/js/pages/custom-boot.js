@@ -50,8 +50,15 @@ let variants = null;
 let cleanChoice = true;
 /* The last value this file put into the textarea. The input listener
    below treats any other value as a deliberate edit by the user, so
-   every programmatic write has to update this. */
-let shownValue = "";
+   every programmatic write has to update this.
+
+   null, not "", and it goes back to null after a save. "" is a value a
+   user can produce -- select all, delete -- and while this held "" the
+   listener read that edit as its own write and returned early, so
+   emptying the box left the preview panel on screen describing text
+   that was no longer there. A sentinel no user input can equal cannot
+   collide with one. */
+let shownValue = null;
 
 /* A paste is an import too. The file path above shows what the cleanup
    would do before anything is saved; text pasted or typed into the box
@@ -332,7 +339,7 @@ saveBtn.addEventListener("click", async () => {
     }
     titleEl.value = "";
     textEl.value = "";
-    shownValue = "";
+    shownValue = null;
     clearPending();
     resetOcr();
     render();
