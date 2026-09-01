@@ -104,7 +104,7 @@ function renderOcrPanel(report) {
     `${nf.format(report.total)} ${report.total === 1 ? "mark" : "marks"} in this file looked like ` +
     `scanning noise rather than the book, and ${report.total === 1 ? "was" : "were"} cleaned up:`;
   ocrChanges.innerHTML = report.changes
-    .map((c) => `<li>${htmlEscape(c.label)} <span class="ocr-panel__n">${nf.format(c.count)}</span></li>`)
+    .map((c) => `<li>${htmlEscape(c.label)} <span class="ocr-panel__n">· ${nf.format(c.count)}</span></li>`)
     .join("");
   ocrPanel.hidden = false;
 }
