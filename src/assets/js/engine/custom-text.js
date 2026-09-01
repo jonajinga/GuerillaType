@@ -212,13 +212,6 @@ export function ocrNoiseReport(input) {
     return QUOTE_LOOKALIKES[ch];
   });
 
-  /* "?.." and "!.." are an ellipsis the scanner clipped -- this book
-     uses "..." 7,600 times and has 19 "?..", 25 "!.." and 100
-     "word..". The negative lookahead is what keeps a real "?..." and
-     any longer run of dots untouched. */
-  s = s.replace(/([?!])\.\.(?!\.)/g, (_m, p) => { counts.ellipsis++; return p + "..."; });
-  s = s.replace(/([\p{L}\p{N}])\.\.(?!\.)/gu, (_m, p) => { counts.ellipsis++; return p + "..."; });
-
   const before = s;
   s = s.replace(NOISE_RE, (m, off) => {
     if (keepStray(before, off)) return m;
@@ -231,6 +224,20 @@ export function ocrNoiseReport(input) {
   if (counts.strays) {
     s = s.replace(/(\S)[ \t]{2,}/g, "$1 ").replace(/[ \t]+\n/g, "\n");
   }
+
+  /* Ellipsis repair runs LAST, after the strays, so that a scanner
+     mark sitting between the dots ("?.*.") is gone by the time the
+     dots are counted and one pass is enough. This matters: the
+     practice page runs the whole cleaner again on the way out, and a
+     cleaner whose second pass changes the text would keep rewriting a
+     saved book every time it was opened.
+
+     "?.." and "!.." are an ellipsis the scanner clipped -- the
+     measured book uses "..." 7,600 times and has 19 "?..", 25 "!.."
+     and 100 "word..". The negative lookahead is what keeps a real
+     "?..." and any longer run of dots untouched. */
+  s = s.replace(/([?!])\.\.(?!\.)/g, (_m, p) => { counts.ellipsis++; return p + "..."; });
+  s = s.replace(/([\p{L}\p{N}])\.\.(?!\.)/gu, (_m, p) => { counts.ellipsis++; return p + "..."; });
 
   const LABELS = {
     guillemets: 'Guillemets (« », << >>) turned into "',

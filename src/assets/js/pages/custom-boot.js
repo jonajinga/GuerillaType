@@ -8,7 +8,7 @@
 
 import {
   saveText, listSaved, deleteSaved, togglePinAsLesson,
-  getSegments, segCountOf, migrateInlineToIdb,
+  getSegments, segCountOf, migrateInlineToIdb, ocrNoiseReport,
 } from "../engine/custom-text.js";
 import { ensureSample } from "../engine/custom-sample.js";
 import { parseFile } from "../engine/import-parsers.js";
@@ -22,6 +22,10 @@ const textEl = $("#paste-text");
 const notice = $("#paste-notice");
 const saveBtn = $("#paste-save");
 const list = $("#saved-list");
+const ocrPanel = $("#ocr-panel");
+const ocrSummary = $("#ocr-summary");
+const ocrChanges = $("#ocr-changes");
+const ocrClean = $("#ocr-clean");
 
 /* A textarea holding two million characters is a browser that stutters
    on every keypress. Show a readable head, keep the whole thing in
@@ -29,6 +33,19 @@ const list = $("#saved-list");
 const PREVIEW_CHARS = 200000;
 let pendingFull = null;
 let pendingPreview = null;
+
+/* Both readings of the imported file, each held in full: the cleaned
+   one and the one that came out of the parser. The checkbox swaps
+   which is on screen, and swapping has to move pendingFull and
+   pendingPreview with it -- they are what the save button actually
+   reads. Leaving them pointing at the other variant is how a 600-page
+   book would silently save as its first 200,000 characters. */
+let variants = null;
+let cleanChoice = true;
+/* The last value this file put into the textarea. The input listener
+   below treats any other value as a deliberate edit by the user, so
+   every programmatic write has to update this. */
+let shownValue = "";
 
 const nf = new Intl.NumberFormat();
 
@@ -42,6 +59,54 @@ function clearPending() {
   pendingFull = null;
   pendingPreview = null;
   setNotice("");
+}
+
+/* Put one variant of the text on screen, long or short, and record
+   what we wrote so the edit detector does not mistake it for typing. */
+function showText(text) {
+  if (text.length > PREVIEW_CHARS) {
+    pendingFull = text;
+    pendingPreview = text.slice(0, PREVIEW_CHARS);
+    textEl.value = pendingPreview;
+    setNotice(
+      `Previewing the first ${nf.format(PREVIEW_CHARS)} characters of ${nf.format(text.length)}. ` +
+      `The whole text is saved — the box just does not need to hold it all. Edit the preview and only the edited version is saved.`
+    );
+  } else {
+    pendingFull = null;
+    pendingPreview = null;
+    textEl.value = text;
+    setNotice("");
+  }
+  shownValue = textEl.value;
+}
+
+function hideOcrPanel() {
+  if (ocrPanel) ocrPanel.hidden = true;
+}
+
+/* A fresh file, or a save that finished: forget both variants and go
+   back to cleaning by default. */
+function resetOcr() {
+  variants = null;
+  cleanChoice = true;
+  if (ocrClean) ocrClean.checked = true;
+  hideOcrPanel();
+}
+
+/* What the cleanup did, in the user's words, with an off-switch.
+   Nothing is shown when nothing was changed -- a panel saying "0
+   changes" is just noise on a clean .txt file. */
+function renderOcrPanel(report) {
+  if (!ocrPanel || !ocrSummary || !ocrChanges) return;
+  if (!report.total) { hideOcrPanel(); return; }
+  ocrSummary.textContent =
+    `${nf.format(report.total)} ${report.total === 1 ? "mark" : "marks"} in this file looked like ` +
+    `scanning noise rather than the book, and ${report.total === 1 ? "was" : "were"} cleaned up:`;
+  ocrChanges.innerHTML = report.changes
+    .map((c) => `<li>${htmlEscape(c.label)} <span class="ocr-panel__n">${nf.format(c.count)}</span></li>`)
+    .join("");
+  ocrPanel.hidden = false;
 }
 
 upload.addEventListener("click", () => file.click());
@@ -60,14 +125,36 @@ file.addEventListener("change", async (e) => {
 
 // Editing the preview by hand means the user meant the edit, so drop
 // the stashed full text and save exactly what is in the box.
+//
+// Setting textarea.value from script does not fire "input", but the
+// checkbox below rewrites the box and the comparison must survive it
+// anyway: shownValue is updated by every programmatic write, so a
+// swapped-in variant is never mistaken for typing. Getting that wrong
+// drops pendingFull and saves a whole book as its 200,000-character
+// preview.
 textEl.addEventListener("input", () => {
-  if (pendingFull && textEl.value !== pendingPreview) clearPending();
+  if (textEl.value === shownValue) return;
+  if (pendingFull) clearPending();
+  // The report described the file, not this edit. The tick itself
+  // survives: it is the user's answer about their own text, and the
+  // save below still honours it.
+  variants = null;
+  hideOcrPanel();
 });
+
+if (ocrClean) {
+  ocrClean.addEventListener("change", () => {
+    cleanChoice = ocrClean.checked;
+    if (!variants) return;
+    showText(cleanChoice ? variants.cleaned : variants.original);
+  });
+}
 
 async function ingestFile(f) {
   const ext = (f.name.match(/\.[^.]+$/) || [""])[0].toLowerCase();
   const isHeavy = ext === ".epub" || ext === ".pdf";
   clearPending();
+  resetOcr();
   if (isHeavy) toast(`Parsing ${ext.toUpperCase().slice(1)}…`);
   upload.dataset.busy = "true";
   try {
@@ -75,17 +162,15 @@ async function ingestFile(f) {
       toast(`Reading ${unit} ${nf.format(done)} of ${nf.format(total)}…`);
     });
     titleEl.value = title || f.name.replace(/\.[^.]+$/, "");
-    if (text.length > PREVIEW_CHARS) {
-      pendingFull = text;
-      pendingPreview = text.slice(0, PREVIEW_CHARS);
-      textEl.value = pendingPreview;
-      setNotice(
-        `Previewing the first ${nf.format(PREVIEW_CHARS)} characters of ${nf.format(text.length)}. ` +
-        `The whole text is saved — the box just does not need to hold it all. Edit the preview and only the edited version is saved.`
-      );
-    } else {
-      textEl.value = text;
-    }
+    /* Scanned books arrive full of characters the book never had. Show
+       what the cleanup would do before it is saved, and let the user
+       turn it off -- their file, their call. */
+    const report = ocrNoiseReport(text);
+    variants = { cleaned: report.text, original: text };
+    cleanChoice = true;
+    if (ocrClean) ocrClean.checked = true;
+    showText(report.text);
+    renderOcrPanel(report);
     const kb = (f.size / 1024).toFixed(1);
     toast(`Loaded ${kb} KB · ${nf.format(text.length)} characters — review and save.`);
   } catch (err) {
@@ -101,7 +186,11 @@ saveBtn.addEventListener("click", async () => {
   if (!raw.trim()) { toast("Paste or upload some text first.", "bad"); return; }
   saveBtn.disabled = true;
   try {
-    const item = await saveText({ title: title || "Untitled", raw });
+    /* clean travels with the text. saveText writes clean:false onto the
+       index record, and the practice page reads it back -- without
+       that, cleanup on the display path would quietly undo the answer
+       the user just gave here. */
+    const item = await saveText({ title: title || "Untitled", raw, clean: cleanChoice });
     // Truncation and eviction used to happen in silence. If someone's
     // 900 KB book became 512 KB, they need to hear it now rather than
     // discover it two hours of typing later.
@@ -120,7 +209,9 @@ saveBtn.addEventListener("click", async () => {
     }
     titleEl.value = "";
     textEl.value = "";
+    shownValue = "";
     clearPending();
+    resetOcr();
     render();
   } catch (e) {
     toast(e.message || "Couldn't save text", "bad");
