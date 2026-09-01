@@ -139,9 +139,46 @@ export function clipToSentence(text, limit) {
   return (m && m[0].length > limit * 0.8) ? m[0].trim() : head.trim();
 }
 
+/* Scripts written without spaces between words. Korean is deliberately
+   NOT here: Hangul is spaced like a Latin script.
+
+   The range starts at U+3001, not U+3040, so CJK PUNCTUATION counts.
+   The boundary being tested is almost always a full stop, U+3002, and
+   leaving it out put a space after every sentence in a Japanese text --
+   the original complaint in a different alphabet. U+3000, the
+   ideographic space, is excluded deliberately: it is whitespace, and
+   normalizeTypeable has already turned it into an ordinary one. */
+const CJK = /[\u3001-\u303f\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff01-\uff60\uff66-\uff9f]/;
+const endsCJK = (s) => CJK.test(String(s).slice(-1));
+const startsCJK = (s) => CJK.test(String(s).slice(0, 1));
+
+/* A "sentence" longer than the segment size has to be cut, or a text
+   with no recognised sentence ending anywhere becomes one segment
+   holding the entire book. Prefer a space near the limit; a script that
+   has no spaces falls back to a hard cut, which is the honest option
+   without a word-segmentation dictionary. */
+function splitLong(s, maxLen) {
+  if (s.length <= maxLen) return [s];
+  const parts = [];
+  let rest = s;
+  while (rest.length > maxLen) {
+    let cut = rest.lastIndexOf(" ", maxLen);
+    if (cut < maxLen * 0.5) cut = maxLen;
+    parts.push(rest.slice(0, cut).trim());
+    rest = rest.slice(cut).trim();
+  }
+  if (rest) parts.push(rest);
+  return parts;
+}
+
 export function chunk(text, maxLen = 500) {
   const out = [];
-  const re = /[.!?][”"')\]]?\s+/g;
+  /* Two alternatives. The Latin one needs trailing whitespace, so a
+     decimal point does not end a sentence. The CJK one must NOT: those
+     scripts put no space after a full stop, so requiring one meant no
+     sentence boundary was ever found in Japanese or Chinese and the
+     whole book arrived as a single segment. */
+  const re = /(?:[.!?][\u201d"')\]]?\s+)|(?:[\u3002\uff0e\uff01\uff1f\u2026]+[\u300d\u300f\uff09\u3011\u300b\u201d\u2019]*\s*)/gu;
   let last = 0, m;
   let buf = "";
   const sentences = [];
@@ -151,12 +188,19 @@ export function chunk(text, maxLen = 500) {
   }
   if (last < text.length) sentences.push(text.slice(last).trim());
 
-  for (const s of sentences) {
-    if ((buf + " " + s).trim().length > maxLen && buf) {
+  const pieces = sentences.flatMap((x) => splitLong(x, maxLen));
+
+  for (const s of pieces) {
+    /* Joining with a space is right for a spaced script and wrong for
+       one that has none -- it inserts a space into the middle of a
+       Japanese sentence, which is the same "added spaces" complaint in
+       a different alphabet. */
+    const glue = buf && endsCJK(buf) && startsCJK(s) ? "" : " ";
+    if ((buf + glue + s).trim().length > maxLen && buf) {
       out.push(buf.trim());
       buf = s;
     } else {
-      buf = (buf ? buf + " " : "") + s;
+      buf = buf ? buf + glue + s : s;
     }
   }
   if (buf.trim()) out.push(buf.trim());

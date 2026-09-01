@@ -184,6 +184,52 @@ export function joinTextItems(items) {
   return out;
 }
 
+/* Drop running heads, running feet and page numbers.
+
+   A scanned book repeats the book's title, the chapter title and the
+   folio at the edge of every page, and pdf.js hands them back inline
+   with the prose. Reported from a real import: the middle of a sentence
+   read "...dont je ne pus m'expli- 10 LE JOURNAL D'UNE FEMME DE CHAMBRE
+   quer la double expression...". The header is not the only damage
+   there -- it also sat BETWEEN a hyphen break and its continuation, so
+   de-hyphenation could not see the two halves and the word kept a stray
+   hyphen and gained a space. Removing the header fixes both.
+
+   Only the outermost few lines of each page are candidates, and a line
+   has to recur across a quarter of the book before it is treated as
+   furniture. Digits are ignored when comparing, because the folio
+   changes on every page and the title beside it does not. */
+function stripRunningLines(pages) {
+  if (pages.length < 5) return pages;
+  const EDGE = 2;
+  const norm = (l) => l.replace(/\d+/g, " ").replace(/[^\p{L}]+/gu, " ").trim().toLowerCase();
+  const isFolio = (l) => /^[\s.,\-–—]*(?:[ivxlcdm]{1,7}|\d{1,4})[\s.,\-–—]*$/i.test(l);
+
+  const counts = new Map();
+  const perPage = pages.map((pg) => pg.split("\n"));
+  for (const lines of perPage) {
+    const solid = lines.map((l) => l.trim()).filter(Boolean);
+    const edge = [...solid.slice(0, EDGE), ...solid.slice(-EDGE)];
+    for (const key of new Set(edge.map(norm))) {
+      if (key.length < 4) continue;
+      counts.set(key, (counts.get(key) || 0) + 1);
+    }
+  }
+  const threshold = Math.max(3, Math.floor(pages.length * 0.25));
+  const running = new Set();
+  for (const [key, n] of counts) if (n >= threshold) running.add(key);
+
+  return perPage.map((lines) => {
+    const idx = lines.map((l, i) => [l.trim(), i]).filter(([l]) => l);
+    const drop = new Set();
+    const consider = [...idx.slice(0, EDGE), ...idx.slice(-EDGE)];
+    for (const [l, i] of consider) {
+      if (isFolio(l) || running.has(norm(l))) drop.add(i);
+    }
+    return lines.filter((_, i) => !drop.has(i)).join("\n");
+  });
+}
+
 async function parsePdf(file, onProgress) {
   const buf = new Uint8Array(await file.arrayBuffer());
   let lib;
@@ -219,7 +265,7 @@ async function parsePdf(file, onProgress) {
      closed up by normalizeTypeable() with the hyphen KEPT, so the word
      never gains a space either way -- it just keeps a hyphen that the
      typesetter meant as a line break. */
-  const text = pages.join("\n\n").replace(/\s+\n/g, "\n")
+  const text = stripRunningLines(pages).join("\n\n").replace(/\s+\n/g, "\n")
     .replace(/(\p{Ll})-\n(\p{Ll})/gu, "$1$2")
     .trim();
   if (!text) {
