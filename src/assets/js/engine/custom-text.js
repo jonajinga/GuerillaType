@@ -154,26 +154,36 @@ const NOISE_RE = new RegExp("[" + NOISE_GLYPHS.replace(/[\\^\]-]/g, "\\$&") + "]
 const ALNUM = /[\p{L}\p{N}]/u;
 const isSpace = (ch) => ch === " " || ch === "\t";
 
-/* The four reasons a noise glyph is left alone. Every one of them was
-   chosen because dropping it would have destroyed something real:
+/* The three reasons a noise glyph is left alone. Each one exists
+   because dropping it would have destroyed something real:
 
-     1. run       -- an immediate neighbour is the same character, so
-                     this is "**bold**", "<<", or a doubled backslash.
-     2. spacedRun -- the nearest non-space character on this line is the
-                     same character, so this is a "* * * * *" scene
-                     break. The bundled Alice sample has three of them
-                     and losing their end asterisks was a real
-                     regression before this case existed.
-     3. welded    -- letters or digits on both sides: "x^2", "5*3",
-                     "snake_case", "2§1".
-     4. alone     -- a plain space on both sides, on one line: "a < b",
-                     "5 * 3". A symbol standing by itself between two
-                     spaces is being used as a symbol.
+     1. repeated -- the nearest non-space character on this line, in
+                    either direction, is the same character. That is
+                    one test for two shapes: "**bold**", "<<" and a
+                    doubled backslash, where the twin is immediately
+                    adjacent; and a "* * * * *" scene break, where it
+                    is a space away. The bundled Alice sample has three
+                    of those and lost its end asterisks until the
+                    spaced form was covered.
 
-   Case 4 is deliberately narrower than "surrounded by whitespace": a
+                    Written as one test on purpose. It was two, and a
+                    mutation run showed the adjacent-only half could be
+                    deleted with the suite still green -- the scan
+                    below already covers it, because a neighbour that
+                    is not a space stops the walk immediately.
+
+     2. welded   -- letters or digits on both sides: "x^2", "5*3",
+                    "snake_case", "2§1".
+
+     3. alone    -- a plain space on both sides, on one line: "a < b",
+                    "5 * 3". A symbol standing by itself between two
+                    spaces is being used as a symbol.
+
+   Case 3 is deliberately narrower than "surrounded by whitespace": a
    glyph alone on its own LINE is page furniture, and a glyph welded to
    the start or end of a word ("corriger^ d'en", "59* mille",
-   ">vait", "|énéreux") is debris. Both of those still drop.
+   ">vait", "|énéreux") is debris. Both of those still drop -- 738 of
+   the measured book's 1,062 noise glyphs do.
 
    Every decision is taken against the ORIGINAL string, so removing one
    glyph can never change the verdict on its neighbour. */
@@ -181,7 +191,6 @@ function keepStray(s, i) {
   const c = s[i];
   const prev = i > 0 ? s[i - 1] : "";
   const next = i + 1 < s.length ? s[i + 1] : "";
-  if (prev === c || next === c) return true;
   let a = i - 1;
   while (a >= 0 && isSpace(s[a])) a--;
   let b = i + 1;
