@@ -1,0 +1,429 @@
+# Real pages from the scanned book, for scripts/check-running-heads.mjs.
+#
+# Provenance: a scanned PDF of Octave Mirbeau's "Le Journal d'une femme
+# de chambre" (1900, public domain), 530 pages, ~675,000 characters. Every
+# page below is the verbatim return value of joinTextItems() in
+# src/assets/js/engine/import-parsers.js for that page, taken by driving
+# the real pdf.js extraction once in a browser. The 20 MB PDF itself is
+# NOT in this repository.
+#
+# Do not tidy these by hand. They are evidence. The mangled words ("Avex"
+# for "Avec", "CHAMBtlE" for "CHAMBRE") are what the scanner produced,
+# and stripRunningLines() is judged by what it does to them.
+#
+# Format: a line starting "### " opens a section. A line that is exactly
+# "#PAGE" starts a new page. Any other line starting with "#" is a
+# comment. "#" does not occur anywhere in the book's text, so no content
+# line can begin with one. Empty pages are real and are kept.
+#
+# ### reported-passage
+#   Pages 15-21 of the scan (0-based 14-20): the run that carries the
+#   sentence in the user's report. Page 16 opens with the running head
+#   "10 LE JOURNAL D'UNE FEMME DE CHAMBRE", which lands between
+#   "...mon gros pere," / ">>Avex?..*" at the foot of page 15 and
+#   "Il me poussa du coude" at the top of page 16. Seven pages is the
+#   smallest run starting at page 15 in which stripRunningLines() removes
+#   that head: at six it does not, because the threshold is a fraction of
+#   the page count.
+#
+# ### chapter-iv
+#   Pages 93-98 of the scan (0-based 92-97). Page 95 carries the chapter
+#   heading "IV" alone on a line, immediately above the diary date
+#   "26 septembre." It is here because stripRunningLines() deletes it.
+
+### reported-passage
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE t
+m'affole comme une culotte de peau blanche,
+moulant des cuisses nerveuses. Et ce qu'il man-
+quait de chic, ce Louis, sans gants pour con-
+duire, avec un complet trop large de droguet gris
+bleu, et une casquette plate, en cuir verni, ornée
+d'un double galon d'or. Non vrai ! i]s retardent,
+dans ce patelin- ià. Avec cela, un air renfrogné,
+brutal, mais pas méchant diable, au fond. Je
+connais ces types. Les premiers jours, avec les
+nouvelles, ils font les malins, et puis après ça
+s'arrange. Souvent, ça s'arrange mieux qu'on ne
+voudrait.
+Nous restâmes longtemps sans dire un mot.
+Lui faisait des manières de grand cocher, tenant
+les guides hautes et jouant du fouet avec des
+gestes arrondis... Non, ce qu'il était rigolo!...
+Moi, je prenais des attitudes dignes pour regar-
+der le paysage, qui n'avait rien de particulier; des
+champs, des arbres, des maisons, comme partout.
+Il mit son cheval au pas pour monter une côte et,
+tout à coup, avec un sourire moqueur, il me
+demanda :
+— Avez-vous au moins apporté une bonne
+provision de bottines ?
+— Sans doute ! dis-je, étonnée de cette ques-
+tion qui ne rimait à rien, et plus encore du ton
+singulier sur lequel il me l'adressait... Pourquoi
+me demandez-vous ça?... C'est un peu bête ce
+que vous me demandez-là, mon gros père,
+»Avex?..*
+#PAGE
+10 LE JOURNAL D'UNE FEMME DE CHAMBRE
+Il me poussa du coude légèrement et, glissant
+sur moi un regard étrange dont je ne pus m'expli-
+quer la double expression d'ironie aiguë et, ma
+foi, d'obscénité réjouie, il dit en ricanant:
+— Avec ça !... Faites celle qui ne sait rien...
+Farceuse va... sacrée farceuse !
+Puis il claqua de la langue, et le cheval reprit
+son allure rapide.
+J'étais intriguée. Qu'est-ce que cela pouvait
+bien signifier? Peut-être rien du tout... Je pensai
+que le bonhomme était un peu nigaud, qu'il ne
+savait point parler aux femmes et qu'il n'avait pas
+trouvé autre chose pour amener une conversation
+que, d'ailleurs, je jugeai à propos de ne pas con-
+tinuer.
+La propriété de M. Rabour était assez belle et
+grande. Une jolie maison, peinte en vert clair,
+entourée de vastes pelouses fleuries et d'un bois
+de pins qui embaumait la térébenthine. J'adore la
+campagne... mais, c'est drôle, elle me rend triste
+et elle m'endort. J'étais tout abrutie quand j'entrai
+dans le vestibule où m'attendait la gouvernante,
+celle-là même qui m'avait engagée au bureau de
+placement de Paris, Dieu sait après combien de
+questions indiscrètes sur mes habitudes intimes,
+mes goûts; ce qui aurait dû me rendre méfiante...
+Mais on a beau en voir et en supporter de plus en
+plus fortes chaque fois, ça ne vous instruit pas...
+La gouvernante ne m'avait pas plu au bureau 
+;
+ici, instantanément, e)îe me dégoûta et je lui
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBtlÈ 11
+trouvai l'air répugnant d'une vieille maquerelle.
+C'était une grosse femme, grosse et courte, courte
+et soufflée de graisse jaunâtre, avec des bandeaux
+plats grisonnants, une poitrine énorme et rou
+lante, des mains molles, humides, transparentes
+comme de la gélatine. Ses yeux gris indiquaient
+la méchanceté, une méchanceté froide, réfléchie
+et vicieuse. A la façon tranquille et cruelle dont
+elle vous regardait, vous fouillait l'âme et la
+chair, elle vous faisait presque rougir.
+Elle me conduisit dans un petit salon et me
+quitta aussitôt, disant qu'elle allait prévenir
+Monsieur, que Monsieur voulait me voir avant
+que je ne commençasse mon service.
+— Car Monsieur ne vous a pas vue, ajoutâ-
+t-elle. Je vous ai prise, c'est vrai, mais enfin, il
+faut que vous plaisiez à Monsieur...
+J'inspectai la pièce. Elle était tenue avec une
+propreté et un ordre extrêmes. Les cuivres, les
+meubles, le parquet, les portes, astiqués à fond,
+cirés, vernis, reluisaient ainsi que des glaces. Pas
+de flafla, de tentures lourdes, de choses brodées,
+comme on en voit dans de certaines maisons de
+l'aris; mais du confortable sérieux, un air de
+décence riche, de vie provinciale cossue, régu-
+lière et calme. Ce qu'on devait s'ennuyer ferme,
+?à-dedans, par exemple!... Mazettel
+Monsieur entra. Ah! le drôle de bonhomme,
+et qu'il m'amusa!... Figurez-vous un petit vieux,
+tiré k quatre épingles, rasé de frais et tout rose,
+#PAGE
+la LE JOURNAL D'UNE FEMME DE CHAMBRK
+ainsi qu'une poupée. Très droit, très vif, très ra-
+goûtant, ma foi ! , il sautillait, en marchant, comme
+une petite sauterelle dans les prairies. Il me
+salua et avec infiniment de politesse :
+— Comment vous appelez-vous, mon enfant?
+— Célestine, Monsieur.
+— Célestine... fit-il... Célestine?... Diablel...
+Joli nom, je ne prétends pas le contraire... mais
+trop long, mon enfant, beaucoup trop long .. Je
+vous appellerai Marie, si vous le voulez bien, . .C'est
+très gentil aussi, et c'est court... Et puis, toutes
+mes femmes de chambre, je les ai appelées Marie.
+C'est une habitude à laquelle je serais désolé de
+renoncer. . . Je préférerais renoncer à la personne. .
+Ils ont tous cette bizarre manie de ne jamais
+vous appeler par votre nom véritable... Je ne
+m'étonnai pas trop, moi à qui l'on a donné déjà
+tous les noms de toutes les saintes du calendrier...
+Il insista :
+— Ainsi, cela ne vous déplaît pas que je vous
+appelle Marie?... C'est bien entendu?...
+— Mais oui, Monsieur...
+— Jolie fille... bon caractère... Bien, bienl
+Il m'avait dit tout cela d'un air enjoué, extrê-
+mement respectueux, et, sans me dévisager, sans
+fouiller d'un regard déshabilleur mon corsage,
+mes jupes, comme font, en général, les hommes.
+A peine s'il m'avait regardée. Depuis le moment
+où il était entré dans le salon, ses yeux resfciient
+ohstinément fixés sur naes bottine*.
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 13
+— Vous en avez d'autres?... me demanda-t-il,
+après un court silence, pendant lequel il me
+sembla que son regard était devenu étrangement
+brillant.
+— D'autres noms, Monsieur?
+— Non, mon enfant, d'autres bottines...
+Et il passa, sur ses lèvres, à petits coups, une.
+langue effilée, à la manière des chattes.
+Je ne répondis pas tout de suite. Ce mot de
+bottines, qui me rappelait l'expression de gouaille
+polissonne du cocher, m'avait interdite. Cela avait
+donc un sens?... Sur une interrogation plus pres-
+sante, je finis par répondre, mais d'une voix un
+peu rauque et troublée, comme s'il se fût agi de
+confesser un péché galant :
+— Oui, Monsieur, j'en ai d'autres..
+— Des vernies ?
+— Oui, Monsieur.
+— De très... très vernies?
+— Mais oui. Monsieur.
+— Bien... bien... Et en cuir] aune?
+— Je n'en ai pas. Monsieur...
+— Il faudra en avoir... je vous en donnerai.
+— Merci, Monsieur!
+— Bien... bien... Tais-toi 1
+J'avais peur, car il venait de passer dans ses
+yeux des lueurs troubles... des nuées rouges de
+spasme... Et des gouttes de sueur roulaient sur
+son front... Croyant qu'il allait défaillir, je fus sur
+le point de crier, d'appeler au secours... mais la
+#PAGE
+14 LE JOURNAL D'UNE FEMME DE CHAMBRE
+crise se calma, et, au bout de quelques minutes,
+il reprit d'une voix apaisée, tandis qu'un peu de
+salive moussait encore au coin de ses lèvres :
+— Ça n'est rien... c'est fini... Comprenez-
+moi, mon entant... Je suis un peu man aque... A
+mon âge, cela est permis, n'est-ce pas?... Ainsi,
+tenez, par exemple je ne trouve pas convenable
+qu'une femme cire ses bottines, à plus forte
+raison les miennes... Je respecte beaucoup les
+femmes, Marie, et ne peux souffrir cela... C'est
+moi qui les cirerai vos bottines, vos petites bot-
+tines, vos chères petites bottines... C'est moi qui
+les entretiendrai... Ecoutez bien... Chaque soir,
+avant de vous coucher, vous porterez vos bot-
+tines dans ma chambre... vous les placerez près
+du lit, sur une petite table, et, tous les matins, eq
+venant ouvrir mes lenêtres... vous les reprendrez.
+Et, comme je manifestais un prodigieux étou*
+nement, il ajouta :
+— Voyons 1... Ça n'est pas énorme, ce que je
+vous demande là... c'est une chose très natu-
+relle, après tout... Et si vous êtes bien gentille...
+Vivement, il tira de sa poche deux louis qu'il
+me remit.
+— Si vous êtes bien gentille, bien obéis-
+sante, je vous donnerai souvent des petits ca-
+deaux. La gouvernante vous paiera, tous les
+mois, vos gages... Mais, moi, Marie, entre nous,
+souvent, je vous donnerai des petits cadeaux. Et
+q^u'est-ce que je vous demande?... Voyons, ça
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 15
+n'est pas extraordinaire, là... Est-ce donc si
+extraordinaire, mon Dieu?
+Monsieur s'emballait encore. A mesure qu'il
+parlait, ses paupières battaient, battaient comme
+des feuilles sous l'orage.
+— Pourquoi ne dis-tu rien, Marie?... Dis
+quelque chose... Pourquoi ne marches-tu pas?...
+Marche un peu que je les voie remuer... que je
+les voie vivre... tes petites bottines...
+Il s'agenouilla, baisa mes bottines, les pétrit
+de ses doigts fébriles et caresseurs, les délaça...
+Et, en les baisant, les pétrissant, les caressant, il
+disait d'une voix suppliante, d'une voix d'enfant
+qui pleure :
+— Oh! Marie... Marie... tes petites bot-
+tines... donne-les moi, tout de suite... tout de
+suite... tout de suite... Je les veux tout de
+suite... donne-les moi...
+J'étais sans force... La stupéfaction me para-
+lysait... Je ne savais plus si je vivais réellement
+ou si je rêvais... Des yeux de Monsieur, je ne
+voyais que deux petits globes blancs, striés de
+rouge. Et sa bouche était tout entière barbouillée
+d'une sorte de bave savonneuse...
+Enfin, il emporta mes bottines et, durant deux
+heures, il s'enferma avec elles dans sa chambre...
+— Vous plaisez beaucoup à Monsieur, me dit
+la gouvernante en me montrant la maison...
+Tâchez que cela continue... La place est bonne...
+Quatre jours après, le matin, à l'heure h8.bi-
+
+### chapter-iv
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 87
+parlerai h. qui je veux... je verrai qui me plaît...
+Tu ne me feras pas la loi, chameau...
+Il a suffi que j'entende sa voix aigre, que je
+retrouve ses yeux méchants et ses ordres tyran-
+niques, pour que fût effacée instantanément
+l'impression mauvaise, l'impression de dégoût
+que je rapportais de la messe, de l'épicière et de
+Rose... Rose et l'épicière ont raison; la mer-
+cière aussi a raison... elles ont toutes raison...
+Et je me promets de voir Rose, de la voir sou-
+vent, de retourner chez l'épicière... de faire de
+cette sale mercière ma meilleure amie... puisque
+Madame- me le défend... Et je répète intérieure-
+ûient, avec une énergie sauvage :
+— Chameau!... chameau!... chameau!...
+Mais j'eusse été bien mieux soulagée si j'avais
+eu le courage de lui jeter, de lui crier, en pleine
+face, cette injure...
+Dans la journée, après le déjeuner, Monsieur
+et Madame sont sortis en voiture. L? cabinet de
+toilette, les chambres, le bureau de Monsieur,
+toutes les armoires, tous les placards, tous les
+buffets sont fermés à clé... Qu'est-ce que je
+disais?... Ah bien... merci!... Pas moyen de lire
+une lettre, et de se faire des petits paquets...
+Alors, je suis restée dans ma chambre. . . J'ai écrit
+à ma mère, à monsieur Jean, et j'ai lu : En fa-
+mille. . . Quel joli livre ! ... Et qu'il est bien écrit ! . .
+C'est drôle, tout de même... j'aime bien entendre
+#PAGE
+18 LE JOURNAL DUNE FEMME DE CHAMBRE
+des choses cochonnes... mais je n'aime pas en
+lire... Je n'aime que les livres qui font pleurer...
+Au dîner, on a servi le pot-au-feu... Il m'a
+semblé que Monsieur et Madame étaient en froid.
+Monsieur a lu le Petit Journal avec une osten-
+tation provocante... Il froissait le papier, en rou-
+lant de bons yeux, comiques et doux... Même
+quand il est en colère, les yeux de Monsieur res-
+tent doux et timides. A la fin, sans doute pour
+engager la conversation, Monsieur, toujours le
+nez sur son journal, s'est écrié :
+— Tiens!... Encore une femme coupée en mor-
+ceaux...
+Madame n'a rien répondu... Très raide, très
+droite, austère dans sa robe de soie noire, le fron(
+plissé, le regard dur, elle n'a pas cessé de songer.
+A quoi?...
+C'est peut-être à cause de moi que Madame
+boude Monsieur...
+#PAGE
+IV
+26 septembre.
+Depuis une semaine, je ne puis plus écrire une
+seule ligne de mon journal... Quand vient le
+soir, ^e suis éreintée, fourbue, à cran... Je ne
+pense plus qu'à me coucher et dormir. . . Dormir ! . .
+Si je pouvais toujours dormir!...
+Ah ! quelle baraque^ mon Dieu ! Rien n'en peut
+donner l'idée.
+Pour un oui, pour un non, Madame vous fait
+monter et descendre les deux maudits étages...
+On n'a môme pas le temps de s'asseoir dans la
+lingerie, et de souffler un peu que... drinnî...
+drinn!... drinn!...il faut se lever et repartir...
+Cela ne fait rien qu'on soit indisposée... drinnî...
+drinn!... drinn!... Moi, dans ces moments-là, j'ai
+aux reins des douleurs qui me plient en deux,
+qui me tordent le ventre, et me feraient presque
+crier... drinn!... drinn!... drinn!... Ça ne compte
+pas.. On n'a point le temps d'être malade, on n'a
+#PAGE
+90 LE JOURNAL D'UNE FEMME DE CHAMBRE
+pas le droit de souffrir... La souffrance, c'est un
+luxe de maître... Nous, nous devons marcher, et
+vite,et toujours... marcher, au risque de tomber...
+Drinn ! . . . drinn ! . . . drinn ! ... Et si , au coup de son-
+re te, l'on tarde un peu à venir, alors, ce sont
+des reproches, des colères, des scènes.
+— Eh bien?... Que faites-vous donc?... Vous
+n'entendez donc pas?... Etes-vous sourde?...
+Voilà trois heures aue je sonne... C'est agaçant,
+à la fin...
+Et, le plus souvent, ce qui se passe, le voici...
+— Drinn!... drinn!... drinn I...
+Allons bon!... Gela vous jette de votre chaise,
+comme sous la poussée d'un ressort...
+— Apportez-moi une aiguille.
+Je vais chercher l'aiguille.
+— Bien!... apportez-moi du fii.
+Je vdis chercher le (il.
+— Bon!... apportez-moi un bouton...
+Je vais chercher le bouton.
+— Qu'est-ce que c'est que ce bouton?... Je ne
+vous ai pas demandé ce bouton... Vous ne com-
+prenez rien... Un bouton blanc, numéro 4... Et
+dépêchez-vous!
+Et je vais chercher le bouton blanc, numéro 4...
+Vous pensez si je maugrée, si je rage, si j'invec-
+tive Madame dans le fond de moi-même?... Durant
+ces allées et venues, ces montées et ces descentes,
+Madame a changé d'idée... Il lui faut autre chose,
+ou il ne lui faut plus rien :
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE . »(
+— Non... remportez l'aiguille et le bouton...
+Je n'ai pas le temps...
+J'ai les reins rompus, les genoux presque anky-
+losés, je n'en puis plus... Gela suffit à Madame...
+elle est contente... Et dire qu'il existe une so-
+ciété pour la protection des animaux...
+Le soir, en passant sa revue, dans la lingerie,
+elle tempête :
+— Comment?... Vous n'avez rien fait?... A quoi
+employez-vous donc vos journées?... Je ne vous
+paie pas pour que vous flâniez du matin au
+soir...
+Je réplique d'un ton un peu bref, car cette in-
+justice me révolte :
+— Mais, Madame m'a dérangée, tout le temps.
+— Je vous ai dérangée, moi?... D'abord, je vous
+défends de me répondre... Je ne veux pas d'obser-
+vation, entendez-vous?... Je sais ce que je dis.
+Et des claquements de porte, des ronchonne-
+ments qui n'en finissent pas... Dans les corridors,
+à la cuisine, au jardin, des heures entières, on
+entend sa voix qui glapit.:. Ah! qu'elle est tan-
+nante !
+En vérité, on ne sait par quel bout la prendre...
+Que peut-elle donc avoir, dans le corps, pour
+être toujours dans un tel état d'irritation? Et
+comme je la planterais là, si j'étais sûre de trou-
+ver une place, tout de suite...
+Tantôt je souffraisplus encore que de coutume...
+Je rMsentais une douleur si aiguë que c'était
+#PAGE
+M LE JOURNAL DUNE FEMME DE CHAMBRE
+à croire qu'une bote me déchirait, avec ses dents,
+avec ses griffes, l'intérieur du corps... Déjà, le
+matin, en me levant, à force d'avoir perdu du
+sang, je m'étais évanouie... Comment ai-je eu le
+courage de me tenir debout, de me traîner, de
+faire mon service? Je n'en sais rien... Parfois, dans
+l'escalier, j'étais obligée de m'arrêter, de me cram-
+ponner à la rampe afin de reprendre haleine et
+de ne pas tomber... J'étais verte, avec des sueurs
+froides qui me mouillaient les cheveux... C'était
+à hurler... Mais je suis dure au mal, et j'ai cette
+fierté de ne jamais me plaindre devant mes maî-
+tres... Madame me surprit, à un moment où je
+pensais défaillir. Tout tournait autour de moi, la
+rampe, les marches et les murs.
+— Qu'avez-vous? me dit-elle, rudement»
+— Je n'ai rien.
+Et j'essayai de me redresser.
+— Si vous n'avez rien, reprit Madame, pour-
+quoi ces manières-là?... Je n'aime pas qu'on me
+fasse des figures d'enterrement... Vous avez un
+service très désagréable...
+Malgré ma douleur, je l'aurais giflée...
+Au milieu de ces épreuves, je repense toujours
+âmes places anciennes... Aujourd'hui, c'est celle
+de la rue Lincoln que je regrette le plus... J'y étais
+seconde femme de chambre et je n'avais, pour
+ainsi dire, rien à faire. La journée, nous la pas-
+sions dans la lingerie, une lingerie magnifique,
