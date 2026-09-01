@@ -1020,6 +1020,52 @@ eq(rec && rec.bytes, sanitize(PASTE_CLEAN).length,
 eq(rec && rec.clean, "(no clean field)",
   "…and not the previous text's \"leave it alone\" — the save flushes the pending scan first");
 
+/* ── H10. A paste longer than the preview ceiling ──────────────── */
+/* The reason the scan and the checkbox never write to the textarea,
+   stated as a test. A pasted book is ALL in the box -- there is no
+   stash, because nothing put it there -- and it has to stay that way.
+   The naive version of this feature calls showText() when the tick
+   changes; past PREVIEW_CHARS that swaps the box for a 200,000-
+   character preview and stashes the rest, and then the next thing the
+   user types drops the stash and saves the fragment. So: toggle both
+   ways, type after it, and count what was stored. */
+await freshPage();
+const TAIL = " And one more sentence, typed after the toggle, to prove the stash was never made.";
+await page.fill("#paste-title", "pasted book");
+await page.evaluate((book) => {
+  const ta = document.querySelector("#paste-text");
+  ta.value = book;
+  ta.dispatchEvent(new Event("input", { bubbles: true }));
+}, BOOK);
+await panelSourceIs("paste").catch(() => {});
+st = await panelState();
+eq(st.source, "paste", "a pasted book gets the paste panel like any other paste");
+eq(st.boxLen, BOOK.length,
+  "…and the whole of it stays in the box — a paste is never turned into a preview");
+eq(st.notice, "", "…so no preview notice is raised for it");
+
+await setTick(false);
+st = await panelState();
+eq(st.boxLen, BOOK.length, "unticking a long paste leaves every character of it in the box");
+eq(st.notice, "", "…and still stashes nothing");
+await setTick(true);
+st = await panelState();
+eq(st.boxLen, BOOK.length, "re-ticking it does not rewrite the box either");
+eq(st.notice, "", "…and still stashes nothing");
+
+await page.evaluate((tail) => {
+  const ta = document.querySelector("#paste-text");
+  ta.value += tail;
+  ta.dispatchEvent(new Event("input", { bubbles: true }));
+}, TAIL);
+await settle();
+rec = await saveAndRead([TAIL.trim()]);
+eq(rec && rec.bytes, sanitize(BOOK + TAIL).length,
+  "typing after toggling a long paste still saves the whole thing, to the character");
+chk(!!rec && rec.bytes > PREVIEW_CHARS * 2, "…which is nowhere near the preview ceiling",
+  rec ? `${rec.bytes.toLocaleString()} chars` : "(nothing saved)");
+chk(!!rec && rec.has[0], "…and the sentence typed last is in the saved text");
+
 await browser.close();
 server.close();
 
