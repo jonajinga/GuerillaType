@@ -17,6 +17,7 @@ import { renderCharacterTableD3 } from "../stats/viz-character-table-d3.js";
 import { renderMissedWordsD3 } from "../stats/viz-missed-words-d3.js";
 import { renderSessionsD3 } from "../stats/viz-sessions-d3.js";
 import { renderLessonTrends } from "../stats/viz-lesson-trends.js";
+import { listLessonPinned } from "../engine/custom-text.js";
 import { renderKeyStrip } from "../stats/viz-key-strip.js";
 import { ACHIEVEMENTS } from "../engine/achievements.js";
 import { localDayIso } from "../util/format.js";
@@ -193,7 +194,13 @@ renderPerFingerD3(document.getElementById("perfinger-svg"), profile.perFinger ||
   const ok = await renderCharacterTableD3(host, profile.perCharDetail || {}, profile.perKey || {});
   if (!ok) renderCharacterTable(host, profile.perCharDetail || {}, profile.perKey || {});
 })();
-renderLessonTrends(document.getElementById("lesson-trends-svg"), profile.lessonResults || []);
+{
+  // Titles for any custom text pinned as a lesson, so its panel reads
+  // as the book rather than as "Lesson custom:c_ab7f".
+  const labels = {};
+  for (const it of listLessonPinned()) labels["custom:" + it.id] = it.title;
+  renderLessonTrends(document.getElementById("lesson-trends-svg"), profile.lessonResults || [], { labels });
+}
 
 // ── Missed-words ranked list ─────────────────────────────────────
 // Render missed-words via the D3 viz; falls back to the legacy

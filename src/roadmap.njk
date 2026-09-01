@@ -26,7 +26,7 @@ pageSlug: roadmap
   <li><strong>Theme builder.</strong> Pick your own background / text / accent tokens, save them locally, export and import as JSON, with a WCAG contrast warning. A saved theme now follows you across the whole site — it used to apply on the settings page and vanish on the next navigation.</li>
   <li><strong>Eleven more typing fonts.</strong> Fira Code, IBM Plex Mono, Iosevka, Cascadia Code, Roboto Mono, Source Code Pro, Ubuntu Mono, Space Mono, Inconsolata and Cousine join JetBrains Mono. Iosevka is self-hosted; the rest come from Bunny.</li>
   <li><strong>Lesson trends as small multiples.</strong> One panel per lesson, showing WPM <em>and</em> accuracy across attempts, on a shared scale so panels compare directly. The old chart plotted WPM only and cut its legend off at eight lessons.</li>
-  <li><strong>Pinned custom lessons resume.</strong> A saved text pinned as a lesson picks up where you left off instead of restarting from segment one.</li>
+  <li><strong>Custom lessons are tracked like lessons.</strong> A text you pin as a lesson now picks up where you left off, keeps its own WPM history, earns a mastery mark and best run on the lessons page, and gets its own panel — titled with the book, not an internal id — in lesson trends. It is namespaced separately from the curriculum, so an imported novel can never count toward "finish every lesson".</li>
   <li><strong>Word Snake and Boss Battle.</strong> Two more games, with per-mode high scores, a health bar and a per-word countdown.</li>
   <li><strong>Live ticker.</strong> A keystroke-by-keystroke pulse strip under the typing surface, with a net-WPM readout. Opt in from settings.</li>
   <li><strong>Tape (ticker) mode.</strong> Single horizontal line of words that scrolls left as you type. JS rAF-driven slide for smooth motion; 15-second default sprint.</li>
@@ -53,7 +53,6 @@ pageSlug: roadmap
 
 <h2 id="planned">Planned</h2>
 <ul>
-  <li>Lesson-grade progress for custom lessons. Pinning a text as a lesson and resuming it both work; what a custom lesson still does not get is its own WPM history, mastery state and trend panel, because sessions started from a pinned text are not recorded against a lesson id.</li>
   <li>OCR for scanned PDFs. Import reads a PDF's text layer, so a scanned, image-only PDF has nothing to extract and is refused with a message rather than silently importing an empty text. Running OCR in the browser is a much larger piece of work than the parser it would sit behind.</li>
   <li>More games — Word Boss variants, and whatever comes out of Punctuation Storm.</li>
   <li>Theme sharing — a way to publish a saved theme so other people can import it, without adding accounts.</li>
