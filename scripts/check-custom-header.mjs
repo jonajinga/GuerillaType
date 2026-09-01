@@ -104,6 +104,13 @@ const server = createServer(async (req, res) => {
 await new Promise((ok, no) => {
   server.on("error", no);
   server.listen(PORT, "127.0.0.1", ok);
+}).catch((e) => {
+  /* Deliberately fatal rather than falling back to whatever already
+     holds the port. Something else answering on 8229 is exactly the
+     condition that makes a run measure the wrong site. */
+  console.log(`  FAIL  could not bind 127.0.0.1:${PORT} — ${e.code || e.message}`);
+  console.log("\nRUN ABORTED — refusing to share a port with something else.");
+  process.exit(1);
 });
 const B = `http://127.0.0.1:${PORT}`;
 
@@ -256,6 +263,127 @@ chk(one.title === "A short paste",
   "single-segment import: the title still shows", JSON.stringify(one.title));
 chk(!/Segment\s+\d+\s+of\s+\d+/i.test(one.aboveStage),
   "single-segment import: no ‘Segment 1 of 1’", JSON.stringify(one.aboveStage));
+
+/* ---- 6. A SECOND buildText() in ONE page context.
+
+   Everything above navigates, so every case starts from a fresh `state`
+   object and the segment count is always set by the same boot that
+   reads it. That is the one path where a stale count cannot bite, and
+   testing only that path is how the reset in buildText() came to be
+   uncovered: deleting `state._customSegCount = null;` left this gate
+   fully green.
+
+   `state` is module-scoped and survives boot(). The custom branch of
+   targetFor() has two early returns BEFORE it sets _customSegCount, and
+   the corpus branch never sets it at all — so a second boot that lands
+   in any of those keeps whatever the first boot left behind, and
+   isSegmentedCustom() goes on answering "yes" for a text that has no
+   segments.
+
+   Driven through the real entry point: typing a segment to completion
+   and clicking the results screen's own restart button, whose markup is
+   onclick="window.ttRestart && window.ttRestart()". Nothing here sets
+   `state` by hand — the only thing touched is localStorage, which is
+   the app's real store and the same thing the /custom/ page's delete
+   button writes.
+
+   NOT driven through the mode bar, which is what you would reach for
+   first: src/_includes/partials/practice/mode-bar.njk is included by no
+   template, so `.mode-bar__btn` does not exist on /practice/ and the
+   `state.mode = b.dataset.mode` handler is unreachable. Verified in the
+   browser, not just by grep. See the handoff. */
+
+/* Type the whole visible target, then click the results screen's real
+   "Type this segment again" button. Returns what the restart produced. */
+async function typeThroughAndRestart(mutateStorage) {
+  await page.click(".tt-stage").catch(() => {});
+  const target = await page.$$eval(".tt-char", (els) =>
+    els.map((e) => (e.classList.contains("tt-char--space") ? " " : e.textContent)).join(""));
+  for (const ch of target) await page.keyboard.type(ch, { delay: 2 });
+  const gotResults = await page
+    .waitForSelector("button:has-text('Type this segment again')", { timeout: 8000 })
+    .then(() => true).catch(() => false);
+  // Storage changes AFTER the session finishes, so the finish handler's
+  // own setSegProgress() write cannot clobber it.
+  await page.evaluate(mutateStorage.fn, mutateStorage.arg);
+  const btn = page.locator("button", { hasText: /Type this segment again/i }).first();
+  await btn.click({ timeout: 8000 }).catch(() => {});
+  await page.waitForTimeout(1200);
+  const after = await page.evaluate(() => {
+    const h = document.getElementById("tt-custom-header");
+    const a = document.getElementById("tt-attribution");
+    const flat = (el) => (el ? el.textContent.replace(/\s+/g, " ").trim() : null);
+    const t = document.getElementById("tt-text");
+    return {
+      customHeader: flat(h),
+      attribution: flat(a),
+      attrTitle: a && a.querySelector(".tt-attribution__title")
+        ? a.querySelector(".tt-attribution__title").textContent.trim() : null,
+      body: t ? t.textContent.replace(/\s+/g, " ").trim().slice(0, 70) : null,
+    };
+  });
+  return { gotResults, ...after };
+}
+
+const QUOTE_REC = {
+  id: "c_quote2", title: "On patience", createdAt: new Date().toISOString(), bytes: 60,
+  segCount: 1, lastSeg: 0, segments: ["Patience is bitter but its fruit is sweet."],
+  meta: { kind: "quote", sourceId: "q1", title: "On patience",
+          author: "Jean-Jacques Rousseau", year: "1762", source: "Emile", meaning: null },
+};
+const IMPORT_REC = {
+  id: "c_multi", title: "Quarterly Field Notes", createdAt: new Date().toISOString(),
+  bytes: 80, segCount: SEGS.length, lastSeg: 0, segments: SEGS, meta: null,
+};
+
+/* 6a. The import is deleted while it is open; the id lookup falls back
+   to `listSavedCustom()[0]`, which is now a quote. This is the exact
+   shape the header work exists to prevent: a quote wearing a segmented
+   import's header and counter. */
+await seed([IMPORT_REC, QUOTE_REC]);
+const before6a = await readHeader("/practice/?mode=custom&custom=c_multi&seg=2");
+chk(before6a.seg === "Segment 3 of 4",
+  "6a setup: the import really did set a segment count first",
+  JSON.stringify(before6a.seg));
+const q2 = await typeThroughAndRestart({
+  fn: (rec) => localStorage.setItem("tt:custom-texts", JSON.stringify([rec])),
+  arg: QUOTE_REC,
+});
+chk(q2.gotResults, "6a: reached the results screen and its restart button");
+chk(q2.body === "Patience is bitter but its fruit is sweet.",
+  "6a: the restart really did load the quote — the second buildText ran",
+  JSON.stringify(q2.body));
+chk(q2.customHeader === null,
+  "6a: the quote does NOT inherit the deleted import's segmented header",
+  JSON.stringify(q2.customHeader));
+chk(!/Segment\s+\d+\s+of\s+\d+/i.test(q2.customHeader || ""),
+  "6a: no stale ‘Segment 3 of 4’ over a quote", JSON.stringify(q2.customHeader));
+chk(q2.attrTitle === "On patience",
+  "6a: the quote gets its own attribution header instead", JSON.stringify(q2.attrTitle));
+
+/* 6b. Same text, but its body can no longer be read back (IndexedDB
+   eviction). targetFor() returns the error string from an early return
+   that never reaches the segment count. */
+await seed([IMPORT_REC]);
+const before6b = await readHeader("/practice/?mode=custom&custom=c_multi&seg=2");
+chk(before6b.seg === "Segment 3 of 4",
+  "6b setup: the import really did set a segment count first",
+  JSON.stringify(before6b.seg));
+const gone = await typeThroughAndRestart({
+  fn: () => {
+    const list = JSON.parse(localStorage.getItem("tt:custom-texts") || "[]");
+    list.forEach((x) => { x.segments = []; });
+    localStorage.setItem("tt:custom-texts", JSON.stringify(list));
+  },
+  arg: null,
+});
+chk(gone.gotResults, "6b: reached the results screen and its restart button");
+chk(!!gone.body && /could not be read back/i.test(gone.body),
+  "6b: the restart really did hit the unreadable-body branch",
+  JSON.stringify(gone.body));
+chk(gone.customHeader === null,
+  "6b: no header is painted over the ‘could not be read back’ message",
+  JSON.stringify(gone.customHeader));
 
 // ---- the header must not leak into a mode that is not custom
 const lesson = await readHeader("/practice/?mode=lesson&lesson=1");
