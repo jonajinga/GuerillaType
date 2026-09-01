@@ -693,15 +693,20 @@ async function storedTop(needles = []) {
   }, needles);
 }
 
-async function saveAndRead(needles) {
+async function awaitSaved(needles) {
   try {
-    await page.click("#paste-save");
     await page.waitForSelector(".saved-item", { timeout: 60000 });
     await page.waitForFunction(() => !document.querySelector("#paste-save").disabled, null, { timeout: 60000 });
   } catch (e) {
     chk(false, "the save button saved something", String(e.message).split("\n")[0]);
   }
   return storedTop(needles);
+}
+
+async function saveAndRead(needles) {
+  await page.click("#paste-save").catch((e) =>
+    chk(false, "the save button is clickable", String(e.message).split("\n")[0]));
+  return awaitSaved(needles);
 }
 
 /* ── the texts ─────────────────────────────────────────────────── */
@@ -904,7 +909,23 @@ st = await panelState();
 eq(st.source, "file", "start from an uploaded book");
 chk(st.notice !== "", "…with its preview notice up");
 
-await page.fill("#paste-text", PASTE_NOISY);
+/* Dispatched from inside the page so the listener has run by the time
+   the evaluate returns -- no timer, no waiting, nothing to be flaky
+   about. The debounce cannot have fired yet, so what comes back is
+   what the input handler alone did. */
+const immediate = await page.evaluate((paste) => {
+  const ta = document.querySelector("#paste-text");
+  ta.value = paste;
+  ta.dispatchEvent(new Event("input", { bubbles: true }));
+  const el = document.querySelector("#ocr-panel");
+  const notice = document.querySelector("#paste-notice");
+  return { hidden: el.hidden, source: el.dataset.source || null, noticeHidden: !!notice.hidden };
+}, PASTE_NOISY);
+eq(immediate.hidden, true,
+  "the moment the box is edited the file's panel comes down — its counts describe text that is no longer there");
+eq(immediate.source, null, "…and takes its label with it, before the debounce has run at all");
+eq(immediate.noticeHidden, true, "…and the file's preview notice goes at the same time");
+
 await panelSourceIs("paste").catch(() => {});
 st = await panelState();
 eq(st.panels, 1, "after pasting over an upload there is exactly one panel on the page");
@@ -956,6 +977,48 @@ eq(st.summary,
   `${ocrNoiseReport(SMALL_SCAN).total} mark in this file looked like scanning noise rather than the book, ` +
   `and was cleaned up:`,
   "…with the file's own sentence and count");
+
+/* ── H8. An uploaded file with nothing to clean shows no panel ─── */
+/* The same rule from the other side. Without this the "0 changes"
+   guard inside renderOcrPanel() is unreachable from any test: the
+   paste path returns before it, so only a clean FILE can get there. */
+await freshPage();
+await page.setInputFiles("#uploader-file", {
+  name: "clean.txt",
+  mimeType: "text/plain",
+  buffer: Buffer.from(PASTE_CLEAN, "utf8"),
+});
+await page.waitForFunction(() => document.querySelector("#paste-text").value.length > 0,
+  null, { timeout: 60000 });
+await settle();
+st = await panelState();
+eq(st.hidden, true, "uploading a file with nothing to clean shows no panel either");
+eq(st.source, null, "…and leaves no label behind");
+eq(st.box, PASTE_CLEAN, "…and the file's own text is what is in the box");
+
+/* ── H9. Saving in the same tick as the edit ───────────────────── */
+/* The debounce opens a window: paste, then hit Save before the scan
+   has run, and the choice the save uses is the one from the PREVIOUS
+   text. Both the edit and the click are dispatched inside the page in
+   one synchronous block, so the timer provably has not fired -- if the
+   save did not flush the pending scan itself, the stale "no" from the
+   noisy paste would be written onto a record with nothing to clean. */
+await freshPage();
+await page.fill("#paste-title", "raced save");
+await page.fill("#paste-text", PASTE_NOISY);
+await shownPanel().catch(() => {});
+await setTick(false);
+await page.evaluate((clean) => {
+  const ta = document.querySelector("#paste-text");
+  ta.value = clean;
+  ta.dispatchEvent(new Event("input", { bubbles: true }));
+  document.querySelector("#paste-save").click();
+}, PASTE_CLEAN);
+rec = await awaitSaved([]);
+eq(rec && rec.bytes, sanitize(PASTE_CLEAN).length,
+  "a save in the same tick as the edit stores the text that is in the box");
+eq(rec && rec.clean, "(no clean field)",
+  "…and not the previous text's \"leave it alone\" — the save flushes the pending scan first");
 
 await browser.close();
 server.close();
