@@ -6,7 +6,7 @@ import { TypingEngine } from "../engine/typing-engine.js";
 import { AdaptiveModel } from "../engine/adaptive.js";
 import { buildPicker, uniformText, drillText } from "../engine/wordpicker.js";
 import { recordSession } from "../engine/session-recorder.js";
-import { setSegProgress, getSaved as getSavedCustom, listSaved as listSavedCustom, getSegments as getCustomSegments, normalizeTypeable } from "../engine/custom-text.js";
+import { setSegProgress, getSaved as getSavedCustom, listSaved as listSavedCustom, getSegments as getCustomSegments, normalizeTypeable, cleanForDisplay } from "../engine/custom-text.js";
 import { byId as achievementById } from "../engine/achievements.js";
 import { fingerForKey } from "../engine/layouts.js";
 import { bookStructureSig } from "../engine/book-structure.js";
@@ -506,7 +506,20 @@ async function buildText() {
     state._customLastSeg = segments.length - 1;
     const idx = Math.min(Math.max(0, state.customSeg), segments.length - 1);
     state.customSeg = idx;
-    return textToParagraphs(segments[idx]);
+    /* Scanner noise is cleaned here as well as at import, so a book
+       already sitting in this browser is repaired without being
+       re-imported -- the same reasoning as the normalizeTypeable call
+       inside textToParagraphs.
+
+       cleanForDisplay() reads item.clean, so a user who unticked
+       "Clean up OCR noise" in the import preview keeps their text
+       exactly as it was. A record with no `clean` field predates the
+       feature and gets cleaned, which is the point.
+
+       Deliberately NOT inside textToParagraphs(): that helper is
+       shared with book mode, where nobody asked for this and where
+       the off-switch cannot reach. */
+    return textToParagraphs(cleanForDisplay(segments[idx], item));
   }
   if (state.mode === "lesson") {
     const lesson = await getLesson(state.lessonId);
