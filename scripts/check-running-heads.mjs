@@ -243,134 +243,122 @@ eqJ(removedFrom(CHAP),
    "LE JOURNAL D'UNE FEMME DE CHAMBRE . »("],
   "three heads and one chapter number");
 
-console.log("\n## D. DEFECT — where the 25% rule destroys real text");
+console.log("\n## D. DEFECT — where the recurrence rule destroys real text");
 /* The bar is Math.max(3, floor(pages * 0.25)), so for any document of
-   twelve pages or fewer THREE occurrences at a page edge is enough. */
+   twelve pages or fewer THREE occurrences at a page edge is enough.
+
+   The filler prose below is deliberately worded differently on every
+   page. Numbering the pages "page 1", "page 2" would not do it: norm()
+   erases digits before comparing, so those lines are the SAME line to
+   this code and the document would be gutted for a second reason,
+   masking the one under test. That second reason is real and is asserted
+   on its own at the end of this section. */
+const NTH = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth",
+  "tenth", "eleventh", "twelfth", "thirteenth", "fourteenth", "fifteenth", "sixteenth", "seventeenth",
+  "eighteenth", "nineteenth", "twentieth", "twenty-first", "twenty-second", "twenty-third",
+  "twenty-fourth", "twenty-fifth", "twenty-sixth", "twenty-seventh", "twenty-eighth", "twenty-ninth",
+  "thirtieth", "thirty-first", "thirty-second", "thirty-third", "thirty-fourth", "thirty-fifth",
+  "thirty-sixth", "thirty-seventh", "thirty-eighth", "thirty-ninth", "fortieth"];
+const filler = (i, slot) => `The ${NTH[i]} page, and the ${NTH[slot]} line of prose upon it.`;
+const fillerPage = (i, n = 4) => page(...Array.from({ length: n }, (_, k) => filler(i, k)));
+
+/* If this ever fails, every check in D, E and F below is measuring the
+   filler rather than the thing it names. */
+const allFiller = [];
+for (let i = 0; i < 40; i++) for (let k = 0; k < 6; k++) allFiller.push(filler(i, k));
+chk(new Set(allFiller.map((l) => l.replace(/\d+/g, " ").replace(/[^\p{L}]+/gu, " ").trim().toLowerCase())).size === allFiller.length,
+  "the filler prose is genuinely distinct — no two lines collide under norm()");
+chk(removedFrom(Array.from({ length: 12 }, (_, i) => fillerPage(i))).length === 0,
+  "…and a twelve-page document made only of it loses nothing at all");
 
 const REFRAIN = "And miles to go before I sleep";
-const versePages = [];
-for (let i = 0; i < 12; i++) {
-  versePages.push(page(
-    `Whose woods these are I think I know ${i}`,
-    `His house is in the village though ${i}`,
-    `He will not see me stopping here ${i}`,
-    i % 4 === 3 ? REFRAIN : `To watch his woods fill up with snow ${i}`));
-}
-chk(removedFrom(versePages).filter((l) => l === REFRAIN).length === 3,
-  "DEFECT: a refrain closing three pages of a twelve-page pamphlet is deleted as furniture",
-  JSON.stringify(removedFrom(versePages)));
+const versePages = Array.from({ length: 12 }, (_, i) =>
+  page(filler(i, 0), filler(i, 1), filler(i, 2), i % 4 === 3 ? REFRAIN : filler(i, 3)));
+eqJ(removedFrom(versePages), [REFRAIN, REFRAIN, REFRAIN],
+  "DEFECT: a refrain closing three pages of a twelve-page pamphlet is deleted as furniture");
 
 /* The same refrain, the same three times, in a longer book: kept. The
-   rule is not "is this furniture", it is "how long is the document". */
-const longVerse = versePages.concat(Array.from({ length: 28 }, (_, i) =>
-  page(`Stanza line one ${i}`, `Stanza line two ${i}`, `Stanza line three ${i}`, `Stanza line four ${i}`)));
-chk(!removedFrom(longVerse).includes(REFRAIN),
-  "…and survives untouched in a forty-page one, three occurrences and all",
-  JSON.stringify(removedFrom(longVerse)));
+   rule is not "is this furniture", it is "how long is the document" --
+   which is the same reason it misses the head of the real 530-page
+   scan, at the other end of the scale. */
+const longVerse = versePages.concat(Array.from({ length: 28 }, (_, i) => fillerPage(i + 12)));
+eqJ(removedFrom(longVerse), [],
+  "…and survives untouched in a forty-page one, three occurrences and all");
 
-const playPages = [];
-for (let i = 0; i < 10; i++) {
-  playPages.push(page(
-    i % 3 === 0 ? "MACBETH." : `SECOND MURDERER ${i}.`,
-    `Line of verse ${i} that runs on for a while here`,
-    `Another line of verse ${i} to fill the page out`,
-    `A closing line for page ${i} of the scene`));
-}
-chk(removedFrom(playPages).filter((l) => l === "MACBETH.").length === 4,
-  "DEFECT: a speaker name heading four pages of a ten-page scene is deleted",
-  JSON.stringify(removedFrom(playPages)));
+const playPages = Array.from({ length: 10 }, (_, i) =>
+  page(i % 3 === 0 ? "MACBETH." : `${NTH[i].toUpperCase()} MURDERER.`, filler(i, 1), filler(i, 2), filler(i, 3)));
+eqJ(removedFrom(playPages), ["MACBETH.", "MACBETH.", "MACBETH.", "MACBETH."],
+  "DEFECT: a speaker name heading four pages of a ten-page scene is deleted");
 
-const letterPages = [];
-for (let i = 0; i < 8; i++) {
-  letterPages.push(page(
-    i % 3 === 0 ? "My dear Sir," : `Continued from the previous sheet ${i},`,
-    `and so I told him plainly what I thought of it ${i}.`,
-    `He answered nothing at all, which was his way ${i}.`,
-    `I remain, as ever, your obedient servant ${i}.`));
-}
-chk(removedFrom(letterPages).filter((l) => l === "My dear Sir,").length === 3,
-  "DEFECT: the salutation opening three letters in a collection is deleted",
-  JSON.stringify(removedFrom(letterPages)));
+const letterPages = Array.from({ length: 8 }, (_, i) =>
+  page(i % 3 === 0 ? "My dear Sir," : filler(i, 0), filler(i, 1), filler(i, 2), filler(i, 3)));
+eqJ(removedFrom(letterPages), ["My dear Sir,", "My dear Sir,", "My dear Sir,"],
+  "DEFECT: the salutation opening three letters in a collection is deleted");
 
 /* Digits are erased before comparing -- deliberately, so "10 LE JOURNAL"
    and "14 LE JOURNAL" count as the same line. The cost is that any two
-   lines differing only in a number are the same line too. This book is a
-   DIARY: every entry opens with a date. */
+   lines differing only in a number are the same line too. The book this
+   was written for is a DIARY: every entry opens with a date. */
 const MONTHS = ["septembre", "octobre", "novembre"];
-/* Genuinely different prose on every page, no numbers in it. Otherwise
-   the body lines collide under norm() as well and the check would not be
-   measuring the dates. */
-const BODY = [
-  ["The garden has gone over entirely to nettles", "and the gardener has given notice", "Nobody has replaced him"],
-  ["Madame rang four times before luncheon", "each time for something she did not want", "I stopped hurrying"],
-  ["It rained without stopping until dusk", "and the lane became a river of clay", "The post did not come"],
-  ["A pedlar called at the kitchen door", "selling ribbon nobody in the house needs", "Cook sent him off"],
-  ["The cat has taken to sleeping in the linen press", "which will be discovered eventually", "I said nothing"],
-  ["Monsieur spent the afternoon with his books", "and did not once ring for anything", "A blessed quiet"],
-  ["There was a quarrel in the stable yard", "loud enough to be heard from the landing", "Nobody explained it"],
-  ["I mended the grey dress again", "though it is past mending honestly", "It will not last the winter"],
-  ["The bell in the village rang at odd hours", "which everyone pretended not to notice", "It is always so here"],
-  ["Two carriages came up the drive at once", "and neither party would give way", "They sat there an hour"],
-  ["The lamp in the corridor smokes badly", "and blackens the ceiling above it", "No one will buy another"],
-  ["Frost on the inside of my window", "and my water frozen in the jug", "I dressed in the dark"],
-];
-const diaryPages = [];
-for (let i = 0; i < 12; i++) {
-  diaryPages.push(page(`${i + 3} ${MONTHS[i % 3]}.`, ...BODY[i]));
-}
-const diaryLost = removedFrom(diaryPages);
-chk(diaryLost.length === 12 && diaryLost.every((l) => /^\d+ (septembre|octobre|novembre)\.$/.test(l)),
-  "DEFECT: every date in a twelve-entry diary is deleted — digits are erased before comparing, so \"3 septembre.\" and \"18 septembre.\" are the same line",
-  JSON.stringify(diaryLost));
+const diaryPages = Array.from({ length: 12 }, (_, i) =>
+  page(`${i + 3} ${MONTHS[i % 3]}.`, filler(i, 1), filler(i, 2), filler(i, 3)));
+eqJ(removedFrom(diaryPages),
+  ["3 septembre.", "4 octobre.", "5 novembre.", "6 septembre.", "7 octobre.", "8 novembre.",
+   "9 septembre.", "10 octobre.", "11 novembre.", "12 septembre.", "13 octobre.", "14 novembre."],
+  "DEFECT: every date in a twelve-entry diary is deleted — \"3 septembre.\" and \"18 septembre.\" are one line once the digits go");
 
 console.log("\n## E. DEFECT — isFolio() against real words");
 /* /^[\s.,\-–—]*(?:[ivxlcdm]{1,7}|\d{1,4})[\s.,\-–—]*$/i
    matches ANY line built only from the letters i v x l c d m, up to
    seven of them. Plenty of real words are. No recurrence is required and
-   no threshold applies: one page ending in the word is enough. */
+   no threshold applies: one page ending on the word is enough. */
 
-const docWithLastLine = (word) => {
-  const ps = [];
-  for (let i = 0; i < 6; i++) {
-    ps.push(page(
-      `A first line of ordinary prose on page ${i}.`,
-      `A second line, longer, so the page looks like a page ${i}.`,
-      `A third line to keep the edges apart from each other ${i}.`,
-      i === 2 ? word : `A last line of ordinary prose on page ${i}.`));
-  }
-  return ps;
-};
+const docWithLastLine = (word) => Array.from({ length: 6 }, (_, i) =>
+  page(filler(i, 0), filler(i, 1), filler(i, 2), i === 2 ? word : filler(i, 3)));
 for (const w of ["did", "mix", "civil", "mild", "vivid", "livid", "Il", "MIX"]) {
-  chk(removedFrom(docWithLastLine(w)).includes(w),
-    `DEFECT: a page ending on the single word "${w}" loses it`);
+  eqJ(removedFrom(docWithLastLine(w)), [w], `DEFECT: a page ending on the single word "${w}" loses it`);
 }
 /* Anti-vacuity: it is not eating every short line. */
 for (const w of ["the", "and", "was", "sept", "mixed", "Yes", "No."]) {
-  chk(!removedFrom(docWithLastLine(w)).includes(w),
-    `…but a page ending on "${w}" keeps it`,
-    removedFrom(docWithLastLine(w)).length ? JSON.stringify(removedFrom(docWithLastLine(w))) : "");
+  eqJ(removedFrom(docWithLastLine(w)), [], `…but a page ending on "${w}" keeps it`);
 }
 
 console.log("\n## F. The under-five-page bail-out");
 /* stripRunningLines returns immediately for a document of fewer than
    five pages. Defensible for the recurrence test -- three of four pages
-   is not evidence -- but isFolio needs no evidence at all, so a short
+   is not evidence -- but isFolio needs no evidence at all, so a four-page
    pamphlet keeps its page numbers while a five-page one loses them. The
    two halves are asserted together so neither can pass on its own. */
 
-/* Deliberately different prose on every page. Identical prose would be
-   caught by the recurrence rule instead and the folio would not be what
-   the check was measuring -- see D3. */
-const OPENERS = ["He walked", "She waited", "They argued", "It rained", "We left"];
-const CLOSERS = ["and the door shut", "but nobody answered", "so the horse bolted",
-  "while the clock struck", "until the lamp guttered"];
-const folioPage = (n, i) => page(`${OPENERS[i]} out along the terrace that morning.`,
-  `${CLOSERS[i]}, which was the end of it.`, String(n));
-const four = [11, 12, 13, 14].map(folioPage);
-const five = [11, 12, 13, 14, 15].map(folioPage);
+const folioPage = (i, n) => page(filler(i, 0), filler(i, 1), String(n));
+const four = [11, 12, 13, 14].map((n, i) => folioPage(i, n));
+const five = [11, 12, 13, 14, 15].map((n, i) => folioPage(i, n));
 eqJ(stripRunningLines(four), four, "four pages: returned untouched, page numbers and all");
 eqJ(removedFrom(five), ["11", "12", "13", "14", "15"],
   "add a fifth page and every folio in the document disappears");
+
+console.log("\n## F2. EDGE = 2 — two lines at each end, no more and no fewer");
+/* EDGE is a bare constant with nothing holding it in place. These two
+   documents fix it from both sides. */
+
+/* A running head is often NOT the first line: a scanned page frequently
+   sets the folio on a line of its own above it, which is exactly the
+   layout of pages 16 and 20 of the real scan. Reaching it needs EDGE >= 2. */
+const twoLineHead = Array.from({ length: 10 }, (_, i) =>
+  page(String(40 + i), "THE MILL ON THE FLOSS", filler(i, 1), filler(i, 2), filler(i, 3)));
+eqJ(removedFrom(twoLineHead),
+  [40, 41, 42, 43, 44, 45, 46, 47, 48, 49].flatMap((n) => [String(n), "THE MILL ON THE FLOSS"]),
+  "the folio AND the head below it both go — one line at each end would miss the head");
+
+/* And the other side: a line that recurs in the BODY of the page is not
+   furniture and must be left alone. A play sets a character cue every
+   few lines, not only at the top. */
+const bodyCue = Array.from({ length: 10 }, (_, i) =>
+  page(filler(i, 0), filler(i, 1), "MACBETH.", filler(i, 2), filler(i, 3), filler(i, 4)));
+eqJ(removedFrom(bodyCue), [],
+  "a line recurring in the MIDDLE of every page is untouched — it is prose, not furniture");
+chk(stripRunningLines(bodyCue).every((p, i) => p === bodyCue[i]),
+  "…and those pages come back byte-identical");
 
 console.log("\n## G. The old pipeline — which of these bugs were real");
 /* Section F of check-import-whitespace.mjs in spirit: run the code as it
