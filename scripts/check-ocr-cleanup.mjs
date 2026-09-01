@@ -567,13 +567,22 @@ const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, serviceWorkers: "block" });
 page.on("pageerror", (e) => console.log("  PAGEERROR:", String(e).slice(0, 200)));
 
-process.on("unhandledRejection", async (err) => {
-  console.log(`  FAIL  unhandled rejection — ${err?.message ?? err}`);
-  console.log("\nRUN ABORTED — counts below are partial.");
-  try { await browser.close(); } catch {}
+/* A net, not the plan. Every interaction below that can legitimately
+   fail when the feature is missing is wrapped so it records a FAIL and
+   carries on -- a suite that dies on its first red tells you one thing
+   and hides the other twenty. This catches what is left, and prints
+   the counts rather than a stack: an aborted run with no totals reads
+   like a run nobody did. Node reports a rejected top-level await as an
+   uncaught exception, so both are hooked. */
+const abort = (err) => {
+  console.log(`  FAIL  section H ran to the end — ${String(err?.message ?? err).split("\n")[0]}`);
+  fail++;
+  console.log("\nRUN ABORTED — the counts below are partial.");
   try { server.close(); } catch {}
-  process.exit(1);
-});
+  finish(1);
+};
+process.on("unhandledRejection", abort);
+process.on("uncaughtException", abort);
 
 /* ── driving helpers ───────────────────────────────────────────── */
 
@@ -615,6 +624,22 @@ const panelState = () => page.evaluate(() => {
     notice: notice && !notice.hidden ? notice.textContent.trim() : "",
   };
 });
+
+/* The off-switch is inside the panel, so when the panel is missing
+   this is where a broken build throws. Record it as the failure it is
+   and keep going: the cases after this one are about what gets STORED,
+   and they are the ones that show what the missing off-switch costs. */
+async function setTick(on) {
+  try {
+    if (on) await page.check("#ocr-clean", { timeout: 6000 });
+    else await page.uncheck("#ocr-clean", { timeout: 6000 });
+    return true;
+  } catch (e) {
+    chk(false, `the off-switch can be ${on ? "ticked" : "unticked"} on screen`,
+      String(e.message).split("\n")[0]);
+    return false;
+  }
+}
 
 const shownPanel = () => page.waitForFunction(() => {
   const el = document.querySelector("#ocr-panel");
@@ -669,9 +694,13 @@ async function storedTop(needles = []) {
 }
 
 async function saveAndRead(needles) {
-  await page.click("#paste-save");
-  await page.waitForSelector(".saved-item", { timeout: 60000 });
-  await page.waitForFunction(() => !document.querySelector("#paste-save").disabled, null, { timeout: 60000 });
+  try {
+    await page.click("#paste-save");
+    await page.waitForSelector(".saved-item", { timeout: 60000 });
+    await page.waitForFunction(() => !document.querySelector("#paste-save").disabled, null, { timeout: 60000 });
+  } catch (e) {
+    chk(false, "the save button saved something", String(e.message).split("\n")[0]);
+  }
   return storedTop(needles);
 }
 
@@ -723,7 +752,7 @@ eq(st.box, PASTE_NOISY,
 eq(st.notice, "", "…and no long-text preview notice was raised for a short paste");
 
 /* ── H2. Unticking stores the ORIGINAL, and marks the record ───── */
-await page.uncheck("#ocr-clean");
+await setTick(false);
 st = await panelState();
 eq(st.box, PASTE_NOISY, "unticking does not rewrite the box either — it already held the original");
 let rec = await saveAndRead([RAW_MARKS, SPLIT_WORD, CLEANED_MARKS]);
@@ -768,7 +797,7 @@ eq(st.box, PASTE_CLEAN, "…and the text is untouched");
 /* ── H4b. Emptying the box puts the off-switch back ────────────── */
 await page.fill("#paste-text", PASTE_NOISY);
 await shownPanel().catch(() => {});
-await page.uncheck("#ocr-clean");
+await setTick(false);
 await page.fill("#paste-text", "");
 await settle();
 st = await panelState();
@@ -816,7 +845,7 @@ async function uploadBook() {
   });
   await page.waitForFunction(() => document.querySelector("#paste-text").value.length > 0,
     null, { timeout: 60000 });
-  await panelSourceIs("file");
+  await panelSourceIs("file").catch(() => {});
 }
 
 await freshPage();
@@ -830,7 +859,7 @@ chk(/whole text is saved/i.test(st.notice), "…and the notice says the whole te
 chk(st.hint.startsWith("Untick to keep the file exactly as it came"),
   "…with the file's own hint, not the paste one", JSON.stringify(st.hint));
 
-await page.uncheck("#ocr-clean");
+await setTick(false);
 st = await panelState();
 eq(st.boxLen, PREVIEW_CHARS, "after unticking the box is still a preview, of the original");
 await settle();   // any scan the toggle wrongly scheduled would have fired by now
@@ -851,8 +880,8 @@ chk(!!rec && rec.has[0], "…and the last sentence of the book is really in ther
    save in full, not just the unticked one. */
 await freshPage();
 await uploadBook();
-await page.uncheck("#ocr-clean");
-await page.check("#ocr-clean");
+await setTick(false);
+await setTick(true);
 await settle();
 st = await panelState();
 eq(st.boxLen, PREVIEW_CHARS, "toggled twice: still previewing, still stashed");
