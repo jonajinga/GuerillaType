@@ -92,7 +92,17 @@ async function importText(title, body, { pin }) {
   const id = found.id;
   if (pin) {
     await p.click(`#text-${id} [data-action="pin"]`);
-    await p.waitForTimeout(300);
+    /* Wait for the flag to actually flip, not for a fixed 300ms. The
+       list re-renders after the click, and under load the sleep was
+       finishing first — which silently ran the whole suite against an
+       UNPINNED text and reported the feature broken. A fixed sleep is
+       not a synchronisation primitive. */
+    await p.waitForFunction((tid) => {
+      try {
+        const it = JSON.parse(localStorage.getItem("tt:custom-texts") || "[]").find((x) => x.id === tid);
+        return !!(it && it.forLesson);
+      } catch { return false; }
+    }, id, { timeout: 15000 });
   }
   return id;
 }

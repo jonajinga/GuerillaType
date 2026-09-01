@@ -472,7 +472,7 @@ async function buildText() {
        must not start counting someone's imported novel toward "finish
        every lesson". megamenu.js scans the same numeric range for the
        next unstarted lesson. */
-    state._customLessonId = null;
+    state._customLessonId = item.forLesson ? "custom:" + item.id : null;
     // Corpus content (quote / idiom / parable / poem) was stored
     // through the same chunk() pipeline as user-uploaded text, but
     // these are short pieces meant to be typed in full. Concatenate
