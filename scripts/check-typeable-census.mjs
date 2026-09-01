@@ -175,7 +175,17 @@ chk([..."café 日本語"].every(typeable),
   "\"café 日本語\" passes — accents and CJK ideographs are letters, and banning them would ban languages");
 chk([..."Ελληνικά Русский हिन्दी العربية"].every(typeable),
   "…and Greek, Cyrillic, Devanagari and Arabic, marks and all");
-chk([...CJK_PUNCTUATION].every(typeable), "…and the CJK punctuation on the allowlist");
+/* Spelled out, not read back off CJK_PUNCTUATION. `[...""].every()`
+   is TRUE, so asserting the allowlist against itself passes loudest
+   exactly when the allowlist has been emptied -- which a mutation run
+   caught this file doing. */
+chk([..."。、，？！：；「」『』（）《》"].every(typeable),
+  "…and the CJK punctuation a Japanese or Chinese IME sends: 。、，？！：；「」『』（）《》");
+const japanese = newCensus();
+count(japanese, "probe", "「こんにちは、世界。」と彼は言った（本当に）。");
+chk(japanese.chars.size === 0,
+  "…so a whole Japanese sentence, punctuation and all, passes the census",
+  report(japanese).join(" | "));
 chk([..."The quick brown fox; \"jumps\" (over) 5% of $40 & 3 -- done."].every(typeable),
   "…and every ASCII character a keyboard has");
 
