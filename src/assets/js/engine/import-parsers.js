@@ -210,13 +210,17 @@ async function parsePdf(file, onProgress) {
   /* De-hyphenate soft line breaks. A PDF text layer wraps by
      typesetting the page, so a hyphen at the end of a line is almost
      always a word broken in two -- "short-\nened" -- not a compound.
-     Rejoin those. The test is lowercase-to-lowercase, which leaves
+     Rejoin those. The test is lowercase-to-lowercase -- \p{Ll}, not
+     [a-z], because [a-z] does not contain e-acute: French "pre-\ncis"
+     and German "Pru-\nfer" were left with a stray hyphen in the middle
+     of the word while the English case beside them was rejoined
+     correctly. Found in a real French scan. It leaves
      "Anglo-\nSaxon" and "post-\nOffice" alone; anything this misses is
      closed up by normalizeTypeable() with the hyphen KEPT, so the word
      never gains a space either way -- it just keeps a hyphen that the
      typesetter meant as a line break. */
   const text = pages.join("\n\n").replace(/\s+\n/g, "\n")
-    .replace(/([a-z])-\n([a-z])/g, "$1$2")
+    .replace(/(\p{Ll})-\n(\p{Ll})/gu, "$1$2")
     .trim();
   if (!text) {
     throw new Error("This PDF has no extractable text — looks like a scanned image. Run OCR first, then upload the .txt.");

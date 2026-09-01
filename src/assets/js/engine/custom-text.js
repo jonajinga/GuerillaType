@@ -86,8 +86,14 @@ export function normalizeTypeable(input) {
   s = s.replace(/[\u00A0\u1680\u2000-\u200A\u202F\u205F\u3000]/g, " ");
   s = s.replace(/\t/g, " ");
   s = s.replace(/\r\n?/g, "\n");
-  // A word broken across a line closes up. No space is invented.
-  s = s.replace(/([A-Za-z0-9])-[ ]*\n[ ]*([A-Za-z0-9])/g, "$1-$2");
+  /* A word broken across a line closes up. No space is invented.
+
+     \p{L}, not [A-Za-z]: with the ASCII class a German "Pru-\nfer" or a
+     French "pre-\ncis" did not match, so the newline survived and the
+     display layer folded it to a space -- "Pru- fer". That is the
+     reported bug, in the reported language, and the English case beside
+     it worked fine, which is why it stayed hidden. */
+  s = s.replace(/(\p{L}|\p{N})-[ ]*\n[ ]*(\p{L}|\p{N})/gu, "$1-$2");
   // Runs of spaces collapse -- but only after a non-space, because
   // leading indentation is load-bearing in verse.
   s = s.replace(/(\S) {2,}/g, "$1 ");

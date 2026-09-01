@@ -87,6 +87,21 @@ eq(sanitize("from his buggy to the post-\noffice window"), "from his buggy to th
 eq(sanitize("the short-   \n   ened word"), "the short-ened word",
   "padding around the break is absorbed, not left behind");
 
+/* The ASCII character classes were the whole bug for non-English text:
+   [A-Za-z] does not contain e-acute, so a French or German word broken
+   across a line did not match, the newline survived, and the display
+   layer folded it into a space inside the word. The English case beside
+   it worked, which is exactly why it stayed hidden. */
+eq(sanitize("de plus pr\u00e9-\ncis, de plus formel"), "de plus pr\u00e9-cis, de plus formel",
+  "a French word broken at an accented letter closes up without a space");
+eq(sanitize("der Pr\u00fc-\nfer \u00f6ffnete"), "der Pr\u00fc-fer \u00f6ffnete",
+  "…and a German one");
+eq(sanitize("el se\u00f1-\nor Mu\u00f1oz"), "el se\u00f1-or Mu\u00f1oz",
+  "…and a Spanish one");
+chk(!/\p{L} \p{L}/u.test(sanitize("pr\u00e9-\ncis").replace("pr\u00e9-cis", "")),
+  "…none of which leaves a space inside the word",
+  JSON.stringify(sanitize("de plus pr\u00e9-\ncis")));
+
 console.log("\n## D. What must SURVIVE — the anti-vacuity half");
 /* Every check above would also pass if the normalizer simply deleted
    whitespace, or deleted punctuation, or deleted everything. These say
