@@ -20,12 +20,13 @@ pageSlug: roadmap
 <ul>
   <li><strong>Imported text is typeable text.</strong> A book's text layer is full of characters that look like a space and are not one — non-breaking spaces, thin spaces, figure spaces — plus zero-width joiners and soft hyphens that no keyboard can produce. All of them used to reach the typing surface, where you would press the spacebar and be marked wrong. A word broken across a line ("short-<br>ened") also gained a space in the middle of it. Both are fixed at the point of import, and again on the way out, so books imported before the fix are repaired without re-importing.</li>
   <li><strong>EPUB and PDF import.</strong> Drop a <code>.epub</code> or <code>.pdf</code> on the <a href="/custom/">Custom text</a> page and type from your own books. Whole books are fine — nothing is trimmed, and you pick the segment you want. PDF text is rejoined by measuring the geometry rather than gluing fragments together, so words no longer arrive as "beca use".</li>
+  <li><strong>Adaptive drills.</strong> A drill now gives you extra repetitions of the characters in that drill you are worst at, while still showing every word in the set at least once — the word list is the drill's curriculum, so nothing is dropped. Drills only lengthen once there is a real signal to act on; until then they run exactly as before.</li>
   <li><strong>Adaptive lesson curriculum.</strong> Every key-set lesson now weights its picker toward the keys and bigrams you are actually slow on, not just Lesson 20.</li>
   <li><strong>Numpad layout + drills.</strong> A full 10-key layout with correct finger mapping, six numpad drills, and numpad support in both the live keyboard and the stats heatmap.</li>
   <li><strong>Theme builder.</strong> Pick your own background / text / accent tokens, save them locally, export and import as JSON, with a WCAG contrast warning. A saved theme now follows you across the whole site — it used to apply on the settings page and vanish on the next navigation.</li>
   <li><strong>Eleven more typing fonts.</strong> Fira Code, IBM Plex Mono, Iosevka, Cascadia Code, Roboto Mono, Source Code Pro, Ubuntu Mono, Space Mono, Inconsolata and Cousine join JetBrains Mono. Iosevka is self-hosted; the rest come from Bunny.</li>
   <li><strong>Lesson trends as small multiples.</strong> One panel per lesson, showing WPM <em>and</em> accuracy across attempts, on a shared scale so panels compare directly. The old chart plotted WPM only and cut its legend off at eight lessons.</li>
-  <li><strong>Pinned custom lessons resume.</strong> A saved text pinned as a lesson picks up where you left off instead of restarting from segment one.</li>
+  <li><strong>Custom lessons are tracked like lessons.</strong> A text you pin as a lesson now picks up where you left off, keeps its own WPM history, earns a mastery mark and best run on the lessons page, and gets its own panel — titled with the book, not an internal id — in lesson trends. It is namespaced separately from the curriculum, so an imported novel can never count toward "finish every lesson".</li>
   <li><strong>Word Snake and Boss Battle.</strong> Two more games, with per-mode high scores, a health bar and a per-word countdown.</li>
   <li><strong>Live ticker.</strong> A keystroke-by-keystroke pulse strip under the typing surface, with a net-WPM readout. Opt in from settings.</li>
   <li><strong>Tape (ticker) mode.</strong> Single horizontal line of words that scrolls left as you type. JS rAF-driven slide for smooth motion; 15-second default sprint.</li>
@@ -52,8 +53,6 @@ pageSlug: roadmap
 
 <h2 id="planned">Planned</h2>
 <ul>
-  <li>Lesson-grade progress for custom lessons. Pinning a text as a lesson and resuming it both work; what a custom lesson still does not get is its own WPM history, mastery state and trend panel, because sessions started from a pinned text are not recorded against a lesson id.</li>
-  <li>Adaptive drills. Lessons weight their word picker toward the keys you are slow on; drills still read a fixed word list and ignore the model entirely.</li>
   <li>OCR for scanned PDFs. Import reads a PDF's text layer, so a scanned, image-only PDF has nothing to extract and is refused with a message rather than silently importing an empty text. Running OCR in the browser is a much larger piece of work than the parser it would sit behind.</li>
   <li>More games — Word Boss variants, and whatever comes out of Punctuation Storm.</li>
   <li>Theme sharing — a way to publish a saved theme so other people can import it, without adding accounts.</li>

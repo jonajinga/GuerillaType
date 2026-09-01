@@ -42,7 +42,9 @@
     "import-extraction": "node scripts/check-import-extraction.mjs",
     "theme-persistence": "node scripts/check-theme-persistence.mjs",
     "lesson-resume": "node scripts/check-lesson-resume.mjs",
-    "lesson-trends": "node scripts/check-lesson-trends.mjs"
+    "lesson-trends": "node scripts/check-lesson-trends.mjs",
+    "adaptive-drills": "node scripts/check-adaptive-drills.mjs",
+    "custom-lesson-progress": "node scripts/check-custom-lesson-progress.mjs"
   },
   "dependencies": {
     "@11ty/eleventy": "^3.0.0",
