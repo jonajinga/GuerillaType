@@ -162,13 +162,13 @@ console.log("\n## B. Every noise-bearing passage in the real scan");
 
 const CASES = [
   ["guillemets",
-    "m'appeler par mon\nnom, au lieu de dire, tout le temps : \" ma fille \"\n" +
-    "par ci... \" ma fille \" par là, sur ce ton de domination blessante, qui décourage",
-    "real French dialogue quotes « » become typeable quotes, not deleted"],
+    "m'appeler par mon\nnom, au lieu de dire, tout le temps : \"ma fille\"\n" +
+    "par ci... \"ma fille\" par là, sur ce ton de domination blessante, qui décourage",
+    "real French dialogue quotes « » become typeable quotes, and the space French sets INSIDE them goes with them"],
   ["doubled-angle",
-    "refermer, puis, l'eau ruisseler dans\nle tub des \" Ah 1 \", des \" Ohl \", " +
-    "des \" Fuuiil \",\ndes \" Brrr! \" que la surprise de l'eau",
-    "a guillemet the scanner read as \"<<\" becomes a quote like the ones beside it"],
+    "refermer, puis, l'eau ruisseler dans\nle tub des \"Ah 1\", des \"Ohl\", " +
+    "des \"Fuuiil\",\ndes \"Brrr!\" que la surprise de l'eau",
+    "a guillemet the scanner read as \"<<\" becomes a quote like the ones beside it, spacing and all"],
   ["star-splits-word",
     "obstinée dans son rêve, pendant que Mon\nsieur, sous la lampe de la bibliothèque, alignait\ndes chiffres",
     "a \"*\" wedged into \"Monsieur\" at a line break goes"],
@@ -183,7 +183,7 @@ const CASES = [
     "première fois, je fus prié de revoir le manuscrit., de le corriger d'en récrire quelques parties.\nJe refusai d'abord,",
     "\"^\" — the commonest noise glyph in this book — goes when it is welded to a word end"],
   ["trademark",
-    "juifs!... Vive le Roy!... Vive l'armée! \" M la comtesse a menacé le gouvernement " +
+    "juifs!... Vive le Roy!... Vive l'armée!\" M la comtesse a menacé le gouvernement " +
     "de le faire interpeller, et monsieur",
     "\"™\", a misread superscript, goes — a keyboard cannot send it"],
   ["clipped-ellipsis",
@@ -201,6 +201,52 @@ for (const [name, want, label] of CASES) {
   chk(P[name] !== undefined, `fixture has a "${name}" passage`);
   eq(cleanOcrNoise(P[name]), want, label);
 }
+
+console.log("\n## B2. The space French sets INSIDE a guillemet goes with it");
+/* Reported from the typing surface, with a screenshot: "« marcher»."
+   was still showing a space inside the quote after the mark was
+   mapped, and "users can't type this". The mark and the narrow space
+   beside it are one piece of punctuation; mapping one and keeping the
+   other leaves a gap nobody typed. */
+
+eq(cleanOcrNoise("« marcher»."), '"marcher".',
+  'the reported line: "« marcher»." comes out as "marcher".');
+eq(cleanOcrNoise("« marcher »."), '"marcher".',
+  "…and so does the fully spaced form, which is how French normally sets it");
+eq(cleanOcrNoise("il dit : « je vais marcher », puis partit."),
+  'il dit : "je vais marcher", puis partit.',
+  "…in a sentence: the spaces OUTSIDE the quotes are left exactly where they were");
+
+/* The same text can reach this function before or after
+   normalizeTypeable, so the space can still be a narrow no-break one.
+   Both spellings, one answer. */
+eq(cleanOcrNoise("\u00ab\u202fmarcher\u202f\u00bb."), '"marcher".',
+  "a narrow no-break space (U+202F) inside the guillemets goes too — /custom/ sees the text before it is normalized");
+eq(cleanOcrNoise("\u00ab\u00a0marcher\u00a0\u00bb."), '"marcher".',
+  "…and a plain no-break space (U+00A0)");
+eq(cleanOcrNoise(normalizeTypeable("\u00ab\u202fmarcher\u202f\u00bb.")), '"marcher".',
+  "…and the same text after normalizeTypeable has already flattened it, which is the order sanitize() uses");
+eq(cleanOcrNoise("des << Ohl >> ici"), 'des "Ohl" ici',
+  "the doubled-bracket spelling of a guillemet loses its inner space as well");
+eq(cleanOcrNoise("un ‹ mot › ici"), "un 'mot' ici",
+  "single guillemets follow the same convention, one tier down");
+
+/* The half that stops this becoming a space-eater. */
+eq(cleanOcrNoise('he said "the cat sat" and left'), 'he said "the cat sat" and left',
+  "an ASCII quote is not a guillemet — its spacing is not touched at all");
+eq(cleanOcrNoise("«marcher»"), '"marcher"',
+  "a guillemet with no inner space does not eat the letter beside it");
+eq(cleanOcrNoise("il dit «  deux espaces  » ici"), 'il dit " deux espaces " ici',
+  "only ONE space is taken — a run of them is not the punctuation's, and a normalizer that ate it could pass by deleting");
+eq(cleanOcrNoise("mot\n» dit-il"), 'mot\n" dit-il',
+  "a newline before a closing guillemet is not a space to eat — the line break stays");
+eq(cleanOcrNoise("    « vers »"), '    "vers"',
+  "…and leading indentation is untouched, which is load-bearing in verse");
+
+const marcher = ocrNoiseReport("« marcher »");
+eq(marcher.total, 2, "both marks are still counted, one each — the preview's numbers do not change meaning");
+eq(cleanOcrNoise(cleanOcrNoise("« marcher »")), cleanOcrNoise("« marcher »"),
+  "…and cleaning it twice is the same as cleaning it once");
 
 console.log("\n## C. What must SURVIVE — the anti-vacuity half");
 /* Every check above would also pass if the cleaner deleted the whole

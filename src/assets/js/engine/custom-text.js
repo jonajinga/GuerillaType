@@ -141,11 +141,39 @@ export function normalizeTypeable(input) {
    deleted: every one of them is standing in for a quotation mark, so
    every one of them becomes one. */
 const QUOTE_LOOKALIKES = {
-  "‹": "'", "›": "'",   // ‹ › single guillemets
   "„": '"', "‟": '"',   // „ ‟ low / reversed double
   "‚": "'",                  // ‚ low single
   "″": '"', "′": "'",   // ″ ′ double / single prime
 };
+
+/* Guillemets carry a space on the INSIDE, and it goes with them.
+
+   French sets a narrow no-break space inside « » -- « marcher » --
+   and that space is part of the punctuation, not part of the
+   sentence. Map the mark on its own and the space is stranded inside
+   an ASCII quote: " marcher ", which is not what anybody types, and
+   which is what a user saw on the typing surface and reported.
+
+   Both spellings of that space have to be handled, because this
+   function runs at two different points in the pipeline. /custom/
+   calls it on the parser's own output, where the space is still
+   U+202F or U+00A0; sanitize() calls it after normalizeTypeable has
+   already turned those into an ordinary one. A file that arrives with
+   either must come out the same.
+
+   At most ONE space is taken. A run of them is verse indentation or
+   the gap before the next word, and eating those would be the
+   "normalizer that passes by deleting things" this suite exists to
+   catch. The single guillemets ‹ › follow the same convention and are
+   mapped the same way, one tier down to an apostrophe.
+
+   Nothing here touches an ASCII quote: `he said "the cat sat"` keeps
+   its spacing exactly, because it never had a guillemet in it. */
+const GSP = "[ \\t\\u00a0\\u202f\\u2009\\u2007]?";
+const OPEN_GUILLEMET = new RegExp("(?:«|<{2,})" + GSP, "g");
+const CLOSE_GUILLEMET = new RegExp(GSP + "(?:»|>{2,})", "g");
+const OPEN_SINGLE_GUILLEMET = new RegExp("‹" + GSP, "g");
+const CLOSE_SINGLE_GUILLEMET = new RegExp(GSP + "›", "g");
 
 /* Glyphs a scanner invents that no book meant to contain. */
 const NOISE_GLYPHS = "*|\\^~§¶†‡°¤¦¬•∗™<>";
@@ -213,10 +241,14 @@ export function ocrNoiseReport(input) {
   /* Doubled angle brackets are a scanner reading « or » one character
      at a time. Rare in the measured book (one occurrence) but
      unambiguous when it happens, and mapping runs before the stray
-     scan so "<<" is never half-eaten. */
-  s = s.replace(/<{2,}|>{2,}/g, () => { counts.guillemets++; return '"'; });
-  s = s.replace(/[«»]/g, () => { counts.guillemets++; return '"'; });
-  s = s.replace(/[‹›„‟‚″′]/g, (ch) => {
+     scan so "<<" is never half-eaten. They are folded into the same
+     two passes as the real guillemets so they lose their inner space
+     too -- "des << Ohl »" is the same typography either way. */
+  s = s.replace(OPEN_GUILLEMET, () => { counts.guillemets++; return '"'; });
+  s = s.replace(CLOSE_GUILLEMET, () => { counts.guillemets++; return '"'; });
+  s = s.replace(OPEN_SINGLE_GUILLEMET, () => { counts.quotes++; return "'"; });
+  s = s.replace(CLOSE_SINGLE_GUILLEMET, () => { counts.quotes++; return "'"; });
+  s = s.replace(/[„‟‚″′]/g, (ch) => {
     counts.quotes++;
     return QUOTE_LOOKALIKES[ch];
   });
