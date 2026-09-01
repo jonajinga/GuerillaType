@@ -219,37 +219,58 @@
 }
 .tt-attribution__meaning strong{color:var(--accent);font-weight:600}
 
-/* Book header that sits above the typing surface in book mode. */
-/* Book reader header above the typing surface. Vertical rhythm:
+/* Book reader header above the typing surface.
+
+   The custom-text reader header (.tt-custom-*) is grouped into every
+   rule below rather than given a type scale of its own: an imported
+   text and a library book are the same reading experience, so they
+   share one set of sizes, colours and gaps. .tt-custom-title tracks
+   .tt-book-chapter, .tt-custom-seg tracks .tt-book-page, and so on.
+   .tt-custom-source is the one addition, and it copies its values
+   from .tt-attribution__source, which is where it came from.
+
+   Vertical rhythm:
    eyebrow → title → page indicator, with consistent gaps so a
    long-title chapter (multi-line) doesn't break the layout. The
    title cap is a max-width-by-character so it wraps at a natural
    reading measure, not at the surface's full width. */
-.tt-book-header{
+.tt-book-header,
+.tt-custom-header{
   display:flex;flex-direction:column;align-items:center;
   max-width:780px;margin:0 auto var(--space-5);
   padding:0 var(--space-3);
   text-align:center;
   gap:.5rem;
 }
-.tt-book-eyebrow{
+.tt-book-eyebrow,
+.tt-custom-eyebrow{
   font-family:var(--font-mono);font-size:.7rem;letter-spacing:.14em;
   text-transform:uppercase;color:var(--fg-3);margin:0;
 }
 /* Author -- always its own line, just below the book title eyebrow,
    in italics so the title|author hierarchy reads at a glance. */
-.tt-book-author{
+.tt-book-author,
+.tt-custom-author{
   font-family:var(--font-display);font-style:italic;
   font-size:var(--fs-300);color:var(--fg-2);
   margin:.15rem 0 0;letter-spacing:0;text-transform:none;
 }
-.tt-book-chapter{
+/* Source line — same treatment the attribution header gives it, so a
+   text that moved from one header to the other looks unchanged. */
+.tt-custom-source{
+  font-family:var(--font-mono);font-size:.78rem;letter-spacing:.04em;
+  color:var(--fg-2);margin:0;
+}
+.tt-custom-source em{font-family:var(--font-display);font-style:italic;color:var(--fg-1)}
+.tt-book-chapter,
+.tt-custom-title{
   font-family:var(--font-display);
   font-size:clamp(1.4rem, 1rem + 1.6vw, 2rem);
   font-weight:500;color:var(--fg-0);margin:0;letter-spacing:-.005em;
   line-height:1.25;max-width:30ch;text-wrap:balance;
 }
-.tt-book-page{
+.tt-book-page,
+.tt-custom-seg{
   font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;
   text-transform:uppercase;color:var(--fg-3);margin:0;
 }
