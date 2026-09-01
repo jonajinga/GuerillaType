@@ -127,6 +127,30 @@ eq(sanitize('<?xml version="1.0" encoding="UTF-8"?><p>Hello there.</p>'), "Hello
 eq(sanitize('<!DOCTYPE html><!-- an editor note --><p>Hello there.</p>'), "Hello there.",
   "…nor a doctype, nor an HTML comment");
 
+console.log("\n## D3. Foreign-language text stays intact and becomes typeable");
+/* Extraction hands back decomposed text more often than not: "u" plus a
+   combining diaeresis rather than a single character. A combining mark
+   is not something a keyboard can send, so the surface was asking for a
+   keystroke that does not exist. NFC is the form a keyboard produces. */
+const COMB = (base, mark) => base + String.fromCodePoint(mark);
+eq(sanitize(COMB("u", 0x0308) + "ber alles"), "\u00fcber alles",
+  "a decomposed umlaut is composed into the single letter a keyboard types");
+eq(sanitize(COMB("e", 0x0301) + "l" + COMB("e", 0x0300) + "ve"), "\u00e9l\u00e8ve",
+  "French acute and grave compose too");
+eq(sanitize(COMB("n", 0x0303) + "andu"), "\u00f1andu", "as does a Spanish tilde");
+
+/* Anti-vacuity, and the thing that would be easiest to get wrong: this
+   must NOT reduce foreign text to ASCII. Stripping the accents would
+   pass every check above and quietly destroy the document. */
+eq(sanitize("\u00fcber Stra\u00dfe na\u00efve caf\u00e9"), "\u00fcber Stra\u00dfe na\u00efve caf\u00e9",
+  "already-composed accents, eszett and diaeresis are left exactly alone");
+eq(sanitize("\u4f60\u597d\u4e16\u754c"), "\u4f60\u597d\u4e16\u754c",
+  "CJK text is not touched");
+eq(sanitize("\u0645\u0631\u062d\u0628\u0627"), "\u0645\u0631\u062d\u0628\u0627",
+  "Arabic text is not touched");
+chk(sanitize("\u00fcber").length === 4, "…and no accent is silently dropped",
+  JSON.stringify(sanitize("\u00fcber")));
+
 console.log("\n## E. The whole product is typeable ASCII");
 
 const MESSY =

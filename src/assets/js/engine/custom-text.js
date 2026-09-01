@@ -72,6 +72,13 @@ const FALLBACK_TOTAL_CHARS = 1024 * 1024;
    repairs the books someone imported before this existed. */
 export function normalizeTypeable(input) {
   let s = String(input || "");
+  /* Compose accents onto their letters. Extraction hands back decomposed
+     text more often than not -- "u" followed by a combining diaeresis
+     rather than a single "u-umlaut" -- and a combining mark is not
+     something a keyboard can send on its own, so the typing surface
+     asked for a character that could not be typed at all. NFC is the
+     form a keyboard actually produces. */
+  s = s.normalize("NFC");
   // Invisible: soft hyphen, zero-width space / non-joiner / joiner,
   // word joiner, BOM. None of these has a key on any keyboard.
   s = s.replace(/[\u00AD\u200B\u200C\u200D\u2060\uFEFF]/g, "");

@@ -135,7 +135,21 @@ async function parseEpub(file, onProgress) {
    emit spaces at all. */
 export function joinTextItems(items) {
   let out = "";
-  let prevRight = null;   // x where the previous fragment ended
+  /* The RIGHTMOST edge reached on this line so far -- not the edge of
+     the previous fragment.
+
+     Accented letters are the reason. A PDF frequently draws "u" and
+     then jumps BACKWARDS to stamp the diaeresis over it, so the accent
+     fragment starts left of where the "u" ended and carries zero width.
+     Taking the previous fragment's right edge then put prevRight behind
+     the base letter, and the next fragment ("ber") looked like it
+     started a whole glyph-width later -- a word gap. The result was
+     "u<combining diaeresis> ber": a space inside the word, on exactly
+     the accented text a non-English document is full of.
+
+     A mark drawn over an earlier glyph cannot advance the pen, so the
+     line's right edge only ever moves forward. */
+  let prevRight = null;
   let prevY = null;
   for (const raw of items || []) {
     const it = raw || {};                 // a null item must not throw
@@ -162,7 +176,8 @@ export function joinTextItems(items) {
       }
     }
     out += s;
-    prevRight = x + w;
+    // Never let an overlay glyph drag the edge backwards.
+    prevRight = prevRight === null ? x + w : Math.max(prevRight, x + w);
     prevY = y;
     if (it.hasEOL) { out += "\n"; prevRight = null; prevY = null; }
   }
