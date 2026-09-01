@@ -47,7 +47,8 @@
     "custom-lesson-progress": "node scripts/check-custom-lesson-progress.mjs",
     "game-powerups": "node scripts/check-game-powerups.mjs",
     "punctuation-storm": "node scripts/check-punctuation-storm.mjs",
-    "ocr-cleanup": "node scripts/check-ocr-cleanup.mjs"
+    "ocr-cleanup": "node scripts/check-ocr-cleanup.mjs",
+    "typeable-census": "node scripts/check-typeable-census.mjs"
   },
   "dependencies": {
     "@11ty/eleventy": "^3.0.0",
