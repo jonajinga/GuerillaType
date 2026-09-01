@@ -46,7 +46,8 @@
     "adaptive-drills": "node scripts/check-adaptive-drills.mjs",
     "custom-lesson-progress": "node scripts/check-custom-lesson-progress.mjs",
     "game-powerups": "node scripts/check-game-powerups.mjs",
-    "punctuation-storm": "node scripts/check-punctuation-storm.mjs"
+    "punctuation-storm": "node scripts/check-punctuation-storm.mjs",
+    "ocr-cleanup": "node scripts/check-ocr-cleanup.mjs"
   },
   "dependencies": {
     "@11ty/eleventy": "^3.0.0",
