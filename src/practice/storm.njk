@@ -1,0 +1,69 @@
+---
+layout: layouts/base.njk
+permalink: /practice/storm/
+title: "Punctuation Storm — Type the punctuation, not the words"
+description: "Punctuation-heavy fragments rain down four lanes and arrive faster the longer you last. Type one exactly and it clears. Let one reach the gutter and it costs a shield."
+hideBreadcrumbs: true
+hidePageHeader: true
+pageSlug: practice-storm
+---
+
+<div class="game-page" data-game-root>
+  <header class="game-header">
+    <div class="game-header__brand">
+      <h1 id="game-title">Punctuation Storm</h1>
+      <p class="muted" id="game-subtitle">Fragments like <code>("wait,")</code> and <code>x = {a: 1};</code> fall in four lanes, faster every second. Type one exactly to clear it.</p>
+    </div>
+    <div class="game-header__stats" id="game-stats">
+      <div class="game-stat game-stat--score"><span class="game-stat__label">Score</span><span class="game-stat__value" data-score>0</span></div>
+      <div class="game-stat"><span class="game-stat__label">Cleared</span><span class="game-stat__value" data-cleared>0</span></div>
+      <div class="game-stat"><span class="game-stat__label">Combo</span><span class="game-stat__value" data-streak>0</span></div>
+      <div class="game-stat"><span class="game-stat__label">Shields</span><span class="game-stat__value" data-shields>3</span></div>
+      <div class="game-stat"><span class="game-stat__label">Storm</span><span class="game-stat__value" data-intensity>1.60s</span></div>
+      <div class="game-stat game-stat--best"><span class="game-stat__label">Best</span><span class="game-stat__value" data-best>0</span></div>
+    </div>
+  </header>
+
+  <p class="storm-notice" id="storm-skip-notice" role="status" hidden>
+    <strong>Heads up:</strong> you have <a href="/settings/">Skip punctuation</a> turned on. Punctuation Storm ignores it — every fragment here has to be typed character for character, punctuation included. That setting still applies everywhere else.
+  </p>
+
+  <section class="storm-stage">
+    <svg id="storm-svg" class="storm-svg" viewBox="0 0 800 460" preserveAspectRatio="xMidYMid meet" aria-label="Punctuation storm stage">
+      <rect class="storm-bg" x="0" y="0" width="800" height="460"/>
+      <rect class="storm-gutter" x="0" y="408" width="800" height="52"/>
+      <line class="storm-gutter-line" x1="0" y1="408" x2="800" y2="408"/>
+      <g id="storm-layer"></g>
+    </svg>
+    <div class="storm-overlay" id="storm-overlay" hidden>
+      <p class="storm-overlay__title">The storm wins</p>
+      <p class="storm-overlay__line"><strong data-over-score>0</strong> points · <strong data-over-cleared>0</strong> cleared · best combo <strong data-over-streak>0</strong></p>
+      <p class="storm-overlay__best" data-over-best hidden>NEW PERSONAL BEST</p>
+    </div>
+    <div class="game-input-wrap">
+      <input id="game-input" class="game-input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="text" enterkeyhint="done" aria-label="Type a falling fragment" placeholder="Type a fragment exactly — punctuation and all…">
+    </div>
+  </section>
+
+  <section class="game-actions">
+    <button type="button" class="btn btn--primary" id="game-start">Start</button>
+    <button type="button" class="btn" id="game-pause" hidden>Pause</button>
+    <button type="button" class="btn" id="game-reset" hidden>Reset</button>
+    <a href="/games/" class="btn btn--ghost">Back to games</a>
+  </section>
+
+  <section class="game-howto" aria-label="How to play">
+    <h2>How to play — Punctuation Storm</h2>
+    <ul>
+      <li>Fragments fall in four lanes. Every one is punctuation-heavy on purpose — <code>("wait,")</code>, <code>[see p. 12];</code>, <code>"Don't!"</code>, <code>x = {a: 1};</code> — because punctuation is where most typists are slowest.</li>
+      <li><strong>No commit key.</strong> The moment what you have typed matches a fragment on screen exactly, that fragment clears and the field empties. Several fragments contain spaces, so space cannot be the submit key the way it is in Boss Battle.</li>
+      <li><strong>Scoring:</strong> 10 points per punctuation character plus 1 per character, then <strong>+10% per fragment already cleared in the current combo</strong>. <code>("wait,")</code> has five punctuation characters and nine characters, so it opens a combo at 59.</li>
+      <li><strong>The cost of a leak:</strong> a fragment that reaches the gutter costs <strong>one shield</strong> and <strong>resets your combo to zero</strong>. It does not cost points. Three leaks and the round is over.</li>
+      <li>There is no penalty for typing the wrong thing. If nothing on screen starts with what you have typed the field turns red — press <kbd>Enter</kbd> or <kbd>Esc</kbd> to empty it and start again.</li>
+      <li><strong>The storm builds.</strong> Spawn interval falls from 1.60s toward 0.42s and fragments fall faster, purely as a function of how long you have been playing. Playing well does not make it worse; surviving does.</li>
+      <li>The <a href="/settings/">Skip punctuation</a> setting is deliberately ignored here — honouring it would delete the game. It still applies on the practice surface.</li>
+    </ul>
+  </section>
+</div>
+
+<script type="module" src="/assets/js/pages/storm-boot.js?v={{ cssVersion }}"></script>

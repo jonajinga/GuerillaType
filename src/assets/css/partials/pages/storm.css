@@ -1,0 +1,89 @@
+/* /practice/storm/ -- Punctuation Storm
+
+   Every colour on this page is a theme token. Nothing here is a hex
+   literal: six bundled themes plus whatever a user builds in the theme
+   builder all have to repaint this stage, and a hard-coded #hex would
+   survive a theme switch and look wrong in five of the six. */
+
+.storm-stage{
+  position:relative;
+  background:var(--bg-1);
+  border:1px solid var(--rule);
+  border-radius:var(--radius);
+  overflow:hidden;
+}
+.storm-svg{display:block;width:100%;height:460px}
+
+.storm-bg{fill:var(--bg-1)}
+.storm-gutter{fill:color-mix(in oklab, var(--bad) 14%, transparent)}
+.storm-gutter-line{stroke:var(--bad);stroke-width:2;stroke-dasharray:6 6;opacity:.75}
+
+.storm-frag{
+  font-family:var(--font-mono);
+  font-size:18px;
+  font-weight:600;
+  fill:var(--fg-0);
+  paint-order:stroke;
+  stroke:var(--bg-1);
+  stroke-width:3px;
+  letter-spacing:.02em;
+}
+/* Locked = what you are typing is a prefix of this fragment. */
+.storm-frag[data-locked="true"]{fill:var(--accent)}
+/* Near the gutter. --warn rather than --bad so it reads as a warning
+   and not as an already-lost fragment. */
+.storm-frag[data-danger="true"]{fill:var(--warn)}
+.storm-frag[data-danger="true"][data-locked="true"]{fill:var(--accent)}
+.storm-frag--demo{opacity:.38}
+
+.storm-svg[data-leak-flash="true"] .storm-bg{
+  fill:color-mix(in oklab, var(--bg-1) 78%, var(--bad));
+}
+
+.storm-notice{
+  margin:0 0 var(--space-3);
+  padding:var(--space-3) var(--space-4);
+  border:1px solid var(--warn);
+  border-left-width:4px;
+  border-radius:var(--radius);
+  background:color-mix(in oklab, var(--bg-1) 88%, var(--warn));
+  color:var(--fg-0);
+  font-size:.94rem;
+}
+.storm-notice a{color:var(--accent)}
+
+.storm-overlay{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:var(--space-2);
+  background:color-mix(in oklab, var(--bg-0) 88%, transparent);
+  text-align:center;
+}
+.storm-overlay[hidden]{display:none}
+.storm-overlay__title{
+  margin:0;font-family:var(--font-display);font-size:2.4rem;font-weight:500;
+  color:var(--accent);
+}
+.storm-overlay__line{margin:0;font-family:var(--font-mono);color:var(--fg-1)}
+.storm-overlay__best{
+  margin:0;font-family:var(--font-mono);font-size:.78rem;letter-spacing:.12em;
+  color:var(--good);
+}
+.storm-overlay__best[hidden]{display:none}
+
+.storm-stage .game-input-wrap{
+  position:relative;
+  padding:var(--space-3) var(--space-4);
+  background:color-mix(in oklab, var(--bg-0) 88%, transparent);
+  border-top:1px solid var(--rule);
+}
+/* Nothing on screen starts with what is typed. */
+.storm-stage .game-input[data-bad="true"]{
+  border-color:var(--bad);
+  color:var(--bad);
+}
+
+@media (max-width:600px){
+  .storm-svg{height:340px}
+  .storm-overlay__title{font-size:1.7rem}
+}

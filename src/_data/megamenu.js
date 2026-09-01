@@ -228,6 +228,7 @@ const megamenu = [
         title: "Puzzle & memory",
         items: [
           { chip: "🐍", label: "Word Snake", url: "/practice/snake/", desc: "Steer the snake by typing 'up' / 'down' / 'left' / 'right'." },
+          { chip: "⛈", label: "Punctuation Storm", url: "/practice/storm/", desc: "Punctuation-heavy fragments rain down, faster every second." },
           { chip: "📚", label: "Story Mode", url: "/practice/story/", desc: "Public-domain passages, word by word. Live WPM through the read." },
           { chip: "🟩", label: "Word Tetris", url: "/practice/tetris/", desc: "Letters drop in columns. Type words to clear them." },
           { chip: "🧠", label: "Memory Type", url: "/practice/memory/", desc: "Watch a sequence flash, reproduce by typing. Adds a word each round." },

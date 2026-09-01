@@ -549,6 +549,7 @@ const map = {
   "practice-race": () => import("./pages/race-boot.js" + _v),
   "practice-boss": () => import("./pages/boss-boot.js" + _v),
   "practice-snake": () => import("./pages/snake-boot.js" + _v),
+  "practice-storm": () => import("./pages/storm-boot.js" + _v),
   "practice-story": () => import("./pages/story-boot.js" + _v),
   "practice-tetris": () => import("./pages/tetris-boot.js" + _v),
   "practice-hangman": () => import("./pages/hangman-boot.js" + _v),
