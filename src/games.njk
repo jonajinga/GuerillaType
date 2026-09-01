@@ -1,14 +1,14 @@
 ---
 layout: layouts/base.njk
 title: "Games"
-description: "Typing mini-games built on your practice data. Sixteen modes across falling-words, race, combat, puzzle, and memory."
+description: "Typing mini-games built on your practice data. Seventeen modes across falling-words, race, combat, puzzle, and memory."
 permalink: /games/
 pageSlug: games
 ---
 <header class="page__head">
   <p class="page__eyebrow">Play</p>
   <h1>Games</h1>
-  <p class="page__subtitle">Sixteen typing games across five mechanics. Each one is built around your practice data — missed-words, weak keys, reading flow.</p>
+  <p class="page__subtitle">Seventeen typing games across five mechanics. Each one is built around your practice data — missed-words, weak keys, reading flow.</p>
   <div class="page__head-actions">
     <button type="button" class="btn btn--primary" id="games-random">🎲 Play a random game</button>
   </div>
@@ -27,6 +27,7 @@ pageSlug: games
   { slug: "boss", title: "Boss Battle", hook: "Boss HP bar. Damage per word. Level up after each defeat.", url: "/practice/boss/", icon: "🐲", bestKey: "boss", section: "combat" },
   { slug: "hangman", title: "Hangman Speedrun", hook: "15-second puzzles. Type letters to solve.", url: "/practice/hangman/", icon: "🪢", bestKey: "hangman", section: "combat" },
   { slug: "snake", title: "Word Snake", hook: "Steer by typing direction words. Grow, score, don't crash.", url: "/practice/snake/", icon: "🐍", bestKey: "snake", section: "puzzle" },
+  { slug: "storm", title: "Punctuation Storm", hook: "Punctuation-heavy fragments rain down, faster every second. Type one exactly to clear it.", url: "/practice/storm/", icon: "⛈", bestKey: "storm", section: "puzzle" },
   { slug: "story", title: "Story Mode", hook: "Public-domain passages, word by word. Live WPM through the read.", url: "/practice/story/", icon: "📚", bestKey: "story", section: "puzzle" },
   { slug: "tetris", title: "Word Tetris", hook: "Letters drop in columns. Type words to clear them.", url: "/practice/tetris/", icon: "🟩", bestKey: "tetris", section: "puzzle" },
   { slug: "memory", title: "Memory Type", hook: "Watch a sequence flash. Reproduce it by typing.", url: "/practice/memory/", icon: "🧠", bestKey: "memory", section: "puzzle" },

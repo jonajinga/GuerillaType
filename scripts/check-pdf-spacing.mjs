@@ -75,5 +75,46 @@ const old = (items) => items.map((i) => i.str || "").join(" ");
 chk(old(kerned) === "beca use" && old(three) === "T h e",
   "the previous join really did invent the reported spaces", `${JSON.stringify(old(kerned))} / ${JSON.stringify(old(three))}`);
 
+/* 10. Accented text. A PDF commonly draws the base letter, jumps BACK to
+       stamp the accent over it, then carries on. Reported as spaces
+       appearing inside words in a non-English document. */
+const ACC = String.fromCodePoint(0x0308);           // combining diaeresis
+const accented = [it("u", 100, 6), it(ACC, 101, 0), it("ber", 106, 18)];
+chk(joinTextItems(accented) === "u" + ACC + "ber",
+  "an accent drawn backwards over its letter does not split the word",
+  JSON.stringify(joinTextItems(accented)));
+
+/* 11. The same shape, mid-sentence, with a real word gap after it. If
+       the fix were "never emit a space once a zero-width glyph appears",
+       this would come back as one run-on word. */
+const accentedGap = [it("u", 100, 6), it(ACC, 101, 0), it("ber", 106, 18), it("das", 130, 14)];
+chk(joinTextItems(accentedGap) === "u" + ACC + "ber das",
+  "…and a genuine word gap after it still opens",
+  JSON.stringify(joinTextItems(accentedGap)));
+
+/* 12. An accent that legitimately sits at the far right must still let
+       the next word be separated -- the edge tracks the maximum, so a
+       forward-placed mark advances it like anything else. */
+const accentForward = [it("a", 100, 6), it(ACC, 106, 4), it("word", 130, 20)];
+chk(joinTextItems(accentForward) === "a" + ACC + " word",
+  "a forward-placed mark still advances the edge",
+  JSON.stringify(joinTextItems(accentForward)));
+
+/* 13. The previous rule really was wrong here, or 10 is testing nothing.
+       Last-fragment-edge semantics put prevRight behind the base letter. */
+function oldJoin(items) {
+  let out = "", prevRight = null;
+  for (const i of items) {
+    const x = i.transform[4], w = i.width, em = Math.abs(i.transform[3]) || 10;
+    if (prevRight !== null && !/\s$/.test(out) && !/^\s/.test(i.str) && x - prevRight > em * 0.18) out += " ";
+    out += i.str;
+    prevRight = x + w;                 // the bug: not a maximum
+  }
+  return out;
+}
+chk(oldJoin(accented) === "u" + ACC + " ber",
+  "the previous edge rule really did put a space inside the accented word",
+  JSON.stringify(oldJoin(accented)));
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

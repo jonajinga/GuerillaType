@@ -72,6 +72,13 @@ const FALLBACK_TOTAL_CHARS = 1024 * 1024;
    repairs the books someone imported before this existed. */
 export function normalizeTypeable(input) {
   let s = String(input || "");
+  /* Compose accents onto their letters. Extraction hands back decomposed
+     text more often than not -- "u" followed by a combining diaeresis
+     rather than a single "u-umlaut" -- and a combining mark is not
+     something a keyboard can send on its own, so the typing surface
+     asked for a character that could not be typed at all. NFC is the
+     form a keyboard actually produces. */
+  s = s.normalize("NFC");
   // Invisible: soft hyphen, zero-width space / non-joiner / joiner,
   // word joiner, BOM. None of these has a key on any keyboard.
   s = s.replace(/[\u00AD\u200B\u200C\u200D\u2060\uFEFF]/g, "");
@@ -79,8 +86,14 @@ export function normalizeTypeable(input) {
   s = s.replace(/[\u00A0\u1680\u2000-\u200A\u202F\u205F\u3000]/g, " ");
   s = s.replace(/\t/g, " ");
   s = s.replace(/\r\n?/g, "\n");
-  // A word broken across a line closes up. No space is invented.
-  s = s.replace(/([A-Za-z0-9])-[ ]*\n[ ]*([A-Za-z0-9])/g, "$1-$2");
+  /* A word broken across a line closes up. No space is invented.
+
+     \p{L}, not [A-Za-z]: with the ASCII class a German "Pru-\nfer" or a
+     French "pre-\ncis" did not match, so the newline survived and the
+     display layer folded it to a space -- "Pru- fer". That is the
+     reported bug, in the reported language, and the English case beside
+     it worked fine, which is why it stayed hidden. */
+  s = s.replace(/(\p{L}|\p{N})-[ ]*\n[ ]*(\p{L}|\p{N})/gu, "$1-$2");
   // Runs of spaces collapse -- but only after a non-space, because
   // leading indentation is load-bearing in verse.
   s = s.replace(/(\S) {2,}/g, "$1 ");

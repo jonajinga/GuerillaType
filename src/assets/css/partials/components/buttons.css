@@ -10,6 +10,13 @@
 }
 .btn:hover{border-color:var(--accent);color:var(--accent)}
 .btn:active{transform:translateY(1px)}
+/* .btn sets display:inline-flex, which beats the UA sheet's
+   [hidden]{display:none}, so every `pauseBtn.hidden = true` on the game
+   pages was doing nothing -- Pause sat next to Start before a round had
+   begun on Boss Battle, Word Snake and Punctuation Storm alike. Same
+   pattern every other component in this directory already uses
+   (.vkbd[hidden], .live-kb[hidden], .seg-picker[hidden] ...). */
+.btn[hidden]{display:none}
 
 .btn--primary{background:var(--accent);color:#fff;border-color:var(--accent)}
 .btn--primary:hover{background:var(--accent-deep);border-color:var(--accent-deep);color:#fff}

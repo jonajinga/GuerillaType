@@ -135,7 +135,21 @@ async function parseEpub(file, onProgress) {
    emit spaces at all. */
 export function joinTextItems(items) {
   let out = "";
-  let prevRight = null;   // x where the previous fragment ended
+  /* The RIGHTMOST edge reached on this line so far -- not the edge of
+     the previous fragment.
+
+     Accented letters are the reason. A PDF frequently draws "u" and
+     then jumps BACKWARDS to stamp the diaeresis over it, so the accent
+     fragment starts left of where the "u" ended and carries zero width.
+     Taking the previous fragment's right edge then put prevRight behind
+     the base letter, and the next fragment ("ber") looked like it
+     started a whole glyph-width later -- a word gap. The result was
+     "u<combining diaeresis> ber": a space inside the word, on exactly
+     the accented text a non-English document is full of.
+
+     A mark drawn over an earlier glyph cannot advance the pen, so the
+     line's right edge only ever moves forward. */
+  let prevRight = null;
   let prevY = null;
   for (const raw of items || []) {
     const it = raw || {};                 // a null item must not throw
@@ -162,7 +176,8 @@ export function joinTextItems(items) {
       }
     }
     out += s;
-    prevRight = x + w;
+    // Never let an overlay glyph drag the edge backwards.
+    prevRight = prevRight === null ? x + w : Math.max(prevRight, x + w);
     prevY = y;
     if (it.hasEOL) { out += "\n"; prevRight = null; prevY = null; }
   }
@@ -195,13 +210,17 @@ async function parsePdf(file, onProgress) {
   /* De-hyphenate soft line breaks. A PDF text layer wraps by
      typesetting the page, so a hyphen at the end of a line is almost
      always a word broken in two -- "short-\nened" -- not a compound.
-     Rejoin those. The test is lowercase-to-lowercase, which leaves
+     Rejoin those. The test is lowercase-to-lowercase -- \p{Ll}, not
+     [a-z], because [a-z] does not contain e-acute: French "pre-\ncis"
+     and German "Pru-\nfer" were left with a stray hyphen in the middle
+     of the word while the English case beside them was rejoined
+     correctly. Found in a real French scan. It leaves
      "Anglo-\nSaxon" and "post-\nOffice" alone; anything this misses is
      closed up by normalizeTypeable() with the hyphen KEPT, so the word
      never gains a space either way -- it just keeps a hyphen that the
      typesetter meant as a line break. */
   const text = pages.join("\n\n").replace(/\s+\n/g, "\n")
-    .replace(/([a-z])-\n([a-z])/g, "$1$2")
+    .replace(/(\p{Ll})-\n(\p{Ll})/gu, "$1$2")
     .trim();
   if (!text) {
     throw new Error("This PDF has no extractable text — looks like a scanned image. Run OCR first, then upload the .txt.");

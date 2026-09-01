@@ -4,7 +4,7 @@
 
 import { TypingEngine } from "../engine/typing-engine.js";
 import { AdaptiveModel } from "../engine/adaptive.js";
-import { buildPicker, uniformText } from "../engine/wordpicker.js";
+import { buildPicker, uniformText, drillText } from "../engine/wordpicker.js";
 import { recordSession } from "../engine/session-recorder.js";
 import { setSegProgress, getSaved as getSavedCustom, listSaved as listSavedCustom, getSegments as getCustomSegments, normalizeTypeable } from "../engine/custom-text.js";
 import { byId as achievementById } from "../engine/achievements.js";
@@ -201,6 +201,18 @@ function readMissedWordsFromProfile() {
 
 const model = new AdaptiveModel(profile, { layout: state.layout });
 
+/* What counts as "a lesson" for RECORDING purposes: a curriculum lesson,
+   or a custom text the user pinned as one.
+
+   Deliberately not state.lessonId itself. That value also drives the
+   "Next lesson" link (lessonId + 1, which is nonsense for "custom:c_ab"),
+   the back-link destination, and the lessonPassed/lessonFailed analytics
+   events — none of which should change for a custom text, and the last
+   of which would put the text's id into an analytics payload. Only the
+   three recording sites use this. */
+const lessonKeyOf = () =>
+  (state.lessonId != null ? state.lessonId : (state._customLessonId || null));
+
 let engine = null;
 
 async function buildText() {
@@ -213,6 +225,7 @@ async function buildText() {
   // keep showing it. Same for the book-specific page metadata.
   state._customMeta = null;
   state._customTitle = null;
+  state._customLessonId = null;
   state._pageParaIds = null;
   state._pageParaEnds = null;
   state._totalPages = null;
@@ -449,6 +462,17 @@ async function buildText() {
     // author/year/source above the typing surface.
     state._customTitle = item.title;
     state._customMeta = item.meta || null;
+    /* A text pinned as a lesson is tracked like one: its sessions are
+       recorded against a lesson id, so it gets a WPM history, a mastery
+       state and its own panel on the stats page. Pinning and resuming
+       already worked; being counted as a lesson did not.
+
+       Namespaced so it can never collide with the curriculum.
+       achievements.js counts tt:lesson-best-<n> for numeric n only and
+       must not start counting someone's imported novel toward "finish
+       every lesson". megamenu.js scans the same numeric range for the
+       next unstarted lesson. */
+    state._customLessonId = item.forLesson ? "custom:" + item.id : null;
     // Corpus content (quote / idiom / parable / poem) was stored
     // through the same chunk() pipeline as user-uploaded text, but
     // these are short pieces meant to be typed in full. Concatenate
@@ -565,6 +589,22 @@ async function buildText() {
       // Ordered drills (A→Z, Z→A) preserve sequence — uniformText
       // would shuffle and defeat the purpose.
       if (drill.ordered) return drill.words.slice(0, 40).join(" ");
+      /* Weight repetitions toward the characters in THIS drill the user
+         is worst at. `allowed` is the drill's own character inventory,
+         which is what makes the ranking happen inside the drill --
+         without it the picker ranks against the whole keyboard, where a
+         restricted drill's keys are usually absent from the global
+         top-15 -- leaving only scoreWord's length term, so the draw is
+         biased by word length and says nothing about the drill.
+
+         `adaptive: false` on a drill opts out, matching lessons. No
+         bundled drill sets it; it exists so a drill whose sequence is
+         meaningful can decline without needing `ordered`. */
+      if (drill.adaptive !== false) {
+        const allowed = Array.from(new Set(drill.words.join(""))).join("").replace(/\s/g, "");
+        const adaptive = drillText(drill.words, model, allowed, Math.min(40, drill.words.length * 2));
+        if (adaptive) return adaptive;
+      }
       return uniformText(drill.words, 40);
     }
     // Drill missing or malformed — defensive fallback to en-1k, never
@@ -975,7 +1015,13 @@ function handleFinish(result) {
     if (passed) Analytics.challengeCompleted({ challenge: activeChallenge.id, wpm, acc });
     else Analytics.challengeFailed({ challenge: activeChallenge.id, wpm, acc });
   }
-  if (state.lessonId != null) result.lessonId = state.lessonId;
+  {
+    // session-recorder appends a lessonResults entry and indexes
+    // sessionsByLesson off this field, generically — a pinned custom
+    // text needs nothing more than to be named here.
+    const lk = lessonKeyOf();
+    if (lk != null) result.lessonId = lk;
+  }
   if (state.drillId != null) result.drillId = state.drillId;
   if (state.bookSlug) {
     // Record per-paragraph progress, but ONLY for paragraphs the user
@@ -1049,8 +1095,9 @@ function handleFinish(result) {
       return p;
     });
   }
-  if (state.lessonId) {
-    const key = `tt:lesson-best-${state.lessonId}`;
+  const lessonKey = lessonKeyOf();
+  if (lessonKey) {
+    const key = `tt:lesson-best-${lessonKey}`;
     let best = null;
     try { best = JSON.parse(localStorage.getItem(key) || "null"); } catch {}
     const passed = result.accuracy >= 90 && result.wpm >= 18;

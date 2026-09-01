@@ -137,8 +137,8 @@ function zipStore(entries) {
   return Buffer.concat([Buffer.concat(chunks), cenBuf, end]);
 }
 
-function buildEpub(ascii) {
-  const typeset_ = typeset(ascii);
+function buildEpub(ascii, tf = typeset) {
+  const typeset_ = tf(ascii);
   /* Inline tags that cut words in half are the EPUB equivalent of
      pdf.js fragments: strip the tag and the halves must close up with
      no space between them. */
@@ -173,9 +173,9 @@ function buildEpub(ascii) {
 
 /* ── Build the PDF from the same prose, justified and hyphenated so
       words genuinely break across lines. ───────────────────────────── */
-async function buildPdf(browser, ascii) {
+async function buildPdf(browser, ascii, tf = typeset) {
   const p = await browser.newPage();
-  const paras = typeset(ascii).split("\n").map((l) => `<p>${l}</p>`).join("\n");
+  const paras = tf(ascii).split("\n").map((l) => `<p>${l}</p>`).join("\n");
   await p.setContent(`<!doctype html><meta charset="utf-8"><style>
     @page { size: A4; margin: 22mm; }
     body { font-family: Georgia, "Times New Roman", serif; font-size: 12pt; line-height: 1.6; }
@@ -305,6 +305,47 @@ console.log("\n## A book imported BEFORE the fix is repaired without re-importin
   // Anti-vacuity: the dirt really was there to begin with.
   const stillDirty = [...dirty].some((c) => c.codePointAt(0) > 126);
   chk(stillDirty && /-\n/.test(dirty), "legacy: the seeded record genuinely was dirty");
+}
+
+console.log("\n## Foreign-language text: accents survive, and become typeable.");
+/* Reported by a user importing a non-English document: spaces appearing
+   inside words. Two causes, both exercised here end to end.
+
+   The text is fed to the PDF and EPUB writers DECOMPOSED (NFD) —
+   "u" plus a combining diaeresis — because that is what extraction
+   hands back in practice, and because a combining mark cannot be typed
+   on its own. The fixture is the composed form the user should end up
+   typing, so a word-for-word match proves both that no space was
+   invented inside an accented word and that the accents were composed
+   back into single characters. */
+{
+  const INTL = readFileSync(
+    fileURLToPath(new URL("./fixtures/extraction-torture-intl.txt", import.meta.url)), "utf8").trim();
+  const decompose = (t) => t.normalize("NFD");
+
+  chk(decompose(INTL) !== INTL, "the fixture really is fed in decomposed — otherwise this tests nothing",
+    `${INTL.length} chars composed vs ${decompose(INTL).length} decomposed`);
+
+  for (const [label, name, mime, make] of [
+    [".txt", "intl.txt", "text/plain", () => Buffer.from(decompose(INTL), "utf8")],
+    [".epub", "intl.epub", "application/epub+zip", () => buildEpub(INTL, decompose)],
+    [".pdf", "intl.pdf", "application/pdf", async () => await buildPdf(browser, INTL, decompose)],
+  ]) {
+    const buf = await make();
+    const { stored, target } = await importAndRead(page, name, mime, buf);
+    diffWords(stored, INTL, `an ${label} of non-English text round-trips word for word`);
+
+    const inside = [...target.matchAll(/\p{L}- \p{L}|\p{L} {2,}\p{L}/gu)].map((m) => m[0]);
+    chk(inside.length === 0, `${label}: no space was invented inside an accented word`,
+      inside.join(" | "));
+    const combining = [...target].filter((c) => /\p{M}/u.test(c));
+    chk(combining.length === 0, `${label}: no bare combining marks reach the typing surface`,
+      combining.map((c) => "U+" + c.codePointAt(0).toString(16).toUpperCase()).join(","));
+    // Anti-vacuity: the accents must still BE there, not stripped to ASCII.
+    chk(/[\u00e4\u00f6\u00fc\u00df\u00e9\u00e8\u00f1]/.test(stored),
+      `${label}: the accents survived rather than being flattened to ASCII`,
+      stored.slice(0, 60));
+  }
 }
 
 console.log("\n## The fixture is worth something — it really is hostile input.");

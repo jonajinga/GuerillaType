@@ -51,17 +51,34 @@ export function renderLessonTrends(svg, lessonResults, opts = {}) {
   /* Lessons in curriculum order where the id is numeric, so the grid
      reads the way the lesson list does rather than in the order the
      user happened to attempt them. */
+  /* A pinned custom text is recorded under "custom:<id>", which would
+     otherwise render as "Lesson custom:c_ab7f". The caller passes the
+     titles; truncate them because a panel is 168px wide and a novel's
+     title is not. */
+  const labels = opts.labels || {};
+  const nameOf = (id) => {
+    const given = labels[id];
+    if (!given) return `Lesson ${id}`;
+    return given.length > 18 ? given.slice(0, 17).trimEnd() + "\u2026" : given;
+  };
+
   const byLesson = Array.from(groups.entries()).map(([id, arr]) => ({
     id,
-    label: `Lesson ${id}`,
+    label: nameOf(id),
     lastAt: String(arr[arr.length - 1].at || ""),
     points: arr.map((r) => ({ wpm: num(r.wpm), acc: num(r.acc), at: r.at })),
   }));
 
+  /* Curriculum lessons in numeric order first, then anything named
+     (pinned custom texts) alphabetically. Without the first clause a
+     "custom:" id compares as a string against "5" and lands in the
+     middle of the curriculum. */
   const inLessonOrder = (a, b) => {
     const na = Number(a.id), nb = Number(b.id);
-    if (Number.isFinite(na) && Number.isFinite(nb)) return na - nb;
-    return String(a.id).localeCompare(String(b.id));
+    const aNum = Number.isFinite(na), bNum = Number.isFinite(nb);
+    if (aNum && bNum) return na - nb;
+    if (aNum !== bNum) return aNum ? -1 : 1;
+    return String(a.label).localeCompare(String(b.label));
   };
 
   // Most recently practiced first, keep MAX_PANELS, then draw them in
