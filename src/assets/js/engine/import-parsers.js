@@ -198,8 +198,13 @@ export function joinTextItems(items) {
    Only the outermost few lines of each page are candidates, and a line
    has to recur across a quarter of the book before it is treated as
    furniture. Digits are ignored when comparing, because the folio
-   changes on every page and the title beside it does not. */
-function stripRunningLines(pages) {
+   changes on every page and the title beside it does not.
+
+   Exported for scripts/check-running-heads.mjs, the same way
+   joinTextItems is exported for scripts/check-pdf-spacing.mjs: parsePdf
+   cannot run outside a browser with pdf.js loaded, so the gate feeds
+   this recorded page text straight in. Nothing else imports it. */
+export function stripRunningLines(pages) {
   if (pages.length < 5) return pages;
   const EDGE = 2;
   const norm = (l) => l.replace(/\d+/g, " ").replace(/[^\p{L}]+/gu, " ").trim().toLowerCase();
