@@ -287,6 +287,18 @@ chk(chapters.every(linePresent), "…and each one is still there in the output, 
 chk(!removedReal.includes("Il") && linePresent("Il"),
   "\"Il\" — the French pronoun ending page 327 mid-sentence — survives");
 
+/* The book is a diary and its entries open with a date, at the top of a
+   page, with a leading number that makes them folio-associated. These
+   eleven are the ones that land in the edge window. They survive only
+   because 11 dates across three month names is far under the 15% share
+   — this is what stops that bar being lowered. */
+const DIARY_DATES = ["15 septembre.", "18 septembre.", "26 septembre.", "28 septembre.",
+  "!•» octobre.", "28 octobre.", "25 octobre.", "3 novembre.", "12 novembre.",
+  "13 novembre.", "18 novembre."];
+chk(DIARY_DATES.every(linePresent),
+  "and every diary date at a page edge survives — eleven of them",
+  DIARY_DATES.filter((d) => !linePresent(d)).join(" | ") || "all eleven kept");
+
 /* Why the roman test has to be a SHARE of the pages and not a
    comparison. These two counts are of the corpus, not of the function;
    the assertion that decides anything is the one above. */
@@ -411,6 +423,25 @@ const bare9 = Array.from({ length: 20 }, (_, i) =>
   page(i < 9 ? HEAD : filler(i, 0), filler(i, 1), filler(i, 2), filler(i, 3)));
 eqJ(removedFrom(bare9), [],
   "…but not at nine pages of twenty — one under half, and with no folio there is nothing else to go on");
+
+/* …and the 15% share is a real bar, not a spare digit: a head on 20% of
+   a forty-page book goes. Raise the share to 25% and this survives;
+   lower it far enough and the real book's diary dates stop surviving
+   (section B). The two hold it from opposite sides. */
+const doc40 = Array.from({ length: 40 }, (_, i) => i % 5 === 0
+  ? page(`${100 + i} ${HEAD}`, filler(i, 1), filler(i, 2), filler(i, 3))
+  : page(filler(i, 0), filler(i, 1), filler(i, 2), filler(i, 3)));
+chk(Math.max(3, Math.floor(40 * 0.15)) === 6 && Math.max(3, Math.floor(40 * 0.25)) === 10,
+  "on forty pages the bar is 6 — it would be 10 at the old 25%");
+eqJ(removedFrom(doc40), [100, 105, 110, 115, 120, 125, 130, 135].map((n) => `${n} ${HEAD}`),
+  "…and a folio-bearing head on eight of those forty pages goes, all eight of it");
+
+/* Likewise the no-folio half: sixty per cent goes, and section D2's
+   nine-of-twenty above does not. */
+const bare12 = Array.from({ length: 20 }, (_, i) =>
+  page(i < 12 ? HEAD : filler(i, 0), filler(i, 1), filler(i, 2), filler(i, 3)));
+eqJ(removedFrom(bare12), Array(12).fill(HEAD),
+  "a head with no folio on twelve of twenty pages — sixty per cent — goes");
 
 /* Three: positional consistency. A running head is at the same edge on
    every page it appears; a line that wanders is prose. */
