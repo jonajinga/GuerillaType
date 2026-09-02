@@ -1,0 +1,2660 @@
+# Edge lines of all 530 pages of the same scan, for
+# scripts/check-running-heads.mjs.
+#
+# stripRunningLines() reads only the first two and the last two non-empty
+# lines of each page -- EDGE = 2 -- both when it counts what recurs and
+# when it decides what to drop. This file is those lines and nothing
+# else: for each of the 530 real pages, in order,
+#
+#     [...solid.slice(0, 2), ...solid.slice(-2)]
+#
+# verbatim. Carrying the whole 675 KB book would be the same experiment.
+# The equivalence was not assumed: the set of lines the function removes
+# from this file was compared against a run over the full unabridged 530
+# pages and is identical, line for line, in order.
+#
+# The page COUNT is load-bearing. The threshold is a fraction of it --
+# floor(530 * 0.25) = 132 -- so a shorter file would not reproduce the
+# behaviour, and that is the whole point of this fixture: the most common
+# spelling of the running head occurs 106 times, which is below 132.
+#
+# Provenance: a scanned PDF of Octave Mirbeau's "Le Journal d'une femme
+# de chambre" (1900, public domain), 530 pages, ~675,000 characters. Every
+# page below is the verbatim return value of joinTextItems() in
+# src/assets/js/engine/import-parsers.js for that page, taken by driving
+# the real pdf.js extraction once in a browser. The 20 MB PDF itself is
+# NOT in this repository.
+#
+# Do not tidy these by hand. They are evidence. The mangled words ("Avex"
+# for "Avec", "CHAMBtlE" for "CHAMBRE") are what the scanner produced,
+# and stripRunningLines() is judged by what it does to them.
+#
+# Format: a line starting "### " opens a section. A line that is exactly
+# "#PAGE" starts a new page. Any other line starting with "#" is a
+# comment. "#" does not occur anywhere in the book's text, so no content
+# line can begin with one. Empty pages are real and are kept.
+
+### edges
+#PAGE
+
+#PAGE
+PRE3SNTED
+IN Î4EM0RY 0?
+IN Î4EM0RY 0?
+PR0FE330R H. L. HUMPHREYS
+#PAGE
+
+#PAGE
+
+#PAGE
+LE JOURNAL
+D'UNE FEMME DE CHAMBRE
+LE JOURNAL
+D'UNE FEMME DE CHAMBRE
+#PAGE
+Eugène FASQUELLE, Éditeur, 11, rue de Grenelle
+OUVRAGES D'OCTAVE MIRBEAU
+Vieux Ménages, comédie en un acte .....; ^ . 1 fr. »
+fVM. — L.-lmp. réunies, rue Saint-Benoit, 7, Paris.
+#PAGE
+OCTAVE MIRBEAU
+LE JOURNAL
+,^^^
+MAY 2 8 1990
+#PAGE
+
+#PAGE
+Ce livre que je publie sous ce titre : Le Journal
+d'une fenime de chambre a été véritablement
+graves et savants., et combien nobles!...
+0. w
+#PAGE
+
+#PAGE
+LE JOURNAL
+D'UNE FEMME DE CHAMBRE
+l'Observatoire à Montmartre, des Ternes aux
+Gobelins, partout, sans pouvoir jamais me fixer
+#PAGE
+G LE JOURNAL D'UNE FEMME DE CHAMBRE
+nulle part, faut-il que les maîtres soient difficiles
+sevelir dans ce fond perdu de province. Ce que
+j'en ai aperçu m'effraie un peu, et je me demande
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 1
+ce qui va encore m 'arriver ici... Rien de bon
+J'avais été arrêtée, dans un bureau de place-'
+ment, par une sorte de grosse gouvernante, pour
+#PAGE
+• LE JOUHNÀL D'UNE FEMME DE CHAMBRE
+être femme de chambre chez un certain M. Ra-
+jamais servi dans les grandes maisons. Cela
+m ennuya. Moi, j aime les belles livrées. Rien ne
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE t
+m'affole comme une culotte de peau blanche,
+que vous me demandez-là, mon gros père,
+»Avex?..*
+#PAGE
+10 LE JOURNAL D'UNE FEMME DE CHAMBRE
+Il me poussa du coude légèrement et, glissant
+;
+ici, instantanément, e)îe me dégoûta et je lui
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBtlÈ 11
+trouvai l'air répugnant d'une vieille maquerelle.
+et qu'il m'amusa!... Figurez-vous un petit vieux,
+tiré k quatre épingles, rasé de frais et tout rose,
+#PAGE
+la LE JOURNAL D'UNE FEMME DE CHAMBRK
+ainsi qu'une poupée. Très droit, très vif, très ra-
+où il était entré dans le salon, ses yeux resfciient
+ohstinément fixés sur naes bottine*.
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 13
+— Vous en avez d'autres?... me demanda-t-il,
+son front... Croyant qu'il allait défaillir, je fus sur
+le point de crier, d'appeler au secours... mais la
+#PAGE
+14 LE JOURNAL D'UNE FEMME DE CHAMBRE
+crise se calma, et, au bout de quelques minutes,
+souvent, je vous donnerai des petits cadeaux. Et
+q^u'est-ce que je vous demande?... Voyons, ça
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 15
+n'est pas extraordinaire, là... Est-ce donc si
+Tâchez que cela continue... La place est bonne...
+Quatre jours après, le matin, à l'heure h8.bi-
+#PAGE
+16 LE JOURNAL DUNE FEMME DE CHAMBRE
+tuelle, en allant ouvrir les fenêtres, je taillis
+Je crois bien quMci il ne m arrivera rien de
+pareil... C'est, évidemment, un autre genre ici.
+#PAGE
+LS JOURNAL D'UNE FEMME DE CHAMBRE il
+Mais est-il meilleur?... Est-il pire?... Je n'en sais
+aussi que j'aurais eu, comme femme, le mômfl
+succès que comme femme de chambre? Le
+#PAGE
+IS LE JOURNAL D'UNE FEMME DE CHAMBRE
+charme, si particulier, que nous exerçons sur les
+de l'Extase... Quand ils me parlent, ces monstres-
+là.,, et que je sens sur ma nuque le piquant d«
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE id
+leur barbe et la chaleur de leur haleine... va
+doit être sain et bon... Ah! si, au risque de m'em-
+bêter, je pouvais me reposer un peu...
+#PAGE
+20 LE JOURNAL D'UNE FEMMiS DE CHAMBRE
+Tout d'abord, je n'ai pas confiance. Certes,
+C'est toujours la même chose pour changer...
+Cependant, il faudra voir et ne pas m'en tenir
+#PAGE
+LE JOUtlKAL DUNE FEMME DE CHAMBRfi il
+à cette première impression. Parmi tant de
+oilà. . Jamais, je ne me retrouverai dans tout
+cela...
+#PAGE
+22 LE JOURNAL D'UNE FEMME DE CHAMBRE
+A chaque minute, en me montrant quelque
+l'envoie-t-on à Londres quand il est fêlé?
+Non, là, vrai!... Elles en ont du toupet, et elle»
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 93
+en font du chichi, pour peu de chose. Et quand
+épaules, et vous écorcher les fesses !... Vraiment,
+moi qui aime tant les tentures claires, les va^stet
+#PAGE
+24 LE JOUKNAL D'UNE FEMME DE CHAMBRE
+divans élastiques où l'on s'allonge voluptueus©-
+d'horreurs secrètes et de mécanismes compli-
+qués... Ce qui ne les emoêche pas de faire leur
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 26
+poire dans le monde... Mais oui! C'est coquet,
+gnaient toute idée de désir et d'amour, et qui
+étaient de fameuses gourgandines, et qui faisaient
+#PAGE
+M LE JOURNAL D'UNk rKMME DE GHAMBRt
+les quatre cent dix-neuf coups, avec leur valet de
+qui la pratique dans les coins... Et ce que c'est
+sommaire, là-dedans, en fait de bibelots, de
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE M
+flacons, de tous ces objets intimes et parfumés
+il y avait de la bienveillance, de la surprise, du
+contentement... quelque chose aussi de polisson
+#PAGE
+2f LE JOURNAL D'UNE FEMME DE CHAMBRE
+sans effronterie, de déshabilleur, sans brutalité.
+— Célestine!... Ah! ah!... C'est très bien...
+Un nom pas commun... un joli nom, ma foi!...
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 29
+Pourvu que Madame ne vous oblige .pas è. le
+— Sapristi 1 Célestine.,. Vous sentez rudement
+bon...
+#PAGE
+30 LE JOURNAL D'UNE FEMME DE CHAMBRE
+Sans lever les yeux, j'ai pris un air inî>^énu :
+Dans sa vulgarité même, il dégage je ne sais que»
+de puissant,., et aussi une odeur de mâle... ur
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 31
+umet de fauve, pénétrant et chaud... qui ne m'est
+la veille, s'est passé sans incidents, presque silen-
+cieusement... Monsieur dévore, et Madame pigno-
+#PAGE
+32 LE JOURNAL Dl NE FEMME DE CHAMBRE
+che dans les plats avec des gestes maussades et
+et se surveillant l'un l'autre, ils en arrivent, peu
+k peu, à se révéler, à s'étaler tels qu'ils sont,
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 33
+sans fard et sans voiles, oubliant qu'il y a autour
+— Bien, Madame.
+Alors, j'ai recardé, à la dérobée,le pauvre Mon-
+#PAGE
+U LE JOURNAL D'UNE FEMME DE CHAMBRE
+sieur qui les aime, lui, les parfums, ou du moins,
+pécore... je t'en réponds!...
+Et, pour matérialiser cette muette invocation,
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE âS
+en déposant la lampe sur la table, je pris soin de
+guère convenable... Le fourneau allumé rend
+l'atmosphère de la pièce étouffante. Il y circule des
+#PAGE
+S« LE JOURNAL DUNE FEMME DE CHAMBRE
+odeurs de vieille graisse, de sauces rances, de
+Cela l'a fait taire.
+Pendant ce tem/s, le jardinier- cocher s'empiis-
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE «
+sait la bouche de gros morceaux de lard, et me
+Vautrée sur sa chaise, ses manches retroussées et
+découvrant le bras nu, son bonnet un peu de tra^
+#PAGE
+38 LI JOURNAL D'UNE FEMME DE CHAMBRE
+vers sur des cheveux dépeignés, elle m'a demandé
+feu... Nous n'avons plus causé...
+Alors, j'ai pensé à ma dernière place, à monsieur
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 3f
+Jean, le valet de chambre, si distingué avec ses
+Demain, je tâcherai de m'arranger un peu...
+A-u-dessus de mon lit, je clouerai mon petit cru-
+#PAGE
+40 LE JOURNAL D'UNE FEMME DE CHAMBRE
+cifix de cuivre doré, et je mettrai sur la cheminée
+Ah! ce que je vais me faire vieille, dans cette
+Laraqi:o!... Non, là, vrai 1 .
+#PAGE
+15 septembre.
+Je n'ai pas encore écrît une seule fois le nom
+varde..., Si ceux qui fournissent mes maîtres en
+parlent ^insi, comment dérivent en parler ceux
+#PAGE
+44 LK JOURNAL D'UNE FEMME t)E CHAMBRÉ
+qui ne les fournissent pas?... Ah! ils ont de
+placer au régiment pendant sept années et, en
+cas de guerre, ài mourir pour eux. Ainsi, on fai-
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE M
+sait, en France, la traite des blancs, comme en
+d'économiser... et c'est à peine s'ils dépensent le
+tiers de leurs rentes. Rognant sur tout, sur les
+#PAGE
+U LE JOURNAL D'UNE FEMME DE CHAMBRE
+autres et sur eux-mêmes, chipotant âprement sur
+riches?... Môme que la Paumier, la femme du
+tonnelier, a entendu un jour M""* Lanlaire dire au
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 45
+euré qui lui reprochait doucement cette cras-
+C'est à ne pas croire... Naturellement, elle tient
+la bourse, férocement, et elle n en dénoue les cor-
+#PAGE
+ié LE JOURNAL D'UNE FEMME DE CHAMBRE
+dons que pour y faire entrer plus d'argent, tou-
+mégère... Car, enfin, personne ne l'ignore, et
+Madame le crie assez par-dessus les toits... Mon-
+#PAGE
+IM JOURNAL DUNE FEMME DE CHAMBRÉ r
+iieur et Madame ne sont plus rien l'un pour l'an
+— Eh bien, soit... Je vous autorise... à de cer-
+taines caresses,., deux fois par semaine... h
+#PAGE
+4( LE JOURNAL DUNE FEMME D£ CHAMBftÈ
+condition toutefois... ;?nmo.,. que vous n^ pren-
+tout seul, dans le vent, dans la piuie, dans I4
+neige... puis, rentrer le soir chez lui, plus timide,
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 49
+j
+L'adoration du million!... C'est un sentiment
+bas, commun non seulement aux bourgeois, mais
+#PAGE
+60 LE JOURNAL DUNE FEMME DE CHAMBRE
+à la plupart d'entre nous, les petits, les humbles,
+tristesse incurable de la petite ville, je ne cpssais
+de me répéter :
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 51
+— EK bien!... me voîlà propre... Il ne me man-
+h jouer avec les chemises de nuit, les chiffons et
+les rubans, tripoter les lingeries, les chapeaux,
+#PAGE
+531 LE JOURNAL D'UNE FEMME DE CHAMBRE
+les dentelles, les fourrures, frotter mes maîtresses
+les soirs, après l'avoir retirée, elle restait nue, à
+s'examiner des quarts d'heure, minutieusement,
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 53
+devant la psyché... Puis, elle tendait sa poitrine
+Quelquefois, juste avant le dîner, essoufflée,
+un peu honteuse Madame rentrait...
+#PAGE
+8* LE JOURNAL D'UNE FEMME DE CHAMBRE
+- Viie... vite... Je suis en retard... Désha-
+rencontre, parfois, au bal Dourlans, et qui vivent
+du meurtre ou de l'amour... Il avait une figure
+#PAGE
+Lfc ipUp^ ^^^^ ^nm DE CHAMBRE 8«
+très pâle, de petites moustaches noires, une om-
+taché :
+. — Ce n est rien.. Je ne le connais pas... ^ est
+#PAGE
+M LE JOURNAL D'UNE FEMME DE CHAMBRE
+un pauvre... un pauvre très intéressant... Sa
+A partir de ee moment, quand Madame était en
+retard, le soir, je tremblais toujours qu'elle n'eût
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 57
+été assassinée, au fond de quel bouge!... Et,
+membre de je ne sais plus quelle Académie, la
+négligeait beaucouo... Non qu'elle fût laide, elle
+#PAGE
+68 LE JOI'RNAL DUNE FEMME DE CHAMBRE
+était, au con.raire, fort jolie; non qu'il courût
+tesses, des plaintes, des pleurs...
+— Ah! Célestine I... Monsieur n'est pas venu.
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 5»
+C€tte nuit... Toute la nuit, je l'ai attendu... et
+— Biân sûr que non, Madame... Ahl Mon-
+sieur se moque bien de ça!... Et puis, est-ce que
+#PAGE
+66 LE JOURNAL D'UNE FKMME DE GHAMHRK
+Madame s'imagine que je voudrais faire de la
+amant... Madame est une trop belle femme pour
+rester comme ça...
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE ftl
+Elle fut comme effrayée de mes paroles .
+— Rien, toujours...
+Vous penBez si c'était là un thème admirable
+#PAGE
+62 LE JOURNAL D'UNE FEMME DE CHAMBRÉ
+pour les grasses plaisanteries, les allusions ob-
+l'aplomb d'écrire ceci :
+« Je vous préviens, Madame, que je vous ren-
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 63
+voie, en port payé, tous les soi-disant cadeaux que
+avec ses maîtres... Et tant pis, ma foi! Il faut
+que les bons paient pour les mauvais...
+#PAGE
+«4 LE JOURNAL DUNE FEMME DE CHAMBRE
+Avec tout cela, que vais-je faire ici?... Dans ce
+sieur...
+Je crois que Monsieur voulait me dire quelque
+#PAGE
+LE JOURNAL D'I NE FEMAIK DE CHAMBRE oô
+chose de très raide. Ses yeux brillaient comme
+de Madame ne sont pas les domestiques de Mon-
+si^'ir?,.. Ah bien!... vrai!...
+#PAGE
+111
+18 septembre.
+listraction, du temps gagné sur les ennuis quoti-
+iiens de la baraque... C'est surtout des cama-
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE «1
+rades qu'on rencontre, des histoires qu'on ap-
+tonne... Je l'ai dans le sang. Aucune ne me paraît
+aussi belle, aucune ne me oarle mieux à l'âme.
+#PAGE
+M LE JOURNAL D'UNE FEMME DE CHAMBRE
+Même au milieu des plus riches, des plus grasses
+que vous vouiez?... Moi je suis contente qu'on
+m'admire.
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE €•
+En passant près de moi, j'entends qu'elles se
+Rose manque d'étouffer. Elle siffle de la gorge
+comme une bête fourbue.. A chaque respiration.
+#PAGE
+70 LE JOURNAL D'UNE FEMME DE CHAMBRE
+88 poitrine s'enfle et retombe, pour s'enfler
+garde pas une seule femme de chambre... c'est
+réglé... Quand ce n'est pas Madame qui les ren-
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 11
+voie, c'est Monsieur qui les engrosse... Un homme
+de jaboter :
+— Un bien bon homme oue M. Mauger. . et,
+#PAGE
+n LK /OURNAL DUNE FEMME DE CHAMBRE
+tout seul, ma petite... Autant dire que je suis la
+tueuses, et des places où les maisons sont de
+Ifuingois, des maisons oui ne tiennent pas debout,
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE IS
+des maisons noires, en vieux bois pourri, avec
+sée... Eh bien, ma petite, vous n'y êtes pas...
+Kh 1 si* il en a une famille, et ime propre!,,. Des
+#PAGE
+M LE JOURNAL D'UNE FEMME DE CHAMBRE
+tas de nièces et de cousines... des fainéants, des
+La grosse Rose ne me quitte pas... Elle m'oblige
+à prendre une chaise près de la sienne, et se met
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 7S
+à marmotter des prières, à faire des génuflexions
+de paille aigre, de cuir mouillé... d'encens avarié...
+Vraiment, ils sont bien mal élevés en province l
+#PAGE
+16 LE JOURNAL D'UNE FEMME DE CHAMBRÉ
+La messe tire en longueur et je m'ennuie... Je
+la tôte courbée sur le prie-Dieu.
+Eh bien, il ne me plairait pas, le nouveau
+#PAGE
+Lfe JOURNAL DUNE FEMME DE CHAMBRE ^7
+vicaire. Il a l'air sale et brutal... Il ressemble plus
+selle est une belle fille... Mademoiselle est pari-
+sienne, sans doute?..
+#PAGE
+M LE JOURNAL DUNE FEMME DE CHAMBRE
+— En effet, madame Gouin, j'arrive de Paris...
+du tort... Ils peuvent bien aller oii ils veulent...
+Le chœur des domestiques reprend :
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 19
+— Bien sûr qu'ils peuvent aller où ils veulent.
+une cour crasseuse, humide, uhe sorte de puits
+formé par des mUrs que ronge la lèpre des mous-
+#PAGE
+M LE JOURNAL D'UNE FEMME DE CHAMBRE
+ses... Une odeur de saumure, de légumes fer-
+siens, elles sont loin!...
+C'est Rose qui décidément obtient le plws
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 81
+grand succès... Elle raconte avec des yeux papil-
+chambre... sous prétexte de la balayer... Un drôle
+Aç balayage, mes enfants!... Elle était quasiment
+#PAGE
+82 LE JOURNAL D'UNE FEMME DE CHAMBRK
+toute nue, avec des yeux drôles, comme une
+calme soit revenu... Elle poursuit :
+— La mère est venue me conter la chose.;.
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 83
+Moi, je lui ai conseillé, vous pensez bien, d'ac-
+riante :
+— Ne faites pas attention, parce <|ad tos
+#PAGE
+é4 Le journal d'une femme de chambre
+maîtres ne prennent rien chez moi... Il faudra
+quelques nuages décorent le ciel de leurs fresques
+légères et charmantes. . Mais je n'éprouve aucun
+#PAGE
+LE JOURNAL D'UNE FEMME DE CUAMËRÈ éi
+plaisir à contempler tout cela... Je n'ai plus qu'un
+haie... et brusquement s'enfonce dans un chemin
+où elle disparaît... ,
+#PAGE
+8« LE JOURNAL D'UNE FEMME DE CHAMBRE
+Je passe devant Joseph, le jardinier-cocher, qui
+Je m'écrie, en dedans :
+— Zutl... zutl... et zut!... Tu m'embêtes... Je
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 87
+parlerai h. qui je veux... je verrai qui me plaît...
+mille. . . Quel joli livre ! ... Et qu'il est bien écrit ! . .
+C'est drôle, tout de même... j'aime bien entendre
+#PAGE
+18 LE JOURNAL DUNE FEMME DE CHAMBRE
+des choses cochonnes... mais je n'aime pas en
+C'est peut-être à cause de moi que Madame
+boude Monsieur...
+#PAGE
+IV
+26 septembre.
+crier... drinn!... drinn!... drinn!... Ça ne compte
+pas.. On n'a point le temps d'être malade, on n'a
+#PAGE
+90 LE JOURNAL D'UNE FEMME DE CHAMBRE
+pas le droit de souffrir... La souffrance, c'est un
+Madame a changé d'idée... Il lui faut autre chose,
+ou il ne lui faut plus rien :
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE . »(
+— Non... remportez l'aiguille et le bouton...
+Tantôt je souffraisplus encore que de coutume...
+Je rMsentais une douleur si aiguë que c'était
+#PAGE
+M LE JOURNAL DUNE FEMME DE CHAMBRE
+à croire qu'une bote me déchirait, avec ses dents,
+ainsi dire, rien à faire. La journée, nous la pas-
+sions dans la lingerie, une lingerie magnifique,
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 9S
+avec un tapis de feutre rouge, et garnie du haut
+pas très bien. Si l'intention est louable, chez lui,
+il n'en va pas de même, chez les autres, du résultat
+#PAGE
+Senre de celle-ci... ^ ^' '"'^'*««. dans le
+Mardi dernier un i^a
+"en dans le corps, ritn
+"""'• J""^'»
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE «
+— Vous êtes ben honnête, monsieur Lanlaire...
+Le vieillard hocha la tête, sa tête décharnée,
+couleur de bois ancien, et il répéta :
+#PAGE
+d« LE JOURNAL D'UNE FEMME DE CHAMBRE
+— Point tant qu'çà... Les jambes faiblissent,
+pective de la porte ouverte, se décoloraient, se
+noyaient d'ombre... £t le père Pantois mangeait
+#PAGE
+LE JOURNAk. J'UNE FEMME DE CHAMBRE 97
+toujours... Son verre était resté vide... Monsieur
+yeux étonnés et reconnaissants, et il bégaya :
+— J'entends ben... C'est un plaisir que de tra-
+#PAGE
+98 LE JOURNAL DUNE FEMME DE CHAMBRE
+vailler pour vous, monsieur Lanlaire... Vous
+— Je parie que vous n'avez pas de monnaie de
+mille francs, mon père Pantois?
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE M
+Voyant Monsieur rire, le père Pantois crut qu'il
+^rte par où Madame venait de disparaître... puis
+ils 86 regardaient, l'un l'autre, sans oser se dire
+#PAGE
+100 LE JOURNAL D'UNE FEMME DE CHAMBRK
+un mot. Ce fut Monsieur, qui, le premier, rompit
+— Tais-toi...
+Elle le boude des heures et des heures, le firent
+#PAGE
+LE JOURNAL D'UNE FEMMK DE CHAMBRE 101
+dur... la bouche mauvaise . Lui, la suit partout,
+ses plates-bandes... C'est toujours du temps de
+gagné sur les ennuip de l'intérieur... Pendant ces
+#PAGE
+lOÎ LE JOURNAL D UNE FEMME DE CHAMBRE
+moments-là, on ne lui fait pas de scènes... Loin
+— Mais oui, Monsieur... certainement... je
+m'habitue.
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 103
+— A la bonne heure... Ça n'est pas malheu-
+amoureuse. Il s'embrasait... le désir flambait
+drans ses prunelles .. Je crus devoir verser sur
+#PAGE
+104 LE JOURNAL D'UNE FEMME DE CHAMBRE
+tout ce feu une bonne douche d'eau glacée. Je dis,
+Monsieur... Enfm, après des efforts presque dou-
+loureux, des efforts qui amenaient sur ses lèvres
+#PAGE
+LE JOURNAL D UNE FEMME DE CHAMBRE 105
+de grotesques grimaces, Monsieur me demanda :
+gestes dégagés :
+— Eh bien quoi... Madame?... Eh bien quoi?...
+#PAGE
+iW LE JOURNAL D'UNE FEMME DE CHAMBRÉ
+Je me moque bien de Madame, moi!... Il ne fau-
+que cette vache...
+— Allons, Monsieur... allons I...
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 107
+Il reprenait :
+lie dors plus... que je me sens... tout malade... Et
+ne craignez rien de moi... N'aie pas peur de moi...
+#PAGE
+loi LE JOUHNAL DUNE FEMME DE CflAMBRR
+Je ne suis pas une brute, moi... je... je... ne vous
+donner du bonheur au pauvre gros père qui en est
+si privé, et j'en aurais de la joie aussi, car, eu
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 1««
+amour, donner du bonheur aux autres, c'est peut-
+il fait de la menuiserie, en chantant des airs mili-
+taires, en imitant la trompette du régiment...
+#PAGE
+11» LE JOURNAL DUNE FEMME DE CHAMBRE
+Le jardin est fort joli, un vieux jdiJin divisé en
+Interrompant son récit, le capitaine fore» e»»
+quelque sorte mon témoignage.
+#PAGE
+LE JOURNAL DDNE FEMME DE CHAMBRE lil
+— A ma table !... Et si je veux l'admettre dans
+— Est-il drôle !^.. est-il enfant !.. . Comme il est
+jeune pour son âge 1...
+#PAGE
+112 tA JOURNAL D'UNE FEMME DE CHAMBRE
+Après que nous eûmes siroté un petit verre de
+— Je mange de tout, moi!. .
+La façon dont le cdpitaine venait de proclamer
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 111
+' cette étrange profession de foi me révéla que sa
+rique... de plus loin, peut-être... On me les
+apporte... et je les mange... Je parie qu'il
+#PAGE
+Ii4 LE JOURNAL DUNE KEMME DE CHAMBRE
+n'y a pas, dans le monde, un homme qui ait
+il fut sur les genoux du capitaine qui se mit à
+le caresser, tout joyeux
+#PAGE
+LE JOURNAL DUNE FEMME DR CHAMBRE 115
+— Ah!... le bon Kléberl... Ahl... le charmant
+C'était comme un monde nouveau, étrangement
+comestible, qui se révélait à luK.«
+#PAGE
+H6 LE JOURNAL DUNE FEMME DE CHAMBRE
+— Je parie, répétai-je férocement, que vous
+river, me confia-t-elle... Il aimait trop son furet...
+Moi, je ne veux pas qui! aime quelque chose...
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 111
+Je trouve déjà qu'il aime trop ses fleurs...
+— Je vous dis que vous avez pris des pru-
+neaux...
+#PAGE
+il» LE JOURNAL D'UNE FEMME DE CHAMBRE
+J'ai répliqué :
+les avait comptés!...
+Noa! ... De ma viel...
+#PAGE
+28 septembre.
+Ma mère est morte. J'en ai reçu la nouvelle, ce
+mère... et le meurtre du petit furet. J'ai pensé
+que c'était là une punition du ciel, et que ma
+#PAGE
+120 LE JOURNAL DUNE FEMME DE CHAMBRE
+mère ne serait peut-être pas morte si je n'avais
+, ront pas certainement Ifau-de-vie qu'elle doit...
+^ C'est drôle, tou ue iaouM.*^ l'aut qu'elle vi-
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE l«t
+vait, je ne pensais presque jamais à elle... je
+comme cela était arrivé, tant de fois... Cependant,
+en entendant la corne du bateau de sauvetage,
+#PAGE
+122 LE JOURNAL DUNE FEMME DE CHAMBRE
+elle se leva toute tremblante et très pâle... m'en-
+des dos sombres, entre des visages mornes, entre
+des bras agités, je vis, sur un lit de camp, éclairé
+#PAGE
+LE JOURNAL DUNE 1 EUME DE CHAMBRE 123
+par deux chandelles, un grand cadavre... « Ah!
+Moi, je fuyais la maison, tant que je le pouvais.
+Je passais mes journées à gaminer sur le quai, à
+#PAGE
+m LE JOURNAL D'UNE FEMME t)E GHAMBRlî
+marauder dans les jardins, à barboter dans les
+darmes intervinrent...
+Des années s'écoulèrent pareilles... On ne vou-
+#PAGE
+LE JOURNAL D UNE FEMME DE CHAMBRE 125
+lait de moi nulle part, ni de ma sœur, ni de mon
+veux, m'entraîna sur la grève, du côté de Saint-
+Jean. Et là, dans une cachette de la falaise, dans
+#PAGE
+121 LE JOURNAL DUNE FEMME DE CHAMBRA
+un trou sombre du rocher où les mouettes ve-
+dernière, je servais comme femme de chambre.
+J'entendais dire toujours que lui seul connais-
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE ir
+sait jusque dans le tréfonds, l'âme si compliquée
+pauvres.
+*^
+#PAGE
+128 LE JOURNAL D'UNE FEMME DE CHAMBRE
+— Je ne m'occupe pas de ces âmes-là, dit-il...
+poussent l'exploitation humaine jusqu'au crime. .
+C'étaient de pauvres petits êtres candides, timides,
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 129
+charitables, et qui n'étaient pas riches, et qui
+tions, afin d'obtenir un bureau de tabac. Et les
+éeux filles, ne disant rien, ne faisant rien, l'une,
+#PAGE
+<Sd LE JOURNAL DUNE lEMMÈ DE GHAMiiUE
+avec un bec de canard, l'autre avec une face de
+soupe, comme disait M. Xavier, un gamin joli-
+ment perverti, dont j'aurai à parior bientùt...
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 131
+Et j'ai roulé... Ah! ce que j'ai roulé... C'est
+mauvais...
+Chaque mot vous méprise, chaque geste vous
+#PAGE
+132 LE JOURNAL DUNE FEMME DE CHAMBRE
+ravale plus bas qu'une bête... Et il ne faut rien
+toutes mortelles... Ah! mon Dieu! Ah! pauvre
+petite!...
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 133
+Puis, elle s'est mise tout h coup h. pleurer, à
+nuie!... Je voudrais servir chez up" cocotte, ou
+bien en Amérique...
+#PAGE
+VI
+!•» octobre.
+la moindre de ses paroles éclate l'aveu... l'aveu
+détourné de son désir... et quel aveu!... Mais il
+#PAGE
+Li: JOURNAL D'UNE FEMME DE CHAMBRE {ii
+t'st aussi de plus en plus timide. Une résolution
+lette... et, quelques secondes, je restai l'oreille
+collée à la corte. écoutant... Monsieur tournait
+#PAGE
+IM LE JOURNAL D'UNE FEMME DE CHAMBRE
+et retournait dans la pièce... Il sifflotait, chan-
+alarmée, ainsi qu'il convenait, et je refermai la
+porte avec violence... Mais derrière la porte, je
+#PAGE
+LE JOURNAL D'I-nK l'EMMK DE CJlAMliHE 431
+me disais : « Tl va me rappeler, bien sûr... Et
+ce qui était arrivé le matin :
+— Ça ne fait rien... souffla-t-il.., ça ne fait
+#PAGE
+ISt LE JOURNAL DUNE FEMME DE CHAMBRE
+Il voulut me retenir, bredouilla je ne sais
+— Permets... ah! permets!...
+— Et tous les sales torchons... et tous les
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE IM
+derrières crottés que tu trousses dans la cam-
+Be lui en donne jamais... Du moins, depuis que
+je suis ici, Monsieur peut se fouiller... Ça, j'en
+#PAGE
+140 LE JOURNAL D'UNE FEMME DE CHAMBRE
+suis certaine... Et c'est d'autant plus extraordi-
+maîtres de celte façon-là? Faites donc attention
+à votre service...
+#PAGE
+LÉ JOUL.>AL D'UNE FEMME DE CHAMBRE 141
+Oui, de les voir, cela éveillait en moi des
+et éphémère, autre chose qu'un enfant... Ar-
+range-toi, après comme tu peux et si tu peux...
+#PAGE
+U2 LE JOLRxNAL DUNE FExMME DE CHAMBRE
+Et si tu ne peux pas, eh bien, crève avec ton
+foulés, écrasés, et, de chaque côté, de hauts can-
+^lélabres. dont les bon ies disparues avaient coulé
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 143
+çt pendaient, en longues larmes figées, aux bran-
+— Ouvrez tout de même... commanda ce ma-
+lotru, que la résistance de ma maîtresse incitait
+#PAGE
+«44 Lfi JOURNAL D'UNE FEMME DE CHAMBRK
+visiblement à un plus complet, à un plus tyran:'
+— Si vous ne voulez pas ouvrir cet écrin, je
+T»ia aller chercbpr l'inspecteur. .
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 148
+— C'est une indignité... une honte.
+Brusquement, Madame changea de tactique, se
+fil plus douce, presque caressante avec l'iiD.corrup-
+#PAGE
+i4« LE JOURNAL DUNE FEMME DE CHAMBRE
+tible douanier, et, s'approchant de lui de façon à
+ment aperçus des voyageurs. .
+Madame hit gênée Pourtant, je dois recon-
+#PAGE
+I.K JOUKNAL DUNE FEMME DE CHAMBRE |t|
+naître qu'elle montra une certaine crânerie, en
+souvent des histoires pareilles ou analogues. J'enua,s quelques-unes à raconter q.i, so°us ce rapport, sont des plus édifiantes... Mais il y a unmoment où le dégoût l'emporte, où la fatluê
+sa été Et puis, je crois que j'en ai dit assez surc«tte maison, qui fut pour moi le plus complet
+#PAGE
+14» LE JUURNAL DUNE FEMME DE CHAMBRÉ
+exemple de ce que j'appellerai le débraille-
+n'aurait pas le toupet de le lui réclamer... Ma-
+dame le lui réclama pourtant... Après avoir
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBÏIÈ 148
+fouillé ses tiroirs, cherché partout, en vain, elle
+durant des minutes, l'œil agrandi sous les lu-
+nettes, s'écrasait le nez contre les images qu'elle
+#PAGE
+!â* LE JOURNAL D'UNE FEMME DE CHAMBHE
+avait l'air de renifler... Ce qu'on s'est amusé
+— Allons, fit Madame, relevez-la et allez la
+coucher...
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBHE 15i
+Comme elle était fort lourde et molle, Madame
+t'aime bien... viens avec moi... Pou!... pou!...
+pou!...
+#PAGE
+158 LB JOURNAL D'UNE FEMME DE CHAMBRE
+Je ne sais comment je me serais débarrassée
+de pitié, qui en font une chose grande et sainte.
+lïîixcore un mot sur Madatine;;: Hormis les jours
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 153
+de réception et des dîners de gala, Madame et
+Tout de même, ils avaient beau avoir du vice,
+%voir tous les vices dans cette maison-là, on y était
+#PAGE
+154 LE JOIJJWNAL DUNE FEMME DE GHAMBHË
+libre, heurouse, et Madame ne s'occupait jamais
+t<:'" >nm
+*
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 155
+— Tant que la religion n'aura pas été res-
+dits youpins !'... Il n'y a pas de danger, les traîtres,
+qu'ils soient venus s'établir au Mesnil-Uoy... lU
+#PAGE
+156 LE JOURNAL D'UNE FEMME DE CHAMBRE
+savent bien ce qu'ils font, allez, les vendus!...
+ces discours violents... Elle aussi, sans doute, la
+République la ruine et la déshonore... Elle aussi
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE i51
+est pour le sabre, pour les curés et contre les
+rien... Peut-être, les juives font-elles plus de
+piaffe, plus d'esbrouffe... peut-être font-elles
+#PAGE
+158 LE JOURNAL D'UNE FEMME DE CHAMBRE
+valoir davantage, l'argent qu'elles dépensent?...
+l'interne ne lui avait enfin trouvé, à l'école de
+médecine, une drôle de j)lace,.
+#PAGE
+LE JOURNAL D'UNE FEMMË DË CHAMBRE 159
+— Mon Dieu, oui... dit-cllc... au Moratoire, je
+Nous sommes montées, dans nos chambres, un
+peu grises...
+#PAGE
+vil
+6 oclubre.
+Durant quatre jours, nous avons vécu dans un
+brouillard épais, un brouillard brun qui sentait la
+#PAGE
+LE JOURNAL DUNE FE.\f\fE DE CHAMBhE 161
+8UH« et qui ne se dissipait même pas i'après-
+ment. Jamais il ne vient personne ici; on dirait
+dune maison maudite. Et, en dehors des menus
+#PAGE
+!62 LE JOURNAL D'UNE FEMME DE CHAMBRE
+incidents dompsliqiies que j'ai contés, jamais il
+quand j'entre, à la nuit, pour fermer ses per-
+siennes ou surveiller son feu. Alors, il se lève,
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 1«
+tousse, éternue s'^^-broue, se co.^ne aux moubles
+Rien ne m'amuse ici... Et le pire, c'est auenen, non plus, ne m'y embête... Estice air'de
+« «le pays, le silence de la campagne, la nour-
+#PAGE
+164 LK JOURNAL DUNE FEMME DE CHAMBRE
+riture trop lourde et grossière?... Une torpeur
+point recevoir de lettres de Paris. Tous les matins,
+lorsque vient le facteur, j'ai au cœur, comme un
+#PAGE
+1-6 JOURNAL DUNE TEMME DE CHAMBRJ ,„
+petit déchirement, i „e savoir si ahandonnée de
+'" *"°'-"
+-"^et.oii,et,ue,jréro:rrr'dr.'
+#PAGE
+166 LE JOURNAL D'UNE FEMME DE CHAMBRE
+trop de caresses et trop de joies, pour lui avoir
+éloge... Je crois que vous le méritez, car vous
+avez une figure intelligente, franche et gaie, qui
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 161
+me plaît beaucoup. J'ai besoin d'une personne de
+— Ce n'est pas une place bien gaie que je vous
+»ffre, mon enfant...
+#PAGE
+î«8 LE JOURNAL DUNE FEMME DE CHAMBRE
+Avec une sincérité d'enthousiasme qui ne lui
+se tremper une seconde dans la mer... Ensuite,
+il faudra qu'on le frotte énergiquement, sur tout
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 16)
+le corps, avec un gant de crin, pour activer la
+Dans son étatl... Dans son état, voyez-vous, plus
+que des bains de mer, peut-être, il a besoia d«
+#PAGE
+170 l.E JOIJUNAL b'VSE FEMME DE CUAMBIŒ
+ne rester jamais seul, d'avoir, sans cesse, auprèi
+ses organes, desséchait sa chair... Ah! qu'il
+éiait joli et douloureux à contempler!... Quand
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 171
+la grand 'mère me mena près de lui, il était étendu
+comme une da-me, au bien-être, au luxe, au
+partage de cette chose si vainement convoitée.
+#PAGE
+nî LK JOUHNAL DUNE FEMME DE CIIAMBHE
+qu'est la famille... expliquer comment, par un
+nuaient, s'espaçaient; le sommeil et l'appétit se
+régulansaient. . . 11 n'avait plusj la nuit, ces sueur-
+#PAGE
+LE JOURNAL Dtf.K FEMME DE CHAMBRE UJ
+iibondantes et terribles, qui re laissaient, an
+les malades, il comprenait tout, de la vie... Une
+vraie amilié, que facilita' i-ûrement son carac-
+#PAGE
+17, LK JOURNAL DUNE FEMME DE CHAMBRK
+ière et que souhaita sa solitude, et, surtout, que
+vers, c'est qu'il n'cbt point besoin d'ôtre un sa»
+vRînt pour les comprendre et pour les aimer... au
+#PAGE
+m JULKNAL D UNE i-EMAiE DE CHAMBhË ily
+contraire... Les savants ne les comprennent pas
+•ocial et à moi-môme, si, tâchant à reprendre
+confiance en la spontanéité do ma nature, j'ai
+#PAGE
+lit> LK JUUHNAL OgNE FEMME DE CHAMBRE
+osé, moi, ignorante de tout, écrire ce journal, c'est
+jamais, mon enfant.
+Son enthousiasme me gênait sous eut... mais
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE JT
+j'avais fini par croire que je le méritais... Si,
+place...
+Finalement, il s'était étendu sur sa chaise
+#PAGE
+i78 LE JOURNAL D'UNE FEMMES 1)Ë CHAMBRE
+longue, près de la grande baie par où l'on décou«
+venait, et qu'elle vous vît en cet état... vous la
+fftriez encore pleurer 1„,
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE ili
+S'étant soulevé un peu sur les coussins :
+le retlet rose de la lampe avivait son teint, des-
+sinait, d^mis àa ]a lumièrei les traits de »a figura
+#PAGE
+«M LE JOURNAL DUNE FEMME DE GHAMBHK
+fine et charmante... Moi, je travaillais à un ou-
+je suis content... je suis heureux... très... très
+heureux.,.
+#PAGE
+LE JOURNAI D'UNE FEMME DE CHAMBRE 4««
+Et m'ayant enlacé la taille, chastement, il
+-—
+' Monsieur Georges I Ah 1 uaoRsxeux- Georges L.
+#PAGE
+18-2 LE JOURNAL D'UNE FEMME DE CHAMBRE
+Laissez-moi... Vous allez vous rendre malade...
+pardon...
+^ Voi»8 o'ftvez pas à me demander pardon»
+#PAGE
+LE JOURNAL D'UNE PEMME DE CHAMBRE ilS
+monsieur Georges... vous avez à être calme...
+— Monsieur Georges, soyez sage... Ne penseï
+pas h ces vilaines ctioses-là... Gela vous fait dn
+#PAGE
+IB4 LE JOURNAL D UNE FEMME DE CHAMBRfc
+mal. Voyons, monsieur Georges... soyee bien
+espéré, tant voulu, tant attendu, que je me suis
+repris à vivre, h. tHrei'ort .. car ie suis fort, main-
+#PAGE
+LE JOURNAL D'UNE FENAME DE CHAMBRl 18S
+tenant... Mais, je ne t-en veux pas de me le
+— Tiens! méchant... regarde comme j'ai
+peur... regarde donc comme j'ai peurl...
+#PAGE
+'.V:> LE JOURNAL D'UNE FEMME DE CHAMBRE
+Je collai ma bouche à sa bouche, je heurtai
+Je n'avais pas non plus prévu et calculé ce qui,
+fatalement, devait résulter de ce baiser, et que je
+#PAGE
+LE JOURNAL DLNE FEMME DE CHAMBRE |8l
+n'aurais point la force, une fois dans les bras de
+confiante, avec quelle reconnaissance éblouie, il
+te pelotonna contre moi, comme pour y chercher
+#PAGE
+18S LE JOURNAL D'UNE FEMME DK CHAMBRE
+une protection... Et il me dit, ses yeux pleins
+nera pas... Je veux dormir contre toi...
+.^ Certains malades ont une puissance amoureuse
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 189
+que n'ont point les autres nommes, même les
+plait l'intensité de nos spasmes, j'aspirais, je
+buvais la mort, toute la mort, h. sa bouche... et je
+#PAGE
+190 LE JOURNAL D UNE FEMME DE CHAMBRE
+me barbouillais les lèvres de son poison... Une fois
+~ Vous vous tuez, ma pauvre petite... Vous
+ne pouvez pourtant pas passer toutes vos jiuits
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 191
+auprès de Georges... Je vais demander une sœur,
+donc pas, chère petite... Je t'adore... €t je te
+remercie...
+#PAGE
+J9Î I.E JOURNAL DUNE FEMME DE CHAMBRE
+Ma fièvre de destruction était bien tombée,
+monsieur Georges avait été plus calme. J'avais
+ouvert, toute grande, la grande baie de la cham-
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 19S
+bre, et, couch«'^ sur la chaise longue, près de la
+franges bleues du rideau et me souriant, et sui-
+7
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRB
+toutes mes allées et venues de son regard
+chant mes craintes, il en abusait... Mais, à peine
+dans le lit, sa main chercha mon corps, sa
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 195
+bouche ma bouche. Timidement, et sans résister,
+tombèrent, inertes, sur le lit; ses lèvres se déro-
+bèrent et abandonnèrent mes lèvres. Et de sa
+#PAGE
+IM LE JOURNAL DUNE FEMME DE CHAMBRE
+bouche renversée jaillit un cri de détresse... puis
+continuait de couler par la "bouche, on lilaments
+poisseux... j entendais que ou ^^oilnne s'évacuait
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE i91
+par la gorge, avec un bruit de bouteille qu'on
+je criai la terrible nouvelle, dans la maison...
+Ah! cette nuit!... J'ai connu, cette nuit-là,
+#PAGE
+198 LE JOURNAL D'UNE FEMME DE CHAMBRE
+de tortures tout ce qu'en contient l'enfer..
+poignante à ses autres afflictions, et cette hor-
+rible pensée et ce remords inexpiable que, sans
+#PAGE
+LE JOURNAL D'UNE FEMME DE GHAMBRfi 199
+moi, son cher enfant ne serait peut-être pas
+^choquèrent point... Au contraire, j'éprouvai une
+certaine joie canaille, une sorte de sécurité crapu-
+#PAGE
+900 LE JOURNAL DUNE FEMME DE CHAMBRE
+leuse, comme h la reprise d'une habitude perdue .
+Je me défendis, vaguement, pour la forme... il
+insista :
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBKE SOi
+— Voyons!... qu'est-ce que tu as?... Des
+d'avoir gagné la contagion aux baisers de
+M. Georges... La moindre indisposition, la plus
+#PAGE
+M2 LE JOURNAL D'UNE FEMME DE CHAMBRE
+passagère douleur me furent une terreur v(^ri-
+domestiques qui l'accompagnaient. Voûtée, cour
+bée, chancelante, elle marchait pesammentj sou-
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 203
+tenue aux aisselles par ses deux vieux serviteurs,
+r.eu plus... elles sont peut-être mortes tout à
+f'it. Après avoir erré encore^ des iours et des
+#PAGE
+Î04 LE JOURNAL D'UNE fEMME DE CHAMBRE
+nuits, peut-être qu'elles ont trouvé le trou de
+le terreau de mes châssis, le salaud... il ne
+ravagera plus mes semis, le chameau!... Et ii je
+#PAGE
+Le journal dune femme de chambre M5
+pouvais aussi prendre au collet votre Lanlaire et
+ne peut pas le rassasier U est comme moi...
+il mange de tout!...
+#PAGE
+108 _ LE JOURNAL D'USE FEMME DE CHAMBRE
+A ce moment, le petit domestique passe dans
+une idée!...
+Eh bien, vrai!.. Il ne doute de rien...
+#PAGE
+VIII
+28 octobre.
+est, peut-être, la femme de France dont on parle
+le plus, en ce moment, A son service de valet
+#PAGE
+J08 LE JOURNAL D'UNE FEMME DB CHAMBRE
+de chambre, Jp;m ajoute le rôle de manifestani/
+çaise... une ligue épatante... Tous les domes-
+tiques des grandes maisons en sont... Il y a aussi
+#PAGE
+LE JOURNAL D'UNE FEMME DL CHAMliHP. 209
+ies comtes, d^'^^ mirqnis et des ducs. En ven.Tnt
+les chiens aussi, du reste... C'est pc iiiquoi, en
+vue d'une célébrité qui ne peut manquer de
+#PAGE
+110 LE JOURNAL DUNE FEMME DE CHAMBRE
+BÏ'tendre du quartier sur PaHs, et 6e Paris sur la
+au retour des courses, ayant perdu son argent, et
+disfiint h l'autre, nomme il me l'a dit, tant de foi»,
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE ^/sil
+""
+connu!... L'on va, l'on va, et c'est toujours la
+même chose.. Voyez cet horizon poudroyant.
+#PAGE
+m LE JOURNAL D'UNE FEMME DÉ CHAMBftk
+là-bas^.. C'est bleu, cV.st rose, c'est frais, c'est
+jamais, la sécurité de son esprit, et jusqu'à la
+forme même d« son moi..* Au fond de tous ce*
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 21ï
+souvenirs, parmi ce peuple oe rlgures oii il erre,
+est toujours pataud, comique et vague... Il en-
+graisse. Comment des gens si riches peuvent-ils
+#PAGE
+«14 LE JOURNAL D'UNE FEMME DE CHAMBRE
+se résigner à une aussi morne existence?... Il
+— Ah! Vous voyez bien!... C'«st une femme
+très adroite...
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE SIB
+Aujourd'hui, justement, j'ai appris, chez l'épi-
+créatures, le viol et les images obcènes qu'
+évoque, en sont, pas tout k fait une excuse, mais
+#PAGE
+2ir, LE JOURNAL DUNE FEMME DE CHAMBRE
+certainement «ne atténuation... car le viol, c'est
+Et comme elle laisse notre curiosité en suspens
+sur ce « mais... »
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 217
+— Quoi donc?... quoi donc?... s'écrie-t-on de
+— Puisque je vous dis que si, moi... Puisque
+j'en suis sûre, ahl...
+#PAGE
+Ml LE JOURNAL D'UNE FEMME DE GHAMBKE
+jyjmt Qouin, restée songeuse, finit par déclarei
+sellerie, oîi Joseph astique ses harnais... Au-des-
+•us d'un dressoir, où sont symétriquement ran-
+#PAGE
+LE JOURNAL DUxNE FEMME DE CHAMBRE 219
+gées des bouteilles de vernis et des boîtes «le
+obstinément fixés sur son ouvrage. Mais je vois
+sa bouche... toute sa bouche large... son énorme
+#PAGE
+220 LE JOURNAL D UNE FEMME DE CHAMBRTS
+mâchoire de bote cruelle et sensuelle... Et j'ai
+est hantée d'idées obscènes... Elle ne voit que ça,
+itatfâi
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 221
+ne pense qu'à ça... ne vit que pour ça... Chaque
+qué... aujourd'hui on n'en voit plus... il n'y en a
+presque plus...
+#PAGE
+MJ LE JOURNAL D'UNE FEMME DE CHAMBRE
+Avec un sourire plus gluant, elle poursuit :
+— Je vous assure...
+Mamz'elle Rose hoche la tôti
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE «31
+— Vous ne voulez rien dire... vous vous méfiez
+Le curé passe dans le chemin, d'un pas lent,
+dodelinant de la tête. A la vue de mam'zelle
+#PAGE
+224 LE JOURNAL D'UNE FEMME DE CHAMBRE
+Kose, il salue, sourit, referme son bréviaire et
+une niche de son église, entre deux cierges, et
+nimbée d'or, comme une sainte...
+#PAGE
+IX
+25 octobre.
+ont les loups et les bêtes sauvages qui doivent
+porter, dans leurs gueules, des proies pesantes.
+#PAGE
+2S« LE JOURNAL D'UNE FEMME DE CHAMBRE
+Hormis sa folie antisémite, qui dénote, chez
+restera... Madame si soupçonneuse et qui voit le
+mal partout lui montre une confiance aveugle.
+#PAGE
+LE JOURNAL D'UiNË FEMME DE CHAMËRË 321
+Elle qui ne croit à personne, elle croit à Joseph,
+tond... et qui me bouleverse. Ce n'est pas l'har-
+monie des traits, ni la pureté des lignes qui crét
+#PAGE
+228 LE JOURNAL DUNE FEMME DE CHAMBRE
+pour une femme, la beauté d'un homme. C'estquel-
+dans le sol?... Passe-t-il à travers les murs?... 11
+m'arrive, de temps en temps d'aller au jardin,
+#PAGE
+LE JOURNAL D'UNE FEMME DE GIIAMBKE 229
+pour lui transmettre un ordre de Madame... Je ne
+l'incrédulité; tout le monde a haussé les épaules...
+Hier, les gendarmes ont arrêté un pauyre colpor-
+#PAGE
+2S« LE JOURNAL D'UNE FEMME DE CHAMBRE
+teur qui a pu prouver facilement qu'il n'était pas
+— Vraiment, tu peux bien rester ici... Qu'est-ce
+que tu as besoin d'ôlre toujoirs dehors?
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 231
+Elle s'est même promenée avec Monsieur, une
+Je n'ai pas de preuves, pas d'indices qui puissent
+me permettre de le soupçonner... pas d'autres
+#PAGE
+'L J LE JOURNAL D'UNE FEMME DE GHAMBhE
+indices que ses yeux, pas d'autres preuves que ce
+plus troubles, qu'il avait, ce soir-là, en rentrant...
+Je n'y avais pas pris garde, alors... Pourquoi
+#PAGE
+LE JOURNAL D UNE FEMME DE CHAMBRE 233
+î'eussé-je fait?... Aujourd'hui, ces dclails de
+Est-ce que vous vous le rappelez?...
+Sans hâte, sans sursaut, Joseph lâche le journal
+#PAGE
+iU LE JOURNAL DUNE FEMME DE GHAMfitlË
+qu'il lisait... Son âme est bronzée désormais
+que bonhomme... Ses gestes sont aisés, sa voix
+ne tremble plus... Je me tais... et Joseph, repre-
+#PAGE
+LE JOURNAL D'UNE DE CHAMBRE FEMME «38
+nant le journal qu'il avait posé sur la table, se
+sentir leur chair friaBohiisr, leur cœur battre dans
+»*SB mai»»! il eims fe «Uvrej K conipterj h, rë*
+#PAGE
+13« LE JOURNAL D'UNE FEMME DE CHAMBRE
+cueillir dans ses mains leur souffrance, leurs fris-
+envie encore plus violente, de crier à Joseph :
+iâirfk.
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 237
+— C'est VOUS qui avez violé la petite Claire,
+fait sur le cœur de Joseph une impression consi-
+dérable. Son mauvais accueil est fini; son silence
+#PAGE
+M8 LE JOURNAL DUNE FEMME DE CHAMBRE
+ne m'est plus hostile ou méprisant, et il y a presque
+— C'est bien^ ça.. Géîestine... Vous êtes une
+^«n«^ hmtn^iiii nrj<e fompifs d'ordf*!; h^otd^^t
+#PAGE
+LE JOURNAL DUNE FEMME DE CHaMBRË 139
+voyez-vous, c'est la fortune. Et quand on est gen-
+bleues, tricolores... Gros yeux ronds dépassant
+l'arcade les sourcils, crâne aplati, peau fripée,
+#PAGE
+ne IL JOURNAL D'INK FLMME DE CHAMBRÉ
+jaunâtre et grenue, il ressemblait à un crapaud...
+me suis arrangé avec les messieurs prêtres... je
+travaille pour eux, nuoil C'est dans mes idées,
+#PAGE
+LE JOIIRNAI- DUNK FEMME DE CHAMBRE Î4l
+p^mrsûr... faut dire aussi que c'est bien payé...
+— Sacristil... fit-il, ennuyé... je devrais aller
+voir aux châssis... Les mulots ne me laissent pas
+#PAGE
+24i LE JOURNAL DUNE FEMME DE CHAMBRE
+une salade, ces vermines-lèi... Et puis, ma foi,
+les gens du premier coup... Les femmes, sur-
+tout, c'est le diable à connaître... et vous ftrrivieï
+#PAGE
+LE JOURNAL D'DNE FEMME DE CHAMBRE 243
+de Paris!... Maintenant, je vous connais bien •••
+— Vous pensez bien qu'il n'est pas ir.li6. l\
+«5t dans un endroit où il fait des petitu '
+#PAGE
+244 LE JOURNAL D'UNE FEMME DE CHAMBRE
+Alors, d'une voix basse, chuchotée :
+Célostine... Je suis de Cherbourg... Et Cherbourg,
+c'est une rude ville, allez... pleine de marins, de
+#PAGE
+LE JOLRNAL D'UNE FEMME DE CHAMBRE 245
+soldats... de sacrés lascars qui ne boudent pas
+point de ces mijaurées qui ne savent seulement
+point entendre une plaisanterie... vous êtes pa-
+#PAGE
+246 LE JOURNAL D'UNE FEMME DE CHAMBRE
+triote, nom de nom!... Et puis vous êtes gentille,
+cet argent-là... Et puis, des choses... des choses.,
+des bijouiï... Youa spriei rudement heureuitt^
+#PAGE
+LE JOURNAL D'UNE FEMME DE CMAMBÎIË S4l
+Il me tenait la taille serrée dans l'étau puis-
+de sinistres I... Est-ce une menace?... Est-ce un«
+promesse?...
+#PAGE
+248 l>K JOIIHNAL DUNE FKMME DE CHAMBRÉ
+Aujourd'hui, Joseph a repris ses habitudes de
+n'aie pas de dégoût, puisque c'est lui qui a tué,
+qui a violé la petite Claire dans le bois!...
+#PAGE
+X
+3 novembre.
+les Gharrigaud, et je crois bien que je n'ai jamais
+rencontré de pareils mufles... Dieu sait pourtant !
+#PAGE
+250 LE JOURNAL DUtih FiMMfc. Dfci CHAMBRE
+Tout le monde connaît de nom Victor Charri-
+en notait le caractère de lâcheté morale, de des-
+sèchement intellectuel, avec une âpre précision
+#PAGE
+LE JOURNAL D'UNE FULME DL UilAMbhh. 23]
+dans le pittoresque, une large et rude phil iso-
+même temps, il fit de la toilette et de la mode
+une de ses préoccupations les plus ach 'née*
+#PAGE
+862 LE JOURNAL DUNE FEMiME Dt CHAMBRE
+On le vit avec des redingotes d'un philippisme
+! des toilettes éclatantes, fracassantes, des cheveux
+trop rouges, des bijoux trop gros, des soies trop
+#PAGE
+LE JOURNAL D UNE FEMxME DE CHAMBRE tU
+riches, des airs de reine de lavoir, des majestés
+nous ne pouvons pas la refuser. Ce serait un dé-
+sastre... Heureusement, ie connais ton cœur. Loin
+#PAGE
+154 LE JOURNAL DUNE FEMME DE CHAMBRE
+de nous en vouloir, je suis sûr que tu partageras
+maison si charmante, mais un dîner vraiment élé-
+gant, vraiment solennel, un diner guindé et glacé,
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE M8
+un dîner sélect où seraient cérémonieusement
+A quoi M""' Charrigaud répliqua sur un ton
+L'agacement nerveux;
+#PAGE
+IM LE JOURNAL DUNE FEMME DE CHAMBRE
+— Que tu es assommant, avec tes mots d'esprit
+sinologue sévère à l'Institut...
+Le portraitiste Jocque» Rigaud.
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 25T
+Le romancier psychologue Maurice Fernan-
+négocvations et de ces scrupules. Loin de s'en
+formaliser, ils se félicitèrent qu'on eût mené h
+#PAGE
+'i(J8 LE JOURNAL D'UNE FEMME DE CHAMBRE
+Lien les unes et vaincu les autres. Il ne s'agissait
+— Eh bien, c'est ça... divorçons, mon petit
+loup, divorçons... Au moins, de cette façon, nous
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 35»
+compléterons la série et nous ne ferons pas tache
+avait, disait-elle, le ventre dans les talons, elle
+passa la dernière revue de l'hôtel dérangea et
+#PAGE
+160 LE JOURNAL DUNE FEMME DE CHAMBRE
+remit sans raison des bibelots et des meublf^s,
+sans trop d'accidents... sans trop d'accrt s... Je ne
+suivais pas que d'être des gens du monde, cela
+#PAGE
+iJ .
+LE JOURNAL D'UNE FEMME DE CHAMBRE 265"
+comtesse » que, dans le fond de son âme, elle
+maudissait.
+#PAGE
+«2 LE JOURNAL D'UNE FEMV.: DE CHAMBRE
+— El quer cerveau!... h-.i- achérissait Charri-
+voris trop lo'^ ,vs trempaient dans les plats. Il en
+c-Ji yut de vagues terreurs et des doutes angois-
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 26$
+?aats sur la bonne tenue de sa table et de sa
+l'infini. Il y avait ceux chez qui l'on peut dîner,
+et aussi chez qui l'on peut aller, seulement, en
+#PAGE
+264 LE JOURNAL D'UNE FEMME DE CHAMBRE
+soirée... Ceux chez qui l'on ne peut dîner et où
+ou ironiques, et, machinalement, avec des mou-
+vements de dIus en plus accélérés, il roulait,
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 268
+malgré les avertissements ,de sa femme, de
+tionneur très habile, très heureux. Ses vitrines
+étaient célèbres.
+#PAGE
+266 LE JOURNAL D'UNE FEMME DE CHAMBRE
+— Mais où trouvez- vous toutes ces mer
+nouvelle... Enhardie par ce succès, M"" Charri-
+gaud, interpellant d rectement Sartorys qui pro-
+#PAGE
+>• LE JOUUN.>i\ JUNE FEMME DE CHAMBRE S6T
+testait avec des j. estes charmants, s'écria d'une
+grande salle que décorent sur les murs blei-^^, à
+peine bleus, des paons blancs f^t des paorm <: 0-..,
+#PAGE
+iô8 LE JOURNAL DUNE PEMMË DE CHAMBRE
+figurez-vous une table de jade, d'un ovale incon-
+ment les femmes, car il avait la spécialité des
+subtils récits de péché et des sensations extraor-
+#PAGE
+LÉ JOURNAL DUNE FEMME DE CHAMBRE 26%
+dinaires... Tout à coup, un frémissement courut
+toiles, si bien que la gloire du poète était insépa-
+rable de celle du peintre et qu'on avait fini par
+#PAGE
+110 LE JOURNAL D'UNE FEMME DE CHAMBRE
+confondre leurs deux œuvres et leurs deux immor-
+bre où baignaient des pétales de rose, un parfum
+violent montât. Et sur une petite table, des nar-
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 27!
+clsses à très longues tiges mouraient, comme des
+algues d'or s'éployèrent, on eût dit, se rétré-
+cirent, .s'é ployèrent, se rétrécirent encore, selon
+#PAGE
+i^È LE JOURNAL D'UNE FEMME DE CHAMBRE
+des rythmes nouveaux d'une ondulation inhabi-
+larmes, phosphorescentes dans la pénombre, cou-
+lèrent des yeux du peintre... Le poète répondit :
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE llS
+« Écoute-moi, 6 mon ami!... J'aime Botticellina...
+plus beau encore, peut-être. » — « Non, s'écria
+le peintre, vous vivrez... Botticellina sera Tienne,
+#PAGE
+«74 LE JOURNAL D'UNE FEMME DE CHAMBRE
+comme elle fut Mienne... Je me déchirerai la
+nèrent longtemps, en chants nuptiaux...
+Kimberly se tut quelques instants... puis,
+#PAGE
+LE JOL'K.NAL D UNE FEMME DE CHAMBRE 215
+durant que l'émotion, autour de la table, étran-
+ment jaloux du succès de Kimberiy.
+Celui-ci dit simplement :
+#PAGE
+276 LE JOURNAL DUNE FEMME DE GHAMBME
+— Les âmes n'ont pas de sexe, mon cher Mau-
+zibeline .... ah! buvez du lait de martre zibe-
+line... c'est tellement ravissant! » la conversa-
+#PAGE
+LE JOURNAL DUNE FÈMMÈ DE CttAMBRE 271
+tion ne put être reprise... si bien que l'un après
+mées, dans le buffet, prit le parti de se retirer
+en sa chambre, où elle s'enferma.
+#PAGE
+iU LE JOURNAL D'UNE FEMME DE CHAMBRK
+Monsieur continua de rôder à. travers l'hôtel
+de plus somptueux snobismes.
+— Ouelle femme charmante que la cointessa
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE Î19
+Fergus!... dit Madame, au déjeuner, en finissant
+nouveau volume de mon ancien maître. Mais ce
+qu'il doit être mouche dans le fondl
+#PAGE
+XI
+10 Bovembr©.
+et des chiens frileux.
+Madame m'a envoyée en course, chez le bon-
+#PAGE
+LE JOURNAL DUNE F.-AIME DE rHAMBRE 281
+cher, et j'ai pris les chiens avec moi... Pendant
+pauvres...
+Au Prieuré, les événements se succèdent Du
+#PAGE
+Ui LE JOURNAL D UNE FEMME DE CHAMBRB
+tragique ils passent au com'ique, car on ne peut
+bants, le juge de paix, qui est d'ailleurs l'ami du
+capitaine, engage Monsieur à. retirer sa plainte.
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 283
+— Et du reste... permettez-moi de vous le
+Rose souffre d'une attaque d'influenza, et dame...
+avec son asthme!... Bourbaki est mort... Il est
+#PAGE
+284 LE JOURNAL DUNE FEMME DE CHAMBRE
+mort d'une congestion pulmonaire, pour avoir bu
+choses à quoi penser en ce moment... Joseph me
+presse de me décider... on ne peut pas attendre
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE MB
+ou cela me plaît, et, le lendemam cela ne me
+sais où j'ai pu trouver le courage de lu. de
+mander :
+#PAGE
+Ï86 LE JOURNAL DUNE FEMME DE CHAMBRE
+— Eh bien, Joseph... dites-moi que c'est vous
+Il circule en ville un journal de Rouen où il
+y a un article qui fait scandale, parmi les dévotes.
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE UY
+C'est une histoire vraie, très drôle et pas mal
+en invoquant des raisons oratoires :
+— Ou n'est pas de ion avis, bien sûr, mais
+#PAGE
+*^t ils envia i'An+
+^
+.
+"^^^t deux heures U /«
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 28u
+terrestre?... Que celui qui le sait lève la main?...
+jadis, il ne tombait ni pluie, ni grêle, ni neige. .
+Kl
+#PAGE
+200 \A'. JOURNAL D'UNE FEMME DE CHAMBRE
+ni foudre... en Asie où tout était verdoyant et
+Sur la façade occidentale, au-dessus d'une porte
+centrale, en ogive, une t-jçc * p^^ouit* délicate-
+#PAGE
+LE JOUKNAL D'UNE FEMME DE CHAMBRE 'M
+ment portée sur une arcature trilobée, à jour,
+pice, sœur Angèle. Aigre, maigre, jeune encore,
+d'une jeunesse revôche et fanée... austère et caa-
+#PAGE
+192 LE JOURNAL D'UNE FEMME DE CHAMBRE
+canière, entreprenante et fureteuse, sœur Angèle
+tions... Alors, il s'est dit : « Ah! vous laissez le
+bon curé se morfondre tout seul avec son bedeau
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 2»3
+et ses chantres sur les routes et dans les sentes.
+mouvement nerveux, elle mania sa croix de cuivre
+et ses médailles bénites qui sonnèrent sur la ba-
+#PAGE
+»4 LE JOURNAL D'UNE FEMME DE CHAMBRE
+vette empesée, dont était bardée sa poitrine plate
+tout nu lût un paroissien... puisqu'il est en
+pierre...
+#PAGE
+LE JOURNAL D'UNE FEM^IE PE CHAMBRE 29»
+— Comment?... Il est en pierre?... Mais, alors,
+eevable...
+Sopur Angèle frappa le sol du pied.
+#PAGE
+2ft(i LE JOURNAL DUNE FEMME DE CHAMBRE
+— Et, depuis des siècles qu'elle est là,., souil-
+longtemps éteinte; les réverbères, obscurs au haut
+de leur potence, balançaient leurs grinçantes et in-
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 2§1
+visibles carcassee.Tout dormait dans Port-Lançon.
+ments de la pierre où grimaçaient, gambadaient
+d'apocalyptiques figures de démons et de saints.
+#PAGE
+S»8 LE JOURNAL D'UNE FEMME DE CHAMBRE
+Tout k coup, il poussa un cri. Il venait d'aper-
+culeuse... Les voies de Dieu sont tellement mys-
+térieuses!
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 29J
+Elle eut d'abord la pensée de l'offrir à M. le
+— Tout de mêmej ça devait être un bien bel
+homme I..
+#PAGE
+»M LE JOURNAL DUNE FEMME DE CfïAMBRE
+Pauvre demoiselle Robineau ! On lui apprit ce
+veillance de Madame. Et on ne la revoit plus jus-
+qu'à l'année suivante... Ohl les yeux de .Madame
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE SOI
+devant son argenterie... devant le viol de son
+En vérité, je ne sais pas pourquoi... les moindres
+paroles de Joseph me font trembler...
+#PAGE
+XTI
+12 novembre.
+lette... Un cabinet de toilette épatant, tendu de
+soie crème, et Madame une grande femme, extrè-
+#PAGE
+Le journal dune femme de chambre ào3
+mement maquillée, trop blanche de peau, trop
+bien accueillie...
+Dans le regard du valet de chambre qui
+#PAGE
+S04 LE JOURNAL D'UNE FEMME DE CHAMBRÉ
+m'avait ouvert la porte chez M"* de Tarve.s,
+oui... C'est plus convenable...
+C'est dans l'ordre... Nous autres, nous n'avons
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRÉ SOr.
+même pas le droit d'avoir un nom à nous... par* e
+faites... C'est plus convenable...
+Je n'étais pas au bout de mes étonnements.
+#PAGE
+I0« LE JOURNAL DUNE FEMME DE CHAAiflHE
+Continuant de m'examiner minutieusement, elle
+Agacée par cette inspection violatrice, je répon-
+dis d'une voix sèche :
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE SO-J
+— Je ne sais pas ce que Madame veut dire par
+les couleurs tendres, effacées ou violentes cha-
+toyaient sur le tapis comme une corbeille de
+#PAGE
+308 LE JOL'KNAL D'UNE FEMME DE CHAMBRE
+fleurs dans un jardin. Je n'en revenais pas... je
+Elle entra dans des détails intimes, insistant
+toujours sur ce mot « convenable », qui revenait
+#PAGE
+WBSP' ,- .^1-,L,L -,i..ir mw^'^^^-
+LE JOURNAL DTJNR FEMME DE CHAMBRE M9
+nomie hisolenle de gommeux précoce, grâce dou-
+teuse de fille, et qui me plut.
+#PAGE
+310 LE JOURNAL D'UNE FEMME DE CHAMBRE
+— C'est M. Xavier... présenta Madame.
+donner le coup de fer quotidien.
+Je trouvai extrêmement bizarre que, daps une
+#PAGE
+LE JUURNAL DUNE FEMME DE CtJAMBRË 3H
+maison où il y avait un valet de chambre, ce fût
+,
+C'est à ne pas croire...
+#PAGE
+3lil LE JOURNAL D'UNE FEMME DE CtlAMBRÊ
+Ahl vrai!... J'étais bien tombée... Et telle était
+par d'étranges rêves, impatiente de voir M. Xa-
+vier...
+#PAGE
+LE JOURNAr. D'UNE FEMME DE CHAMBRE 31.?
+Le valet de chambre n'avait pas menti. Une
+nous amusions beaucoup de ces querelles, quoi-
+que ce soit assez chic et flatteur de servir chez
+#PAGE
+su LE JOURNAL D'UNE FEMME DE CHAMBRE
+des maîtres dont on parle dans les journaux.
+— Merci, Monsieur... Puis-je demander à Mon-
+sieur ce que c'est que cette Société ?
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 31:,
+— Une Société admirable, qui recueille et
+eût renversé toutes les églises, fait sauter tous
+les couvents... Eh bien, le dimanche, il allait à la
+#PAGE
+3i6 LE JOURNAL D'UNE FEMME DE CHAMBRE
+messe, en cachette, dans des paroisses éloignées...
+j m'inondait de glycérine, de peau d'Espagne,
+m'enduisait les bras de oold-cream, me saupou-
+#PAGE
+LE JOURNAL D'ONB FEMMB DE CHAMBRK 317
+drait de poudre de riz. Et, durant ces opérations^
+- Moi, à votre place... ce que je les ferais
+casquer!... Je me gênerais, peut-être.
+#PAGE
+St« LE JOURNAL D'UNE FEMME DE CHAMFRE
+Ces paroles me rendaient un peu honteuse vis-
+petits arcs d'or — dessinait, mieux que sur son
+portrait, ses lèvres dont la pulpe rouge et charnue
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 3i»
+appelait le baiser. Ses yeux d'un bleu clair, pail-
+Et comme s'il me voyait réellement, pour la pre-
+mière fois :
+#PAGE
+S20 LE JOURNAL I) UNE FEMME DE CHAMBRE
+— Mais tu es une très chic fille... me dit-il...
+tionnai :
+— 11 v a une chose qui m'intrigue, monsieur
+#PAGE
+LE JOURNAL D UNE FEMME DE CHAMBRE 331
+Xavier... Comment se fait-il qu'on ne vous voie
+— Ah! non, répliquai-je... r.'ant, moi aussi...
+Il
+#PAGE
+m LE JOURNAL D'UNE FEMME DE CHAMBRE
+Seulement, il m'apporte le Fin de Siècle... le
+eu son conseil judiciaire, il y a deux mois? . Y
+e.<s-tu?
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 323
+— Pas du tout, je vous jure, monsieur Xavier.
+— Tais-toi! fit-il.
+Et me renversant sur le lit *
+#PAGE
+334 LE JOURNAL DUNE FEMME DE CHAMBRE
+— Oh! comme tu sens bon! chuchota-t-il...
+n'existais pas pour lui, et « la chose » faite... va
+te promener il ne m'accordait plus la moindre
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 328
+attention. Jamais il ne m'adressa une parole
+— Et papa?... Vrai?... tu n'as pas encore eoxi-
+ché avec papa?... Tu m'étonnes...
+#PAGE
+n2C LE JOURNAL D'UNE FEMME DE CHAMBRE
+Une fois, je n'eus pas la force de dissimuler mes
+brutalement, sautait du lit :
+— Ah! non. . tu sais... Elle est mauvaise...
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 321
+Et il allumait une cigarette...^
+impératif, de même qu'il m'eût demandé de l'eau
+chaude :
+#PAGE
+328 LE JOURNAF. DUNE FEMME DE CHAMBRE
+— Est-ce que tu as cinq louis?... J'ai absolu^
+tes quatre-vingt-dix francs... tu peux les re-
+prendre... Reprends-les...
+#PAGE
+LE JOURNAL D'UNE FEMME 5e CHAMBRE 32»
+— Non... non... soupirai-je... Vous savez bien
+vinaigre. Elle me donnait des ordres sur un ton
+cassasnt... rabaissant... Finies les séances de chif-
+#PAGE
+3?,n LE JOURNAL D'UNE FEMME DE CHAMBRE
+fonnage, de cold-cream, de poudre de riz, et les
+publiques et des maisons centrales... Et puis, tout
+n coup cela s'apaisait... Il suffisait que M. Xavier
+#PAGE
+. ijll« g...jJlLJ!.
+IJ .-l
+journaux. Le soir, il réapparaissait, cravaté de
+respectabilité, bardé de socialisme chrétien, la
+#PAGE
+138 LE JOURNAL D'UNE FEMME DE CHAMBRÉ
+démarche un peu plus lente, le geste un peu plus
+venant h moi, il me prit les mains, les tapota.
+Sous la paupière battante, son œil virait, comme
+#PAGE
+LE JOURNAL D UNE FEMME DE CHAMBRE J33
+celui d'une vieille poule, accouflée dans le soleil.
+chaine je vais à Lourdes... oui, j'emmène à
+Lourdes un Pèlerinage... Veux-lu venir à Lourr
+#PAGE
+334 LE JOURNAL DUNE FEMME DE CHAMUKË
+des?... J'ai un moyen de t'emmencr à Lourdes...
+Il ne s'agit pas de M. Xavier... M. Xavier n'a
+rien à faire ici...
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 335
+Je redoublai d'insolence...
+tituée!... vociférait Monsieur, en bourrant, d«
+eowps de poing, sa serviette...
+#PAGE
+M6 LE 4/>l'RV\r. r»l'NF FEMME DE CHAMBRE
+Fmaienu^nt, MaiiHiue me retint mes huit jours,
+sources... Il me restait trois francs cinquante...
+et le pavé de la rue.
+#PAGE
+XIII
+13 novembre.
+d- paysages que je nli jà^tvus' p i Z a
+.-erLLe:ttriateurre:x:t
+#PAGE
+338 LE JOURNAL D'UNE FEMME DE CHAMBRE
+nious... et, sur la lande, au bord des grèves, des
+Plusieurs fois, des camarades m'avaient parlé
+de» MBurs de Notre-Dame de» T^ente~six-Douleu^^
+#PAGE
+Le journal dune femme de CHAAIBRIi 3'J!)
+— Oui, ma chère, paraît qu'il ne vient que de
+vrage, selon ses aptitudes. Celles-ci faisaient la
+celles-là travaillaient au
+#PAGE
+340 LE JOURNAL 1>'UNE TOMME DE CHAMBRE
+jardin, bêchaient la terre, commp des terrassiers...
+des pensées irrévérencieuses et folâtres... C'était
+un drôle de bonhomme aue cet aumônier, tout
+#PAGE
+LE Journal d'une femme de chambkë 34i
+rond, tout rouge, un peu rude de manières et de
+encore faut-il mieux pécher avec ses maîtres...
+quand ce sont des personnes pieuses... que toute
+#PAGE
+3iJ LE JOURNAL D'UNE FEMME DE CHAMBRE
+seule, ou bien avec des gens de même condition
+C'est curieux, vraiment... Quand je suis en place,
+c,4?8 clioses-là me dégoûtent; quand je suis sans
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 343
+place, elles me manquent... J'étais lasse aussi,
+une place excellente... nous cherchons, pour
+TOUS, une place exceptionnelle... Nous savons cr
+#PAGE
+3U LE JOURNAL D UNE FEMME DE CHAMBRE
+qui vous convient... Il ne s'en est pas encore
+une petite amie, Clémence, que j'appelais Cléclé...
+et que j'avais connue dan» une place, rue de l'Uni-
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 34J
+versîté... Cléclé était charmante, toute blonde,
+penses, on nous collait de vieux rogatons, kif-W
+h la boîte... Eux, c'étaient des restes de volaille.
+#PAGE
+346 LE JOURNAL DUNE FEMME DE CHAMBRE
+des crèmes, des gâteaux, de l'eau d'Évian, ma
+graisse, s'amuse de la misère d'un plus pauvre
+que soi. Les scènes changent; les décors se trans-
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 317
+forment ; VOUS traversez des milieux sociaux diffé-
+de ce qu'ils sont impuissants à le satisfaire et à
+briser toutes les entraves mises à son expansion
+#PAGE
+U8 LE JOURNAL DUNE FEMME DE CHAMBRE
+naturelle. Ah! c'est extraordinaire... On exige
+disproportion rendue à chaque minute plus sen-
+sible, plus humiliante, plus ravalante par les ça-
+#PAGE
+ss^r-
+LE JOURNAL DUNE FEMME DE CHAMBRE 349
+— Mon cadeau? fit Baptiste en haussant les
+épaules.
+#PAGE
+850 LE JOURNAL D'UNE FE^L\1E DE CHAMBRE
+— Allons... dites-le!
+le sang!...
+Je n'ai pas d'instruction et j'écris ce fueje
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE Js,
+pense et ce que j'ai vu... Eh bien, je dis que tou
+^"'' "•' "^ --enaUpas II fal a, vo.r leurs têtes, aux saintes fem-mes... C était ns.ble... Elles avaient comptéquen me plaçant chez de vieilles bigotes Xpourraient se rembourser, usurairement. sur me
+leur poser un lapin, à mon tour.
+#PAGE
+3S2 LE JOURNAL D'UNE FEMME DE CHAMBRE
+Un jour, j'avertis la sœur Boniface que j'avais
+draient pas... Et il faudrait vous payer par-des-
+sus le marché 1 .. Ah 1 vous ne doutez de rien...
+#PAGE
+LE JOURNAL D'UNK FEMME DR CHAMIiKE 3:;;;
+La sœur Boniface était devenue toute pâle... Je
+plein le dos de la religion... Ma malle, entendez-
+1:2
+#PAGE
+$5i LE JOURNAL D'UNE FEMME DE CIIAMBKE
+^
+Je passai là une soirée délicieuse, à pleurer,
+pleurer, pleurer...
+#PAGE
+XIV
+18 novembre.
+au bruit des tintenelles que le bedeau agitait...
+M^^dame m'avait avertie que je ne devais pas
+#PAGE
+3â« UE JOURNAL D'UNE FKMMB DE CHAMUUE
+aller aux obeëquea. Je n'eu avais, d'ailicursi, duUo
+de visage... Je me contente de répéter :
+m
+#PAGE
+LE JOURNAL D UNS FEMME DÉ CHAMBHË »:i
+— Uû grand roalheur, monsieur ie capi-
+— D'ailleurs, m'était-elle si dévouée?... Tenez,
+j'aime mieux vous le dire; j'en avais assez de
+#PAGE
+15» LE JOURNAL D'UNE FEMME DE CHAMBRE
+Rose... Ma foi, oui!... Depuis que nous avions
+iprelle me faisait... sa tyrannie... sa jalousie...
+son égoisme. Rien no m'appartenait plus ici...
+#PAGE
+LE JOURNAL D'UNE FEUME Dli GUAMbRK ^^,9
+iout était à elle, chez moi... Ainsi, vous ne le
+vol de moineaux piaillants... Et il s'écrie :
+— Ça, c'est une idée hein?... Oh! sat tête — ki
+#PAGE
+360 LE JOURNAL DUNE FEMME DE CHAMBRE
+voyez-vous d'ici — en apprenant que ma petite
+— Et les testaments, capitaine?
+— Je leg déchire, nom de Dieul
+#PAGE
+LE JOURNAL D'UNE F£MM£ DE CUAMBaS ^\
+.l 'objecte :
+ah!... Ça, c'est une idée!
+Je me t.iis et fa.vs semblant de rêver à des choseï
+#PAGE
+m lI journal D'UNE PEUMË DE CIIAMURjt
+protondes... Lecapitaine s'impatiente... s'énerve...
+dans l'existence d'une femme comme moi, je dois
+me féliciter qu il m'arrivc entin quelque chjse
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE W
+d'autre que cet éternel et monotone ballottement
+n'y aie pas goûté une joie quelconque... Mais un
+homme d'un ridicule aussi incomparable que le
+#PAGE
+M4 LE JOURNAL DUNE FEMME DE CHAMBUE
+capitaine, je suis sûre que cela ne peut pas arriver,
+féroces?... M'aime-t-il seulement... et pourquoi
+nn'çiime-f-tll ? . Pour ma g^entillessa*.- poinr rxieo
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 3'.'
+vices... pour mon intelligence... pour ma haine
+reste toujours sous l'influence de leur engourdis-
+sante fascinatioD , En vain, je cherche k ra'occu-
+#PAGE
+366 LE JOURNAL D UNE FEMME DE CHAMBRE
+per l'esprit par d'autres pensées... J'essaie de lire,
+dures, je me dis :
+— Non... non... ce n'est pas possible... ja
+#PAGE
+LK JOLHNAL DUNE FEMME DE CHAMBRE 38^
+suis sous le coup d'une folie... je ne veux pas...
+— Pourquoi ça, Joseph?...
+— Parce que ça ne se peut pas, maintenant.,,
+#PAGE
+S6è Lfe JOUKNAL D'UNE FEMME DE CH.VMBIU.
+^ Mais, quand partirez- vous
+amené, h. la réffexion, une rupture entre Joseph
+et moi?... Au serrement de cœur que jVprouve
+#PAGE
+Lk JOURNAL D'UNE FEMME DE GHAMBKK 36«
+je sens que ma résolution — diiïérée par coquet-
+confiance en moi, cet amour pour moi qu'il avait,
+il les a donc perdus?... Ou, simplement, redoute-
+#PAGE
+tJà LE JOURNAL D'UNE FEMME DK CHAMBR8
+t-il mes imprudences, mes éternelles questions?...
+— Eh bien, alors?...
+Joseph s'arrête enfin de marcher et, fixant suf
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 371
+moi des yeux profonds... et encore méfiants... et
+bras, énormes, souples, huilés comme des bielles,
+faits pour toutes les étreintes, fonctionnent puis-
+#PAGE
+ni LE JOURNAL D'UNE FEMME DE CHAMBRE
+samment, allègrement, sous la peau blanche..
+—- Si c'était, seulement pour s'amuser, Cèles-
+tmc. . biew sûr.. Owi mais.,^ c'est sérieux. ^ c'est
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 313
+pour toujours... Il faut être sage... On ne peut
+bras rompus, la tête bourdonnante .. le feu ««
+oorp«...
+#PAGE
+XV
+20 norembr».
+j'ai quelque chose de trop gros, de trop lourd,
+qui m'emplit l'estomac... Je n'entends plus le
+#PAGE
+!,«; JOURNAL Û'L'NE FEMME Difi CHaMBRÈ %i%
+sifflet... La brume s'épaissit, gagne le jardin...
+c'est le comble... Mon premier mouvement est
+de rire... Mais j'éprouve, bientôt, une Honleur
+#PAGE
+)i6 LE JOURNAL D'UNE FEMME DE CHAMBHË
+vive, quelque chose comme un coup de fouet
+— Oui... oui, de Mo^*^' .cpète-t-elle...
+Mais comment se fait-U que je ne me sois
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 371
+aperçue de rien?... Comment!... Une telle chose,
+encore :
+— Êtes-vous contente au moins?
+#PAGE
+3:s LE JOURNAÎ- D UMli KKMME DK CHAMBBB
+— Oui... je suis bien contente... réplique-t-ell«.
+Monsieur ne vient que quand Madame est sortie...
+Il ne reste jamais bien longtemps... et lorsqu'il
+#PAGE
+LE JOURNAL D'UNE PÉMME DE CHAMBRE SI»
+est content. . . il s'en va. . . Et puis, il y a la porte de
+suis prise d une sorte de honte et d'un grand dé-
+courq,gement... Il ne faudrait jamais réfléchir sur
+#PAGE
+«tO LE JOURNAL b'UNS FËMMK Dfi CHAUBHB
+l'amour. Gomme l'amour est trigte, au fondl £t
+tourne et me retourne dans mon lit, un peu
+fiévreuse. Ma pensée va de la forêt de Raillon h
+#PAGE
+LE JOUIlNAL D'UNE FEMME DÉ CtlAMnÀE J«i
+Cherbourg*,, du cadavre de Glaire au petit café
+résister au désir violent de fouiller [»artout, dans
+l'espoir, vague d'ailleurs, de découvrir une partie
+#PAGE
+38J LE JOURNAL D'UNE FEMME DE CHAMBRK
+des secrets de Joseph. Rien n'est mystérieux»
+ce qui domine sa vie?... Ah! si pourtant... Du
+fond du tiroir de la table je retire une boîte à
+#PAGE
+> LE JOURNAL D'UNE FEMME DE CHAMBRE 383
+Cigares, enveloppée de papier, ficelée par un qua-
+Neuilly, je retombai dans l'enfer dés bureaux de
+placement. Je m'étais pourtant bien promis de
+#PAGE
+S84 LE JOURNAL D'UNE FEMME DE CHAMBRE
+n'avoir plus jamais recours à eux... Mais, le
+Aujourd'hui, des femmti de rien, des petites
+épicières de quat'sous... se mêlent d'avoir des
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 3»b
+domestiques, et de jouer h la comtesse... Quelle
+est siir... Quel dommage que le général Boulan-
+13
+#PAGE
+•lé Lfi JOUfiNAL D'UNE vum& DE CHAMORB
+ger n'ait pas réussi, autrefois!. . Au moins, celui-
+Ce bureau était exploité par M"" Paulhat-
+Durand, une p:rande femme de quarante-cinq ans,
+#PAGE
+JOURNAL D'UNE FEMME DE CHAMBRE 381
+h. peu près, qui, sous des bandeaux de cheveux
+ni Durand ; ces deS'x noms, qui faisaient si bien
+accolés l'un à l'autre, elle les tenait, paraît-il, de
+#PAGE
+388 *E JOURNAL D'UNE FEMME DE CHAMBRE
+deux messieurs, morts aujourd'hui, avec qui elle
+gères et de juives... Ah ! j'en ai connu là des his-
+toiresl...
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 389
+L« porte s'ouvre sur un couloir qui conduit au
+— Mademoiselle Jeanne!., appelait-elle d'un*»
+Toix brève et glanissantd.
+#PAGE
+390 LE JOUKiNAL DUNE FEMME DE CHAMBRE
+M'"* Jeanne se levait, s'arrangeait un peu les
+— Des chiens ?
+— Oui...
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 3tl
+— Madame fait veiller la femme de chambre 7
+Victoire!... Mademoiselle Irène I... Mademoi-
+selle Zulmal... » il me semblait, parfois, que
+#PAGE
+3M LE JOURNAL D'UNE FEMME Dit CHAMBRE
+nous étions en maison et que nous attendions
+Je me rappelle que, ce jour-là, je pensai à ma
+Louise enfermée sans doute dans une de
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 39S
+ces maisons. J'évoquai sa vie heureuse peut-
+sir, le luxe, l'argent... c'est la liberté...
+Éblouies par les promesses merveilleuses, plu-
+#PAGE
+?M LE JOURNAL D'UNE FEMME DE CHAMBRE
+sieurs de mes petites camarades écoutèrent ce?
+sadeurs étrangers.
+Elle §e rapprocha de moi baissant la voïik.,.
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE WS
+— Et si je vous disais que le Président de la
+— Je vous assure qu'il ne faut pas vous tour-
+menter... )nsist.a-t-e)]e 3vec bienveillawce.-. Ainsi,
+#PAGE
+: '
+LE JOURNAL D LNE FEMME DE CHAMBRE
+J'assistai chez M"' Paulhat- Durand à des scè-
+oes extraordinaires. Ne oouvant malheureuse-
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE Un
+\
+timent, en arrière, découvrant le front où des uhiH
+veux blonds frisottaient
+#PAGE
+Jv)8 LÉ JOUKNAL D'UNE FEMME DE ClIAMBRft
+Après un examen détaillé, appuyé, froissant,
+bouche, l'angle de ses yeux se plissèrent comme »i
+©lie eût avalé un verre de vinaigra.
+#PAGE
+LK JOURNAL D'UNE FEMME DE CHAMBRE 3»9
+— De Saint-Brieuc!... répéta-t-elle... Alors
+— Je suis veuve, Madame.
+— Ah !... Vous n'avez pas d'enfant, je supposa?
+#PAGE
+400 LE JOURNAL D'UNE FEMME DE CHAMBRE
+Et comme Jeanne ne répondait pas tout de
+— Je vous avertis, dit-elle, détachant nett»
+ment chaque mot. . je vous avertis que, si vous
+#PAGE
+LE JOURNAL D'UN'E FEMME DE CHAMBRE 401
+entrez à mon service, je ne tolérerai pas qu'on
+salir, et avec des grimaces de dégoût, en déplia
+un qu'elle se mit à lire, à haute voix :
+#PAGE
+402 LE JOURNAL D'UNE FEMME DE CHAMBRE
+— « Je certifie que la fille J...
+picion très humiliante, et sur un ton d'ironie
+grossière. Elle prit un autre certificat.
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 4G)
+- Et cette personne?... Elle est morte aussi,
+mandent vos maîtres. Vous devez avoir un déte*-
+tâhle caractère...
+#PAGE
+454 LE JOURNAL DUNE FEMME DE CHAMBllË
+— Mais non, Madame... Je ne suis pas du tout
+la vaisselle... qui frotte... Il faut de l'ordre...
+beaucoup d'ordre. Je suis èi cheval sur l'ordre...
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRÉ 4Ô5
+sur la propreté... et surtout sur la probité... D'ail-
+pourquoi pas dix mille francs, tout de suite?...
+Vous êtes folle, je pense... Quarante francs!..
+#PAGE
+*0t LE JOURNAL D UNE FEMME DE CHAMBRE
+Mais, c'est inouï! Autrefois, l'on donnait quinze
+vous-en!...
+La fijrure triste la démarche lente, Jeanne
+#PAGE
+LE JOUflNAÎ. D'UNE FEMM|E DE CHAMBRE Ml
+sortit du bureau après avoir fait deux révérences..
+une, d'abord parce qu'elle portait une coiffe bre-
+tonne, ensuite parce que rien que de la voir,
+#PAGE
+408 LE JOURNAL D'UNE FEMME DE CHAMBRE
+cela me causait une mélancolie invincible. Une
+de ce qu'elles furent jadis... La bretonne n'avait
+rien de pareil, et elle était toute jeune. Petite,
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 4M
+le buste long, la taille carrée, les hanches plates,
+qu'il y avait dessus... Elle vous marchait sur les
+pieds, vous enfonçait, en marchant, ses coudes
+#PAGE
+410 LE JOURNAL D'UNE FEMME DE CHAIIBRB
+dans la poitrine. Puis, elle s'excusait d'une voix
+une certaine forme d'infirmités que les bêtes
+elles-mêmes ne tolèrent pas.
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 411
+Un jour, surmontant mon dégoût, je m'appro-
+— Il est maréchal ferrant.
+— Vous êtes pauvre?
+#PAGE
+M LE JOURNAL D'UNE FEMME DE CHAMBRE
+— Mon père à trois ehamps, trois maisons,
+tes les familles, il y en a toujours une qui est
+battue... parce que... voilà... on ne sait pas...
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE m
+Mes questions ne l'ennuyaient plus. Elle pre-
+gueil. Et son corps se redressait, se transfigurait
+presque.
+#PAGE
+414 LE JOURNAL DUNE FEMME DE CHAMBRE
+— On ne s'est pas arrangé, reprit-elle... Le
+— Chez le logeur; je fais toutes les chambres,
+et ie ravaude le linge... On me donne une
+#PAGE
+LB JOUKNàL O'tJNK FfiMMB ÙH CHAMBRE 411
+paillasse dans une soupente et, le matin, un
+jambes trop courtes, poursuivie par les huées,
+elle disparut.
+#PAGE
+416 Lli JOI U.NAi. D'UiNE FEMME DE CUAMBlŒ
+Je montai sur la banquette, et poussai le
+claves...
+Elle était là, près de la fenêtre, à contre-jour,
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 417
+immobile, les bras pendants. Une ombre dure
+la sensation que j'assistais à une tragédie sociale,
+terrible, angoissante, pire qu'un assassinat!...
+#PAGE
+il8 LE JOURNAL D'UNE FEMME DE CHAMBRE
+J'avais la gorge sèche. Mon cœur battit violem-
+sa bouche, à son front, k tous les muscles détendus
+de sa molle figure, éclatait réellement àla nuque.
+#PAGE
+LE JOURNAL D'UNE FEMME DE Ctl AMBRE 41»
+Sa nuque était son vrai visage, et ce visage était
+places qu'elle avait faites, ses capacités en cuisine
+en ménage, en couture... Louise répondait par
+#PAGE
+420 LB JOURNAL D UNE FEMME DE CHAMBRR
+des « Oui, dame ! », ou des : « Non, dame! »,
+— Alors!... offrit la vieille, conciliante... je
+vous donnerai quinze francs. . Et vous paierez
+#PAGE
+LE JOURNAL DUNE FEMME DE CHxMBRE 4^1
+votre vin... C'est beaucoup trop... Mais je ne veux
+de la vieille faisaient cbanterdes espoirs inconnus
+I
+#PAGE
+44i LE JOURNAL D'UNE FEMME DE CHAMBRE
+dans sa tête. Sa rapacité de paysanne lui mon-
+de la vieille flue celle-ci la repoussa avec une
+grimace
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE
+'•-*:<
+infirmité effroyable... Enfin... soit!... Par exem-
+ple, je ne puis plus lui donner que dix francs...
+#PAGE
+424 LE JOURI^AI. D UNE FEMME DE r.HAMBRR
+Dix francs, seulement I .. . C'est à prendre ou à
+Le surlendemain, M"' Paulhat-Durand me fit
+entrer cérémonieusement dans le, bureau, et,
+#PAGE
+LE JOURNAL D'ONË FEMME DE CHAMBRE i'ib
+après m'avoir examinée d'une façon un peu gê-
+pas dans vos poches... Il pourrait vous arriver
+des choses heureuses... On ne sait pas toutes les
+#PAGE
+«2è LE JOURNAL DUNE FEMME DE CHAMBRS
+choses heureuses qui pourraient vous arriver.,
+C'était mon ambition... Bien des fois, j'avais
+l)4ti de merveilleux avenirs sur la toquade d'un
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 427
+vieux... et ce paradis rêvé était là, devant moi,
+du diable... et tous les députés... Non, mercil...
+Brusquement, sans transition :
+#PAGE
+428 LE JOURNAL D'UNE FEMME DE CHAMBRE
+— Qu'est-ce que c'est au juste que votre vieux?
+en flagrant délit de proxénétisme...
+Je regrettai ce vieux qui, maintenant, avait,
+#PAGE
+m^^
+LE JOURNAL D'UNE FEMME DE CHAMBRE 4W
+malade... et je suis capable de toutes les folies. Je
+n'ai de résistance aue contre les choses qui ne
+#PAGE
+4:iO J.E JOURNAL DUNE FEMME DE CHAMBRE
+doivent pas arriver et les hommes que je ne
+avoir flâné, toujours hébétée, la tête lourde, je
+rentrai à mon hôtel...
+#PAGE
+r^
+LE JOURNAL D'UNE FEMME DE CHAMBRE 431
+demain, ivres et vautrés sur le lit... dans quel
+étal, mon Dieul,.-
+#PAGE
+12 LE JOURNAL D'UNE FEMME DE CHAMBRÉ
+Le garçon fut renvoyé... Je n'ai jamais su son
+dinier, somptueusement vêtue de lierres, de
+bignones et de vivnes vierges, ils revinrent l'Ame
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 433
+en attente, l'âme en angoisse, lentement, sans se
+diées déjà...
+Ils avancèrent,' lentement, de quelques pas et
+#PAGE
+434 LE JOURNAL D'UNE FEMME DE GHAMBHË
+tous les deux, d'un geste mécanique et simultané,
+Taches... et deux cents poules... Ainsi!
+La comtesse fit un signe de tête approbateMJr.
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRK 435
+— Le logement vous plait?
+semaine et un litre de lait par jour... C'est
+énorme...
+#PAGE
+436 LE JOURNAL D UNE FEMME DE CHAMBRE
+— Ah 1 madame la comtesse donne le lait et les
+— Ainsi, c'est entendu?... Depuis quand êtes-
+•<9ous mariés?
+#PAGE
+mg^jjjuiLj^^"U;i.j
+i i
+sentit subitement le cœur bien gros... Elle crut
+qu'elle n'aurait pas la force de retenir ses
+#PAGE
+438 LE JOURNAL DUNE FEAïME DE CHAMBRE
+larmes... Il n'y avait donc de joie, de tendresse,
+yeux, démentait la servilité forcée de ces dernières
+paroles... La comtesse ne vit point briller cette
+#PAGE
+LE JOURNAL OUNF. FEMME DE CHAMBRE 4:jii
+lùeur de meurtre, car, instinctivement, elle avait
+— Pourquoi que tu n'a pas dit que j'étais en-
+«einte? demanda la femme.
+#PAGE
+iiO LE JOtRNAL D UNE FEMME DÉ CHAMBhK
+L'homme répondit :
+a peur... on est lâche... on n'a de courage que
+pour soullrirl
+#PAGE
+XVI
+24 norembre.
+tête et me donne la fièvre.
+Ici, rien, sinon moins d'événements toujours
+#PAGE
+mmm
+442 LE JOURNA L D'UNE FEMME DE CHAMBRE
+deux jours, elle reste enfermée, rideaux tirés,
+sans lumière, dans sa chambre oiî seule Marianne
+#PAGE
+LE JOURNAL D'UNE FEALME DE CHAMBRE 443
+a le droit de pénétrer... Elle ne veut pas de moi...
+de Rose, et quand j'ai raconté l'histoire des testa-
+ments, c'a été un éclat de rire général. Ah! le
+#PAGE
+444 LE JOURNAL DUNE FEMME DE CHAMBRE
+capitaine avait raison quand il me disait : « Tout
+demain. Au fond, ces souvenirs m'amusent, et
+ils renforcent mon mépris. Quelles singulières
+#PAGE
+LE JOURNAL D'UNE FEMME OR CHAMBRE 445
+et monotones figures, tout de môme, j'ai. ren-
+J'allais donc m'arranger une existence douce, de
+travail facile et de profits certains. Tout heureuse
+#PAGE
+44« LU JOURNAL D'UNE FEMME DE CHAMBRE
+de ce changement, je me promis de corr'ger les
+faudra être chouette avec Bibi...
+Ah! c'était un chic homme et qui savait parler aux
+#PAGE
+Durant le repas qui se pro s
+„,„„p,
+William m'enlaça plus fort, et m
+lui, d'une solide étreinte...
+#PAGE
+448 LE JOURNAL D'UNE FEMME DE CHAMBRE
+— Ce n'est rien, fit-il, calmement... c'est le
+cela continue... eh bien, je ne te donnerai plus
+rien... pour elle...
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE U9
+Puis, les narines frémissantes, le corps tout
+William me dit :
+— Ce qu'elle en pince!... Et ce qui! lui coûte
+#PAGE
+450 LE JOURNAL DUNE FEMME DE CH AMBRÉ
+gros, ce gamin... La semaine dernière, elle l'a
+— Ah! bien, tout de mêmel... ça ne traîne
+pas avec vous...
+#PAGE
+LE JOURNAL D UNE FEMME DE CHAMBRE 451
+Naturellement, je ne voulus rien changer aux
+la boîte. William avait une passion, commune
+èL beaucoup de gens de service : les courses. Il con-
+#PAGE
+452 LE JOURNAL D UNE FEMME DE CHAMBRE
+naissait tous les jockeys, tous les entraîneurs,
+turf, femmes, racontaient sur leurs maîtres des
+histoires sinistres — h. les entendre, ils étaient tous
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 453
+pédérastes — puis, quand le vin exaltait les cer-
+Eugénie se leva, frémissante et grondante :
+— Qu'est-ce que vous avez dit, vous?... Une
+#PAGE
+454 LE JOURNAL D'UNE FEMME DE CHAMBRÏ!
+tapette... ce chérubin?... Répétez-voir un peu?...
+ie voie, ton fameux Edgar?... demandai-je un
+jour.
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRÉ 4S5
+William fut scandalisé de cette idée... et il
+ciait Edgar, lui serrait la main à la dérobée,
+>elui-ci ajouta confidentiellement
+#PAGE
+iM LE JOURNAL DUNE FEMME DE CHAMBRE
+— Prenez Baladeur à 7/1... C'est le gagnant,
+tempes, la bouche usée et grimaçante, les che-
+veux rares, ramenés au-dessus de l'oreille, en
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE «,
+volute graisseuse. Dans une société ^ui se pâmeaux odeurs du crottin, Edgar es. déjà quolq*^ un«e .noms anonyme qu'un ouvrier ou un paysan
+journaux de sport, même daus les échos do<,
+«..etta. ««nd.ines et littéraires. Le Ur„„ t
+#PAGE
+458 LE JOURNAL D'UNE FEMME DE CHAMBRE
+Borgsheim, son maître actuel, est fier de lui,
+Pour peu que vous ayez été curieux de tra-
+verser les foules aristocratiques, vous ayrs; p--
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE i..9
+tainement rencontré Edgar, qui en est une des
+en pardessus mastic aussi court qu'un veston,
+wne énorme rosy jaune à sa boutonnière. Edgar
+#PAGE
+460 JOURNAL D'UNE FEMME DE CHAMBUË
+(losccnd de son automobile, devant l'hôtel du
+piqucur, apparaît. A peine si Edgar s'apfiçoit de
+Li présence de son maître. Aux interrogations,
+#PAGE
+LK JOURNAL D'UNE FEMME DE CHAMBRE 46!
+d'ailleurs timides, il répond par des mots brefs,
+— Ce n'est pas tout, master Edgar,
+— Quoi encore, masxer roolnv .
+#PAGE
+4«i m JOUKNAL D UlSt; FEMME DE CHAMBRE
+— J'ai deux magnifiques alezans, pour le ba-
+«cuite polychrome et loyaliste. Libre de soucia.
+éÊÊÊÊà 'uT' riiiiiiirtfiiiiii
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE i63
+étranglé dans ses redingotes bleues, le chef cou-
+les unes que les autres, couraient sur ses ori-
+gines. William, très aix courant des potins de U
+#PAGE
+M4 LE JOURNAL DUNE FEMME DE CHAMBRE
+haute société, prétendait que Madame était la
+dégoûtantes à force de vulgarité... de vraies
+pierreuses!...
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 465
+— Les grandes dames, disait William, c'est
+pêche pas que son argent traînât partout avec ses
+bijoux et ses clés sur les tables de cheminées et
+#PAGE
+4e« LE JOURNAL D'UNE FEMME DE CHAMBRE
+les meubles. Elle gâchait à plaisir ses plus riches
+s'aimaient beaucoup, c'est-à-dire qu'ils se dispu-
+Uiemt toute la journée, comme un ménage d^
+#PAGE
+Le journal D'UNE FEMME DE GHAMBKÈ 4*1
+petits bourgeois. La vérité est que Madame
+— Ah, les fleurs, pourtant, dans les grande»
+pelouses... Et les petits oiseaux I.-,
+#PAGE
+ift« LE JOURNAL DUMÈ l^ÈMMÉ DE CttAMBftÈ
+William ricanait:
+poétique. Les vieux bergers, les foins qu'on fane,
+les oiseaux qui se poursuivent de branche en
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRÉ ? 4é» \
+branche, les coucous aont on fait des pelotes jau~
+Et de toujou/sl...
+Amour, amour |„,
+#PAGE
+i';o LE JOURNAL D'UNE FEMME DE CHAMBAE
+Sitôt William rentré, la poésie s'envolait. 11
+Madame et, toujours, elles naissaient de prétextes
+futiles... de rien. Plus le jarétext*» était fntil*» a»
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAiMBRE 471
+plus les scènes éclataient violentes... Après quoi,
+une correspondance acharnée, des poulets eu
+form*^ de cœ"r "" de cucoUe, que J'étais chargé»
+#PAGE
+ns LE JOURNAL D'UNE FEMME DE CHAMBRE
+de transmettre de l'un à l'autre... Toute la jour-
+ces?... disais-jeè William,
+~- A Bibil... répondait celui-ci qui, en toutes
+#PAGE
+LE JUUKNAL D UNE FEMME DE CHAMBRE iTa
+circonstances, avait le mot juste et définitit.
+gens intelligents et qui « la connaissent »... c'est
+de la duperie, mon petit loup...
+#PAGE
+iU LE JOURNAL D'UNE FEMME bÈ CHAMBRR
+Et, savourant son cigare, il ajoutait après un
+moi-même, me semblaient inquiétants, vides et
+mornes, comme des fantômes...
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 475
+La dernière scène à laquelle j'assistai fut par-
+femme...
+— Comment... ça n'est pas si sûr que cela...
+#PAGE
+iU LE JOURNAL D'VNB KEMMR HE CMAMBhE
+— Dame! est-ce qu on sait?... Les hommes,
+— Alors, tu ne remarques rien?
+— Non... quoi?... dans ce rébus?...
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBHK 411
+Elle haussa les épaules et se pinça les lèvres :
+fiches pas mal... Je suis trop stupide, aussi... Je
+m'éreinte à me faire belle... à trouver des choses
+#PAGE
+.i78 LE JOURNAL D'UNE FEMME DE CHAMBRE
+qui te plaisent... Et tu t'en fiches pas mal... Du
+qui étais pourtant si désintéressée dans la que-
+relle. Madame trépigna le tai)is et, de plus eu
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRÉ 41d
+plus nerveuse, la bouche pâle, les mains crispées,
+J'en ai assez de cette vie-là... j'en ai plein le
+dos de ces aumières de poissarde... Et veux-tu
+#PAGE
+48« LE JOURNAL D UNE FEMME DE CHAMBRE
+que je te dise?... Ton corset... eh bien, il est
+Elle était effrayante... Timide, tremblant, le
+dos lAche, l'œil humilié, Monsieur reculait devant
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 481
+ce flot d'ordures... Il gagna la porte, m'aperçut...
+qui était parti, malgré moi, grandit, se déchaîna,
+se précipita... Je crus aue j'allais mourir,
+#PAGE
+4fl. LE JOUKNAL DUNE FEMME DE CHAMBRE
+étouiïée par ce rire, étranglée par ce maudit rire
+du besoin et des mauvaises chances, heureuse,
+presque une dame... Maintenant, il fallait recom-
+#PAGE
+LE JOURNAL D'UNE FEMiME DE CHAMBRÉ 4ià
+mencer la série des misères, subir à nouveau
+pauvre femme el je revois sa vie si déréglée, si
+triste, avec ce mari si lâche si mornement lâche...
+#PAGE
+«84 LP: journal D'UNE FEMME DE GHAMlîlli:
+Et j'ai une immense pitié d'elle... et je voudrais
+prendre ce que, dans cette interrogation, il y avait
+de prières pour lui.
+#PAGE
+LB JOURNAL DUNE FEMME DE CHAMBRE 485
+iaWe
+,1 faut ce que j'appelle de l'adminis-
+tration, loi. tu nas pas de conduite... tu n'as
+#PAGE
+416 LE JOURNAL D'UNE FEMME DE CHAMBRE
+pas d'administration... Tu te laisses emporter
+qu'il restât cette nuit-là avec moi... Mais il avait
+rendez-vous avec Edgar 1...
+#PAGE
+LE JOURNAL D'UNE FEMMfc. DE CHAMBRE 481
+— Edgar, tu comprends, je ne puis le man-
+Je compris tout... Et comme j'étais lasse de
+lutter, je m'éloignai.
+#PAGE
+i88 F.E JOURNAL DUNb. f liWAlli Dh CIIIAMBKE
+— C'est la vie...
+Je n'osai pas entrer chez la concierge voisine...
+Elle m'eût sans doute mal reçue... Et que m'eût-
+#PAGE
+Quand je voyais, de loin I ^
+'''' ^P^-^lres.
+"O" Séjour cl,e. la com sse pa^i' "V''"
+'""^»<'
+#PAGE
+490 LE JOURNAL D'UNE FEMME DE CHAMiiHE
+la vanité littéraire... un genre de bêtise plus bas
+de mon cœur, sous nn^ ^n^iwise couche d'oubli...
+Jlestdeux heures du matin... Mon feu vas'é(ftin-
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 491
+dre, ma lampe charbonne, et je n'ai plus ni bois,
+paix, la liberté, le bonheur... Le bonheur?
+Je le verrai demain...
+#PAGE
+X\IT
+Voici huit mois que je n'ai écrit une seule ligne
+bigarrée d'un port de guerre. L'amour y roule sa
+bosse, y traîne le sabre eu des bûidéaa d«iioc«â vio^
+#PAGE
+LE J(5t]RNAL D'UNE FEMME DE CHAMBRE 493
+lentes et farouches. Foules pressées de jouir entre
+— Tiens, se dit-il... est-ce qu'ils seraient déjà
+levés?
+#PAGE
+494 LE JOURNAL D'UNE FEMME DE CH^UIBRE
+Il remarqua, en môme temps, qu'on avait dans
+profond, défendu par un système de serrure très
+compliqué et dont Madame seule connaissait le
+#PAGE
+LÉ /bURNAL D'UNE FExMME DE CHAMBRE 490
+terie dans trois lourdes caisses armées de traverses
+— Mon argenterie!... Mou Dieu!... Est-ce po"-
+pib)e?-.. M(;ii\ aro:enterie!
+#PAGE
+4% Lt JOUHNAL D'UNE FEMME DE CHAMBhÈ
+Et, soulevant les compartiments vides, retour-
+mal<;i^é le comique prodigioux de ces visac;es,
+mon premier sentiment avait été de la compassion.
+#PAGE
+LK Journal dune femme uk cnAMrîM
+Il semblait que ce malheur m'atteignît, moi aussi,
+tement gamin, cette grave, atroce et puissante
+jouissance du crime, laquelle succédait au mou-
+#PAGE
+488 LE JOURNAL D'UNE FEMME DK UHAftlline
+vemeut^ de pitié qui, tout d'abcrd, avait alarme
+chemins, tendre la main au seuil implacable du
+mauvais riche» m'enchanta et me mit en gaîté
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE «»
+Mais la gaîté, je l'éprouvai plus directe et plus
+— Et que fais-tu ici? dit-elle à Monsieur sur un
+ton de colère et de suprême dédain... Pourquoi
+#PAGE
+500 LE JOURNAL D'UNE FEMME DE CHAMBRE
+face bouffie, et ta chemise qui passe?... Crois-tu
+d'avoirdes domestiques pareils... Vous ne pense2
+qu'à manger et dormir... Tas de brutes!
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE Ml
+Elle s'adressa directement à Joseph :
+— Marianne!... Marianne!
+Je regardai Joseph, <|ui rtgardtit 1m câiaMs.
+#PAGE
+S02 LE JOURNAL OUNE FEMME DE CHAMBRE
+Joseph était grave. Il y avait comme du mystèr
+môme que pour l'affaire du viol, les gens du paya
+«^fflnèrentf demandant h, déDOBer . L'un avait ttl «*»
+#PAGE
+m JOURNAL DUNE FEMME DE CHAMBRE 5C'3
+homme blond « qui ne lui revenait pas »; l'autre,
+pas étranger à ce hardi pillage. Je voulus même
+espérer qu'entre son voyage à Cherbourg et la pr<^
+#PAGE
+604 i.E JOIIHNAL D'UNE FEMME 1)K CHAMBHfî
+paration de ce coup de main audacieux et incom-
+Je nie souvins avoir vu, dans un petit salon,
+chez la comtesse Fardin, une sorte d'idole hin-
+#PAGE
+LE JOURNAL D'UNK FEMME DE CHAMBRE 505
+doue, d'une grande beauté horrible et meur-
+— Vous ne soupçonnez personne parmi voi
+gems? demanda le procureur... Votre cocher?
+#PAGE
+'m LE JOURNAL D'UNE FEMME DE CHAMBRE
+— Josepîi! s'écria Madame scandalisée... un
+menues choses susceptibles d'être revendues,
+sans qu'il'fût possible d'en connaître l'origine.
+#PAGE
+LE JOURNAL D'UNE FEMME DE CHAMBRE 50?
+Et son ami le sacristain ne venait pas le soir,
+crime, un autre jour à son innocence. Et c'était
+horriblement agaçant.
+#PAGE
+SOB LE JOURNAL DUNE FEMME DE CHAMBRE
+Comme autrefois, nous nous retrouvioos, 1*
+bous... j'en bous!...
+— £h bien alors, pariess...
+#PAGE
+L8 JODRNAL D'UNE FEMME DE CHAMBRE 50*
+Et il s'obslinait, sans jamais s'expliquer davan-
+— Ah! non... m'écriai-je, en riant.
+— C'est pas bien... c'est pas bien... Il fan*
+#PAGE
+6ie LE JOURNAL DUNE FEMME DE CHAMBRÉ
+aimer ses maîtres... les maîtres sont les maîtres...
+Madame la nécessité oîi j'étais de la quitter...
+J'inventai une histoire romanesque... je devais
+#PAGE
+LE JOURNAL DUNE FEMME DE CHAMBRE 6!l
+retourner au pays, pour y épouser un brave garçon
+est l'argent qui n'est pas volé? — mais je craignis
+que le sentiment que j'éprouvais ne fût qu'une
+#PAGE
+612 LE JOURNAL D'UNE FEMME DE CHAMBRE
+cnriobité fugitive. Joseph avait pris sur moi, sur
+b()nhomme étrange, silencieux et bourru, qui me
+regardait avec tant de dédain?...
+#PAGE
+LE JOURNAL D UNE fEMME DE CHAMBRE Ju
+Maintenant, nous sommes dans le petit o».(é
+i".'t d'argent. Etquelle«t sa fortune?.
+. Je„'«, ,«., ,i„n. H „'aime pas
+#PAGE
+B14 LE JOURNAL DUNE FEMME DE CHAMBRE
+que je lui parle de cela ; il n'aime pas que je lui
+'^
+i
+#PAGE
+MME DE CHAMBRE Sl5
+très calés, qui me tont
+jour, en ^Tosses lettres d'or, le soir, en grosses
+très de feu, est maintenant le rendez- vous offî-
+#PAGE
+.M 6 LE JOURNAL D'UNE KEMME DE CHAMbKE
+ciel des antisémites marquants et des plus
+aux Juifs 1 »
+Il y a de» moments où j'ai peur dans cette
+#PAGE
+" -"'^'-«^AL D-UNB FEMAIE DE CHAMBRE
+5,,
+que d'une réclame, petite et «iTre'
+"' ""'"''''
+#PAGE
+^Ij, LE JOURNAL FEMME DE ÛHAMBRIt
+Les mains dans ses poches, crâne sous »cn
+sède comme un démon. Et je suis heureuse d'être
+11
+#PAGE
+LB JOURNAL D'UNE FEMME DE CHAMBRE Slf
+à lui.. Je sens que je ferai tout ce qu'il voudra
+que je fasse, et que j'irai toujours où il me dira
+'^>".3r... jusqu'au erimet...
+#PAGE
+
+#PAGE
+
+#PAGE
+
+#PAGE
+PQ
+2364
+! CARDS OR SLIPS FROM THIS POCKET
+UNIVERSITY OF TORONTO LIBRARY
+#PAGE
+

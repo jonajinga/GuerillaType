@@ -184,6 +184,273 @@ export function joinTextItems(items) {
   return out;
 }
 
+/* Letters only, no spaces: the shape of a line with the scanner's
+   punctuation and spacing damage taken off. "LE JOURNAL DUNE FEMME DE
+   CHAMBtlE 11" and "10 LE JOURNAL D'UNE FEMME DE CHAMBRE" reduce to
+   skeletons three edits apart. */
+const skeleton = (key) => key.replace(/\s+/g, "");
+
+/* Levenshtein distance, but only asked whether it is within a budget,
+   so it bails out of a row that cannot come back under it and rejects
+   on the length difference before doing any work at all. */
+function within(a, b, budget) {
+  if (Math.abs(a.length - b.length) > budget) return false;
+  let prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    const cur = [i];
+    let best = i;
+    for (let j = 1; j <= b.length; j++) {
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      if (cur[j] < best) best = cur[j];
+    }
+    if (best > budget) return false;
+    prev = cur;
+  }
+  return prev[b.length] <= budget;
+}
+
+/* A skeleton must match a cluster's on at least 80% of its characters,
+   and be at least this long before it is matched fuzzily at all. */
+const FUZZY_RATIO = 0.2;
+const FUZZY_MIN = 12;
+
+/* Drop running heads, running feet and page numbers.
+
+   A scanned book repeats the book's title, the chapter title and the
+   folio at the edge of every page, and pdf.js hands them back inline
+   with the prose. Reported from a real import: the middle of a sentence
+   read "...dont je ne pus m'expli- 10 LE JOURNAL D'UNE FEMME DE CHAMBRE
+   quer la double expression...". Removing the header repairs the
+   sentence. (It does NOT repair the hyphen break -- the earlier commit
+   message claimed that, and it is wrong: 5df7f09's \p{Ll} de-hyphenation
+   had already rejoined "m'expli-" and "quer", which sit on consecutive
+   lines of the same page. See section A2 of the gate.)
+
+   Only the outermost EDGE lines of each page are candidates. Two things
+   can make one of those lines furniture:
+
+     1. It is a FOLIO -- a line that is nothing but a page number.
+     2. It RECURS at the same edge across the book.
+
+   Both rules were far too eager when this arrived, and both were
+   measured against the real 530-page scan of "Le Journal d'une femme de
+   chambre" (the fixtures in scripts/fixtures/ are that book) before
+   being rewritten. The numbers below are from that measurement.
+
+   FOLIOS ARE DIGITS ONLY, unless roman pagination is demonstrably the
+   norm. The original pattern was /(?:[ivxlcdm]{1,7}|\d{1,4})/i, which
+   treats any line built only from the letters i v x l c d m as a page
+   number. In the real book that destroyed all ten roman chapter numbers
+   (IV, VI, VIII, IX, X, XI, XIII, XIV, XV, XVI) and the French pronoun
+   "Il" at the foot of page 327, mid-sentence. "did", "mix", "civil",
+   "mild", "vivid" and "livid" are all "folios" to it too.
+   So roman numerals count only when the document as a whole paginates
+   in them: at least half its pages carry a roman-only edge line, and
+   more pages carry a roman one than an arabic one. Measured on the real
+   scan: 16 pages have a roman-only edge line and 6 have an arabic-only
+   one -- so a rule of "roman outnumbers arabic" ALONE would have said
+   yes and eaten the chapter numbers again. The half-the-pages share is
+   what actually holds the line. The cost is that genuinely roman front
+   matter in an otherwise arabic book keeps its "xii"; that is the cheap
+   direction to be wrong in.
+
+   RECURRENCE NEEDS EVIDENCE, NOT JUST A COUNT. The old bar was
+   max(3, 25% of pages), which is a bar on the document's LENGTH rather
+   than on the line, so it ate a refrain closing three pages of a
+   twelve-page pamphlet and a speaker name heading four pages of a
+   ten-page scene, while missing the running head of the 530-page book
+   entirely (its commonest spelling reaches 106 pages; the bar was 132).
+   A plain floor cannot fix that: the reported seven-page run needs a
+   head seen on 3 pages to go, and the real book has diary dates
+   ("15 septembre.", "3 novembre.") sitting at page tops on 4 pages that
+   must stay. 3-must-go and 4-must-stay is not a floor, it is a
+   different question. So a recurring line is furniture only when all of:
+
+     - it sits at the SAME edge (top or bottom) on at least 80% of the
+       pages it appears on -- a running head is positionally fixed, a
+       refrain is not necessarily;
+     - AND EITHER it is folio-associated on at least half of those pages
+       -- the line itself starts or ends with a number, or the edge line
+       next to it is a bare folio -- and recurs on at least
+       max(3, 15% of pages);
+     - OR, with no folio anywhere near it, it recurs on at least
+       max(8, 50% of pages). Without a page number beside it there is
+       little evidence a repeated line is furniture rather than text,
+       so it has to be nearly everywhere before we believe it.
+
+   THE SPELLING OF THE HEAD IS NOT STABLE. Comparing normalised strings
+   exactly got only 106 of the real book's 445 headed pages, because the
+   scanner renders the same line about fifty ways: JOUKNAL, JOI'RNAL,
+   /OURNAL, JOUL.>AL, CHAMBtlE, FExMME. 340 pages kept their head. So
+   the keys are CLUSTERED before they are counted:
+
+     - reduce the normalised key to a letters-only skeleton (drop the
+       spaces too, since the scanner drops and adds them);
+     - a key joins a cluster when its skeleton is within an edit
+       distance of the cluster's key, the budget being 20% of the longer
+       skeleton -- i.e. at least 80% of the characters must match;
+     - only a key that ALREADY recurs on max(3, 5% of pages) by itself
+       may open a cluster. Variants attach to a frequent key; they never
+       chain to each other.
+     - skeletons under 12 characters are matched exactly and never
+       fuzzily, because a one-character budget on a short line merges
+       genuinely different ones -- "ANTONIO." and "ANTONIA." are one
+       edit apart.
+
+   The seed rule is the one holding this up, and it is not a nicety.
+   Ordinary prose at a page edge is far closer together than it looks: 
+   two different sentences of the gate's filler differ by 6 edits over a
+   40-character skeleton, and the 20% budget for that length is 8. Left
+   to cluster pairwise they merge, the merged cluster appears at both
+   edges of every page, and the whole document is deleted. Requiring a
+   frequent seed stops it: distinct prose lines occur once each, so
+   nothing seeds and nothing clusters.
+
+   Frequency, the folio test and the same-edge test then all apply to
+   the CLUSTER rather than to the exact string.
+
+   On the real scan the head is now removed from 503 of the 530 pages,
+   against 106 for exact matching and none before any of this, and the
+   chapter numbers, the pronoun and the diary dates are all still there.
+
+   KNOWN AND STILL UNFIXED: norm() erases digits before comparing, so
+   "3 septembre." and "18 septembre." are the same line to this code. A
+   short document in which EVERY page opens with a dated entry therefore
+   still loses its dates -- they are folio-associated and they recur.
+   The real book survives only because 4 of 530 pages is under the 15%
+   share. Section D of the gate pins this.
+
+   ALSO STILL UNFIXED: 27 of the 530 pages keep something. Twenty are
+   heads mangled past the 80% bar ("^Ij, LE JOURNAL FEMME DE ??HAMBRIt");
+   three are the half-title "LE JOURNAL", whose skeleton is 9 characters
+   and so is matched exactly; four are ordinary sentences that happen to
+   contain the word, and those must stay. Loosening the budget to 25%
+   reaches 22 pages and to 30% reaches 16, with no over-reach visible on
+   this book -- but this book can only show over-reach it happens to
+   contain, so the conservative end was taken.
+
+   Exported for scripts/check-running-heads.mjs, the same way
+   joinTextItems is exported for scripts/check-pdf-spacing.mjs: parsePdf
+   cannot run outside a browser with pdf.js loaded, so the gate feeds
+   this recorded page text straight in. Nothing else imports it. */
+export function stripRunningLines(pages) {
+  if (pages.length < 5) return pages;
+  const EDGE = 2;
+  const norm = (l) => l.replace(/\d+/g, " ").replace(/[^\p{L}]+/gu, " ").trim().toLowerCase();
+
+  const ARABIC_FOLIO = /^[\s.,\-–—]*\d{1,4}[\s.,\-–—]*$/;
+  const ROMAN_FOLIO = /^[\s.,\-–—]*[ivxlcdm]{1,7}[\s.,\-–—]*$/i;
+  /* A number at the very start or the very end of the line -- the two
+     places a typesetter puts a folio beside a running head. */
+  const CARRIES_FOLIO = /^\s*\d{1,4}\b|\b\d{1,4}\s*[.,]?\s*$/;
+
+  const perPage = pages.map((pg) => pg.split("\n"));
+  const solidPer = perPage.map((lines) => lines.map((l) => l.trim()).filter(Boolean));
+  const edgeIdx = (solid) => {
+    const top = [], bot = [];
+    for (let i = 0; i < Math.min(EDGE, solid.length); i++) top.push(i);
+    for (let i = Math.max(0, solid.length - EDGE); i < solid.length; i++) bot.push(i);
+    return { top, bot };
+  };
+
+  // 1. Does this document paginate in roman numerals?
+  let romanPages = 0, arabicPages = 0;
+  for (const solid of solidPer) {
+    const { top, bot } = edgeIdx(solid);
+    const edge = [...new Set([...top, ...bot])].map((i) => solid[i]);
+    if (edge.some((l) => ARABIC_FOLIO.test(l))) arabicPages++;
+    if (edge.some((l) => ROMAN_FOLIO.test(l))) romanPages++;
+  }
+  const romanIsNorm = romanPages >= Math.max(5, Math.ceil(pages.length * 0.5))
+    && romanPages > arabicPages;
+  const isFolio = (l) => ARABIC_FOLIO.test(l) || (romanIsNorm && ROMAN_FOLIO.test(l));
+
+  // 2. What appears at which edge of which page, and with a folio near it.
+  const counts = new Map();
+  const perPageKeys = [];
+  for (const solid of solidPer) {
+    const { top, bot } = edgeIdx(solid);
+    const seen = new Map();
+    for (const [side, idxs] of [["top", top], ["bot", bot]]) {
+      for (const i of idxs) {
+        const key = norm(solid[i]);
+        if (key.length < 4) continue;
+        const folio = CARRIES_FOLIO.test(solid[i])
+          || (i > 0 && ARABIC_FOLIO.test(solid[i - 1]))
+          || (i + 1 < solid.length && ARABIC_FOLIO.test(solid[i + 1]));
+        const cur = seen.get(key) || { top: false, bot: false, folio: false };
+        cur[side] = true;
+        cur.folio = cur.folio || folio;
+        seen.set(key, cur);
+      }
+    }
+    perPageKeys.push(seen);
+    for (const key of seen.keys()) counts.set(key, (counts.get(key) || 0) + 1);
+  }
+
+  // 3. Cluster the misspellings of one line onto the frequent spelling.
+  const cluster = new Map();
+  const seeds = [];
+  const seedMin = Math.max(3, Math.ceil(pages.length * 0.05));
+  const ordered = [...counts.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1));
+  for (const [key, n] of ordered) {
+    const sk = skeleton(key);
+    let hit = null;
+    if (sk.length >= FUZZY_MIN) {
+      for (const seed of seeds) {
+        const budget = Math.max(1, Math.floor(Math.max(sk.length, seed.sk.length) * FUZZY_RATIO));
+        if (within(sk, seed.sk, budget)) { hit = seed; break; }
+      }
+    }
+    if (!hit && n >= seedMin && sk.length >= FUZZY_MIN) {
+      hit = { key, sk };
+      seeds.push(hit);
+    }
+    cluster.set(key, hit ? hit.key : key);
+  }
+
+  // 4. Count, and decide, per cluster.
+  const stats = new Map();
+  for (const seen of perPageKeys) {
+    const perCluster = new Map();
+    for (const [key, v] of seen) {
+      const c = cluster.get(key);
+      const p = perCluster.get(c) || { top: false, bot: false, folio: false };
+      p.top = p.top || v.top;
+      p.bot = p.bot || v.bot;
+      p.folio = p.folio || v.folio;
+      perCluster.set(c, p);
+    }
+    for (const [c, v] of perCluster) {
+      const s = stats.get(c) || { n: 0, top: 0, bot: 0, folio: 0 };
+      s.n++;
+      if (v.top) s.top++;
+      if (v.bot) s.bot++;
+      if (v.folio) s.folio++;
+      stats.set(c, s);
+    }
+  }
+
+  const withFolio = Math.max(3, Math.floor(pages.length * 0.15));
+  const withoutFolio = Math.max(8, Math.ceil(pages.length * 0.5));
+  const running = new Set();
+  for (const [c, s] of stats) {
+    if (s.top < s.n * 0.8 && s.bot < s.n * 0.8) continue;
+    const bar = s.folio * 2 >= s.n ? withFolio : withoutFolio;
+    if (s.n >= bar) running.add(c);
+  }
+
+  return perPage.map((lines) => {
+    const idx = lines.map((l, i) => [l.trim(), i]).filter(([l]) => l);
+    const drop = new Set();
+    const consider = [...idx.slice(0, EDGE), ...idx.slice(-EDGE)];
+    for (const [l, i] of consider) {
+      if (isFolio(l) || running.has(cluster.get(norm(l)))) drop.add(i);
+    }
+    return lines.filter((_, i) => !drop.has(i)).join("\n");
+  });
+}
+
 async function parsePdf(file, onProgress) {
   const buf = new Uint8Array(await file.arrayBuffer());
   let lib;
@@ -219,7 +486,7 @@ async function parsePdf(file, onProgress) {
      closed up by normalizeTypeable() with the hyphen KEPT, so the word
      never gains a space either way -- it just keeps a hyphen that the
      typesetter meant as a line break. */
-  const text = pages.join("\n\n").replace(/\s+\n/g, "\n")
+  const text = stripRunningLines(pages).join("\n\n").replace(/\s+\n/g, "\n")
     .replace(/(\p{Ll})-\n(\p{Ll})/gu, "$1$2")
     .trim();
   if (!text) {
