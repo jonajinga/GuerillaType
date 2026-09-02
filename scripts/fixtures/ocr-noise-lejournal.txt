@@ -15,6 +15,12 @@
 # Format: a line "### name", then the passage, until the next "###".
 # Passages never start or end with whitespace; "#" never occurs in the
 # book's text, so a comment line cannot be confused with one.
+#
+# The seven passages from "caret-in-word" down are the WELDED cases --
+# a noise glyph with a letter on each side, inside a word ("all^r",
+# "d*arriver", "pou\ait"). They used to survive the cleaner: a guard
+# meant to protect "x^2" and "5*3" protected these as well. Added
+# 2026-09-02 from the same extraction as the rest.
 
 ### reported
 il me l'adressait... Pourquoi
@@ -75,3 +81,39 @@ A quoi M°' Gouin, s'adressant plus particulièrement à Rose, ajoute
 raison de dire que c'est un homme excellent et
 |énéreux, car, s'il n'était point tel, il n'y aurait
 pas
+
+### caret-in-word
+on y est, sans cesse, en contact avec trop de
+gens, trop de choses, trop de plaisirs, trop d'imprévu... Il faut all^r quand m^me... Ici, c'est
+calme... Et quel silence!... L'air qu'on respire
+
+### star-in-word
+m'accompagna.... Elle souriait :
+-- Je ne suis pas fâchée de ce qui vient d*arriver, me confia-t-elle... Il aimait trop son furet...
+Moi, je ne veux pas qui! aime quelque chose...
+
+### backslash-in-word
+ou combien de siècles?... Je ne le sais pas. Revenue à moi, une pensée suppliciante domina toutes
+les autres : faire disparaître ce qui pou\ait m' accuser... Je me lavai le visage... je me rhabillai...
+je remis -- oui, j'eus cet affreux couragf; -- je
+
+### angle-in-word
+t Dulait par la bouche de Georges. Gela me fit
+ii>oid au cœur... Elles disparurent enfin...
+Où sont-elles aujourd'hui, ces trois ombres
+
+### degree-in-word
+eifronterie, soit manque d'ordre, il lui arriva
+souvent des histoires pareilles ou analogues. J'enua,s quelques-unes à raconter q.i, so°us ce rapport, sont des plus édifiantes... Mais il y a unmoment où le dégoût l'emporte, où la fatluê
+sa été Et puis, je crois que j'en ai dit assez surc«tte maison, qui fut pour moi le plus complet
+
+### caret-chain
+fcste avec Copp(''e, Lemaître, Quesnay de Hea/i
+repaire; il conspire avec le g^f^néral MercTer
+towt cela, pour renverser la Ré[)ul)Iique. L'autre
+
+### caret-twin-survives
+-- C'est bien^ ça.. Géîestine... Vous êtes une
+^«n«^ hmtn^iiii nrj<e fompifs d'ordf*!; h^otd^^t
+LE JOURNAL DUNE FEMME DE CHaMBRË 139
+

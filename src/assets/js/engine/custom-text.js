@@ -180,7 +180,26 @@ const NOISE_GLYPHS = "*|\\^~§¶†‡°¤¦¬•∗™<>";
 const NOISE_RE = new RegExp("[" + NOISE_GLYPHS.replace(/[\\^\]-]/g, "\\$&") + "]", "g");
 
 const ALNUM = /[\p{L}\p{N}]/u;
+const DIGIT = /\p{N}/u;
 const isSpace = (ch) => ch === " " || ch === "\t";
+
+/* How many alphanumerics run without a break away from position i.
+   "all^r" is 3 to the left and 1 to the right; "x^n" is 1 and 1. */
+function runLen(s, i, step) {
+  let n = 0;
+  for (let j = i + step; j >= 0 && j < s.length && ALNUM.test(s[j]); j += step) n++;
+  return n;
+}
+
+/* Is this glyph welded into a word -- an alphanumeric immediately on
+   both sides? Exported to ocrNoiseReport only so the import preview can
+   name the welded removals in their own row; the decision itself is
+   keepStray's. */
+function isWelded(s, i) {
+  const prev = i > 0 ? s[i - 1] : "";
+  const next = i + 1 < s.length ? s[i + 1] : "";
+  return ALNUM.test(prev) && ALNUM.test(next);
+}
 
 /* The three reasons a noise glyph is left alone. Each one exists
    because dropping it would have destroyed something real:
@@ -200,8 +219,25 @@ const isSpace = (ch) => ch === " " || ch === "\t";
                     below already covers it, because a neighbour that
                     is not a space stops the walk immediately.
 
-     2. welded   -- letters or digits on both sides: "x^2", "5*3",
-                    "snake_case", "2§1".
+     2. welded   -- letters or digits on both sides, AND the glyph
+                    still looks like notation rather than debris:
+                    either flank is a DIGIT ("x^2", "5*3", "2§1",
+                    "mc^2", "20°C"), or the letter run touching it is
+                    a single character on both sides ("x^n").
+
+                    The digit and single-letter tests are what is left
+                    of a plain "alphanumeric on both sides", which kept
+                    "all^r", "m^me", "don*t" and "pou\ait" -- a caret
+                    welded inside a word, which is what a user
+                    screenshotted and could not type. Measured over the
+                    677,109-character scan: 131 noise glyphs are welded
+                    between alphanumerics, and 110 of them are that
+                    kind of debris. The 21 that stay are 5 with a digit
+                    flank and 16 with single letters on both sides;
+                    those are also junk in this particular book, but
+                    they are the exact shape of "x^2" and "x^n" and a
+                    cleaner that eats real notation is worse than one
+                    that misses junk.
 
      3. alone    -- a plain space on both sides, on one line: "a < b",
                     "5 * 3". A symbol standing by itself between two
@@ -210,11 +246,14 @@ const isSpace = (ch) => ch === " " || ch === "\t";
    Case 3 is deliberately narrower than "surrounded by whitespace": a
    glyph alone on its own LINE is page furniture, and a glyph welded to
    the start or end of a word ("corriger^ d'en", "59* mille",
-   ">vait", "|énéreux") is debris. Both of those still drop -- 738 of
-   the measured book's 1,062 noise glyphs do.
+   ">vait", "|énéreux") is debris. Both of those still drop -- 832 of
+   the measured book's 1,062 noise glyphs do, 830 of them here and 2
+   as part of a "<<" mapped to a quote.
 
-   Every decision is taken against the ORIGINAL string, so removing one
-   glyph can never change the verdict on its neighbour. */
+   Every decision inside one pass is taken against the string as it
+   stood at the START of that pass, so removing one glyph can never
+   change the verdict on its neighbour mid-pass. Across passes it can,
+   which is why the caller loops -- see ocrNoiseReport. */
 function keepStray(s, i) {
   const c = s[i];
   const prev = i > 0 ? s[i - 1] : "";
@@ -224,7 +263,14 @@ function keepStray(s, i) {
   let b = i + 1;
   while (b < s.length && isSpace(s[b])) b++;
   if ((a >= 0 && s[a] === c) || (b < s.length && s[b] === c)) return true;
-  if (ALNUM.test(prev) && ALNUM.test(next)) return true;
+  if (ALNUM.test(prev) && ALNUM.test(next)) {
+    // A digit on either side means notation: "x^2", "5*3", "2§1", "20°C".
+    if (DIGIT.test(prev) || DIGIT.test(next)) return true;
+    // Letters both sides: only a single letter each way is notation
+    // ("x^n"). "all^r" has three letters on the left and is scanner
+    // debris, so it goes.
+    return runLen(s, i, -1) === 1 && runLen(s, i, 1) === 1;
+  }
   if (isSpace(prev) && isSpace(next)) return true;
   return false;
 }
@@ -236,7 +282,7 @@ function keepStray(s, i) {
    Only rules that fired are listed. */
 export function ocrNoiseReport(input) {
   let s = String(input || "");
-  const counts = { guillemets: 0, quotes: 0, ellipsis: 0, strays: 0 };
+  const counts = { guillemets: 0, quotes: 0, ellipsis: 0, strays: 0, welded: 0 };
 
   /* Doubled angle brackets are a scanner reading « or » one character
      at a time. Rare in the measured book (one occurrence) but
@@ -253,16 +299,48 @@ export function ocrNoiseReport(input) {
     return QUOTE_LOOKALIKES[ch];
   });
 
+  /* Run the stray scan to a FIXED POINT, not once.
+
+     Each pass takes every decision against the string as it stood at
+     the START of that pass, so removing one glyph can never change the
+     verdict on its neighbour mid-pass. That was enough while a verdict
+     only looked at the two characters either side. It is not enough
+     now that the welded test measures how long the word-run touching
+     the glyph is, because a removal can lengthen that run:
+
+       "g^f^neral"  ->  the first "^" has one letter each side and is
+                        kept; the second has five on the right and goes
+       "g^fneral"   ->  the first "^" now has five on the right too
+
+     That is a real line from the measured book. Left at one pass the
+     cleaner is not idempotent, and the practice page re-cleans a saved
+     text on EVERY open -- so a book would go on being rewritten every
+     time its owner sat down to type it. Looping until nothing moves
+     costs one extra scan on almost every input (the second pass finds
+     nothing) and makes the result a fixed point by construction.
+
+     It terminates: a pass either removes at least one character or
+     ends the loop. */
+  for (;;) {
   const before = s;
   s = s.replace(NOISE_RE, (m, off) => {
     if (keepStray(before, off)) return m;
-    counts.strays++;
+    /* Counted separately from a free-standing stray. A user who saw
+       "all^r" on the typing surface and then saw it cleaned needs a row
+       in the preview that describes THAT -- "stray scanner marks
+       removed" reads as if it only touched marks standing on their
+       own, and the caret in the middle of a word is the one people
+       ask about. */
+    if (isWelded(before, off)) counts.welded++;
+    else counts.strays++;
     return "";
   });
+    if (s === before) break;
+  }
   /* Only tidy up if something was removed, and only with the two
      collapses normalizeTypeable already performs -- leading
      indentation is load-bearing in verse and must not be touched. */
-  if (counts.strays) {
+  if (counts.strays || counts.welded) {
     s = s.replace(/(\S)[ \t]{2,}/g, "$1 ").replace(/[ \t]+\n/g, "\n");
   }
 
@@ -285,6 +363,7 @@ export function ocrNoiseReport(input) {
     quotes: "Other quote look-alikes turned into \" or '",
     ellipsis: 'Clipped ellipsis repaired ("?.." became "?...")',
     strays: "Stray scanner marks removed (* ^ | \\ ~ • ° < >)",
+    welded: 'Scanner marks removed from inside words ("all^r" became "allr")',
   };
   const changes = Object.keys(LABELS)
     .filter((id) => counts[id] > 0)
