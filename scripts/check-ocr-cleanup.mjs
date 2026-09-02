@@ -384,9 +384,14 @@ eq(wrep.total, 2, "the report counts both welded carets");
 eq(JSON.stringify(wrep.changes.map((c) => [c.id, c.count])),
   JSON.stringify([["welded", 2]]),
   "…under their own id, not lumped in with the free-standing strays");
-chk(/all\^r/.test(wrep.changes[0].label),
+/* Read defensively. When this assertion is going to fail there is no
+   "welded" row at all, and reaching into changes[0] would throw --
+   which aborts the whole file, and a suite that cannot finish looks
+   nothing like a suite that failed. */
+const weldedRow = wrep.changes.find((c) => c.id === "welded");
+chk(/all\^r/.test(weldedRow?.label || ""),
   "…and the label shows the user the shape they saw on screen",
-  JSON.stringify(wrep.changes[0].label));
+  JSON.stringify(weldedRow?.label));
 
 const mixed = ocrNoiseReport("un •homme et all^r");
 eq(JSON.stringify(mixed.changes.map((c) => [c.id, c.count])),
