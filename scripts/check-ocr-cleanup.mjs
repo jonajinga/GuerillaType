@@ -1263,6 +1263,32 @@ chk(!!rec && rec.bytes > PREVIEW_CHARS * 2, "…which is nowhere near the previe
   rec ? `${rec.bytes.toLocaleString()} chars` : "(nothing saved)");
 chk(!!rec && rec.has[0], "…and the sentence typed last is in the saved text");
 
+/* ── H11. The welded row reaches the real preview panel ────────── */
+/* Sections C2 and E2 prove the rule in-process. This proves the page
+   shows it: a user who watched "all^r" become "allr" opens /custom/,
+   pastes the same scan, and has to find a row that says what happened
+   to it. The row text is read out of the live DOM, not computed. */
+await freshPage();
+await page.fill("#paste-title", "welded scan");
+await page.fill("#paste-text", P["caret-in-word"]);
+await shownPanel().catch(() => {});
+st = await panelState();
+
+chk(st.hidden === false, "a paste whose ONLY noise is welded inside words still raises the panel",
+  st.hidden === false ? "" : "no panel — the welded removals would happen with nothing said about them");
+chk(st.rows.some((r) => /inside words/.test(r) && /all\^r/.test(r)),
+  "…and one of the rows on screen names the welded shape the user saw",
+  JSON.stringify(st.rows));
+chk(!st.rows.some((r) => /^Stray scanner marks removed/.test(r)),
+  "…and it is NOT filed under \"stray scanner marks\", which would describe the wrong thing",
+  JSON.stringify(st.rows));
+eq(st.box, P["caret-in-word"],
+  "…while the textarea still holds exactly what was pasted");
+
+rec = await saveAndRead(["Il faut allr quand mme", "all^r"]);
+chk(!!rec && rec.has[0], "saving it stores the cleaned words", rec && rec.head);
+chk(!!rec && !rec.has[1], "…and the welded caret is not in the stored body");
+
 await browser.close();
 server.close();
 
