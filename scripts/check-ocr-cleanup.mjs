@@ -196,6 +196,41 @@ const CASES = [
   ["pipe-line-start",
     "raison de dire que c'est un homme excellent et\nénéreux, car, s'il n'était point tel, il n'y aurait\npas",
     "a stray pipe at the start of a line goes"],
+  /* ── WELDED: a glyph with a letter on EACH side, inside a word.
+     These all survived the first version of the cleaner, because the
+     guard that protects "x^2" and "5*3" protected them too. Added
+     after a second screenshot from the practice page: "ut all^r". ── */
+  ["caret-in-word",
+    "on y est, sans cesse, en contact avec trop de\ngens, trop de choses, trop de plaisirs, " +
+    "trop d'imprévu... Il faut allr quand mme... Ici, c'est\ncalme... Et quel silence!... L'air qu'on respire",
+    "the reported \"all^r\": a caret welded between letters is scanner debris and goes"],
+  ["star-in-word",
+    "m'accompagna.... Elle souriait :\n-- Je ne suis pas fâchée de ce qui vient darriver, " +
+    "me confia-t-elle... Il aimait trop son furet...\nMoi, je ne veux pas qui! aime quelque chose...",
+    "…and \"d*arriver\", the same shape with an asterisk"],
+  ["backslash-in-word",
+    "ou combien de siècles?... Je ne le sais pas. Revenue à moi, une pensée suppliciante domina toutes\n" +
+    "les autres : faire disparaître ce qui pouait m' accuser... Je me lavai le visage... je me rhabillai...\n" +
+    "je remis -- oui, j'eus cet affreux couragf; -- je",
+    "…and \"pou\\ait\", with a backslash"],
+  ["angle-in-word",
+    "t Dulait par la bouche de Georges. Gela me fit\niioid au cœur... Elles disparurent enfin...\n" +
+    "Où sont-elles aujourd'hui, ces trois ombres",
+    "…and \"ii>oid\", with an angle bracket"],
+  ["degree-in-word",
+    "eifronterie, soit manque d'ordre, il lui arriva\nsouvent des histoires pareilles ou analogues. " +
+    "J'enua,s quelques-unes à raconter q.i, sous ce rapport, sont des plus édifiantes... " +
+    "Mais il y a unmoment où le dégoût l'emporte, où la fatluê\nsa été Et puis, je crois que " +
+    "j'en ai dit assez surc\"tte maison, qui fut pour moi le plus complet",
+    "…and \"so°us\", with a degree sign"],
+  ["caret-chain",
+    "fcste avec Copp(''e, Lemaître, Quesnay de Hea/i\nrepaire; il conspire avec le gfnéral MercTer\n" +
+    "towt cela, pour renverser la Ré[)ul)Iique. L'autre",
+    "\"g^f^néral\" loses BOTH carets in one call — the first only becomes droppable once the second is gone"],
+  ["caret-twin-survives",
+    "-- C'est bien ça... Géîestine... Vous êtes une\n\"n\" hmtniiii nrje fompifs d'ordf!; hotd^^t\n" +
+    "LE JOURNAL DUNE FEMME DE CHaMBRË 139",
+    "…and on the same line a doubled \"^^\" is still kept — the repeated-glyph guard outranks the welded one"],
 ];
 for (const [name, want, label] of CASES) {
   chk(P[name] !== undefined, `fixture has a "${name}" passage`);
@@ -296,6 +331,69 @@ for (const [name, body] of Object.entries(P)) {
   eq(cleanOcrNoise(once), once, `cleaning "${name}" twice is the same as cleaning it once`);
 }
 
+console.log("\n## C2. Welded: the line between notation and debris");
+/* Second report, with a screenshot of the practice page: "ut all^r" --
+   a caret welded between letters, in the middle of a word. "users
+   can't type that easily", and the book does not contain it.
+
+   It survived the first cleaner because guard 2 kept ANY noise glyph
+   with an alphanumeric on both sides, which is what protects "x^2" and
+   "5*3". Guard 2 is now narrower: a welded glyph is kept only where it
+   plausibly IS notation -- a DIGIT on either flank, or a word-run of a
+   single character on both sides.
+
+   Measured over the whole 677,109-character extraction: 131 noise
+   glyphs sit welded between alphanumerics; 110 of them are debris of
+   the kind below and now go, 21 stay. Section B holds the real
+   passages; these are the rule itself, in the smallest strings that
+   can state it. */
+
+eq(cleanOcrNoise("ut all^r"), "ut allr",
+  'the reported fragment, exactly as it appeared on screen: "ut all^r" -> "ut allr"');
+eq(cleanOcrNoise("Il faut all^r quand m^me"), "Il faut allr quand mme",
+  "…and the whole clause it came from");
+eq(cleanOcrNoise("don*t"), "dont",
+  "an asterisk inside a word goes too — the rule is per-shape, not per-character");
+eq(cleanOcrNoise("g^f^néral"), "gfnéral",
+  "a chain of welded carets is resolved in ONE call, not left half-cleaned");
+eq(cleanOcrNoise(cleanOcrNoise("g^f^néral")), cleanOcrNoise("g^f^néral"),
+  "…which is what keeps the cleaner idempotent — the practice page re-runs it on every open");
+
+const WELDED_SURVIVES = [
+  ["x^2", "a digit on a flank is notation"],
+  ["2^10", "…on either flank"],
+  ["mc^2", "…even with a multi-letter run on the other side"],
+  ["5*3", "…and it is not caret-specific"],
+  ["2§1", "…nor limited to the glyphs anyone expected"],
+  ["20°C", "…which is what keeps a temperature readable"],
+  ["x^n", "a single character on BOTH sides is notation, with no digit anywhere"],
+  ["a*b", "…whatever the glyph"],
+];
+for (const [text, why] of WELDED_SURVIVES)
+  eq(cleanOcrNoise(text), text, `"${text}" survives — ${why}`);
+eq(cleanOcrNoise("the area is x^2, and 5*3 is 15, and x^n grows, but all^r does not"),
+  "the area is x^2, and 5*3 is 15, and x^n grows, but allr does not",
+  "…and all of them survive in one sentence beside the junk that does not");
+
+/* The preview panel names every rule that fired. Somebody who watched
+   "all^r" turn into "allr" has to find a row that says so; "stray
+   scanner marks removed" reads as if it only touched marks standing on
+   their own. */
+const wrep = ocrNoiseReport("Il faut all^r quand m^me");
+eq(wrep.total, 2, "the report counts both welded carets");
+eq(JSON.stringify(wrep.changes.map((c) => [c.id, c.count])),
+  JSON.stringify([["welded", 2]]),
+  "…under their own id, not lumped in with the free-standing strays");
+chk(/all\^r/.test(wrep.changes[0].label),
+  "…and the label shows the user the shape they saw on screen",
+  JSON.stringify(wrep.changes[0].label));
+
+const mixed = ocrNoiseReport("un •homme et all^r");
+eq(JSON.stringify(mixed.changes.map((c) => [c.id, c.count])),
+  JSON.stringify([["strays", 1], ["welded", 1]]),
+  "a passage with both kinds gets both rows, counted separately");
+eq(mixed.text, "un homme et allr", "…and the text is cleaned of both");
+
 console.log("\n## D. The suite cannot be satisfied by deleting things");
 /* Section B, re-run against cleaners that are wrong in the four ways
    this kind of code goes wrong. If any of them scores full marks, the
@@ -382,6 +480,54 @@ chk(oldSanitize(P["trademark"]).includes("™"),
   "old: the misread superscript survived");
 chk(oldSanitize(P["star-splits-word"]).includes("Mon*"),
   "old: a word was still cut in half by an asterisk");
+
+console.log("\n## E2. The OLD welded guard really did keep all of that");
+/* keepStray()'s guard 2 as it stood before 2026-09-02: any noise glyph
+   with an alphanumeric on both sides was kept, full stop. If these
+   assertions fail, the welded bug was never there and section C2 is
+   testing nothing.
+
+   Copied rather than imported on purpose — it has to keep saying what
+   the old code did even after the old code is gone. */
+const OLD_NOISE = /[*|\\^~§¶†‡°¤¦¬•∗™<>]/g;
+const OLD_ALNUM = /[\p{L}\p{N}]/u;
+const oldIsSpace = (ch) => ch === " " || ch === "\t";
+function oldKeepStray(t, i) {
+  const c = t[i];
+  const prev = i > 0 ? t[i - 1] : "";
+  const next = i + 1 < t.length ? t[i + 1] : "";
+  let a = i - 1; while (a >= 0 && oldIsSpace(t[a])) a--;
+  let b = i + 1; while (b < t.length && oldIsSpace(t[b])) b++;
+  if ((a >= 0 && t[a] === c) || (b < t.length && t[b] === c)) return true;
+  if (OLD_ALNUM.test(prev) && OLD_ALNUM.test(next)) return true;   // <- the guard that was too wide
+  if (oldIsSpace(prev) && oldIsSpace(next)) return true;
+  return false;
+}
+function oldStrayPass(raw) {
+  const before = String(raw || "");
+  return before.replace(OLD_NOISE, (m, off) => (oldKeepStray(before, off) ? m : ""));
+}
+
+eq(oldStrayPass("ut all^r"), "ut all^r",
+  "old: the reported fragment came through the stray pass completely untouched");
+for (const [name, junk] of [
+  ["caret-in-word", "all^r"],
+  ["star-in-word", "d*arriver"],
+  ["backslash-in-word", "pou\\ait"],
+  ["angle-in-word", "ii>oid"],
+  ["degree-in-word", "so°us"],
+  ["caret-chain", "g^f^néral"],
+])
+  chk(oldStrayPass(P[name]).includes(junk),
+    `old: "${junk}" survived the stray pass, so it reached the typing surface`,
+    P[name] === undefined ? "fixture passage missing" : "");
+
+/* …and the guard was not simply broken: it was doing a real job, which
+   is why it cannot just be deleted. */
+eq(oldStrayPass("x^2 plus 5*3 and x^n"), "x^2 plus 5*3 and x^n",
+  "old: the same guard is what kept the notation — the fix had to narrow it, not remove it");
+chk(oldStrayPass("ut all^r") !== cleanOcrNoise("ut all^r"),
+  "old and new disagree about the reported fragment — the change is load-bearing");
 
 console.log("\n## F. \"Leave my text alone\" is stored, and the display path obeys it");
 /* The two halves of the feature interact: cleanup also runs on
