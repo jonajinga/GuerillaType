@@ -78,6 +78,7 @@ const PG_APPARATUS_PARAGRAPH = [
   /\bpglaf\.org\b/,
   /\bLiterary Archive Foundation\b/,
   /^Transcriber'?s? Note/i,
+  /\bGutenberg e-?text\b/i,        // "in this Gutenberg eText.-DP." (erewhon)
   /^\*+ ?(?:START|END) OF\b/i,      // a leftover banner line
 ];
 /* NOT a bare "starts with three asterisks" rule: "* * *" and "***"
