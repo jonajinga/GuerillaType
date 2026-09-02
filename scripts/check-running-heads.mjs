@@ -564,6 +564,40 @@ eqJ(removedFrom(fillerBook), [],
 chk(stripRunningLines(fillerBook).every((p, i) => p === fillerBook[i]),
   "…the document comes back byte-identical, page for page");
 
+/* THE BUDGET, FROM ABOVE. Everything so far says the budget must be big
+   enough. Nothing yet says it must be SMALL enough, and that direction
+   is the dangerous one: a budget large enough to absorb a legitimate
+   line into the head's cluster deletes that line, because the cluster's
+   count is the head's, not its own.
+
+   The victim here is on nine pages of twenty, one under the no-folio
+   bar of ten, so on its own merits it stays. It is a real place and a
+   different one — a mill on a hill is not a mill on the Floss — but the
+   skeletons are close, which is the whole danger. Two of them, at four
+   and five edits, so the pin bites at the first step above 20% and
+   again at the second. */
+const MOOR = "THE MILL ON THE MOOR", HILL = "THE MILL ON THE HILL";
+chk(editDistance(HEADSK, skeleton(nrm(MOOR))) === 4
+  && editDistance(HEADSK, skeleton(nrm(HILL))) === 5,
+  "\"…ON THE MOOR\" is 4 edits from the head and \"…ON THE HILL\" is 5",
+  `${editDistance(HEADSK, skeleton(nrm(MOOR)))} / ${editDistance(HEADSK, skeleton(nrm(HILL)))}`);
+chk(budgetFor(HEADSK) === 3 && Math.floor(17 * 0.25) === 4 && Math.floor(17 * 0.3) === 5,
+  "…the budget is 3 at 20%, and would be 4 at 25% and 5 at 30% — so each victim falls to one loosening step");
+const nearMiss = (victim) => Array.from({ length: 20 }, (_, i) => i < 9
+  ? page(SPELLINGS[0], filler(i, 1), filler(i, 2), victim)
+  : page(SPELLINGS[0], filler(i, 1), filler(i, 2), filler(i, 3)));
+chk(9 < Math.max(8, Math.ceil(20 * 0.5)),
+  "the victim is at the foot of nine pages of twenty — one under the bar, so on its own it stays");
+for (const victim of [MOOR, HILL]) {
+  const doc = nearMiss(victim);
+  eqJ([...new Set(removedFrom(doc))], [SPELLINGS[0]],
+    `the head goes and ${JSON.stringify(victim)} stays — it is a different line and the budget is too small to swallow it`);
+  chk(removedFrom(doc).length === 20, "…all twenty pages of the head, and nothing else",
+    `${removedFrom(doc).length}`);
+  chk(stripRunningLines(doc).every((p, i) => p.split("\n").length === doc[i].split("\n").length - 1),
+    "…every page loses exactly its one head line");
+}
+
 /* THE LENGTH FLOOR. A skeleton under 12 characters is matched exactly
    and never fuzzily, because the budget's floor of 1 edit is enough to
    merge two genuinely different short lines. Two speakers in a play,
