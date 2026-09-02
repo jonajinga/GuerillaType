@@ -190,15 +190,74 @@ export function joinTextItems(items) {
    folio at the edge of every page, and pdf.js hands them back inline
    with the prose. Reported from a real import: the middle of a sentence
    read "...dont je ne pus m'expli- 10 LE JOURNAL D'UNE FEMME DE CHAMBRE
-   quer la double expression...". The header is not the only damage
-   there -- it also sat BETWEEN a hyphen break and its continuation, so
-   de-hyphenation could not see the two halves and the word kept a stray
-   hyphen and gained a space. Removing the header fixes both.
+   quer la double expression...". Removing the header repairs the
+   sentence. (It does NOT repair the hyphen break -- the earlier commit
+   message claimed that, and it is wrong: 5df7f09's \p{Ll} de-hyphenation
+   had already rejoined "m'expli-" and "quer", which sit on consecutive
+   lines of the same page. See section A2 of the gate.)
 
-   Only the outermost few lines of each page are candidates, and a line
-   has to recur across a quarter of the book before it is treated as
-   furniture. Digits are ignored when comparing, because the folio
-   changes on every page and the title beside it does not.
+   Only the outermost EDGE lines of each page are candidates. Two things
+   can make one of those lines furniture:
+
+     1. It is a FOLIO -- a line that is nothing but a page number.
+     2. It RECURS at the same edge across the book.
+
+   Both rules were far too eager when this arrived, and both were
+   measured against the real 530-page scan of "Le Journal d'une femme de
+   chambre" (the fixtures in scripts/fixtures/ are that book) before
+   being rewritten. The numbers below are from that measurement.
+
+   FOLIOS ARE DIGITS ONLY, unless roman pagination is demonstrably the
+   norm. The original pattern was /(?:[ivxlcdm]{1,7}|\d{1,4})/i, which
+   treats any line built only from the letters i v x l c d m as a page
+   number. In the real book that destroyed all ten roman chapter numbers
+   (IV, VI, VIII, IX, X, XI, XIII, XIV, XV, XVI) and the French pronoun
+   "Il" at the foot of page 327, mid-sentence. "did", "mix", "civil",
+   "mild", "vivid" and "livid" are all "folios" to it too.
+   So roman numerals count only when the document as a whole paginates
+   in them: at least half its pages carry a roman-only edge line, and
+   more pages carry a roman one than an arabic one. Measured on the real
+   scan: 16 pages have a roman-only edge line and 6 have an arabic-only
+   one -- so a rule of "roman outnumbers arabic" ALONE would have said
+   yes and eaten the chapter numbers again. The half-the-pages share is
+   what actually holds the line. The cost is that genuinely roman front
+   matter in an otherwise arabic book keeps its "xii"; that is the cheap
+   direction to be wrong in.
+
+   RECURRENCE NEEDS EVIDENCE, NOT JUST A COUNT. The old bar was
+   max(3, 25% of pages), which is a bar on the document's LENGTH rather
+   than on the line, so it ate a refrain closing three pages of a
+   twelve-page pamphlet and a speaker name heading four pages of a
+   ten-page scene, while missing the running head of the 530-page book
+   entirely (its commonest spelling reaches 106 pages; the bar was 132).
+   A plain floor cannot fix that: the reported seven-page run needs a
+   head seen on 3 pages to go, and the real book has diary dates
+   ("15 septembre.", "3 novembre.") sitting at page tops on 4 pages that
+   must stay. 3-must-go and 4-must-stay is not a floor, it is a
+   different question. So a recurring line is furniture only when all of:
+
+     - it sits at the SAME edge (top or bottom) on at least 80% of the
+       pages it appears on -- a running head is positionally fixed, a
+       refrain is not necessarily;
+     - AND EITHER it is folio-associated on at least half of those pages
+       -- the line itself starts or ends with a number, or the edge line
+       next to it is a bare folio -- and recurs on at least
+       max(3, 15% of pages);
+     - OR, with no folio anywhere near it, it recurs on at least
+       max(8, 50% of pages). Without a page number beside it there is
+       little evidence a repeated line is furniture rather than text,
+       so it has to be nearly everywhere before we believe it.
+
+   On the real scan this removes the two commonest spellings of the
+   running head -- 158 pages of it -- where the old code removed none,
+   and leaves the chapter numbers, the pronoun, and the diary dates.
+
+   KNOWN AND STILL UNFIXED: norm() erases digits before comparing, so
+   "3 septembre." and "18 septembre." are the same line to this code. A
+   short document in which EVERY page opens with a dated entry therefore
+   still loses its dates -- they are folio-associated and they recur.
+   The real book survives only because 4 of 530 pages is under the 15%
+   share. Section D of the gate pins this.
 
    Exported for scripts/check-running-heads.mjs, the same way
    joinTextItems is exported for scripts/check-pdf-spacing.mjs: parsePdf
@@ -208,21 +267,70 @@ export function stripRunningLines(pages) {
   if (pages.length < 5) return pages;
   const EDGE = 2;
   const norm = (l) => l.replace(/\d+/g, " ").replace(/[^\p{L}]+/gu, " ").trim().toLowerCase();
-  const isFolio = (l) => /^[\s.,\-–—]*(?:[ivxlcdm]{1,7}|\d{1,4})[\s.,\-–—]*$/i.test(l);
 
-  const counts = new Map();
+  const ARABIC_FOLIO = /^[\s.,\-–—]*\d{1,4}[\s.,\-–—]*$/;
+  const ROMAN_FOLIO = /^[\s.,\-–—]*[ivxlcdm]{1,7}[\s.,\-–—]*$/i;
+  /* A number at the very start or the very end of the line -- the two
+     places a typesetter puts a folio beside a running head. */
+  const CARRIES_FOLIO = /^\s*\d{1,4}\b|\b\d{1,4}\s*[.,]?\s*$/;
+
   const perPage = pages.map((pg) => pg.split("\n"));
-  for (const lines of perPage) {
-    const solid = lines.map((l) => l.trim()).filter(Boolean);
-    const edge = [...solid.slice(0, EDGE), ...solid.slice(-EDGE)];
-    for (const key of new Set(edge.map(norm))) {
-      if (key.length < 4) continue;
-      counts.set(key, (counts.get(key) || 0) + 1);
+  const solidPer = perPage.map((lines) => lines.map((l) => l.trim()).filter(Boolean));
+  const edgeIdx = (solid) => {
+    const top = [], bot = [];
+    for (let i = 0; i < Math.min(EDGE, solid.length); i++) top.push(i);
+    for (let i = Math.max(0, solid.length - EDGE); i < solid.length; i++) bot.push(i);
+    return { top, bot };
+  };
+
+  // 1. Does this document paginate in roman numerals?
+  let romanPages = 0, arabicPages = 0;
+  for (const solid of solidPer) {
+    const { top, bot } = edgeIdx(solid);
+    const edge = [...new Set([...top, ...bot])].map((i) => solid[i]);
+    if (edge.some((l) => ARABIC_FOLIO.test(l))) arabicPages++;
+    if (edge.some((l) => ROMAN_FOLIO.test(l))) romanPages++;
+  }
+  const romanIsNorm = romanPages >= Math.max(5, Math.ceil(pages.length * 0.5))
+    && romanPages > arabicPages;
+  const isFolio = (l) => ARABIC_FOLIO.test(l) || (romanIsNorm && ROMAN_FOLIO.test(l));
+
+  // 2. What recurs, where, and with a folio beside it?
+  const stats = new Map();
+  for (const solid of solidPer) {
+    const { top, bot } = edgeIdx(solid);
+    const seen = new Map();
+    for (const [side, idxs] of [["top", top], ["bot", bot]]) {
+      for (const i of idxs) {
+        const key = norm(solid[i]);
+        if (key.length < 4) continue;
+        const folio = CARRIES_FOLIO.test(solid[i])
+          || (i > 0 && ARABIC_FOLIO.test(solid[i - 1]))
+          || (i + 1 < solid.length && ARABIC_FOLIO.test(solid[i + 1]));
+        const cur = seen.get(key) || { top: false, bot: false, folio: false };
+        cur[side] = true;
+        cur.folio = cur.folio || folio;
+        seen.set(key, cur);
+      }
+    }
+    for (const [key, v] of seen) {
+      const s = stats.get(key) || { n: 0, top: 0, bot: 0, folio: 0 };
+      s.n++;
+      if (v.top) s.top++;
+      if (v.bot) s.bot++;
+      if (v.folio) s.folio++;
+      stats.set(key, s);
     }
   }
-  const threshold = Math.max(3, Math.floor(pages.length * 0.25));
+
+  const withFolio = Math.max(3, Math.floor(pages.length * 0.15));
+  const withoutFolio = Math.max(8, Math.ceil(pages.length * 0.5));
   const running = new Set();
-  for (const [key, n] of counts) if (n >= threshold) running.add(key);
+  for (const [key, s] of stats) {
+    if (s.top < s.n * 0.8 && s.bot < s.n * 0.8) continue;
+    const bar = s.folio * 2 >= s.n ? withFolio : withoutFolio;
+    if (s.n >= bar) running.add(key);
+  }
 
   return perPage.map((lines) => {
     const idx = lines.map((l, i) => [l.trim(), i]).filter(([l]) => l);
