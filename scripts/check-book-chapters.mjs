@@ -105,8 +105,29 @@ for (const row of index) {
 chk(allBlank === 0, "no book has untitled chapters", `${allBlank} book(s)`);
 chk(unknownAuthors === 0, "no book has an unknown author", `${unknownAuthors} book(s)`);
 chk(blankTitles === 0, "no chapter anywhere is untitled", `${blankTitles} chapter(s)`);
-// Floor, not an equality -- more books may be added.
-chk(totalChapters >= 11918, "corpus chapter count has not gone backwards", `${totalChapters}`);
+/* Floor, not an equality -- more books may be added.
+
+   Lowered from 11918 to 11887 on 2026-09-02, and the 31 are itemised
+   because a floor that slides quietly is not a floor. Every one was a
+   Project Gutenberg apparatus chapter, not an author's:
+
+     mountains-of-madness  20 -> 11   the licence, shipped as chapters
+                                      ("The Full Project Gutenberg
+                                      License", "Information About
+                                      Donations...") -- 9
+     puddnhead-wilson      34 -> 22   the transcriber's Detailed Notes,
+                                      renumbered by the polish pass into
+                                      "Chapter 23".."Chapter 34" -- 12
+     life-on-mississippi  109 -> 101  the same licence, same cause -- 8
+     the-overcoat          29 -> 28   Macmillan's catalogue page and the
+                                      transcriber's errata -- 1
+     hard-times            37 -> 36   a one-line note that Reprinted
+                                      Pieces "was released as a separate
+                                      eText by Project Gutenberg" -- 1
+
+   9 + 12 + 8 + 1 + 1 = 31. See scripts/ingest-books.mjs stripHeader()
+   and dropApparatusParagraphs(). */
+chk(totalChapters >= 11887, "corpus chapter count has not gone backwards", `${totalChapters}`);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

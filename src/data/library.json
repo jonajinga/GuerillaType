@@ -4,18 +4,18 @@
     "title": "The Oresteia",
     "author": "Aeschylus",
     "year": "458 BCE",
-    "chapterCount": 6,
-    "paragraphCount": 560,
-    "charCount": 116998
+    "chapterCount": 5,
+    "paragraphCount": 559,
+    "charCount": 116907
   },
   {
     "slug": "aesops-fables",
     "title": "Aesop's Fables",
     "author": "Aesop",
     "year": "February 1, 2004",
-    "chapterCount": 266,
-    "paragraphCount": 645,
-    "charCount": 188321
+    "chapterCount": 265,
+    "paragraphCount": 632,
+    "charCount": 187816
   },
   {
     "slug": "mysterious-affair-styles",
@@ -104,8 +104,8 @@
     "author": "Anatole France",
     "year": "1908",
     "chapterCount": 9,
-    "paragraphCount": 375,
-    "charCount": 130857
+    "paragraphCount": 374,
+    "charCount": 130779
   },
   {
     "slug": "black-beauty",
@@ -121,18 +121,18 @@
     "title": "Beowulf",
     "author": "Anonymous",
     "year": null,
-    "chapterCount": 51,
-    "paragraphCount": 1493,
-    "charCount": 233877
+    "chapterCount": 50,
+    "paragraphCount": 1470,
+    "charCount": 231573
   },
   {
     "slug": "prisoner-of-zenda",
     "title": "The Prisoner of Zenda",
     "author": "Anthony Hope",
     "year": null,
-    "chapterCount": 23,
-    "paragraphCount": 1948,
-    "charCount": 284200
+    "chapterCount": 22,
+    "paragraphCount": 1946,
+    "charCount": 283502
   },
   {
     "slug": "seagull-chekhov",
@@ -140,8 +140,8 @@
     "author": "Anton Chekhov",
     "year": "1895",
     "chapterCount": 1,
-    "paragraphCount": 770,
-    "charCount": 100651
+    "paragraphCount": 769,
+    "charCount": 100583
   },
   {
     "slug": "uncle-vanya",
@@ -157,9 +157,9 @@
     "title": "The Nicomachean Ethics of Aristotle",
     "author": "Aristotle",
     "year": null,
-    "chapterCount": 40,
-    "paragraphCount": 2063,
-    "charCount": 604235
+    "chapterCount": 39,
+    "paragraphCount": 2046,
+    "charCount": 599950
   },
   {
     "slug": "poetics",
@@ -195,16 +195,16 @@
     "year": "March 1, 1999",
     "chapterCount": 12,
     "paragraphCount": 2981,
-    "charCount": 555228
+    "charCount": 555231
   },
   {
     "slug": "hound-of-the-baskervilles",
     "title": "The Hound of the Baskervilles",
     "author": "Arthur Conan Doyle",
     "year": null,
-    "chapterCount": 16,
-    "paragraphCount": 1735,
-    "charCount": 314581
+    "chapterCount": 15,
+    "paragraphCount": 1724,
+    "charCount": 313790
   },
   {
     "slug": "the-lost-world",
@@ -212,8 +212,8 @@
     "author": "Arthur Conan Doyle",
     "year": null,
     "chapterCount": 18,
-    "paragraphCount": 1706,
-    "charCount": 415704
+    "paragraphCount": 1705,
+    "charCount": 415629
   },
   {
     "slug": "memoirs-sherlock-holmes",
@@ -247,9 +247,9 @@
     "title": "The Valley of Fear",
     "author": "Arthur Conan Doyle",
     "year": null,
-    "chapterCount": 15,
-    "paragraphCount": 1700,
-    "charCount": 309246
+    "chapterCount": 14,
+    "paragraphCount": 1696,
+    "charCount": 308662
   },
   {
     "slug": "scarlet-pimpernel",
@@ -319,9 +319,9 @@
     "title": "The Adventures of Pinocchio",
     "author": "Carlo Collodi",
     "year": "January 12, 2006",
-    "chapterCount": 39,
-    "paragraphCount": 1787,
-    "charCount": 209246
+    "chapterCount": 38,
+    "paragraphCount": 1782,
+    "charCount": 209184
   },
   {
     "slug": "tales-from-shakespeare",
@@ -355,9 +355,9 @@
     "title": "A Christmas Carol in Prose",
     "author": "Charles Dickens",
     "year": "August 11, 2004",
-    "chapterCount": 6,
-    "paragraphCount": 812,
-    "charCount": 156547
+    "chapterCount": 5,
+    "paragraphCount": 808,
+    "charCount": 156068
   },
   {
     "slug": "a-tale-of-two-cities",
@@ -374,26 +374,26 @@
     "author": "Charles Dickens",
     "year": "1841",
     "chapterCount": 82,
-    "paragraphCount": 5742,
-    "charCount": 1406858
+    "paragraphCount": 5741,
+    "charCount": 1406787
   },
   {
     "slug": "bleak-house",
     "title": "Bleak House",
     "author": "Charles Dickens",
     "year": null,
-    "chapterCount": 70,
-    "paragraphCount": 8781,
-    "charCount": 1921254
+    "chapterCount": 68,
+    "paragraphCount": 8761,
+    "charCount": 1915015
   },
   {
     "slug": "david-copperfield",
     "title": "David Copperfield",
     "author": "Charles Dickens",
     "year": null,
-    "chapterCount": 66,
-    "paragraphCount": 8596,
-    "charCount": 1914508
+    "chapterCount": 64,
+    "paragraphCount": 8577,
+    "charCount": 1909648
   },
   {
     "slug": "dombey-and-son",
@@ -418,9 +418,9 @@
     "title": "Hard Times",
     "author": "Charles Dickens",
     "year": null,
-    "chapterCount": 37,
-    "paragraphCount": 2614,
-    "charCount": 565855
+    "chapterCount": 36,
+    "paragraphCount": 2613,
+    "charCount": 565745
   },
   {
     "slug": "little-dorrit",
@@ -436,9 +436,9 @@
     "title": "Martin Chuzzlewit",
     "author": "Charles Dickens",
     "year": "1844",
-    "chapterCount": 54,
-    "paragraphCount": 8614,
-    "charCount": 1857796
+    "chapterCount": 52,
+    "paragraphCount": 8587,
+    "charCount": 1849712
   },
   {
     "slug": "nicholas-nickleby",
@@ -446,8 +446,8 @@
     "author": "Charles Dickens",
     "year": "1839",
     "chapterCount": 68,
-    "paragraphCount": 8625,
-    "charCount": 1831216
+    "paragraphCount": 8624,
+    "charCount": 1831114
   },
   {
     "slug": "oliver-twist",
@@ -463,9 +463,9 @@
     "title": "Our Mutual Friend",
     "author": "Charles Dickens",
     "year": "1865",
-    "chapterCount": 71,
-    "paragraphCount": 9545,
-    "charCount": 1788936
+    "chapterCount": 70,
+    "paragraphCount": 9530,
+    "charCount": 1784423
   },
   {
     "slug": "old-curiosity-shop",
@@ -490,9 +490,9 @@
     "title": "Jane Eyre: an Autobiography",
     "author": "Charlotte Bronte",
     "year": "March 1, 1998",
-    "chapterCount": 41,
-    "paragraphCount": 4960,
-    "charCount": 1012037
+    "chapterCount": 38,
+    "paragraphCount": 4933,
+    "charCount": 1006830
   },
   {
     "slug": "the-yellow-wallpaper",
@@ -536,17 +536,17 @@
     "author": "E. M. Forster",
     "year": "1910",
     "chapterCount": 44,
-    "paragraphCount": 3601,
-    "charCount": 605119
+    "paragraphCount": 3600,
+    "charCount": 605052
   },
   {
     "slug": "where-angels-fear",
     "title": "Where Angels Fear to Tread",
     "author": "E. M. Forster",
     "year": "1905",
-    "chapterCount": 12,
-    "paragraphCount": 772,
-    "charCount": 253340
+    "chapterCount": 10,
+    "paragraphCount": 767,
+    "charCount": 252768
   },
   {
     "slug": "railway-children",
@@ -554,8 +554,8 @@
     "author": "E. Nesbit",
     "year": "1906",
     "chapterCount": 20,
-    "paragraphCount": 2222,
-    "charCount": 320251
+    "paragraphCount": 2221,
+    "charCount": 320179
   },
   {
     "slug": "short-stories-poe",
@@ -688,9 +688,9 @@
     "title": "Thérèse Raquin",
     "author": "Émile Zola",
     "year": "1867",
-    "chapterCount": 34,
-    "paragraphCount": 1491,
-    "charCount": 400687
+    "chapterCount": 33,
+    "paragraphCount": 1486,
+    "charCount": 399536
   },
   {
     "slug": "wuthering-heights",
@@ -708,7 +708,7 @@
     "year": "1903",
     "chapterCount": 29,
     "paragraphCount": 2562,
-    "charCount": 593106
+    "charCount": 593109
   },
   {
     "slug": "the-good-soldier",
@@ -724,9 +724,9 @@
     "title": "Evelina",
     "author": "Frances Burney",
     "year": "1778",
-    "chapterCount": 10,
-    "paragraphCount": 4079,
-    "charCount": 855119
+    "chapterCount": 9,
+    "paragraphCount": 4070,
+    "charCount": 851556
   },
   {
     "slug": "little-princess",
@@ -734,8 +734,8 @@
     "author": "Frances Hodgson Burnett",
     "year": null,
     "chapterCount": 2,
-    "paragraphCount": 1945,
-    "charCount": 358245
+    "paragraphCount": 1944,
+    "charCount": 358173
   },
   {
     "slug": "little-lord-fauntleroy",
@@ -751,9 +751,9 @@
     "title": "The Secret Garden",
     "author": "Frances Hodgson Burnett",
     "year": "December 26, 2005",
-    "chapterCount": 28,
-    "paragraphCount": 2381,
-    "charCount": 424162
+    "chapterCount": 27,
+    "paragraphCount": 2365,
+    "charCount": 423275
   },
   {
     "slug": "metamorphosis",
@@ -779,17 +779,17 @@
     "author": "Friedrich Nietzsche",
     "year": "1886",
     "chapterCount": 26,
-    "paragraphCount": 1075,
-    "charCount": 379129
+    "paragraphCount": 1073,
+    "charCount": 379013
   },
   {
     "slug": "thus-spoke-zarathustra",
     "title": "Thus Spoke Zarathustra",
     "author": "Friedrich Nietzsche",
     "year": "1883",
-    "chapterCount": 146,
-    "paragraphCount": 4134,
-    "charCount": 621436
+    "chapterCount": 144,
+    "paragraphCount": 4040,
+    "charCount": 617433
   },
   {
     "slug": "demons",
@@ -797,17 +797,17 @@
     "author": "Fyodor Dostoevsky",
     "year": "1872",
     "chapterCount": 99,
-    "paragraphCount": 6580,
-    "charCount": 1401691
+    "paragraphCount": 6579,
+    "charCount": 1401618
   },
   {
     "slug": "crime-and-punishment",
     "title": "Crime and Punishment",
     "author": "Fyodor Dostoyevsky",
     "year": "March 28, 2006",
-    "chapterCount": 16,
-    "paragraphCount": 5162,
-    "charCount": 1124870
+    "chapterCount": 15,
+    "paragraphCount": 5147,
+    "charCount": 1120445
   },
   {
     "slug": "notes-from-underground",
@@ -869,8 +869,8 @@
     "author": "Geoffrey Chaucer",
     "year": null,
     "chapterCount": 39,
-    "paragraphCount": 5140,
-    "charCount": 1512502
+    "paragraphCount": 5136,
+    "charCount": 1512191
   },
   {
     "slug": "arms-and-the-man",
@@ -887,8 +887,8 @@
     "author": "George Bernard Shaw",
     "year": "1898",
     "chapterCount": 4,
-    "paragraphCount": 1541,
-    "charCount": 207153
+    "paragraphCount": 1540,
+    "charCount": 207085
   },
   {
     "slug": "heartbreak-house",
@@ -905,8 +905,8 @@
     "author": "George Bernard Shaw",
     "year": "1893",
     "chapterCount": 2,
-    "paragraphCount": 1068,
-    "charCount": 191315
+    "paragraphCount": 1067,
+    "charCount": 191240
   },
   {
     "slug": "pygmalion",
@@ -958,9 +958,9 @@
     "title": "The Princess and the Goblin",
     "author": "George MacDonald",
     "year": "1872",
-    "chapterCount": 33,
-    "paragraphCount": 1490,
-    "charCount": 270171
+    "chapterCount": 32,
+    "paragraphCount": 1488,
+    "charCount": 269383
   },
   {
     "slug": "madame-bovary",
@@ -995,8 +995,8 @@
     "author": "H. G. Wells",
     "year": "1904",
     "chapterCount": 12,
-    "paragraphCount": 2307,
-    "charCount": 419705
+    "paragraphCount": 2306,
+    "charCount": 419607
   },
   {
     "slug": "invisible-man",
@@ -1021,9 +1021,9 @@
     "title": "The Time Machine",
     "author": "H. G. Wells",
     "year": "October 2, 2004",
-    "chapterCount": 17,
-    "paragraphCount": 560,
-    "charCount": 178235
+    "chapterCount": 16,
+    "paragraphCount": 559,
+    "charCount": 177871
   },
   {
     "slug": "war-of-the-worlds",
@@ -1057,9 +1057,9 @@
     "title": "At the Mountains of Madness",
     "author": "H. P. Lovecraft",
     "year": "1936",
-    "chapterCount": 20,
-    "paragraphCount": 789,
-    "charCount": 236335
+    "chapterCount": 11,
+    "paragraphCount": 725,
+    "charCount": 218815
   },
   {
     "slug": "the-call-of-cthulhu",
@@ -1104,7 +1104,7 @@
     "year": "January 1, 1995",
     "chapterCount": 2,
     "paragraphCount": 1747,
-    "charCount": 629251
+    "charCount": 629310
   },
   {
     "slug": "tom-jones",
@@ -1121,17 +1121,17 @@
     "author": "Henry James",
     "year": null,
     "chapterCount": 2,
-    "paragraphCount": 653,
-    "charCount": 121127
+    "paragraphCount": 652,
+    "charCount": 121061
   },
   {
     "slug": "roderick-hudson",
     "title": "Roderick Hudson",
     "author": "Henry James",
     "year": "1875",
-    "chapterCount": 3299,
-    "paragraphCount": 4915,
-    "charCount": 1540552
+    "chapterCount": 3295,
+    "paragraphCount": 4910,
+    "charCount": 1538944
   },
   {
     "slug": "ambassadors",
@@ -1157,8 +1157,8 @@
     "author": "Henry James",
     "year": "December 1, 2008",
     "chapterCount": 28,
-    "paragraphCount": 3154,
-    "charCount": 650838
+    "paragraphCount": 3153,
+    "charCount": 650762
   },
   {
     "slug": "turn-of-the-screw",
@@ -1184,8 +1184,8 @@
     "author": "Henry James",
     "year": "1902",
     "chapterCount": 21,
-    "paragraphCount": 2593,
-    "charCount": 573806
+    "paragraphCount": 2592,
+    "charCount": 573731
   },
   {
     "slug": "washington-square",
@@ -1228,9 +1228,9 @@
     "title": "Moby Dick",
     "author": "Herman Melville",
     "year": "July 1, 2001",
-    "chapterCount": 149,
-    "paragraphCount": 3961,
-    "charCount": 1179461
+    "chapterCount": 148,
+    "paragraphCount": 3956,
+    "charCount": 1177876
   },
   {
     "slug": "typee",
@@ -1246,45 +1246,45 @@
     "title": "The Histories",
     "author": "Herodotus",
     "year": "c. 440 BCE",
-    "chapterCount": 11,
-    "paragraphCount": 2999,
-    "charCount": 874932
+    "chapterCount": 10,
+    "paragraphCount": 2995,
+    "charCount": 873788
   },
   {
     "slug": "the-iliad",
     "title": "The Iliad",
     "author": "Homer",
     "year": null,
-    "chapterCount": 27,
-    "paragraphCount": 3355,
-    "charCount": 1024416
+    "chapterCount": 26,
+    "paragraphCount": 3353,
+    "charCount": 1024338
   },
   {
     "slug": "the-odyssey",
     "title": "The Odyssey",
     "author": "Homer",
     "year": null,
-    "chapterCount": 21,
-    "paragraphCount": 2121,
-    "charCount": 672935
+    "chapterCount": 20,
+    "paragraphCount": 2110,
+    "charCount": 669658
   },
   {
     "slug": "eugenie-grandet",
     "title": "Eugénie Grandet",
     "author": "Honoré de Balzac",
     "year": "1833",
-    "chapterCount": 16,
-    "paragraphCount": 1803,
-    "charCount": 370082
+    "chapterCount": 15,
+    "paragraphCount": 1798,
+    "charCount": 369720
   },
   {
     "slug": "fathers-and-sons",
     "title": "Fathers and Sons",
     "author": "Ivan Turgenev",
     "year": "1862",
-    "chapterCount": 35,
-    "paragraphCount": 2360,
-    "charCount": 422906
+    "chapterCount": 34,
+    "paragraphCount": 2342,
+    "charCount": 422147
   },
   {
     "slug": "peter-pan",
@@ -1301,8 +1301,8 @@
     "author": "Jack London",
     "year": "1913",
     "chapterCount": 18,
-    "paragraphCount": 1092,
-    "charCount": 132935
+    "paragraphCount": 1091,
+    "charCount": 132863
   },
   {
     "slug": "martin-eden",
@@ -1435,9 +1435,9 @@
     "title": "Pride and Prejudice",
     "author": "Jane Austen",
     "year": "June 1, 1998",
-    "chapterCount": 62,
-    "paragraphCount": 3059,
-    "charCount": 687892
+    "chapterCount": 61,
+    "paragraphCount": 2957,
+    "charCount": 684825
   },
   {
     "slug": "sense-and-sensibility",
@@ -1453,9 +1453,9 @@
     "title": "Three Men in a Boat",
     "author": "Jerome K. Jerome",
     "year": null,
-    "chapterCount": 21,
-    "paragraphCount": 1590,
-    "charCount": 356309
+    "chapterCount": 20,
+    "paragraphCount": 1587,
+    "charCount": 356270
   },
   {
     "slug": "faust",
@@ -1471,18 +1471,18 @@
     "title": "The Sorrows of Young Werther",
     "author": "Johann Wolfgang von Goethe",
     "year": "1774",
-    "chapterCount": 6,
-    "paragraphCount": 771,
-    "charCount": 233931
+    "chapterCount": 5,
+    "paragraphCount": 769,
+    "charCount": 233427
   },
   {
     "slug": "heidi",
     "title": "Heidi",
     "author": "Johanna Spyri",
     "year": "September 1, 1998",
-    "chapterCount": 25,
-    "paragraphCount": 1903,
-    "charCount": 485335
+    "chapterCount": 23,
+    "paragraphCount": 1896,
+    "charCount": 482724
   },
   {
     "slug": "39-steps",
@@ -1544,8 +1544,8 @@
     "author": "Joseph Conrad",
     "year": null,
     "chapterCount": 46,
-    "paragraphCount": 1948,
-    "charCount": 706421
+    "paragraphCount": 1947,
+    "charCount": 706357
   },
   {
     "slug": "secret-agent",
@@ -1562,8 +1562,8 @@
     "author": "Joseph Conrad",
     "year": null,
     "chapterCount": 7,
-    "paragraphCount": 699,
-    "charCount": 172503
+    "paragraphCount": 698,
+    "charCount": 172440
   },
   {
     "slug": "journey-center-earth",
@@ -1581,7 +1581,7 @@
     "year": "January 1, 1994",
     "chapterCount": 36,
     "paragraphCount": 1843,
-    "charCount": 350450
+    "charCount": 350453
   },
   {
     "slug": "five-weeks-balloon",
@@ -1617,7 +1617,7 @@
     "year": "September 1, 1994",
     "chapterCount": 48,
     "paragraphCount": 2798,
-    "charCount": 587715
+    "charCount": 587724
   },
   {
     "slug": "the-prophet",
@@ -1687,18 +1687,18 @@
     "title": "Anne of Green Gables",
     "author": "L. M. Montgomery",
     "year": "June 27, 2008",
-    "chapterCount": 39,
-    "paragraphCount": 2241,
-    "charCount": 554092
+    "chapterCount": 38,
+    "paragraphCount": 2236,
+    "charCount": 552504
   },
   {
     "slug": "tristram-shandy",
     "title": "The Life and Opinions of Tristram Shandy, Gentleman",
     "author": "Laurence Sterne",
     "year": "1759",
-    "chapterCount": 117,
-    "paragraphCount": 3627,
-    "charCount": 1016934
+    "chapterCount": 116,
+    "paragraphCount": 3621,
+    "charCount": 1015476
   },
   {
     "slug": "anna-karenina",
@@ -1759,18 +1759,18 @@
     "title": "A Connecticut Yankee in King Arthur's Court",
     "author": "Mark Twain",
     "year": null,
-    "chapterCount": 53,
-    "paragraphCount": 2673,
-    "charCount": 630935
+    "chapterCount": 51,
+    "paragraphCount": 2650,
+    "charCount": 626464
   },
   {
     "slug": "huckleberry-finn",
     "title": "Adventures of Huckleberry Finn",
     "author": "Mark Twain",
     "year": "June 29, 2004",
-    "chapterCount": 48,
-    "paragraphCount": 2682,
-    "charCount": 559073
+    "chapterCount": 47,
+    "paragraphCount": 2670,
+    "charCount": 555571
   },
   {
     "slug": "following-the-equator",
@@ -1795,36 +1795,36 @@
     "title": "Pudd'nhead Wilson",
     "author": "Mark Twain",
     "year": "1894",
-    "chapterCount": 35,
-    "paragraphCount": 1338,
-    "charCount": 290802
+    "chapterCount": 22,
+    "paragraphCount": 1275,
+    "charCount": 278875
   },
   {
     "slug": "roughing-it",
     "title": "Roughing It",
     "author": "Mark Twain",
     "year": null,
-    "chapterCount": 136,
-    "paragraphCount": 3692,
-    "charCount": 928101
+    "chapterCount": 135,
+    "paragraphCount": 3682,
+    "charCount": 925540
   },
   {
     "slug": "tom-sawyer",
     "title": "The Adventures of Tom Sawyer",
     "author": "Mark Twain",
     "year": "July 1, 2004",
-    "chapterCount": 39,
-    "paragraphCount": 2397,
-    "charCount": 386794
+    "chapterCount": 36,
+    "paragraphCount": 2195,
+    "charCount": 380716
   },
   {
     "slug": "innocents-abroad",
     "title": "The Innocents Abroad",
     "author": "Mark Twain",
     "year": null,
-    "chapterCount": 79,
-    "paragraphCount": 3474,
-    "charCount": 1084902
+    "chapterCount": 77,
+    "paragraphCount": 3451,
+    "charCount": 1079101
   },
   {
     "slug": "mysterious-stranger",
@@ -1849,18 +1849,18 @@
     "title": "Life on the Mississippi",
     "author": "Mark Twain (Samuel Clemens)",
     "year": null,
-    "chapterCount": 110,
-    "paragraphCount": 3070,
-    "charCount": 815327
+    "chapterCount": 101,
+    "paragraphCount": 3000,
+    "charCount": 797054
   },
   {
     "slug": "prince-and-pauper",
     "title": "The Prince and the Pauper",
     "author": "Mark Twain (Samuel Clemens)",
     "year": null,
-    "chapterCount": 53,
-    "paragraphCount": 1902,
-    "charCount": 387836
+    "chapterCount": 52,
+    "paragraphCount": 1899,
+    "charCount": 386795
   },
   {
     "slug": "hans-brinker",
@@ -1868,8 +1868,8 @@
     "author": "Mary Mapes Dodge",
     "year": "1865",
     "chapterCount": 1,
-    "paragraphCount": 2425,
-    "charCount": 465144
+    "paragraphCount": 2424,
+    "charCount": 465073
   },
   {
     "slug": "frankenstein",
@@ -1885,9 +1885,9 @@
     "title": "Don Quixote",
     "author": "Miguel de Cervantes Saavedra",
     "year": "July 27, 2004",
-    "chapterCount": 138,
-    "paragraphCount": 7376,
-    "charCount": 2241466
+    "chapterCount": 137,
+    "paragraphCount": 7367,
+    "charCount": 2239128
   },
   {
     "slug": "tartuffe",
@@ -1895,26 +1895,26 @@
     "author": "Molière",
     "year": "1664",
     "chapterCount": 16,
-    "paragraphCount": 821,
-    "charCount": 97991
+    "paragraphCount": 820,
+    "charCount": 97921
   },
   {
     "slug": "the-scarlet-letter",
     "title": "The Scarlet Letter",
     "author": "Nathaniel Hawthorne",
     "year": null,
-    "chapterCount": 28,
-    "paragraphCount": 1624,
-    "charCount": 482859
+    "chapterCount": 25,
+    "paragraphCount": 1586,
+    "charCount": 479733
   },
   {
     "slug": "the-prince",
     "title": "The Prince",
     "author": "Niccolo Machiavelli",
     "year": "February 11, 2006",
-    "chapterCount": 31,
-    "paragraphCount": 800,
-    "charCount": 276505
+    "chapterCount": 30,
+    "paragraphCount": 793,
+    "charCount": 273985
   },
   {
     "slug": "dead-souls",
@@ -1931,17 +1931,17 @@
     "author": "Nikolai Gogol",
     "year": "1835",
     "chapterCount": 23,
-    "paragraphCount": 2226,
-    "charCount": 613107
+    "paragraphCount": 2225,
+    "charCount": 613012
   },
   {
     "slug": "the-overcoat",
     "title": "The Overcoat and Other Stories",
     "author": "Nikolai Gogol",
     "year": "1842",
-    "chapterCount": 29,
-    "paragraphCount": 2596,
-    "charCount": 643120
+    "chapterCount": 28,
+    "paragraphCount": 2589,
+    "charCount": 642003
   },
   {
     "slug": "oliver-goldsmith-vicar",
@@ -1976,8 +1976,8 @@
     "author": "Ovid",
     "year": "8 CE",
     "chapterCount": 14,
-    "paragraphCount": 2402,
-    "charCount": 708812
+    "paragraphCount": 2329,
+    "charCount": 689384
   },
   {
     "slug": "apology",
@@ -1985,8 +1985,8 @@
     "author": "Plato",
     "year": null,
     "chapterCount": 1,
-    "paragraphCount": 182,
-    "charCount": 58906
+    "paragraphCount": 181,
+    "charCount": 58851
   },
   {
     "slug": "the-republic",
@@ -2004,7 +2004,7 @@
     "year": "c. 100 CE",
     "chapterCount": 15,
     "paragraphCount": 3275,
-    "charCount": 1114619
+    "charCount": 1114622
   },
   {
     "slug": "the-coral-island",
@@ -2020,9 +2020,9 @@
     "title": "Gitanjali",
     "author": "Rabindranath Tagore",
     "year": "1912",
-    "chapterCount": 4,
-    "paragraphCount": 551,
-    "charCount": 73959
+    "chapterCount": 3,
+    "paragraphCount": 537,
+    "charCount": 68973
   },
   {
     "slug": "self-reliance",
@@ -2038,9 +2038,9 @@
     "title": "Kidnapped",
     "author": "Robert Louis Stevenson",
     "year": null,
-    "chapterCount": 32,
-    "paragraphCount": 1856,
-    "charCount": 416931
+    "chapterCount": 31,
+    "paragraphCount": 1845,
+    "charCount": 413721
   },
   {
     "slug": "jekyll-and-hyde",
@@ -2056,9 +2056,9 @@
     "title": "Treasure Island",
     "author": "Robert Louis Stevenson",
     "year": "February 26, 2006",
-    "chapterCount": 35,
-    "paragraphCount": 1605,
-    "charCount": 358523
+    "chapterCount": 33,
+    "paragraphCount": 1591,
+    "charCount": 356109
   },
   {
     "slug": "captains-courageous",
@@ -2066,8 +2066,8 @@
     "author": "Rudyard Kipling",
     "year": "May 1, 2000",
     "chapterCount": 10,
-    "paragraphCount": 1496,
-    "charCount": 290933
+    "paragraphCount": 1495,
+    "charCount": 290865
   },
   {
     "slug": "just-so-stories",
@@ -2075,8 +2075,8 @@
     "author": "Rudyard Kipling",
     "year": "December 22, 2008",
     "chapterCount": 12,
-    "paragraphCount": 758,
-    "charCount": 154906
+    "paragraphCount": 757,
+    "charCount": 154833
   },
   {
     "slug": "kim",
@@ -2102,17 +2102,17 @@
     "author": "Samuel Butler",
     "year": "1872",
     "chapterCount": 32,
-    "paragraphCount": 1334,
-    "charCount": 459466
+    "paragraphCount": 1333,
+    "charCount": 459403
   },
   {
     "slug": "way-of-all-flesh",
     "title": "The Way of All Flesh",
     "author": "Samuel Butler",
     "year": "1903",
-    "chapterCount": 90,
-    "paragraphCount": 2691,
-    "charCount": 867606
+    "chapterCount": 89,
+    "paragraphCount": 2686,
+    "charCount": 866374
   },
   {
     "slug": "country-pointed-firs",
@@ -2120,17 +2120,17 @@
     "author": "Sarah Orne Jewett",
     "year": "1896",
     "chapterCount": 1,
-    "paragraphCount": 779,
-    "charCount": 226997
+    "paragraphCount": 778,
+    "charCount": 226906
   },
   {
     "slug": "six-records",
     "title": "Six Records of a Floating Life",
     "author": "Shen Fu",
     "year": "1809",
-    "chapterCount": 10,
-    "paragraphCount": 1266,
-    "charCount": 96458
+    "chapterCount": 9,
+    "paragraphCount": 1263,
+    "charCount": 96438
   },
   {
     "slug": "oedipus-rex",
@@ -2174,8 +2174,8 @@
     "author": "Sun Tzu",
     "year": "May 1, 1994",
     "chapterCount": 15,
-    "paragraphCount": 1474,
-    "charCount": 308541
+    "paragraphCount": 1472,
+    "charCount": 308024
   },
   {
     "slug": "sister-carrie",
@@ -2184,7 +2184,7 @@
     "year": "1900",
     "chapterCount": 48,
     "paragraphCount": 5374,
-    "charCount": 862900
+    "charCount": 862903
   },
   {
     "slug": "financier-dreiser",
@@ -2192,8 +2192,8 @@
     "author": "Theodore Dreiser",
     "year": "1912",
     "chapterCount": 61,
-    "paragraphCount": 3867,
-    "charCount": 1085243
+    "paragraphCount": 3866,
+    "charCount": 1085171
   },
   {
     "slug": "tess-dubervilles",
@@ -2210,8 +2210,8 @@
     "author": "Thomas Paine",
     "year": "July 1, 1994",
     "chapterCount": 7,
-    "paragraphCount": 380,
-    "charCount": 124416
+    "paragraphCount": 375,
+    "charCount": 123552
   },
   {
     "slug": "the-jungle",
@@ -2227,18 +2227,18 @@
     "title": "Les Misérables",
     "author": "Victor Hugo",
     "year": null,
-    "chapterCount": 373,
-    "paragraphCount": 16054,
-    "charCount": 3155753
+    "chapterCount": 371,
+    "paragraphCount": 16033,
+    "charCount": 3150484
   },
   {
     "slug": "hunchback-notre-dame",
     "title": "Notre-Dame De Paris",
     "author": "Victor Hugo",
     "year": "April 1, 2001",
-    "chapterCount": 62,
-    "paragraphCount": 5078,
-    "charCount": 1046353
+    "chapterCount": 61,
+    "paragraphCount": 5001,
+    "charCount": 1043815
   },
   {
     "slug": "aeneid",
@@ -2254,9 +2254,9 @@
     "title": "Candide",
     "author": "Voltaire",
     "year": "1759",
-    "chapterCount": 33,
-    "paragraphCount": 952,
-    "charCount": 198163
+    "chapterCount": 31,
+    "paragraphCount": 912,
+    "charCount": 195540
   },
   {
     "slug": "souls-of-black-folk",
@@ -2290,9 +2290,9 @@
     "title": "Ivanhoe",
     "author": "Walter Scott",
     "year": null,
-    "chapterCount": 77,
-    "paragraphCount": 4070,
-    "charCount": 1093653
+    "chapterCount": 69,
+    "paragraphCount": 4027,
+    "charCount": 1082899
   },
   {
     "slug": "legend-sleepy-hollow",
@@ -2344,9 +2344,9 @@
     "title": "Vanity Fair",
     "author": "William Makepeace Thackeray",
     "year": null,
-    "chapterCount": 72,
-    "paragraphCount": 5623,
-    "charCount": 1698593
+    "chapterCount": 71,
+    "paragraphCount": 5621,
+    "charCount": 1696097
   },
   {
     "slug": "midsummer-nights-dream",
@@ -2390,8 +2390,8 @@
     "author": "William Shakespeare",
     "year": "July 1, 2000",
     "chapterCount": 1,
-    "paragraphCount": 744,
-    "charCount": 100806
+    "paragraphCount": 742,
+    "charCount": 100630
   },
   {
     "slug": "othello",
@@ -2426,8 +2426,8 @@
     "author": "William Shakespeare",
     "year": null,
     "chapterCount": 1,
-    "paragraphCount": 807,
-    "charCount": 96413
+    "paragraphCount": 805,
+    "charCount": 96237
   },
   {
     "slug": "twelfth-night",

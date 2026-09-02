@@ -245,26 +245,17 @@ console.log("\n## C. Tier 2 — the book corpus, pinned to what ships today");
    only. Every entry below was measured, read in context, and left
    alone on purpose: mapping them away is an editorial decision about
    somebody's book, and this gate is not the place to take it. What it
-   IS for is the 19th character. */
+   IS for is the 10th character. */
 const PINNED = {
-  "£": "£  currency, real, and typeable on a UK keyboard (20000-leagues: \"an iron vessel costs £45 per ton\")",
-  "°": "°  degrees, real (20000-leagues, earth-to-moon: latitudes, \"42° 15' N. lat.\")",
+  "£": "£  currency, real, and typeable on a UK keyboard (20000-leagues: \"its value at not less than £1000\")",
+  "°": "°  degrees, real (20000-leagues, earth-to-moon: latitudes, \"42° 15' N. lat.\"). No faithful ASCII -- \"deg\" is a word, not the mark the author set",
   "§": "§  section mark, real (art-of-war, beowulf: scholarly cross-references, \"Chapter V. § 19\")",
-  "™": "™  Project Gutenberg boilerplate that was never stripped (mountains-of-madness: \"Project Gutenberg™ electronic works\")",
-  "′": "'  prime, arc-minutes, real (20000-leagues: \"42° 15' N. lat.\")",
-  "½": "½  vulgar fraction, real (20000-leagues: \"18½ miles an hour\")",
   "‡": "‡  double dagger. Footnote marker in Marlowe -- and part of the GOLD-BUG CRYPTOGRAM in Poe, which is the puzzle the story turns on",
   "†": "†  dagger. Same two uses (count-of-monte-cristo: \"Caes...ar † Spada\")",
-  "″": "\"  double prime, arc-seconds, real (earth-to-moon: \"13° 10' 35\\\"\")",
-  "•": "•  Project Gutenberg licence bullets, never stripped (mountains-of-madness: \"• You pay a royalty fee of 20%\")",
-  "¹": "¹  superscript one, a footnote marker (common-sense: \"some Massanello ¹ may hereafter arise\")",
-  "¾": "¾  vulgar fraction, real (walden: \"Rye meal, 1.04¾\")",
-  "´": "´  acute accent used for arc-minutes -- transcription damage, should be an apostrophe (mountains-of-madness: \"76° 15´\")",
-  "・": "・ katakana middle dot, inside an ENGLISH story -- scanner damage (return-of-sherlock-holmes, the Dancing Men)",
+  "・": "・ katakana middle dot, inside an ENGLISH story -- the Dancing Men dot code (return-of-sherlock-holmes)",
   "¶": "¶  pilcrow -- part of the Gold-Bug cryptogram (short-stories-poe)",
-  "×": "×  multiplication sign, real (mountains-of-madness: \"as large as 4 × 6 × 8 feet\")",
-  "⅜": "⅜ vulgar fraction, real (riddle-of-sands: \"size 1⅜, galvanised\")",
   "✠": "✠  maltese cross, real -- Joyce's episcopal signature joke (ulysses: \"William ✠. Ascot meeting\")",
+  "•": "•  bullet, and it is CONTENT, not licence boilerplate. The nine that were boilerplate went with the Gutenberg purge; this one is the whole of Ithaca's last answer -- \"Where?\" / \"•\" -- the full stop Joyce set as the end of the episode (ulysses)",
 };
 
 const BOOKS = R("src/data/books");

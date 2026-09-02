@@ -36,8 +36,68 @@ const SRC_DIR  = "src/content/books";
 const OUT_DIR  = "src/data/books";
 const INDEX    = "src/data/library.json";
 
-const PG_START = /\*+ ?START OF (?:THIS |THE )?PROJECT GUTENBERG.*?\*+\s*/i;
-const PG_END   = /\*+ ?END OF (?:THIS |THE )?PROJECT GUTENBERG.*?\*+/i;
+/* The banner markers. `[^*]{0,300}` rather than `.*?` on purpose:
+   Project Gutenberg wraps long banners across two lines, and `.` does
+   not cross a newline, so the old pattern silently failed on
+   "*** START OF THE PROJECT GUTENBERG EBOOK AT THE MOUNTAINS OF\nMADNESS ***".
+   When it fails there is no error -- the whole PG header and the whole
+   licence footer land in the book as chapters, which is how
+   mountains-of-madness shipped 57 "Project Gutenberg(tm)" trademark
+   symbols and a royalty-fee clause inside Lovecraft's novella.
+   The negated class already spans newlines; the length cap keeps a
+   lazy match from running off into the body looking for a "*". */
+const PG_START = /\*+ ?START OF (?:THIS |THE )?PROJECT GUTENBERG[^*]{0,300}\*+\s*/i;
+const PG_END   = /\*+ ?END OF (?:THIS |THE )?PROJECT GUTENBERG[^*]{0,300}\*+/i;
+
+/* The plain-prose footer PG puts a line or two ABOVE the *** END ***
+   banner, so cutting at the banner alone leaves it in the last
+   chapter: "End of the Project Gutenberg EBook of Apology, by Plato".
+   Anchored to the start of a line and required to name the project, so
+   a sentence that merely ends a chapter cannot match. */
+const PG_FOOTER = /^[ \t]*End of (?:the )?Project Gutenberg(?:'s)?\b/im;
+
+/* PG producers append their own editorial notes after the book ends:
+   errata tables, dialect glossaries, "changed countenence to
+   countenance on page 273". Not the author's text, and a typist should
+   not be asked to type a list of page corrections. Only cut on a
+   heading found in the last quarter of the file -- Nietzsche and Balzac
+   carry one at the TOP, and that one is front matter the chapter
+   splitter and polish pass already handle. */
+const TRANSCRIBER_BACKMATTER = /^[ \t]*\[?Transcriber.{0,3}s? Notes?\b[^\n]{0,40}$/im;
+
+/* Apparatus that PG's own producers add inside the banners, and which
+   the banner strip therefore cannot reach. Each is matched as a whole
+   paragraph (see dropApparatusParagraphs) and every one was read in
+   context before being listed. */
+const PG_APPARATUS_PARAGRAPH = [
+  /\bProject Gutenberg\b/,          // any paragraph that names the project
+  /\bProject Gutenberg-tm\b/,
+  /\bwww\.gutenberg\.(org|net)\b/,
+  /\bgutenberg\.org\/(license|donate|contact)\b/,
+  /\bPGLAF\b/,
+  /\bpglaf\.org\b/,
+  /\bLiterary Archive Foundation\b/,
+  /^Transcriber'?s? Note/i,
+  /\bGutenberg e-?text\b/i,        // "in this Gutenberg eText.-DP." (erewhon)
+  /^\*+ ?(?:START|END) OF\b/i,      // a leftover banner line
+];
+/* NOT a bare "starts with three asterisks" rule: "* * *" and "***"
+   are scene dividers, and
+   that rule deleted 86 of them out of The Prophet alone. Measured, not
+   guessed -- the first version of this list did exactly that. */
+
+/* ...except where the words are the author's. Hugo writes about the
+   printing press, Dodge about Johannes Gutenberg of Mayence, and Joyce
+   lists "Murtagh Gutenberg" among his invented heroes. These are prose
+   and they stay. A paragraph matching one of these is never dropped. */
+const GUTENBERG_IN_PROSE = [
+  /luminous press of Gutenberg/,
+  /down to the time of Gutenberg/,
+  /Gutenberg's letters of lead/,
+  /issued from the press since Gutenberg's day/,
+  /Johannes Gutenberg of Mayence/,
+  /Murtagh Gutenberg/,
+];
 
 // "Chapter N", "Part N" etc., plus all-caps treatise heads. The
 // all-caps clause must end with a letter or period -- never a comma --
@@ -94,7 +154,32 @@ function stripHeader(raw) {
   if (endIx >= 0) {
     body = body.slice(0, body.search(PG_END));
   }
+  /* Then the prose footer above the banner. Searched only in the last
+     4000 characters so a chapter that happens to open with the phrase
+     cannot truncate a book from the middle. */
+  const tailFrom = Math.max(0, body.length - 4000);
+  const footerIx = body.slice(tailFrom).search(PG_FOOTER);
+  if (footerIx >= 0) body = body.slice(0, tailFrom + footerIx);
+  /* And the producer's own back-matter notes. Last quarter only. */
+  const quarter = Math.floor(body.length * 0.75);
+  const tIx = body.slice(quarter).search(TRANSCRIBER_BACKMATTER);
+  if (tIx >= 0) body = body.slice(0, quarter + tIx);
   return body.trim();
+}
+
+/* Paragraph-level apparatus sweep. The banners bound the licence, but
+   PG's producers also put notes INSIDE them -- a preface to the etext,
+   a transcriber's note, Michael Hart's signature. Those are not the
+   author's text and a typist should not be asked to type them.
+   Returns { paragraphs, removed } so the caller can report what went. */
+function dropApparatusParagraphs(paragraphs) {
+  const kept = [], removed = [];
+  for (const text of paragraphs) {
+    if (GUTENBERG_IN_PROSE.some((re) => re.test(text))) { kept.push(text); continue; }
+    if (PG_APPARATUS_PARAGRAPH.some((re) => re.test(text))) { removed.push(text); continue; }
+    kept.push(text);
+  }
+  return { kept, removed };
 }
 
 function detectMeta(raw) {
@@ -134,8 +219,53 @@ const ACCENT_MAP = {
   "Œ":"OE","œ":"oe",
   "Ŭ":"U","ŭ":"u","Ŏ":"O","ŏ":"o",
 };
-function asciify(text) {
+/* Symbols a keyboard cannot send, mapped to what a typist can.
+
+   Every one of these was censused across the 271 books and read in
+   context before it was listed (scripts/check-typeable-census.mjs
+   section C keeps the list honest in both directions: it fails if an
+   unmapped symbol appears, and it fails if a mapping is claimed for a
+   symbol that is no longer there).
+
+   The order matters twice:
+     - the vulgar fractions run BEFORE the accent fold, because × lives
+       inside the [À-ſ] range that fold scans;
+     - a fraction glued to a digit gets a space, so "size 1⅜" becomes
+       "size 1 3/8" and not the meaningless "size 13/8".
+
+   Deliberately NOT here: † ‡ ¶ (the Gold-Bug cryptogram is written in
+   them and the story turns on the puzzle), ✠ (Joyce's episcopal
+   signature joke), £ ° § (real currency, degrees and section marks
+   with no faithful ASCII), ・ (the Dancing Men dot code). Those are
+   content, and mapping them would be editing somebody's book. */
+function mapTypographicSymbols(text) {
   return String(text)
+    // Primes: arc-minutes and arc-seconds in ship's coordinates, plus
+    // Hardy's stress marks in the Tess ballad ("do′-own", "yon′-der").
+    .replace(/′/g, "'")
+    .replace(/″/g, "\"")
+    // U+00B4 acute used as an arc-minute mark. Transcription damage:
+    // every one of the 7 in the corpus sits after a coordinate figure
+    // (mountains-of-madness "76° 15´", the-call-of-cthulhu "49° 51´").
+    .replace(/´/g, "'")
+    // Vulgar fractions. The lookbehind-free form: capture the digit.
+    .replace(/(\d)\s*½/g, "$1 1/2").replace(/½/g, "1/2")
+    .replace(/(\d)\s*¾/g, "$1 3/4").replace(/¾/g, "3/4")
+    .replace(/(\d)\s*⅜/g, "$1 3/8").replace(/⅜/g, "3/8")
+    // Superscript one, a footnote marker in Paine's Common Sense.
+    // Given a space when it is glued to the next word so the marker
+    // does not fuse with it ("¹\"Thou hast" -> "1 \"Thou hast").
+    .replace(/¹(?=\S)/g, "1 ").replace(/¹/g, "1")
+    // Multiplication sign, but ONLY between figures -- "4 × 6 × 8
+    // feet". Run twice because the middle × of a run of three is both
+    // the tail of one match and the head of the next, and a single
+    // global pass consumes the shared digit.
+    .replace(/(\d\s*)×(\s*\d)/g, "$1x$2")
+    .replace(/(\d\s*)×(\s*\d)/g, "$1x$2");
+}
+
+function asciify(text) {
+  return mapTypographicSymbols(String(text))
     .replace(/\r\n?/g, "\n")
     .replace(/[—–]/g, "-")
     .replace(/[“”]/g, "\"")
@@ -571,12 +701,21 @@ function ingestFile(file) {
   const raw = fs.readFileSync(file, "utf8");
   const meta = detectMeta(raw);
   const body = asciify(stripHeader(raw));
-  const chapters = splitChapters(body).map((c) => ({
-    title: stripLeadingChapterMarker(
-      smartTitleCase(asciify(c.title), { force: true }).replace(/\s+/g, " ").trim()
-    ),
-    paragraphs: chunkParagraphs(c.body).map((text, j) => ({ id: `p${j}`, text })),
-  }));
+  const apparatus = [];
+  const chapters = splitChapters(body).map((c) => {
+    const swept = dropApparatusParagraphs(chunkParagraphs(c.body));
+    for (const t of swept.removed) apparatus.push(t);
+    return {
+      title: stripLeadingChapterMarker(
+        smartTitleCase(asciify(c.title), { force: true }).replace(/\s+/g, " ").trim()
+      ),
+      paragraphs: swept.kept.map((text, j) => ({ id: `p${j}`, text })),
+    };
+  }).filter((c) => c.paragraphs.length);
+  if (apparatus.length) {
+    const n = apparatus.reduce((m, t) => m + t.length, 0);
+    console.log(`  ${slug}: dropped ${apparatus.length} apparatus paragraph(s), ${n} chars`);
+  }
   const totalParagraphs = chapters.reduce((n, c) => n + c.paragraphs.length, 0);
   const totalChars = chapters.reduce(
     (n, c) => n + c.paragraphs.reduce((m, p) => m + p.text.length, 0),
