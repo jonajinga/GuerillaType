@@ -101,7 +101,227 @@ export function normalizeTypeable(input) {
   return s;
 }
 
-export function sanitize(raw) {
+/* ── Scanner / OCR noise ─────────────────────────────────────────────
+
+   Reported by a user who imported a scanned PDF of "Le Journal d'une
+   femme de chambre": the typing target contained characters they could
+   not type and that were not in the book --
+
+     C'est un peu bete ce que vous me demandez-la, mon gros pere,
+     »Avex?..* 10 LE JOURNAL D'UNE FEMME DE CHAMBRE Il me poussa...
+
+   Three separate things are wrong in that one line, and only two of
+   them are ours. The running head ("10 LE JOURNAL D'UNE FEMME DE
+   CHAMBRE") is a page-furniture problem and is fixed in
+   import-parsers.js. What is fixed here is the rest: the guillemet the
+   scanner left as a bare character, the truncated ellipsis "?..", and
+   the stray "*".
+
+   These rules were written against the real book, not against the
+   screenshot. Running that PDF through parseFile() gives 677,109
+   characters, in which the noise glyphs below occur 1,062 times. What
+   that measurement changed:
+
+     - "^" is the single commonest noise glyph (617), not "*" (152).
+     - "«" and "»" occur 579 times as REAL French dialogue quotes. They
+       are mapped, not dropped.
+     - "<" (41) and ">" (41) are almost all lone misread characters.
+       "<<" appears exactly ONCE in the whole book and ">>" never, so
+       doubled angle brackets are NOT the main source of the "<" and
+       ">" the user saw -- worth knowing, though the mapping is kept
+       because that one occurrence ("des << Ohl »") is a real guillemet.
+     - "™" (25) was not on the original list and is added: every
+       occurrence is a misread superscript ("M™* la comtesse"), and it
+       is not a character any keyboard can send.
+
+   A cleaner that eats real text is far worse than one that misses
+   junk, so a glyph is KEPT in four cases -- see dropStrayGlyphs(). */
+
+/* Look-alikes for quotes a keyboard can produce. Nothing here is
+   deleted: every one of them is standing in for a quotation mark, so
+   every one of them becomes one. */
+const QUOTE_LOOKALIKES = {
+  "„": '"', "‟": '"',   // „ ‟ low / reversed double
+  "‚": "'",                  // ‚ low single
+  "″": '"', "′": "'",   // ″ ′ double / single prime
+};
+
+/* Guillemets carry a space on the INSIDE, and it goes with them.
+
+   French sets a narrow no-break space inside « » -- « marcher » --
+   and that space is part of the punctuation, not part of the
+   sentence. Map the mark on its own and the space is stranded inside
+   an ASCII quote: " marcher ", which is not what anybody types, and
+   which is what a user saw on the typing surface and reported.
+
+   Both spellings of that space have to be handled, because this
+   function runs at two different points in the pipeline. /custom/
+   calls it on the parser's own output, where the space is still
+   U+202F or U+00A0; sanitize() calls it after normalizeTypeable has
+   already turned those into an ordinary one. A file that arrives with
+   either must come out the same.
+
+   At most ONE space is taken. A run of them is verse indentation or
+   the gap before the next word, and eating those would be the
+   "normalizer that passes by deleting things" this suite exists to
+   catch. The single guillemets ‹ › follow the same convention and are
+   mapped the same way, one tier down to an apostrophe.
+
+   Nothing here touches an ASCII quote: `he said "the cat sat"` keeps
+   its spacing exactly, because it never had a guillemet in it. */
+const GSP = "[ \\t\\u00a0\\u202f\\u2009\\u2007]?";
+const OPEN_GUILLEMET = new RegExp("(?:«|<{2,})" + GSP, "g");
+const CLOSE_GUILLEMET = new RegExp(GSP + "(?:»|>{2,})", "g");
+const OPEN_SINGLE_GUILLEMET = new RegExp("‹" + GSP, "g");
+const CLOSE_SINGLE_GUILLEMET = new RegExp(GSP + "›", "g");
+
+/* Glyphs a scanner invents that no book meant to contain. */
+const NOISE_GLYPHS = "*|\\^~§¶†‡°¤¦¬•∗™<>";
+const NOISE_RE = new RegExp("[" + NOISE_GLYPHS.replace(/[\\^\]-]/g, "\\$&") + "]", "g");
+
+const ALNUM = /[\p{L}\p{N}]/u;
+const isSpace = (ch) => ch === " " || ch === "\t";
+
+/* The three reasons a noise glyph is left alone. Each one exists
+   because dropping it would have destroyed something real:
+
+     1. repeated -- the nearest non-space character on this line, in
+                    either direction, is the same character. That is
+                    one test for two shapes: "**bold**", "<<" and a
+                    doubled backslash, where the twin is immediately
+                    adjacent; and a "* * * * *" scene break, where it
+                    is a space away. The bundled Alice sample has three
+                    of those and lost its end asterisks until the
+                    spaced form was covered.
+
+                    Written as one test on purpose. It was two, and a
+                    mutation run showed the adjacent-only half could be
+                    deleted with the suite still green -- the scan
+                    below already covers it, because a neighbour that
+                    is not a space stops the walk immediately.
+
+     2. welded   -- letters or digits on both sides: "x^2", "5*3",
+                    "snake_case", "2§1".
+
+     3. alone    -- a plain space on both sides, on one line: "a < b",
+                    "5 * 3". A symbol standing by itself between two
+                    spaces is being used as a symbol.
+
+   Case 3 is deliberately narrower than "surrounded by whitespace": a
+   glyph alone on its own LINE is page furniture, and a glyph welded to
+   the start or end of a word ("corriger^ d'en", "59* mille",
+   ">vait", "|énéreux") is debris. Both of those still drop -- 738 of
+   the measured book's 1,062 noise glyphs do.
+
+   Every decision is taken against the ORIGINAL string, so removing one
+   glyph can never change the verdict on its neighbour. */
+function keepStray(s, i) {
+  const c = s[i];
+  const prev = i > 0 ? s[i - 1] : "";
+  const next = i + 1 < s.length ? s[i + 1] : "";
+  let a = i - 1;
+  while (a >= 0 && isSpace(s[a])) a--;
+  let b = i + 1;
+  while (b < s.length && isSpace(s[b])) b++;
+  if ((a >= 0 && s[a] === c) || (b < s.length && s[b] === c)) return true;
+  if (ALNUM.test(prev) && ALNUM.test(next)) return true;
+  if (isSpace(prev) && isSpace(next)) return true;
+  return false;
+}
+
+/* ocrNoiseReport(input) -> { text, total, changes: [{ id, label, count }] }
+
+   The counts are what the import preview shows the user, so they have
+   to describe what actually happened rather than how many regexes ran.
+   Only rules that fired are listed. */
+export function ocrNoiseReport(input) {
+  let s = String(input || "");
+  const counts = { guillemets: 0, quotes: 0, ellipsis: 0, strays: 0 };
+
+  /* Doubled angle brackets are a scanner reading « or » one character
+     at a time. Rare in the measured book (one occurrence) but
+     unambiguous when it happens, and mapping runs before the stray
+     scan so "<<" is never half-eaten. They are folded into the same
+     two passes as the real guillemets so they lose their inner space
+     too -- "des << Ohl »" is the same typography either way. */
+  s = s.replace(OPEN_GUILLEMET, () => { counts.guillemets++; return '"'; });
+  s = s.replace(CLOSE_GUILLEMET, () => { counts.guillemets++; return '"'; });
+  s = s.replace(OPEN_SINGLE_GUILLEMET, () => { counts.quotes++; return "'"; });
+  s = s.replace(CLOSE_SINGLE_GUILLEMET, () => { counts.quotes++; return "'"; });
+  s = s.replace(/[„‟‚″′]/g, (ch) => {
+    counts.quotes++;
+    return QUOTE_LOOKALIKES[ch];
+  });
+
+  const before = s;
+  s = s.replace(NOISE_RE, (m, off) => {
+    if (keepStray(before, off)) return m;
+    counts.strays++;
+    return "";
+  });
+  /* Only tidy up if something was removed, and only with the two
+     collapses normalizeTypeable already performs -- leading
+     indentation is load-bearing in verse and must not be touched. */
+  if (counts.strays) {
+    s = s.replace(/(\S)[ \t]{2,}/g, "$1 ").replace(/[ \t]+\n/g, "\n");
+  }
+
+  /* Ellipsis repair runs LAST, after the strays, so that a scanner
+     mark sitting between the dots ("?.*.") is gone by the time the
+     dots are counted and one pass is enough. This matters: the
+     practice page runs the whole cleaner again on the way out, and a
+     cleaner whose second pass changes the text would keep rewriting a
+     saved book every time it was opened.
+
+     "?.." and "!.." are an ellipsis the scanner clipped -- the
+     measured book uses "..." 7,600 times and has 19 "?..", 25 "!.."
+     and 100 "word..". The negative lookahead is what keeps a real
+     "?..." and any longer run of dots untouched. */
+  s = s.replace(/([?!])\.\.(?!\.)/g, (_m, p) => { counts.ellipsis++; return p + "..."; });
+  s = s.replace(/([\p{L}\p{N}])\.\.(?!\.)/gu, (_m, p) => { counts.ellipsis++; return p + "..."; });
+
+  const LABELS = {
+    guillemets: 'Guillemets (« », << >>) turned into "',
+    quotes: "Other quote look-alikes turned into \" or '",
+    ellipsis: 'Clipped ellipsis repaired ("?.." became "?...")',
+    strays: "Stray scanner marks removed (* ^ | \\ ~ • ° < >)",
+  };
+  const changes = Object.keys(LABELS)
+    .filter((id) => counts[id] > 0)
+    .map((id) => ({ id, label: LABELS[id], count: counts[id] }));
+  const total = changes.reduce((n, c) => n + c.count, 0);
+  return { text: s, total, changes };
+}
+
+export function cleanOcrNoise(input) {
+  return ocrNoiseReport(input).text;
+}
+
+/* The display-side decision, in one place so the practice page and the
+   gate cannot disagree about it.
+
+   Cleanup runs on import AND on display, so a book already sitting in
+   this browser is repaired without being re-imported. That is only
+   safe if the user's "no, leave it alone" survives to the display
+   path -- otherwise switching cleanup off at import time would be
+   silently undone the moment they pressed Type.
+
+   A record saved before this existed has no `clean` field at all, and
+   `undefined` has to mean "clean it": those are exactly the imports
+   that are full of scanner junk right now. Only an explicit
+   `clean: false` opts out. */
+export function cleanForDisplay(text, item) {
+  if (item && item.clean === false) return String(text || "");
+  return cleanOcrNoise(text);
+}
+
+/* sanitize(raw, { clean })
+
+   `clean` defaults to true: the OCR cleanup is part of the normal
+   import path. Pass `{ clean: false }` when the user has switched the
+   import preview's checkbox off, and store that on the record (see
+   saveText) so the display path honours the same choice. */
+export function sanitize(raw, { clean = true } = {}) {
   let s = String(raw || "");
   // Strip script/style blocks entirely
   s = s.replace(/<script[\s\S]*?<\/script>/gi, "");
@@ -122,6 +342,8 @@ export function sanitize(raw) {
   s = s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
   // Reduce whitespace and invisibles to what a keyboard can produce.
   s = normalizeTypeable(s);
+  // …then the scanner debris, unless the user asked us not to.
+  if (clean) s = cleanOcrNoise(s);
   // Trim only. Truncation used to happen here and silently -- a 900 KB
   // PDF became 200 KB with nothing to tell the user their book had been
   // cut off two thirds of the way through. saveText decides now, and
@@ -191,8 +413,8 @@ export async function getSegments(id) {
   }
 }
 
-export async function saveText({ title, raw, meta, sample, sampleVersion }) {
-  const content = sanitize(raw);
+export async function saveText({ title, raw, meta, sample, sampleVersion, clean = true }) {
+  const content = sanitize(raw, { clean });
   if (!content) throw new Error("Empty after sanitization");
 
   const useIdb = idbSupported();
@@ -241,6 +463,13 @@ export async function saveText({ title, raw, meta, sample, sampleVersion }) {
     // imported corpus items.
     meta: meta || null,
   };
+  /* Only written when it is false. Every record saved before this
+     existed lacks the field, and the display path reads a missing
+     field as "yes, clean it" -- which is what repairs an import that
+     is already sitting in this browser full of scanner junk. Writing
+     `clean: true` would be noise in every index record and would make
+     "old record" and "opted in" indistinguishable. */
+  if (clean === false) item.clean = false;
   // The bundled sample. Marked so the list can label it, so deleting it
   // can be remembered, and so a later build can tell that the copy in
   // this browser is out of date. See engine/custom-sample.js.

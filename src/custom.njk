@@ -22,6 +22,15 @@ description: "Drop a .txt, .md, .epub, or .pdf file or paste a chapter. Whole bo
     <label for="paste-text">Or paste text</label>
     <textarea id="paste-text" placeholder="Paste any text here…"></textarea>
   </div>
+  <div class="ocr-panel" id="ocr-panel" hidden>
+    <p class="ocr-panel__lead" id="ocr-summary"></p>
+    <ul class="ocr-panel__list" id="ocr-changes"></ul>
+    <label class="ocr-panel__toggle">
+      <input type="checkbox" id="ocr-clean" checked>
+      <span>Clean up OCR noise</span>
+    </label>
+    <p class="ocr-panel__hint">Untick to keep the file exactly as it came — here, and every time you type it.</p>
+  </div>
   <p class="custom-form__notice" id="paste-notice" hidden></p>
   <div class="custom-form__row">
     <button type="button" class="btn btn--primary" id="paste-save">Save text</button>

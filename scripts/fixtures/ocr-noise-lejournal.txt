@@ -1,0 +1,77 @@
+# Real scanner output, for scripts/check-ocr-cleanup.mjs.
+#
+# Every passage below was extracted from a scanned PDF of Octave
+# Mirbeau's "Le Journal d'une femme de chambre" (1900, public domain)
+# by running the file through src/assets/js/engine/import-parsers.js
+# parseFile() in a browser -- the real import path, pdf.js and all.
+# The whole book comes out as 677,109 characters; these are the
+# passages that carry the noise, kept small so the gate stays fast and
+# needs no PDF, no network and no server.
+#
+# Do not tidy these by hand. They are evidence. The garbled words
+# ("étou*nement", "|énéreux", "Avex") are what the scanner produced,
+# and the point of the suite is what the cleaner does to them.
+#
+# Format: a line "### name", then the passage, until the next "###".
+# Passages never start or end with whitespace; "#" never occurs in the
+# book's text, so a comment line cannot be confused with one.
+
+### reported
+il me l'adressait... Pourquoi
+me demandez-vous ça?... C'est un peu bête ce
+que vous me demandez-là, mon gros père,
+»Avex?..*
+10 LE JOURNAL D'UNE FEMME DE CHAMBRE
+Il me poussa du coude
+
+### guillemets
+m'appeler par mon
+nom, au lieu de dire, tout le temps : « ma fille »
+par ci... « ma fille » par là, sur ce ton de domination blessante, qui décourage
+
+### doubled-angle
+refermer, puis, l'eau ruisseler dans
+le tub des « Ah 1 », des << Ohl », des « Fuuiil »,
+des « Brrr! » que la surprise de l'eau
+
+### star-splits-word
+obstinée dans son rêve, pendant que Mon*
+sieur, sous la lampe de la bibliothèque, alignait
+des chiffres
+
+### tilde-splits-word
+les coucous aont on fait des pelotes jau~
+nés, et les ruisseaux qui chantent sur les cailloux
+
+### bullet-line-start
+idée de
+placer la lingerie, où je dois travailler, sous l«s
+•ombles, à côté de nos chambres. Et des placards,
+•t des armoires,
+
+### caret-welded
+première fois, je fus prié de revoir le manuscrit., de le corriger^ d'en récrire quelques parties.
+Je refusai d'abord,
+
+### trademark
+juifs!... Vive le Roy!... Vive l'armée! » M™* la comtesse a menacé le gouvernement de le faire interpeller, et monsieur
+
+### angle-as-symbol
+Sans quoi, aujourd'hui, tu
+serais peut-ôtre en prison < comme ton voleur de
+père...
+Monsieur ne marchait
+
+### clipped-ellipsis
+fait, et tout était à recommencer!... Est-ce juste* cela?.. N'est-ce pas un
+abominable vol?...
+Le vol?...
+
+### degree
+sûr qu'ils peuvent aller où ils veulent.
+A quoi M°' Gouin, s'adressant plus particulièrement à Rose, ajoute
+
+### pipe-line-start
+raison de dire que c'est un homme excellent et
+|énéreux, car, s'il n'était point tel, il n'y aurait
+pas

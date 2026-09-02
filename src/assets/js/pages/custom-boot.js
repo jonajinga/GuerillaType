@@ -8,7 +8,7 @@
 
 import {
   saveText, listSaved, deleteSaved, togglePinAsLesson,
-  getSegments, segCountOf, migrateInlineToIdb,
+  getSegments, segCountOf, migrateInlineToIdb, ocrNoiseReport,
 } from "../engine/custom-text.js";
 import { ensureSample } from "../engine/custom-sample.js";
 import { parseFile } from "../engine/import-parsers.js";
@@ -22,6 +22,11 @@ const textEl = $("#paste-text");
 const notice = $("#paste-notice");
 const saveBtn = $("#paste-save");
 const list = $("#saved-list");
+const ocrPanel = $("#ocr-panel");
+const ocrSummary = $("#ocr-summary");
+const ocrChanges = $("#ocr-changes");
+const ocrClean = $("#ocr-clean");
+const ocrHint = $(".ocr-panel__hint");
 
 /* A textarea holding two million characters is a browser that stutters
    on every keypress. Show a readable head, keep the whole thing in
@@ -29,6 +34,44 @@ const list = $("#saved-list");
 const PREVIEW_CHARS = 200000;
 let pendingFull = null;
 let pendingPreview = null;
+
+/* Both readings of the imported file, each held in full: the cleaned
+   one and the one that came out of the parser. The checkbox swaps
+   which is on screen, and swapping has to move pendingFull and
+   pendingPreview with it -- they are what the save button actually
+   reads. Leaving them pointing at the other variant is how a 600-page
+   book would silently save as its first 200,000 characters.
+
+   Set on the FILE path only. A pasted text has no second reading --
+   the box holds the original and stays holding it -- so `variants`
+   staying null is how the checkbox handler below knows not to rewrite
+   what someone is typing into. */
+let variants = null;
+let cleanChoice = true;
+/* The last value this file put into the textarea. The input listener
+   below treats any other value as a deliberate edit by the user, so
+   every programmatic write has to update this.
+
+   null, not "", and it goes back to null after a save. "" is a value a
+   user can produce -- select all, delete -- and while this held "" the
+   listener read that edit as its own write and returned early, so
+   emptying the box left the preview panel on screen describing text
+   that was no longer there. A sentinel no user input can equal cannot
+   collide with one. */
+let shownValue = null;
+
+/* A paste is an import too. The file path above shows what the cleanup
+   would do before anything is saved; text pasted or typed into the box
+   used to get the same cleanup with no panel and no way to refuse it.
+
+   The textarea's "input" event is the only signal there is -- there is
+   no event for "text was dropped into the box", and someone can type
+   the same characters a scanner produced -- so it drives the scan.
+   Debounced, because the cleaner walks the whole string and a paste of
+   a whole book arrives as one input event followed by however many
+   keystrokes the user adds next. */
+const PASTE_SCAN_MS = 400;
+let pasteTimer = null;
 
 const nf = new Intl.NumberFormat();
 
@@ -42,6 +85,138 @@ function clearPending() {
   pendingFull = null;
   pendingPreview = null;
   setNotice("");
+}
+
+/* Put one variant of the text on screen, long or short, and record
+   what we wrote so the edit detector does not mistake it for typing. */
+function showText(text) {
+  if (text.length > PREVIEW_CHARS) {
+    pendingFull = text;
+    pendingPreview = text.slice(0, PREVIEW_CHARS);
+    textEl.value = pendingPreview;
+    setNotice(
+      `Previewing the first ${nf.format(PREVIEW_CHARS)} characters of ${nf.format(text.length)}. ` +
+      `The whole text is saved — the box just does not need to hold it all. Edit the preview and only the edited version is saved.`
+    );
+  } else {
+    pendingFull = null;
+    pendingPreview = null;
+    textEl.value = text;
+    setNotice("");
+  }
+  shownValue = textEl.value;
+}
+
+function hideOcrPanel() {
+  if (!ocrPanel) return;
+  ocrPanel.hidden = true;
+  // Which import the panel described goes with it, so nothing can read
+  // a stale source off a panel that is not on screen.
+  delete ocrPanel.dataset.source;
+}
+
+/* A fresh file, or a save that finished: forget both variants and go
+   back to cleaning by default.
+
+   Cancelling the pending paste scan is load-bearing, not tidiness.
+   ingestFile() calls this and then writes the parsed file into the
+   textarea; a scan scheduled by the user's last keystroke that fired
+   after that would have re-read the box, found the FILE's text in it,
+   and replaced the file's report with a paste report -- two code paths
+   describing the same panel, with only one of them holding `variants`.
+   One timer, cancelled wherever the panel is torn down. */
+function resetOcr() {
+  clearTimeout(pasteTimer);
+  pasteTimer = null;
+  variants = null;
+  cleanChoice = true;
+  if (ocrClean) ocrClean.checked = true;
+  hideOcrPanel();
+}
+
+/* What the cleanup did (a file: the box already holds the cleaned
+   text) or what it is about to do (a paste: the box still holds the
+   user's own text and is not touched), in the user's words, with an
+   off-switch.
+
+   Nothing is shown when nothing was changed -- a panel saying "0
+   changes" is just noise on a clean .txt file, and the same reasoning
+   applies letter for letter to a pasted chapter with no scanner marks
+   in it. Both paths go through here so they cannot drift apart. */
+const PANEL_COPY = {
+  file: {
+    lead: (n) =>
+      `${nf.format(n)} ${n === 1 ? "mark" : "marks"} in this file looked like ` +
+      `scanning noise rather than the book, and ${n === 1 ? "was" : "were"} cleaned up:`,
+    hint: "Untick to keep the file exactly as it came — here, and every time you type it.",
+  },
+  paste: {
+    lead: (n) =>
+      `${nf.format(n)} ${n === 1 ? "mark" : "marks"} in this text ${n === 1 ? "looks" : "look"} like ` +
+      `scanning noise rather than writing, and will be cleaned up when you save:`,
+    hint: "Untick to save the text exactly as you pasted it — here, and every time you type it.",
+  },
+};
+
+function renderOcrPanel(report, source) {
+  if (!ocrPanel || !ocrSummary || !ocrChanges) return;
+  if (!report.total) { hideOcrPanel(); return; }
+  const copy = PANEL_COPY[source] || PANEL_COPY.file;
+  ocrSummary.textContent = copy.lead(report.total);
+  ocrChanges.innerHTML = report.changes
+    .map((c) => `<li>${htmlEscape(c.label)} <span class="ocr-panel__n">· ${nf.format(c.count)}</span></li>`)
+    .join("");
+  // "keep the file as it came" is the wrong sentence about a paste.
+  if (ocrHint) ocrHint.textContent = copy.hint;
+  // Which import the panel is describing. Read by scripts/check-ocr-cleanup.mjs.
+  ocrPanel.dataset.source = source === "paste" ? "paste" : "file";
+  ocrPanel.hidden = false;
+}
+
+function schedulePasteScan() {
+  clearTimeout(pasteTimer);
+  pasteTimer = setTimeout(runPasteScan, PASTE_SCAN_MS);
+}
+
+/* What the cleanup would do to whatever is in the box right now.
+
+   This path never writes to the textarea, and that is deliberate. The
+   box holds text the user is editing: swapping it for a cleaned copy
+   would move their caret to the end mid-sentence, and for a paste
+   longer than PREVIEW_CHARS showText() would stash it as
+   pendingFull/pendingPreview -- so the very next keystroke would drop
+   the stash and save a 200,000-character fragment of what they pasted.
+   The upload path can swap safely because the text there came from a
+   file and nobody is typing into it.
+
+   So the panel says what will happen at save time, and the save
+   honours cleanChoice. What is in the box IS the original. */
+function runPasteScan() {
+  // Also called straight from the save button, so cancel the pending
+  // timer rather than only forgetting the handle -- a stray timer that
+  // fires after a save would scan a box that has already been emptied.
+  clearTimeout(pasteTimer);
+  pasteTimer = null;
+  const text = textEl.value;
+  const report = text.trim()
+    ? ocrNoiseReport(text)
+    : { text: "", total: 0, changes: [] };
+
+  if (!report.total) {
+    /* Nothing to clean means there is nothing to decide, so there is
+       nothing to remember: put the off-switch back to its default.
+       Carrying a stale "no" here would write clean:false onto a record
+       with no scanner noise in it, and that flag is permanent -- it
+       turns the display-side repair off for that text for good.
+
+       While a panel IS on screen the tick is the user's answer and is
+       never touched: they can type on with cleanup switched off. */
+    cleanChoice = true;
+    if (ocrClean) ocrClean.checked = true;
+    hideOcrPanel();
+    return;
+  }
+  renderOcrPanel(report, "paste");
 }
 
 upload.addEventListener("click", () => file.click());
@@ -60,14 +235,52 @@ file.addEventListener("change", async (e) => {
 
 // Editing the preview by hand means the user meant the edit, so drop
 // the stashed full text and save exactly what is in the box.
+//
+// Setting textarea.value from script does not fire "input", but the
+// checkbox below rewrites the box and the comparison must survive it
+// anyway: shownValue is updated by every programmatic write, so a
+// swapped-in variant is never mistaken for typing. Getting that wrong
+// drops pendingFull and saves a whole book as its 200,000-character
+// preview.
 textEl.addEventListener("input", () => {
-  if (pendingFull && textEl.value !== pendingPreview) clearPending();
+  if (textEl.value === shownValue) return;
+  if (pendingFull) clearPending();
+  // The file's report described the file, not this edit, and its two
+  // full readings are about text that is no longer in the box. Drop
+  // both, and take the panel down with them so the upload's counts
+  // cannot be read as describing what was just typed. The tick itself
+  // survives: it is the user's answer about their own text, and the
+  // save below still honours it.
+  //
+  // A PASTE panel is left up on purpose. It is refreshed by the scan
+  // below within PASTE_SCAN_MS, and hiding it on every keystroke would
+  // make it strobe while someone types.
+  if (variants) { variants = null; hideOcrPanel(); }
+  schedulePasteScan();
 });
+
+if (ocrClean) {
+  ocrClean.addEventListener("change", () => {
+    cleanChoice = ocrClean.checked;
+    /* Only an uploaded file has a second reading to swap in, and
+       `variants` is set on that path alone. showText() moves
+       pendingFull/pendingPreview with the swap, which is what keeps a
+       600-page upload saving in full after the box is toggled.
+
+       A pasted text deliberately has no variants: the box already
+       holds the original, and rewriting it here would move the caret
+       and, past PREVIEW_CHARS, stash a preview in place of the whole
+       paste. Toggling a paste changes cleanChoice and nothing else. */
+    if (!variants) return;
+    showText(cleanChoice ? variants.cleaned : variants.original);
+  });
+}
 
 async function ingestFile(f) {
   const ext = (f.name.match(/\.[^.]+$/) || [""])[0].toLowerCase();
   const isHeavy = ext === ".epub" || ext === ".pdf";
   clearPending();
+  resetOcr();
   if (isHeavy) toast(`Parsing ${ext.toUpperCase().slice(1)}…`);
   upload.dataset.busy = "true";
   try {
@@ -75,17 +288,15 @@ async function ingestFile(f) {
       toast(`Reading ${unit} ${nf.format(done)} of ${nf.format(total)}…`);
     });
     titleEl.value = title || f.name.replace(/\.[^.]+$/, "");
-    if (text.length > PREVIEW_CHARS) {
-      pendingFull = text;
-      pendingPreview = text.slice(0, PREVIEW_CHARS);
-      textEl.value = pendingPreview;
-      setNotice(
-        `Previewing the first ${nf.format(PREVIEW_CHARS)} characters of ${nf.format(text.length)}. ` +
-        `The whole text is saved — the box just does not need to hold it all. Edit the preview and only the edited version is saved.`
-      );
-    } else {
-      textEl.value = text;
-    }
+    /* Scanned books arrive full of characters the book never had. Show
+       what the cleanup would do before it is saved, and let the user
+       turn it off -- their file, their call. */
+    const report = ocrNoiseReport(text);
+    variants = { cleaned: report.text, original: text };
+    cleanChoice = true;
+    if (ocrClean) ocrClean.checked = true;
+    showText(report.text);
+    renderOcrPanel(report, "file");
     const kb = (f.size / 1024).toFixed(1);
     toast(`Loaded ${kb} KB · ${nf.format(text.length)} characters — review and save.`);
   } catch (err) {
@@ -96,12 +307,20 @@ async function ingestFile(f) {
 }
 
 saveBtn.addEventListener("click", async () => {
+  /* Saving within PASTE_SCAN_MS of the last keystroke would otherwise
+     save against a choice the panel had not caught up with. Run the
+     pending scan now so what is saved is what the panel says. */
+  if (pasteTimer) runPasteScan();
   const title = titleEl.value.trim();
   const raw = (pendingFull && textEl.value === pendingPreview) ? pendingFull : textEl.value;
   if (!raw.trim()) { toast("Paste or upload some text first.", "bad"); return; }
   saveBtn.disabled = true;
   try {
-    const item = await saveText({ title: title || "Untitled", raw });
+    /* clean travels with the text. saveText writes clean:false onto the
+       index record, and the practice page reads it back -- without
+       that, cleanup on the display path would quietly undo the answer
+       the user just gave here. */
+    const item = await saveText({ title: title || "Untitled", raw, clean: cleanChoice });
     // Truncation and eviction used to happen in silence. If someone's
     // 900 KB book became 512 KB, they need to hear it now rather than
     // discover it two hours of typing later.
@@ -120,7 +339,9 @@ saveBtn.addEventListener("click", async () => {
     }
     titleEl.value = "";
     textEl.value = "";
+    shownValue = null;
     clearPending();
+    resetOcr();
     render();
   } catch (e) {
     toast(e.message || "Couldn't save text", "bad");
