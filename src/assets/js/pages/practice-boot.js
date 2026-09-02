@@ -226,6 +226,14 @@ async function buildText() {
   state._customMeta = null;
   state._customTitle = null;
   state._customLessonId = null;
+  // The segment shape of a custom text. Reset for the same reason as
+  // the line above: the mode bar can switch modes without a page load,
+  // and a stale _customSegCount would leave the custom reader header
+  // (and the results "Segment N of M") describing the previous text.
+  // Only the segmented branch of the custom target re-sets it, which
+  // is what makes its presence a reliable "this is a real import".
+  state._customSegCount = null;
+  state._customLastSeg = null;
   state._pageParaIds = null;
   state._pageParaEnds = null;
   state._totalPages = null;
@@ -778,6 +786,7 @@ function startEngine(target) {
   // Layout classes were already applied before engine.start() so the
   // caret is positioned correctly within the padded reader card.
   renderBookReaderHeader();
+  renderCustomHeader();
   renderBackLink();
   renderAttributionHeader();
 
@@ -1174,6 +1183,26 @@ function renderBackLink() {
   el.textContent = label;
 }
 
+/* Is the active session a user-imported custom text — one that was
+   split into segments and is read a segment at a time?
+
+   Corpus content (quote / idiom / parable / poem) is stored through the
+   exact same custom pipeline, so `state.mode === "custom"` alone does
+   not tell the two apart. The difference is that the corpus branch of
+   targetFor() returns the whole piece and never sets _customSegCount,
+   while the segmented branch always does. So the presence of a segment
+   count IS the distinction, and buildText() clears it up front so a
+   leftover value from a previous session cannot fake one.
+
+   This predicate decides which of the two headers owns the space above
+   the typing surface: true → renderCustomHeader, false →
+   renderAttributionHeader. Exactly one of them ever paints. */
+function isSegmentedCustom() {
+  return state.mode === "custom"
+    && typeof state._customSegCount === "number"
+    && state._customSegCount > 0;
+}
+
 /* Attribution header — sits above the typing surface for quote /
    parable / poem / idiom / custom-with-meta sessions. Shows the
    work title, author, year, and any meaning/source info. Removes
@@ -1184,7 +1213,13 @@ function renderAttributionHeader() {
   const meta = state._customMeta;
   const customTitle = state._customTitle;
   // Skip when we already have the dedicated book reader header showing.
-  if (state.mode === "book" || !meta || !(meta.author || meta.year || meta.source || meta.meaning || customTitle)) {
+  // Same for a segmented import: renderCustomHeader owns that case and
+  // already carries the title, author and source, so painting here too
+  // would stack two headers over the same text. The bundled sample is
+  // exactly such a text (meta.kind "sample", with author + year), so
+  // this is not a hypothetical.
+  if (state.mode === "book" || isSegmentedCustom()
+      || !meta || !(meta.author || meta.year || meta.source || meta.meaning || customTitle)) {
     if (existing) existing.remove();
     return;
   }
@@ -1232,6 +1267,56 @@ function renderBookReaderHeader() {
     const wrap = document.createElement("header");
     wrap.id = id;
     wrap.className = "tt-book-header";
+    wrap.innerHTML = html;
+    stage.parentNode.insertBefore(wrap, stage);
+  }
+}
+
+/* Custom-text reader header — the same shape the library books get,
+   for a text the user imported themselves.
+
+   Before this, an imported PDF showed the segment body with nothing
+   above it but the back link: no title, and no way to tell segment 4
+   of 380 from segment 300. renderAttributionHeader only fired when the
+   text carried author/year/source metadata, which an import never has.
+
+   Mirrors renderBookReaderHeader deliberately — eyebrow, title,
+   counter — so the two readers feel like the same product.
+
+   The counter is suppressed for a single-segment text. "Segment 1 of 1"
+   over a short pasted paragraph is a label for navigation that does not
+   exist; the results screen already takes the same line, showing its
+   "Segment N of M" progress only when _customSegCount > 1. The title
+   and eyebrow still show, which is the part the user asked for.
+
+   Author / source lines appear when the text has metadata (the bundled
+   sample does) so standing renderAttributionHeader down loses nothing. */
+function renderCustomHeader() {
+  const id = "tt-custom-header";
+  const existing = document.getElementById(id);
+  if (!isSegmentedCustom()) {
+    if (existing) existing.remove();
+    return;
+  }
+  const total = state._customSegCount;
+  // customSeg is 0-based and already clamped by targetFor(); clamp again
+  // so a header can never read "Segment 0 of 12" or overshoot the end.
+  const segNum = Math.min(Math.max(0, state.customSeg || 0), total - 1) + 1;
+  const meta = state._customMeta || {};
+  const cite = [meta.author, meta.year].filter(Boolean).join(" · ");
+  const html = `
+    <p class="tt-custom-eyebrow">Custom text</p>
+    <h2 class="tt-custom-title">${htmlEscape(state._customTitle || "Untitled")}</h2>
+    ${cite ? `<p class="tt-custom-author">${htmlEscape(cite)}</p>` : ""}
+    ${meta.source ? `<p class="tt-custom-source">from <em>${htmlEscape(meta.source)}</em></p>` : ""}
+    ${total > 1 ? `<p class="tt-custom-seg">Segment ${segNum} of ${total}</p>` : ""}
+  `;
+  if (existing) {
+    existing.innerHTML = html;
+  } else {
+    const wrap = document.createElement("header");
+    wrap.id = id;
+    wrap.className = "tt-custom-header";
     wrap.innerHTML = html;
     stage.parentNode.insertBefore(wrap, stage);
   }

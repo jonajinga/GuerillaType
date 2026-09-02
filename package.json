@@ -48,7 +48,8 @@
     "game-powerups": "node scripts/check-game-powerups.mjs",
     "punctuation-storm": "node scripts/check-punctuation-storm.mjs",
     "ocr-cleanup": "node scripts/check-ocr-cleanup.mjs",
-    "typeable-census": "node scripts/check-typeable-census.mjs"
+    "typeable-census": "node scripts/check-typeable-census.mjs",
+    "custom-header": "node scripts/check-custom-header.mjs"
   },
   "dependencies": {
     "@11ty/eleventy": "^3.0.0",
