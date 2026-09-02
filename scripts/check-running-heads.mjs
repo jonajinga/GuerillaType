@@ -25,11 +25,14 @@
    above stripRunningLines) and those assertions have been rewritten to
    the correct behaviour. What each one now says:
 
-     - B: on the real 530-page scan, 112 lines are removed and every one
-       is a running head (106) or a bare arabic folio (6). Before the
-       fix it removed 22, ten of them roman chapter numbers, and not one
-       of them the head. The head's commonest spelling reaches 106 pages
-       and the old bar was 132, so none of it went.
+     - B: on the real 530-page scan, 455 lines are removed and every one
+       is a running head (449) or a bare arabic folio (6). Before any of
+       this it removed 22, ten of them roman chapter numbers, and not
+       one of them the head. 445 pages carried a head; 27 still do.
+     - E3: the fuzzy clustering that got it from 340 to 27, and the two
+       rules that stop it eating prose — a cluster may only be opened by
+       a key that is already frequent, and a skeleton under twelve
+       characters is matched exactly.
      - B, C2, E: roman numerals are no longer folios unless the document
        demonstrably paginates in them. IV VI VIII IX X XI XIII XIV XV
        XVI survive, and so do "Il", "did", "mix", "civil", "mild",
@@ -47,10 +50,11 @@
      - D2, last check: norm() erases digits before comparing, so a short
        document whose every page opens with a dated entry loses its
        dates. The real book escapes it only on the 15% share.
-     - B: 340 of the 530 pages still keep a head, because scanner noise
-       splits it across roughly fifty spellings and no single one of
-       those reaches the bar. Fixing that needs fuzzy matching, which is
-       a different change.
+     - B: 27 of the 530 pages still carry the word. Four of those MUST —
+       they are sentences of the novel containing "journal" — and three
+       are the half-title "LE JOURNAL", too short a skeleton to cluster.
+       The remaining twenty are heads mangled past the 80% bar. B
+       asserts all of this, including that the four sentences survive.
      - K: chunk() inserts a space after a Unicode ellipsis in Latin text.
        "He waited...and waited." (with U+2026) comes back with a space
        that was not in the source. Untouched by this fix.
@@ -161,11 +165,14 @@ eq(repAfter.slice(repAfter.indexOf("que vous me demandez"), repAfter.indexOf("qu
   "after: on this seven-page run the head is gone and the sentence reads straight through");
 
 eqJ(removedFrom(REPORTED),
-  ["10 LE JOURNAL D'UNE FEMME DE CHAMBRE", "14 LE JOURNAL D'UNE FEMME DE CHAMBRE", "LE JOURNAL D'UNE FEMME DE CHAMBRE 15"],
-  "…and the only lines it removed here are three spellings of that head");
+  ["LE JOURNAL D'UNE FEMME DE CHAMBRE t", "10 LE JOURNAL D'UNE FEMME DE CHAMBRE",
+   "LE JOURNAL DUNE FEMME DE CHAMBtlÈ 11", "la LE JOURNAL D'UNE FEMME DE CHAMBRK",
+   "LE JOURNAL DUNE FEMME DE CHAMBRE 13", "14 LE JOURNAL D'UNE FEMME DE CHAMBRE",
+   "LE JOURNAL D'UNE FEMME DE CHAMBRE 15"],
+  "…and the lines it removed are all seven spellings of that head, one per page — no two of them spelt alike");
 
-chk(repBefore.length - repAfter.length === 111,
-  "exactly 111 characters left the document — the three head lines and nothing else",
+chk(repBefore.length - repAfter.length === 257,
+  "exactly 257 characters left the document — the seven head lines and nothing else",
   `delta ${repBefore.length - repAfter.length}`);
 
 console.log("\n## A2. The de-hyphenation claim in the commit message is not this change's doing");
@@ -213,17 +220,61 @@ const strippedEdges = stripRunningLines(EDGES);
 chk(edgeHas(strippedEdges, DOMINANT) === 0,
   "after stripping, not one of those 106 is left",
   `${edgeHas(strippedEdges, DOMINANT)}`);
-chk(strippedEdges.filter((p) => /JOURNAL/i.test(String(p))).length === 340,
-  "STILL UNFIXED: 340 pages keep a head in one of the misspelt forms — no single one of them reaches 79",
-  `${strippedEdges.filter((p) => /JOURNAL/i.test(String(p))).length}`);
+const RESIDUE = strippedEdges.filter((p) => /JOURNAL/i.test(String(p)));
+chk(RESIDUE.length === 27,
+  "27 pages of 530 still carry the word — down from 445. Exact matching alone left 340",
+  `${RESIDUE.length}`);
+/* And what those 27 are. Four of them MUST be there: they are ordinary
+   sentences of the book that happen to contain "journal", and a
+   stripper that took them would be eating the novel. The other 23 are
+   three half-titles ("LE JOURNAL", a 9-character skeleton, matched
+   exactly) and twenty heads mangled past the 80% bar. */
+const PROSE = [
+  "Ce livre que je publie sous ce titre : Le Journal",
+  "osé, moi, ignorante de tout, écrire ce journal, c'est",
+  "Sans hâte, sans sursaut, Joseph lâche le journal",
+  "Il circule en ville un journal de Rouen où il",
+];
+const residueLines = RESIDUE.map((p) => String(p).split("\n").map((l) => l.trim()).find((l) => /JOURNAL/i.test(l)));
+chk(PROSE.every((l) => residueLines.includes(l)),
+  "…and four of the 27 are real sentences containing the word, which must never be swept up",
+  PROSE.filter((l) => !residueLines.includes(l)).join(" | ") || "all four still there");
+chk(residueLines.filter((l) => l === "LE JOURNAL").length === 3,
+  "…three more are the half-title \"LE JOURNAL\", too short a skeleton to match fuzzily");
 
 const removedReal = removedFrom(EDGES);
-chk(removedReal.length === 112, "112 lines leave the book", `${removedReal.length}`);
-chk(removedReal.filter((l) => /JOURNAL/i.test(l)).length === 106,
-  "106 of them are the running head this was written to remove",
+chk(removedReal.length === 455, "455 lines leave the book", `${removedReal.length}`);
+const bareFolio = (l) => /^[\s.,\-–—]*\d{1,4}[\s.,\-–—]*$/.test(l);
+eqJ(removedReal.filter(bareFolio), ["111", "7", "13", "5,,", "11", "2364"],
+  "six of them are bare arabic folios — real page numbers, all of them");
+chk(removedReal.filter((l) => !bareFolio(l)).length === 449,
+  "the other 449 are the running head", `${removedReal.filter((l) => !bareFolio(l)).length}`);
+chk(removedReal.filter((l) => !bareFolio(l)).every((l) => /CHAMB|FEMM|JOURN/i.test(l)),
+  "…and every one of the 449 still carries an undamaged piece of the title — CHAMB, FEMM or JOURN. No sentence of the novel is in there",
+  JSON.stringify(removedReal.filter((l) => !bareFolio(l) && !/CHAMB|FEMM|JOURN/i.test(l))));
+chk(removedReal.filter((l) => /JOURNAL/i.test(l)).length === 420,
+  "420 of the 449 still contain the literal string \"JOURNAL\"",
   `${removedReal.filter((l) => /JOURNAL/i.test(l)).length}`);
-eqJ(removedReal.filter((l) => !/JOURNAL/i.test(l)), ["111", "7", "13", "5,,", "11", "2364"],
-  "…and every other one is a bare arabic folio — six of them, all real page numbers");
+/* And the 29 that do not. These are the whole point of the clustering:
+   exact matching could never have found them, and they are evidence —
+   read them and judge whether any is a sentence of the novel. */
+eqJ(removedReal.filter((l) => !bareFolio(l) && !/JOURNAL/i.test(l)), [
+  "• LE JOUHNÀL D'UNE FEMME DE CHAMBRE", "24 LE JOUKNAL D'UNE FEMME DE CHAMBRE",
+  "68 LE JOI'RNAL DUNE FEMME DE CHAMBRE", "n LK /OURNAL DUNE FEMME DE CHAMBRE",
+  "LE JOURNAk. J'UNE FEMME DE CHAMBRE 97", "LÉ JOUL.>AL D'UNE FEMME DE CHAMBRE 141",
+  "U2 LE JOLRxNAL DUNE FExMME DE CHAMBRE", "I.K JOUKNAL DUNE FEMME DE CHAMBRE |t|",
+  "14» LE JUURNAL DUNE FEMME DE CHAMBRÉ", "LE JOURNAI D'UNE FEMME DE CHAMBRE 4««",
+  "LE JOIIRNAI- DUNK FEMME DE CHAMBRE Î4l", "LE JOLRNAL D'UNE FEMME DE CHAMBRE 245",
+  "LE JOL'K.NAL D UNE FEMME DE CHAMBRE 215", "LE JOUKNAL D'UNE FEMME DE CHAMBRE 'M",
+  "308 LE JOL'KNAL D'UNE FEMME DE CHAMBRE", "LE JUURNAL DUNE FEMME DE CtJAMBRË 3H",
+  "LE JOURNAr. D'UNE FEMME DE CHAMBRE 31.?", "328 LE JOURNAF. DUNE FEMME DE CHAMBRE",
+  "LK JOLHNAL DUNE FEMME DE CHAMBRE 38^", "390 LE JOUKiNAL DUNE FEMME DE CHAMBRE",
+  "LE JOUflNAÎ. D'UNE FEMM|E DE CHAMBRE Ml", "424 LE JOURI^AI. D UNE FEMME DE r.HAMBRR",
+  "442 LE JOURNA L D'UNE FEMME DE CHAMBRE", "LE JUUKNAL D UNE FEMME DE CHAMBRE iTa",
+  "4fl. LE JOUKNAL DUNE FEMME DE CHAMBRE", "LE J(5t]RNAL D'UNE FEMME DE CHAMBRE 493",
+  "LÉ /bURNAL D'UNE FExMME DE CHAMBRE 490", "4% Lt JOUHNAL D'UNE FEMME DE CHAMBhÈ",
+  "L8 JODRNAL D'UNE FEMME DE CHAMBRE 50*",
+], "…and these are the 29 the clustering caught that the literal string never would");
 
 /* The roman half. isFolio() used to match any line built only from the
    letters i v x l c d m, so these all went. */
@@ -257,17 +308,24 @@ console.log("\n## C. What must SURVIVE — the anti-vacuity half");
 
 const repPagesAfter = stripRunningLines(REPORTED);
 chk(repPagesAfter.length === REPORTED.length, "no page is dropped");
-chk(removedFrom(REPORTED).length === 3, "exactly three lines leave the seven-page run, not more");
-eq(repPagesAfter[0], REPORTED[0], "a page with no running head is returned byte-identical");
+chk(removedFrom(REPORTED).length === 7, "exactly seven lines leave the seven-page run, not more");
+/* Every page of this run carries a head, so there is no untouched page
+   to compare. Instead: the page loses its first line and keeps all
+   thirty others, in order and byte for byte. */
+chk(repPagesAfter[0].split("\n").length === REPORTED[0].split("\n").length - 1,
+  "page one loses exactly one line of its thirty-one",
+  `${REPORTED[0].split("\n").length} -> ${repPagesAfter[0].split("\n").length}`);
+eq(repPagesAfter[0], REPORTED[0].split("\n").slice(1).join("\n"),
+  "…the head, and the other thirty come back byte-identical and in order");
 chk(repAfter.includes("Farceuse va... sacrée farceuse !"), "ordinary prose lines are untouched");
 chk(repAfter.includes("»Avex?..*"), "…including the garbled ones — this is not an OCR cleaner");
-chk(repAfter.split("\n").length === repBefore.split("\n").length - 3,
-  "the line count drops by three and no more",
+chk(repAfter.split("\n").length === repBefore.split("\n").length - 7,
+  "the line count drops by seven and no more",
   `${repBefore.split("\n").length} -> ${repAfter.split("\n").length}`);
-chk(removedFrom(EDGES).length === 112, "and 112 lines from the 530-page corpus, not 22,000");
+chk(removedFrom(EDGES).length === 455, "and 455 lines from the 530-page corpus, not 22,000");
 chk(strippedEdges.length === EDGES.length, "…across the same 530 pages, none of them dropped");
-chk(EDGES.join("").length === 86016 && strippedEdges.join("").length === 81997,
-  "the 530-page corpus goes from 86,016 characters to 81,997 — 4,019 gone, not 86,016",
+chk(EDGES.join("").length === 86016 && strippedEdges.join("").length === 69129,
+  "the 530-page corpus goes from 86,016 characters to 69,129 — 16,887 gone, not 86,016",
   `${EDGES.join("").length} -> ${strippedEdges.join("").length}`);
 
 console.log("\n## C2. Real chapter text keeps its heading");
@@ -280,9 +338,10 @@ eq(chapBefore.slice(chapBefore.indexOf("boude Monsieur"), chapBefore.indexOf("bo
 eq(chapAfter.slice(chapAfter.indexOf("boude Monsieur"), chapAfter.indexOf("boude Monsieur") + 45),
   "boude Monsieur...\nIV\n26 septembre.\nDepuis une", "after: byte-identical — the chapter number stays, and so does the date");
 eqJ(removedFrom(CHAP),
-  ["LE JOURNAL D'UNE FEMME DE CHAMBRE 87", "90 LE JOURNAL D'UNE FEMME DE CHAMBRE",
-   "LE JOURNAL D'UNE FEMME DE CHAMBRE . »("],
-  "three heads leave this run and nothing else");
+  ["LE JOURNAL D'UNE FEMME DE CHAMBRE 87", "18 LE JOURNAL DUNE FEMME DE CHAMBRE",
+   "90 LE JOURNAL D'UNE FEMME DE CHAMBRE", "LE JOURNAL D'UNE FEMME DE CHAMBRE . »(",
+   "M LE JOURNAL DUNE FEMME DE CHAMBRE"],
+  "five heads leave this run — including \"18 LE JOURNAL DUNE…\" and \"M LE JOURNAL DUNE…\", which exact matching missed — and nothing else");
 
 console.log("\n## D. The recurrence rule — what it may and may not delete");
 /* The old bar was Math.max(3, floor(pages * 0.25)): a bar on how LONG
@@ -413,6 +472,83 @@ const mixedBook = Array.from({ length: 10 }, (_, i) =>
 eqJ(removedFrom(mixedBook), ["104", "105", "106", "107", "108", "109"],
   "four roman lines against six arabic folios: the digits go, the romans stay");
 
+console.log("\n## E3. Fuzzy clustering — what it catches, and the two rules that stop it eating prose");
+/* A scanner does not spell the head the same way twice, so the keys are
+   reduced to a letters-only skeleton and clustered: a key joins a
+   cluster when at least 80% of its skeleton's characters match the
+   cluster key's. Frequency, folio and same-edge then apply to the
+   cluster. Section B is this on the real book — 445 headed pages down
+   to 27, against 340 with exact matching. Here it is in isolation. */
+
+const skeleton = (k) => k.replace(/\s+/g, "");
+const nrm = (l) => l.replace(/\d+/g, " ").replace(/[^\p{L}]+/gu, " ").trim().toLowerCase();
+function editDistance(a, b) {
+  let prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    const cur = [i];
+    for (let j = 1; j <= b.length; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    prev = cur;
+  }
+  return prev[b.length];
+}
+const budgetFor = (sk) => Math.max(1, Math.floor(sk.length * 0.2));
+
+/* One head, three spellings, none of them frequent enough on its own.
+   Twenty pages, no page numbers anywhere, so the bar is the no-folio
+   one: max(8, half of twenty) = 10. The spellings appear on 8, 6 and 6
+   pages. Every one of them is under the bar; together they are 20. */
+const SPELLINGS = ["THE MILL ON THE FLOSS", "THE MILI ON THE FLOSS", "TIIE MILL ON THE FLOSS"];
+const HEADSK = skeleton(nrm(SPELLINGS[0]));
+chk(HEADSK.length === 17 && budgetFor(HEADSK) === 3,
+  "the head's skeleton is 17 characters, so its budget is 3 edits",
+  `${HEADSK.length} / ${budgetFor(HEADSK)}`);
+chk(editDistance(HEADSK, skeleton(nrm(SPELLINGS[1]))) === 1
+  && editDistance(HEADSK, skeleton(nrm(SPELLINGS[2]))) === 2,
+  "…and the two misspellings are 1 and 2 edits from it, so both are inside it");
+const noisyBook = Array.from({ length: 20 }, (_, i) =>
+  page(i < 8 ? SPELLINGS[0] : i < 14 ? SPELLINGS[1] : SPELLINGS[2], filler(i, 1), filler(i, 2), filler(i, 3)));
+chk(Math.max(8, Math.ceil(20 * 0.5)) === 10 && [8, 6, 6].every((n) => n < 10),
+  "each spelling on its own — 8, 6 and 6 pages — is under the bar of 10");
+eqJ([...new Set(removedFrom(noisyBook))], SPELLINGS,
+  "…but clustered they are one line on twenty pages, and all three spellings go");
+chk(removedFrom(noisyBook).length === 20, "all twenty of them", `${removedFrom(noisyBook).length}`);
+
+/* THE SEED RULE, and why it is load-bearing rather than a nicety.
+   Ordinary prose at a page edge is much closer together than it looks.
+   Only a key that ALREADY recurs on max(3, 5% of pages) may open a
+   cluster; variants attach to a frequent key and never chain to each
+   other. Without that, the filler below merges into one cluster which
+   appears at both edges of every page and clears the bar, and the whole
+   document is deleted. */
+const F0 = skeleton(nrm(filler(0, 0)));
+chk(F0.length === 40 && budgetFor(F0) === 8,
+  "two lines of the filler prose have 40-character skeletons and a budget of 8 edits",
+  `${F0.length} / ${budgetFor(F0)}`);
+chk(editDistance(F0, skeleton(nrm(filler(0, 1)))) === 6
+  && editDistance(F0, skeleton(nrm(filler(1, 0)))) === 6,
+  "…and two DIFFERENT sentences of it are only 6 edits apart — inside the budget, so pairwise clustering would merge them");
+const fillerBook = Array.from({ length: 20 }, (_, i) => fillerPage(i));
+eqJ(removedFrom(fillerBook), [],
+  "twenty pages of nothing but that prose, every line of it at an edge, and not one line is deleted");
+chk(stripRunningLines(fillerBook).every((p, i) => p === fillerBook[i]),
+  "…the document comes back byte-identical, page for page");
+
+/* THE LENGTH FLOOR. A skeleton under 12 characters is matched exactly
+   and never fuzzily, because the budget's floor of 1 edit is enough to
+   merge two genuinely different short lines. Two speakers in a play,
+   nine pages each of twenty: neither reaches the bar of 10, but merged
+   they would be 18 and both would be deleted. */
+const A1 = skeleton(nrm("ANTONIO.")), A2 = skeleton(nrm("ANTONIA."));
+chk(A1.length === 7 && editDistance(A1, A2) === 1 && budgetFor(A1) === 1,
+  "\"ANTONIO.\" and \"ANTONIA.\" have 7-character skeletons one edit apart, and the budget floor is 1 — they would merge",
+  `${A1.length} / ${editDistance(A1, A2)} / ${budgetFor(A1)}`);
+chk(A1.length < 12 && A2.length < 12, "…but both are under the twelve-character floor, so they are compared exactly");
+const twoSpeakers = Array.from({ length: 20 }, (_, i) =>
+  page(i < 9 ? "ANTONIO." : i < 18 ? "ANTONIA." : filler(i, 0), filler(i, 1), filler(i, 2), filler(i, 3)));
+chk(9 < 10 && 18 >= 10, "nine pages each is under the bar of 10; merged, 18 would clear it");
+eqJ(removedFrom(twoSpeakers), [],
+  "…and neither speaker is deleted — the two names stay two names");
+
 console.log("\n## F. The under-five-page bail-out");
 /* stripRunningLines returns immediately for a document of fewer than
    five pages. Defensible for the recurrence test -- three of four pages
@@ -467,8 +603,8 @@ chk(oldFull.slice(oi, oi + 70) === "»Avex?..*\n10 LE JOURNAL D'UNE FEMME DE CHA
 chk(newFull.slice(ni, ni + 70) === "»Avex?..*\nIl me poussa du coude légèrement et, glissant\n;\nici, instant",
   "new: it is gone, and the sentence reads through",
   JSON.stringify(newFull.slice(ni, ni + 70)));
-chk(oldFull.length - newFull.length === 4045,
-  "4,045 characters leave the 530-page book — where the version before this fix removed 73, and they were the wrong 73",
+chk(oldFull.length - newFull.length === 16981,
+  "16,981 characters leave the 530-page book — where the version before any of this removed 73, and they were the wrong 73",
   `delta ${oldFull.length - newFull.length}`);
 
 console.log("\n## H. CJK — a book must stop arriving as one segment");

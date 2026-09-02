@@ -184,6 +184,36 @@ export function joinTextItems(items) {
   return out;
 }
 
+/* Letters only, no spaces: the shape of a line with the scanner's
+   punctuation and spacing damage taken off. "LE JOURNAL DUNE FEMME DE
+   CHAMBtlE 11" and "10 LE JOURNAL D'UNE FEMME DE CHAMBRE" reduce to
+   skeletons three edits apart. */
+const skeleton = (key) => key.replace(/\s+/g, "");
+
+/* Levenshtein distance, but only asked whether it is within a budget,
+   so it bails out of a row that cannot come back under it and rejects
+   on the length difference before doing any work at all. */
+function within(a, b, budget) {
+  if (Math.abs(a.length - b.length) > budget) return false;
+  let prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    const cur = [i];
+    let best = i;
+    for (let j = 1; j <= b.length; j++) {
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      if (cur[j] < best) best = cur[j];
+    }
+    if (best > budget) return false;
+    prev = cur;
+  }
+  return prev[b.length] <= budget;
+}
+
+/* A skeleton must match a cluster's on at least 80% of its characters,
+   and be at least this long before it is matched fuzzily at all. */
+const FUZZY_RATIO = 0.2;
+const FUZZY_MIN = 12;
+
 /* Drop running heads, running feet and page numbers.
 
    A scanned book repeats the book's title, the chapter title and the
@@ -248,9 +278,40 @@ export function joinTextItems(items) {
        little evidence a repeated line is furniture rather than text,
        so it has to be nearly everywhere before we believe it.
 
-   On the real scan this removes the two commonest spellings of the
-   running head -- 158 pages of it -- where the old code removed none,
-   and leaves the chapter numbers, the pronoun, and the diary dates.
+   THE SPELLING OF THE HEAD IS NOT STABLE. Comparing normalised strings
+   exactly got only 106 of the real book's 445 headed pages, because the
+   scanner renders the same line about fifty ways: JOUKNAL, JOI'RNAL,
+   /OURNAL, JOUL.>AL, CHAMBtlE, FExMME. 340 pages kept their head. So
+   the keys are CLUSTERED before they are counted:
+
+     - reduce the normalised key to a letters-only skeleton (drop the
+       spaces too, since the scanner drops and adds them);
+     - a key joins a cluster when its skeleton is within an edit
+       distance of the cluster's key, the budget being 20% of the longer
+       skeleton -- i.e. at least 80% of the characters must match;
+     - only a key that ALREADY recurs on max(3, 5% of pages) by itself
+       may open a cluster. Variants attach to a frequent key; they never
+       chain to each other.
+     - skeletons under 12 characters are matched exactly and never
+       fuzzily, because a one-character budget on a short line merges
+       genuinely different ones -- "ANTONIO." and "ANTONIA." are one
+       edit apart.
+
+   The seed rule is the one holding this up, and it is not a nicety.
+   Ordinary prose at a page edge is far closer together than it looks: 
+   two different sentences of the gate's filler differ by 6 edits over a
+   40-character skeleton, and the 20% budget for that length is 8. Left
+   to cluster pairwise they merge, the merged cluster appears at both
+   edges of every page, and the whole document is deleted. Requiring a
+   frequent seed stops it: distinct prose lines occur once each, so
+   nothing seeds and nothing clusters.
+
+   Frequency, the folio test and the same-edge test then all apply to
+   the CLUSTER rather than to the exact string.
+
+   On the real scan the head is now removed from 503 of the 530 pages,
+   against 106 for exact matching and none before any of this, and the
+   chapter numbers, the pronoun and the diary dates are all still there.
 
    KNOWN AND STILL UNFIXED: norm() erases digits before comparing, so
    "3 septembre." and "18 septembre." are the same line to this code. A
@@ -258,6 +319,15 @@ export function joinTextItems(items) {
    still loses its dates -- they are folio-associated and they recur.
    The real book survives only because 4 of 530 pages is under the 15%
    share. Section D of the gate pins this.
+
+   ALSO STILL UNFIXED: 27 of the 530 pages keep something. Twenty are
+   heads mangled past the 80% bar ("^Ij, LE JOURNAL FEMME DE ??HAMBRIt");
+   three are the half-title "LE JOURNAL", whose skeleton is 9 characters
+   and so is matched exactly; four are ordinary sentences that happen to
+   contain the word, and those must stay. Loosening the budget to 25%
+   reaches 22 pages and to 30% reaches 16, with no over-reach visible on
+   this book -- but this book can only show over-reach it happens to
+   contain, so the conservative end was taken.
 
    Exported for scripts/check-running-heads.mjs, the same way
    joinTextItems is exported for scripts/check-pdf-spacing.mjs: parsePdf
@@ -295,8 +365,9 @@ export function stripRunningLines(pages) {
     && romanPages > arabicPages;
   const isFolio = (l) => ARABIC_FOLIO.test(l) || (romanIsNorm && ROMAN_FOLIO.test(l));
 
-  // 2. What recurs, where, and with a folio beside it?
-  const stats = new Map();
+  // 2. What appears at which edge of which page, and with a folio near it.
+  const counts = new Map();
+  const perPageKeys = [];
   for (const solid of solidPer) {
     const { top, bot } = edgeIdx(solid);
     const seen = new Map();
@@ -313,23 +384,60 @@ export function stripRunningLines(pages) {
         seen.set(key, cur);
       }
     }
+    perPageKeys.push(seen);
+    for (const key of seen.keys()) counts.set(key, (counts.get(key) || 0) + 1);
+  }
+
+  // 3. Cluster the misspellings of one line onto the frequent spelling.
+  const cluster = new Map();
+  const seeds = [];
+  const seedMin = Math.max(3, Math.ceil(pages.length * 0.05));
+  const ordered = [...counts.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1));
+  for (const [key, n] of ordered) {
+    const sk = skeleton(key);
+    let hit = null;
+    if (sk.length >= FUZZY_MIN) {
+      for (const seed of seeds) {
+        const budget = Math.max(1, Math.floor(Math.max(sk.length, seed.sk.length) * FUZZY_RATIO));
+        if (within(sk, seed.sk, budget)) { hit = seed; break; }
+      }
+    }
+    if (!hit && n >= seedMin && sk.length >= FUZZY_MIN) {
+      hit = { key, sk };
+      seeds.push(hit);
+    }
+    cluster.set(key, hit ? hit.key : key);
+  }
+
+  // 4. Count, and decide, per cluster.
+  const stats = new Map();
+  for (const seen of perPageKeys) {
+    const perCluster = new Map();
     for (const [key, v] of seen) {
-      const s = stats.get(key) || { n: 0, top: 0, bot: 0, folio: 0 };
+      const c = cluster.get(key);
+      const p = perCluster.get(c) || { top: false, bot: false, folio: false };
+      p.top = p.top || v.top;
+      p.bot = p.bot || v.bot;
+      p.folio = p.folio || v.folio;
+      perCluster.set(c, p);
+    }
+    for (const [c, v] of perCluster) {
+      const s = stats.get(c) || { n: 0, top: 0, bot: 0, folio: 0 };
       s.n++;
       if (v.top) s.top++;
       if (v.bot) s.bot++;
       if (v.folio) s.folio++;
-      stats.set(key, s);
+      stats.set(c, s);
     }
   }
 
   const withFolio = Math.max(3, Math.floor(pages.length * 0.15));
   const withoutFolio = Math.max(8, Math.ceil(pages.length * 0.5));
   const running = new Set();
-  for (const [key, s] of stats) {
+  for (const [c, s] of stats) {
     if (s.top < s.n * 0.8 && s.bot < s.n * 0.8) continue;
     const bar = s.folio * 2 >= s.n ? withFolio : withoutFolio;
-    if (s.n >= bar) running.add(key);
+    if (s.n >= bar) running.add(c);
   }
 
   return perPage.map((lines) => {
@@ -337,7 +445,7 @@ export function stripRunningLines(pages) {
     const drop = new Set();
     const consider = [...idx.slice(0, EDGE), ...idx.slice(-EDGE)];
     for (const [l, i] of consider) {
-      if (isFolio(l) || running.has(norm(l))) drop.add(i);
+      if (isFolio(l) || running.has(cluster.get(norm(l)))) drop.add(i);
     }
     return lines.filter((_, i) => !drop.has(i)).join("\n");
   });
