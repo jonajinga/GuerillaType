@@ -1,0 +1,50 @@
+---
+pagination:
+  data: parables
+  size: 1
+  alias: parable
+  addAllPagesToCollections: true
+permalink: "/parables/{{ parable.id }}/"
+layout: layouts/base.njk
+pageSlug: "parable-detail"
+eleventyComputed:
+  # See quote-detail.njk for why every one of these carries `| safe`.
+  title: "{{ parable.title | safe }} — a parable to type"
+  description: "{{ parable.text | truncate(160) | safe }}"
+  ogImage: "/og/parable/{{ parable.id }}.png"
+  ogImageAlt: "The parable {{ parable.title | safe }}, on a GuerillaType card"
+---
+{% set ITEM = {
+  kind: "parable",
+  id: parable.id,
+  title: parable.title,
+  saveTitle: parable.title,
+  text: parable.text,
+  source: parable.source,
+  moral: parable.moral
+} %}
+{% set typeHref = "/practice/?mode=parable&pid=" + parable.id + "&from=parable" %}
+{% set shareTitle = parable.title %}
+{% set shareText = parable.text | truncate(160) %}
+
+<article class="corpus-page corpus-page--parable" data-corpus-kind="parable" data-corpus-id="{{ parable.id }}">
+  <header class="corpus-page__head">
+    <p class="eyebrow">Parable</p>
+    <h1 class="corpus-page__title">{{ parable.title }}</h1>
+    <p class="corpus-page__byline">{% if parable.source %}{{ parable.source }}{% endif %}</p>
+    <p class="corpus-page__done" id="corpus-done" hidden>✓ Typed</p>
+  </header>
+
+  <blockquote class="corpus-page__text corpus-page__text--parable">{{ parable.text }}</blockquote>
+  {% if parable.moral %}<p class="corpus-page__moral"><em>Moral.</em> {{ parable.moral }}</p>{% endif %}
+
+  {% include "partials/corpus/detail-actions.njk" %}
+
+  <nav class="corpus-page__nav" aria-label="Parable navigation">
+    <a class="corpus-page__back" href="/parables/">← All parables</a>
+    <span class="corpus-page__seq">
+      {% if pagination.href.previous %}<a href="{{ pagination.href.previous }}" rel="prev">← Previous</a>{% endif %}
+      {% if pagination.href.next %}<a href="{{ pagination.href.next }}" rel="next">Next →</a>{% endif %}
+    </span>
+  </nav>
+</article>
