@@ -1803,18 +1803,90 @@ function renderResults(r) {
           book:    `<svg class="results__btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
           lesson:  `<svg class="results__btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
           feedback:`<svg class="results__btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z"/></svg>`,
+          share:   `<svg class="results__btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg>`,
           review:  `<svg class="results__btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15 9 22 9.5 16.5 14 18 21 12 17.5 6 21 7.5 14 2 9.5 9 9 12 2"/></svg>`,
         };
         const wrap = (icon, label, attrs, tip, primary) => `
           <${attrs.tag || "button"} class="btn results__btn ${primary ? "btn--primary" : ""}" ${attrs.attrs || ""} data-tip="${tip}" aria-label="${label}">
             ${icon}<span class="results__btn-label">${label}</span>
           </${attrs.tag || "button"}>`;
+        /* Share. Numbers and a public link -- never what was typed.
+           The image is the Free-plan result card the build pre-rendered
+           (scripts/gen-og-images.mjs), addressed by rounded wpm and an
+           accuracy band; the band thresholds below must stay identical
+           to bandFor() in lib/og/labels.js and share/share.js.
+
+           TODO(Phase D2): shortUrl and fullUrl both become the /r/
+           landing page -- shortUrl the query alone, fullUrl with the
+           keystroke replay in its fragment -- and the image becomes the
+           same card resolved server-side. Until that page exists a
+           result links to whatever public URL reproduces the same
+           content, and a run that has no such URL (random words, a
+           custom text) links to the mode itself. */
+        const shareAttrs = (() => {
+          const wpmN = Math.max(0, Math.round(r.wpm || 0));
+          const accN = Math.max(0, Math.round(r.accuracy || 0));
+          const band = accN >= 100 ? "100" : accN >= 98 ? "98" : accN >= 95 ? "95"
+            : accN >= 90 ? "90" : accN >= 80 ? "80" : "u80";
+          const img = `${location.origin}/og/result/${wpmN > 200 ? "200p" : wpmN}-${band}.png`;
+          const p = (q) => `${location.origin}/practice/?${q}`;
+          const cm = state._customMeta || {};
+          const srcId = cm.sourceId || null;
+          const kindOf = cm.kind || state.mode;
+          let link;
+          if (state.bookSlug) {
+            const ch = state.bookCh != null ? state.bookCh : 0;
+            const base = `book=${encodeURIComponent(state.bookSlug)}&ch=${ch}`;
+            link = state.bookPage != null
+              ? p(`${base}&page=${state.bookPage}`)
+              : state.bookParaId
+                ? p(`${base}&p=${encodeURIComponent(state.bookParaId)}`)
+                : p(base);
+          } else if (state.lessonId) {
+            link = p(`lesson=${state.lessonId}`);
+          } else if (state.drillId) {
+            link = p(`drill=${encodeURIComponent(state.drillId)}`);
+          } else if (activeChallenge && activeChallenge.id) {
+            link = p(`challenge=${encodeURIComponent(activeChallenge.id)}`);
+          } else if (kindOf === "quote" && srcId) {
+            link = p(`mode=quote&quote=id&qid=${encodeURIComponent(srcId)}`);
+          } else if (kindOf === "poem" && srcId) {
+            link = p(`mode=poem&pid=${encodeURIComponent(srcId)}`);
+          } else if (kindOf === "idiom" && srcId) {
+            link = p(`mode=idiom&iid=${encodeURIComponent(srcId)}`);
+          } else if (kindOf === "parable" && srcId) {
+            link = p(`mode=parable&pid=${encodeURIComponent(srcId)}`);
+          } else if (state.mode === "custom") {
+            /* A custom text is private: its id, its title and its body
+               all stay on this device. The numbers can still travel. */
+            link = p(`mode=custom`);
+          } else {
+            link = p(`mode=${encodeURIComponent(state.mode || "time")}`);
+          }
+          const label = state.mode === "time" ? `${state.duration || 30}s test`
+            : state.mode === "words" ? `${state.words || 25}-word test`
+            : state.mode === "lesson" ? `lesson ${state.lessonId}`
+            : state.mode === "book" ? "book page"
+            : state.mode === "custom" ? "custom text"
+            : String(state.mode || "test").replace(/[^a-z0-9 -]/gi, "");
+          const text = `${wpmN} wpm · ${accN}% accuracy · ${label} · GuerillaType`;
+          const title = `${wpmN} wpm on GuerillaType`;
+          return `type="button" data-share data-share-kind="result" data-share-surface="result"`
+            + ` data-share-mode="${htmlEscape(state.mode || "")}"`
+            + ` data-share-title="${htmlEscape(title)}"`
+            + ` data-share-text="${htmlEscape(text)}"`
+            + ` data-share-url="${htmlEscape(link)}"`
+            + ` data-share-short-url="${htmlEscape(link)}"`
+            + ` data-share-image="${htmlEscape(img)}"`;
+        })();
+        const shareBtn = wrap(ICONS.share, "Share", { attrs: `id="tt-share" ${shareAttrs}` }, "Share this result -- your numbers and a link to the same text. Nothing you typed travels with it.");
         // Book mode: Next page / Type page again / back to chapter list.
         if (state.bookSlug) {
           const paraMode = state.bookPage == null;
           return wrap(ICONS.next, paraMode ? "Next paragraph →" : "Next page →", { tag: "a", attrs: `id="tt-next-page" href="${nextBookUrl()}"` }, paraMode ? "Move on to the next paragraph in this chapter." : "Move on to the next page in this book.", true)
             + wrap(ICONS.retry, paraMode ? "Type paragraph again" : "Type page again", { attrs: `type="button" onclick="window.ttRestart && window.ttRestart()"` }, "Retype this same passage from the start.")
-            + wrap(ICONS.book, "Back to chapter list", { tag: "a", attrs: `href="/library/${encodeURIComponent(state.bookSlug)}/"` }, "Return to the book's chapter index.");
+            + wrap(ICONS.book, "Back to chapter list", { tag: "a", attrs: `href="/library/${encodeURIComponent(state.bookSlug)}/"` }, "Return to the book's chapter index.")
+            + shareBtn;
         }
         // Custom text with more than one segment: offer the next one.
         // "Next test" alone just restarted the SAME segment, which is why
@@ -1833,7 +1905,8 @@ function renderResults(r) {
           return progress + first
             + wrap(ICONS.retry, "Type this segment again", { attrs: `type="button" onclick="window.ttRestart && window.ttRestart()"` }, "Retype this same segment from the start.")
             + wrap(ICONS.list, "Choose a segment", { tag: "a", attrs: `id="tt-pick-seg" href="${pickUrl}"` }, "Jump to any segment of this text.")
-            + wrap(ICONS.book, "All saved texts", { tag: "a", attrs: `href="/custom/"` }, "Back to your saved custom texts.");
+            + wrap(ICONS.book, "All saved texts", { tag: "a", attrs: `href="/custom/"` }, "Back to your saved custom texts.")
+            + shareBtn;
         }
         // Daily-quote mode: "Next test" -> fresh random quote.
         const isDaily = state.mode === "quote" && state.quote === "daily";
@@ -1857,7 +1930,8 @@ function renderResults(r) {
         // no testimonial-prompt aside (which only fires after 10
         // lifetime sessions).
         const feedbackBtns =
-          wrap(ICONS.feedback, "Send feedback", { attrs: `type="button" onclick="window.openFeedbackModal && window.openFeedbackModal()"` }, "Drop a quick note about anything -- bugs, ideas, things you wish worked differently.")
+          shareBtn
+          + wrap(ICONS.feedback, "Send feedback", { attrs: `type="button" onclick="window.openFeedbackModal && window.openFeedbackModal()"` }, "Drop a quick note about anything -- bugs, ideas, things you wish worked differently.")
           + wrap(ICONS.review, "Leave a review", { tag: "a", attrs: `href="/contribute/testimonial/"` }, "Submit a short testimonial. Helps the project and may appear on the reviews page if you opt in.");
         return nextBtn + tail + feedbackBtns;
       })()}
