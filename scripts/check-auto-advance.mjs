@@ -343,7 +343,9 @@ chk(lit.startsWith("abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz"), "K.
     await page.goto(`${B}/practice/?${q}`, { waitUntil: "networkidle" });
     await page.waitForSelector(".tt-char", { timeout: 8000 });
     const txt = await surfaceText();
-    chk(txt.length > 20 && txt !== PANGRAM, `K. source type "${type}" (${c.id}) renders its own text`, JSON.stringify(txt.slice(0, 40)));
+    // The pangrams type legitimately serves the fox sentence 1 time in 10
+    // (it is in /data/pangrams.json), so for that type only length counts.
+    chk(txt.length > 20 && (type === "pangrams" || txt !== PANGRAM), `K. source type "${type}" (${c.id}) renders its own text`, JSON.stringify(txt.slice(0, 40)));
     if (type === "poetry") chk((await page.$$eval(".tt-paragraph", (els) => els.length)) > 1, "K. poetry-run keeps its line breaks");
     if (type === "speech") {
       const isSpeech = await page.evaluate(async (t) => (await (await fetch("/data/lessons.json")).json()).some((l) => l.text && l.text.trim() === t), txt);
