@@ -43,12 +43,28 @@ import { readFile, stat } from "node:fs/promises";
 import { extname, join, normalize, resolve } from "node:path";
 import { chromium } from "playwright";
 
-/* The pure halves, imported rather than reimplemented. If the gate
-   carried its own idea of the wire format or the band thresholds it
-   would agree with itself and nothing else. */
-import * as codec from "../src/assets/js/share/codec.js";
-import { rMeta, canonicalQuery, resultCardPath, DEFAULT_IMAGE } from "../lib/og/r-meta.js";
 import { bandFor } from "../lib/og/labels.js";
+
+/* The pure halves, imported rather than reimplemented: if the gate
+   carried its own idea of the wire format or the band thresholds it
+   would agree with itself and nothing else.
+
+   Dynamic, and guarded, for one reason. A verifier's first move is to
+   revert src/ and lib/ and run this file again, and at that point
+   neither of these modules exists. A bare static import would answer
+   with a Node stack trace about ERR_MODULE_NOT_FOUND; what a verifier
+   should see is a FAIL with a count, naming what is missing. */
+let codec, rMeta, canonicalQuery, resultCardPath, DEFAULT_IMAGE;
+try {
+  codec = await import("../src/assets/js/share/codec.js");
+  const meta = await import("../lib/og/r-meta.js");
+  ({ rMeta, canonicalQuery, resultCardPath, DEFAULT_IMAGE } = meta);
+} catch (e) {
+  console.log(`  FAIL  src/assets/js/share/codec.js and lib/og/r-meta.js are missing — ${e && e.message ? e.message : e}`);
+  console.log("\nRUN ABORTED — the counts below are partial.");
+  console.log("\n0 passed, 1 failed");
+  process.exit(1);
+}
 
 /* Port from the task id, not from habit. 8080 is never ours, and
    8765 belongs to whatever the older gates expect to find there. */
