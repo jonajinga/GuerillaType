@@ -1164,9 +1164,7 @@ function handleFinish(result) {
    no "next" (zen) and the toggle is hidden. */
 function autoAdvanceKey() {
   if (activeChallenge) return "challenge";
-  // A single paragraph deep-linked from the library reader has no
-  // "next page"; the switch would light up and never fire.
-  if (state.bookSlug) return state.bookPage != null ? "book" : null;
+  if (state.bookSlug) return "book";
   if (state.lessonId != null) return "lesson";
   if (state.drillId) return "drill";
   if (state.mode === "custom") {
@@ -1256,7 +1254,7 @@ function getAutoAdvanceAction(result) {
   }
   if (state.bookSlug) {
     const next = nextBookPos();
-    return next ? { kind: "book", ch: next.ch, page: next.page } : null;
+    return next ? { kind: "book", ch: next.ch, page: next.page, para: next.para } : null;
   }
   if (state.lessonId != null) {
     if (!result.lessonPassed) return null;
@@ -1290,9 +1288,15 @@ async function applyAdvance(action) {
     url = `/practice/?mode=custom&custom=${encodeURIComponent(state.customId)}&seg=${action.seg}${fromQ}`;
   } else if (action.kind === "book") {
     state.bookCh = action.ch;
-    state.bookPage = action.page;
-    state.bookParaId = null;
-    url = `/practice/?book=${encodeURIComponent(state.bookSlug)}&ch=${action.ch}&page=${action.page}`;
+    if (action.para != null) {
+      state.bookParaId = action.para;
+      state.bookPage = null;
+      url = `/practice/?book=${encodeURIComponent(state.bookSlug)}&ch=${action.ch}&p=${encodeURIComponent(action.para)}`;
+    } else {
+      state.bookPage = action.page;
+      state.bookParaId = null;
+      url = `/practice/?book=${encodeURIComponent(state.bookSlug)}&ch=${action.ch}&page=${action.page}`;
+    }
   } else if (action.kind === "lesson") {
     const lesson = await getLesson(action.id);
     if (!lesson) return false;
@@ -1400,7 +1404,10 @@ function lastRunSummary(result, action) {
   const acc = Math.round(result.accuracy || 0);
   let label = "Last run";
   if (action.kind === "segment") label = `Segment ${(state.customSeg || 0) + 1} of ${state._customSegCount} done`;
-  else if (action.kind === "book") label = `Page ${(state.bookPage || 0) + 1} of ${state._totalPages || "?"} done`;
+  else if (action.kind === "book") {
+    const pos = bookParaPos();
+    label = pos ? `Paragraph ${pos.n} of ${pos.total} done` : `Page ${(state.bookPage || 0) + 1} of ${state._totalPages || "?"} done`;
+  }
   else if (action.kind === "lesson") label = `Lesson ${state.lessonId} passed`;
   else if (action.kind === "drill") label = "Drill done";
   else if (action.kind === "challenge") label = `${(activeChallenge && activeChallenge.name) || "Challenge"} cleared`;
@@ -1553,6 +1560,17 @@ function renderAttributionHeader() {
 /* When in book mode, render a clean reader-style header above the
    typing surface — book + author eyebrow, big chapter title, page
    counter. Removes itself in non-book modes. */
+/* 1-based position of the open paragraph within its chapter, or null
+   when not in the reader's single-paragraph mode. */
+function bookParaPos() {
+  if (state.mode !== "book" || state.bookPage != null || !state._book) return null;
+  const ch = state._book.chapters[state.bookCh != null ? state.bookCh : 0];
+  const paras = (ch && ch.paragraphs) || [];
+  if (!paras.length) return null;
+  const i = state.bookParaId ? paras.findIndex((p) => p.id === state.bookParaId) : 0;
+  return { n: (i < 0 ? 0 : i) + 1, total: paras.length };
+}
+
 function renderBookReaderHeader() {
   const id = "tt-book-header";
   const existing = document.getElementById(id);
@@ -1562,11 +1580,16 @@ function renderBookReaderHeader() {
   }
   const totalPages = state._totalPages || 1;
   const pageNum = (state.bookPage != null ? state.bookPage : 0) + 1;
+  // Paragraph mode counts paragraphs within the chapter; page mode
+  // counts pages. Before this, paragraph mode read "Page 1 of N"
+  // whatever paragraph was open.
+  const pos = bookParaPos();
+  const counter = pos ? `Paragraph ${pos.n} of ${pos.total}` : `Page ${pageNum} of ${totalPages}`;
   const html = `
     <p class="tt-book-eyebrow">${htmlEscape(state._bookTitle || "")}</p>
     ${state._bookAuthor ? `<p class="tt-book-author">${htmlEscape(state._bookAuthor)}</p>` : ""}
     <h2 class="tt-book-chapter">${htmlEscape(state._chapterTitle || "")}</h2>
-    <p class="tt-book-page">Page ${pageNum} of ${totalPages}</p>
+    <p class="tt-book-page">${counter}</p>
   `;
   if (existing) {
     existing.innerHTML = html;
@@ -1647,12 +1670,22 @@ function nextCustomUrl() {
    next chapter's first page, or null at the end of the book (or when
    the book JSON is not cached / page mode is not active). */
 function nextBookPos() {
-  if (!state.bookSlug || !state._book || state.bookPage == null) return null;
+  if (!state.bookSlug || !state._book) return null;
   const book = state._book;
   const ch = state.bookCh != null ? state.bookCh : 0;
-  const page = state.bookPage;
   const chapter = book.chapters[ch];
   if (!chapter) return null;
+  // Paragraph mode (the reader's click-one-paragraph link): walk
+  // paragraph by paragraph, then into the next chapter's first one.
+  if (state.bookPage == null) {
+    const paras = chapter.paragraphs || [];
+    const i = state.bookParaId ? paras.findIndex((p) => p.id === state.bookParaId) : 0;
+    if (i >= 0 && i + 1 < paras.length) return { ch, para: paras[i + 1].id };
+    const nextCh = book.chapters[ch + 1];
+    if (nextCh && nextCh.paragraphs && nextCh.paragraphs.length) return { ch: ch + 1, para: nextCh.paragraphs[0].id };
+    return null;
+  }
+  const page = state.bookPage;
   const pagesInChapter = Math.max(1, Math.ceil(chapter.paragraphs.length / PARAS_PER_PAGE));
   if (page + 1 < pagesInChapter) return { ch, page: page + 1 };
   if (ch + 1 < book.chapters.length) return { ch: ch + 1, page: 0 };
@@ -1669,6 +1702,7 @@ function nextBookUrl() {
     return `/practice/?book=${encodeURIComponent(state.bookSlug)}&ch=${ch}&page=${page + 1}`;
   }
   const next = nextBookPos();
+  if (next && next.para != null) return `/practice/?book=${encodeURIComponent(state.bookSlug)}&ch=${next.ch}&p=${encodeURIComponent(next.para)}`;
   if (next) return `/practice/?book=${encodeURIComponent(state.bookSlug)}&ch=${next.ch}&page=${next.page}`;
   // End of book — back to the index.
   return `/library/${encodeURIComponent(state.bookSlug)}/`;
@@ -1763,8 +1797,9 @@ function renderResults(r) {
           </${attrs.tag || "button"}>`;
         // Book mode: Next page / Type page again / back to chapter list.
         if (state.bookSlug) {
-          return wrap(ICONS.next, "Next page →", { tag: "a", attrs: `id="tt-next-page" href="${nextBookUrl()}"` }, "Move on to the next paragraph in this book.", true)
-            + wrap(ICONS.retry, "Type page again", { attrs: `type="button" onclick="window.ttRestart && window.ttRestart()"` }, "Retype this same page from the start.")
+          const paraMode = state.bookPage == null;
+          return wrap(ICONS.next, paraMode ? "Next paragraph →" : "Next page →", { tag: "a", attrs: `id="tt-next-page" href="${nextBookUrl()}"` }, paraMode ? "Move on to the next paragraph in this chapter." : "Move on to the next page in this book.", true)
+            + wrap(ICONS.retry, paraMode ? "Type paragraph again" : "Type page again", { attrs: `type="button" onclick="window.ttRestart && window.ttRestart()"` }, "Retype this same passage from the start.")
             + wrap(ICONS.book, "Back to chapter list", { tag: "a", attrs: `href="/library/${encodeURIComponent(state.bookSlug)}/"` }, "Return to the book's chapter index.");
         }
         // Custom text with more than one segment: offer the next one.
