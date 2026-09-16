@@ -8,7 +8,14 @@ export default {
   language: "en",
   locale: "en_US",
   themeColor: "#14161e",
-  ogImage: "/assets/img/og-default.svg",
+  // Share card. PNG, not SVG: every major platform (X, Facebook,
+  // LinkedIn, Slack, iMessage) refuses an SVG og:image and shows no
+  // preview at all. Regenerate with `npm run og-default` after
+  // changing the design in src/assets/img/og-default.svg.
+  ogImage: "/assets/img/og-default.png",
+  ogImageWidth: 1200,
+  ogImageHeight: 630,
+  ogImageAlt: "GuerillaType, a free typing tutor for everyone",
   repo: "https://github.com/jonajinga/GuerillaType",
   // Analytics — fill these in to enable. Both are optional; both are
   // privacy-friendly and require no cookie banner.
