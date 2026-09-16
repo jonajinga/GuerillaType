@@ -1,4 +1,17 @@
 {# Umami analytics — privacy-friendly, cookieless. Set site.umami.enabled = true and fill in src + websiteId in src/_data/site.js to enable. #}
 {% if site.umami.enabled %}
-<script defer src="{{ site.umami.src }}" data-website-id="{{ site.umami.websiteId }}"></script>
+{# data-exclude-search and data-exclude-hash are not decoration. The
+   stock tracker sends `url` with every pageview AND every event, and it
+   only drops the query string when data-exclude-search="true" and the
+   fragment when data-exclude-hash="true" (in its own code:
+   N && (e.search = ""), O && (e.hash = "")). Without them, a chapter of
+   an imported text -- /practice/?book=custom%3Ac_9f3a1b -- travelled on
+   every single event fired during that run, whatever we were careful to
+   leave out of the props. The fragment matters even more than the query:
+   a shared result keeps the typed text and the replay in the hash, on
+   the promise that no server ever sees it.
+
+   Nothing useful is lost. Our own events already carry mode, bookSlug,
+   lang and the rest as properties, which is where they belong. #}
+<script defer src="{{ site.umami.src }}" data-website-id="{{ site.umami.websiteId }}" data-exclude-search="true" data-exclude-hash="true"></script>
 {% endif %}

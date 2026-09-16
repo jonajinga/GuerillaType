@@ -134,13 +134,35 @@ const bookPage = params.get("page") != null ? parseInt(params.get("page"), 10) :
    /custom/, opened straight onto its chapter picker. */
 const customChapterListUrl = () =>
   `/custom/#chapters-${encodeURIComponent(customBookId(state.bookSlug))}`;
+/* Anything that arrived in the query string is a string a visitor
+   chose, and session_start puts four of them on the wire: mode, lang,
+   quote and drill. A real one is a slug -- "time", "en-1k", "medium",
+   "home-row", "alice-in-wonderland". Anything else is free text: a
+   pasted title, a search phrase, a sentence. ?quote=SECRET%20ZEBRA
+   reached Umami verbatim, and it did not have to be a word anyone would
+   want there.
+
+   A shape test rather than an allowlist, so a new wordlist or drill does
+   not have to be added here to be counted -- and it is applied where the
+   value ENTERS the page rather than at the analytics call, because
+   state.mode alone is echoed by a dozen later events and patching one
+   call site would have left the other eleven. Every id the site itself
+   ships passes it: 23 wordlists, 71 drills, every mode, every book slug.
+   An unknown value behaves exactly as it did before -- "other" resolves
+   to no wordlist and no drill, same as the garbage did. */
+const PUBLIC_PARAM = /^[a-z0-9-]{1,80}$/;
+const publicParam = (v, fallback = "other") => {
+  if (v == null || v === "") return null;
+  const s = String(v);
+  return PUBLIC_PARAM.test(s) ? s : fallback;
+};
 const state = {
-  mode: params.get("mode") || "time",
+  mode: publicParam(params.get("mode")) || "time",
   duration: parseInt(params.get("duration") || "30", 10),
   words: parseInt(params.get("words") || "25", 10),
-  quote: params.get("quote") || "medium",
+  quote: publicParam(params.get("quote")) || "medium",
   quoteTag: params.get("tag") || "",
-  language: params.get("lang") || settings.language || "en-1k",
+  language: publicParam(params.get("lang")) || settings.language || "en-1k",
   layout: settings.layout || "qwerty",
   // stopOnError preference overrides freedom: when on, freedom is false
   // (cursor refuses to advance until you hit the right key).
@@ -153,7 +175,7 @@ const state = {
   customSeg: parseInt(params.get("seg") || "0", 10),
   bookSlug, bookCh, bookParaId, bookPage,
   lessonId: params.get("lesson") ? parseInt(params.get("lesson"), 10) : null,
-  drillId: params.get("drill") || null,
+  drillId: publicParam(params.get("drill")),
 };
 // If a lesson was requested, override mode to "lesson" so the runner knows.
 if (state.lessonId) state.mode = "lesson";
@@ -1018,7 +1040,7 @@ function handleFinish(result) {
          file on one person's device, which tells the analytics nothing
          and is not ours to send. Report the kind instead. */
       emit("bookCompletion", {
-        book: isCustomBook(state.bookSlug) ? "custom" : state.bookSlug,
+        book: isCustomBook(state.bookSlug) ? "custom" : publicParam(state.bookSlug),
         event: completed ? "finished" : "started",
       });
     }
@@ -2294,7 +2316,7 @@ async function boot() {
          supposed to see allowlisted public ids. Report the kind, the
          same substitution book_completion makes at the end of this very
          run (see handleFinish). */
-      bookSlug: state.bookSlug ? (isCustomBook(state.bookSlug) ? "custom" : state.bookSlug) : null,
+      bookSlug: state.bookSlug ? (isCustomBook(state.bookSlug) ? "custom" : publicParam(state.bookSlug)) : null,
     });
   } catch (err) {
     console.error(err);

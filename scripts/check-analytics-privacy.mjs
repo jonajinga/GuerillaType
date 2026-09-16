@@ -29,15 +29,24 @@
         worst_char and worst_word. Without those two, this file would
         pass just as happily against a build that deleted the props, or
         deleted analytics altogether.
-     F. The sweep: across every event recorded in B, C and D, no prop
+     F. mode / lang / quote / drill arrive in the query string and are
+        echoed by session_start. Free text there (?quote=SECRET%20ZEBRA)
+        must be reported as "other" rather than forwarded.
+     G. The sweep: across every event recorded in B, C and D, no prop
         value contains "custom:", the id in any shape, or the text's
         title. Plus, across every phase including E, no "custom:" and no
         c_-shaped id at all.
-     G. A source-level tripwire over every Analytics.*() / emit() call
+     H. A source-level tripwire over every Analytics.*() / emit() call
         site in src/assets/js, so a NEW leak in a file this driver never
         visits still fails the gate.
+     I. The umami script tag in the BUILT html carries
+        data-exclude-search and data-exclude-hash. Props are only half of
+        what leaves the page: the tracker sends the url with every event,
+        and without those attributes the query string (?book=custom:<id>)
+        and the fragment (a shared result keeps the typed text there) go
+        with it.
 
-   E and D's "still fires" half are the anti-vacuity checks. A gate that
+   E, E2 and D's "still fires" half are the anti-vacuity checks. A gate that
    only asserts absence passes when the feature is deleted.
 
    Usage:
@@ -248,7 +257,15 @@ async function snapshot(key) {
 console.log("\nB. the same text read by chapter: ?book=custom:<id>&ch=0&page=0");
 const chapText = await openPractice(`book=${encodeURIComponent(SLUG)}&ch=0&page=0`, "B. chapter 1 page 1");
 chk(chapText.length > 200, "B. a real page of the reader's own text is on the surface", `${chapText.length} chars`);
-await page.keyboard.type("Alic", { delay: 70 });
+/* Forty characters with two wrong keys in them, not four correct ones.
+   The first version of this phase typed "Alic" into a page that opens
+   "Alice was beginning to get very tired…" -- four correct keys, no
+   errored cursors, so the whole weakest-spot block was skipped and the
+   worst_word absence below was an absence of nothing. A verifier proved
+   it: isOwnText() mutated to drop its chapter half still passed 49/0
+   while a real chapter run leaked worst_word {"word":"alice"}. */
+const chapErrs = await typeWithTwoErrors(chapText.slice(0, 40));
+chk(chapErrs === 2, "B. two wrong keys were typed inside words", `${chapErrs} spots`);
 await page.keyboard.press("Escape");
 await waitOr((t) => page.waitForSelector("#tt-results:not([hidden])", { timeout: t }),
   "B. Esc ended the run and the card is up");
@@ -259,6 +276,15 @@ chk(!!find(bEv, "session_finish").length, "B. and an end-of-run event was record
 chk(!!bStart && bStart.props.bookSlug === "custom",
   'B. session_start reports the KIND ("custom"), not the private slug',
   bStart ? JSON.stringify(bStart.props.bookSlug) : "");
+/* The chapter half of isOwnText(), made load-bearing. finger_acc and
+   worst_finger come out of the same block as the two suppressed events,
+   so their presence is what proves the block ran at all. */
+chk(!!find(bEv, "finger_acc").length, "B. the weakest-spot block ran (finger_acc fired)");
+chk(!!find(bEv, "worst_finger").length, "B. and worst_finger fired — a finger name is layout, not text");
+chk(!find(bEv, "worst_word").length, "B. no worst_word: a chapter of your own text is still your text",
+  JSON.stringify(find(bEv, "worst_word").map((e) => e.props)));
+chk(!find(bEv, "worst_char").length, "B. no worst_char, for the same reason",
+  JSON.stringify(find(bEv, "worst_char").map((e) => e.props)));
 const bCompletion = find(bEv, "book_completion")[0];
 chk(!!bCompletion && bCompletion.props.book === "custom",
   "B. book_completion still reports the kind too",
@@ -362,7 +388,32 @@ chk(!!wWord && typeof wWord.props.word === "string" && wWord.props.word.length >
   "E2. and it still carries the word it is for", wWord ? JSON.stringify(wWord.props.word) : "");
 
 // ================================================================ F
-console.log("\nF. the sweep over every prop of every recorded event");
+console.log("\nF. free text in the query string is not ours to forward");
+/* mode, lang, quote and drill all arrive in the URL and all four are
+   echoed by session_start -- ?quote=SECRET%20ZEBRA reached Umami
+   verbatim. They are slugs when they are real, so the page shape-tests
+   them on the way in and substitutes "other". The tag is sent along too
+   because ?tag= is the same kind of param, even though no event carries
+   it today. */
+const SENTINEL = "SECRET ZEBRA";
+await openPractice(`mode=quote&quote=${encodeURIComponent(SENTINEL)}&tag=${encodeURIComponent(SENTINEL)}`,
+  "F. a quote run with free text in the query");
+await page.keyboard.type("Alic", { delay: 70 });
+await page.keyboard.press("Escape");
+await waitOr((t) => page.waitForSelector("#tt-results:not([hidden])", { timeout: t }),
+  "F. the run ended and the card is up");
+const fEv = await snapshot("param");
+const fStart = find(fEv, "session_start")[0];
+chk(!!fStart, "F. session_start was recorded — the run really started", namesOf(fEv).join(","));
+/* Non-vacuous: the param WAS read (the default is "medium", so "other"
+   can only come from the validator seeing this value and refusing it). */
+chk(!!fStart && fStart.props.quote === "other",
+  'F. the quote param is reported as "other", not echoed', fStart ? JSON.stringify(fStart.props.quote) : "");
+chk(!!fStart && fStart.props.mode === "quote", "F. and the mode it really was still gets through",
+  fStart ? JSON.stringify(fStart.props.mode) : "");
+
+// ================================================================ G
+console.log("\nG. the sweep over every prop of every recorded event");
 const OWN = ["chapter", "segment", "finished"];
 const allEvents = Object.entries(phases).flatMap(([k, evs]) => evs.map((e) => ({ phase: k, ...e })));
 const propStrings = (evs) => evs.flatMap((e) =>
@@ -373,22 +424,22 @@ const withDecoded = (s) => {
   try { out += " " + decodeURIComponent(s.replace(/%(?![0-9a-f]{2})/gi, "%25")); } catch {}
   return out;
 };
-chk(allEvents.length >= 12, "F. there are events to sweep at all", `${allEvents.length} events across ${Object.keys(phases).length} phases`);
+chk(allEvents.length >= 12, "G. there are events to sweep at all", `${allEvents.length} events across ${Object.keys(phases).length} phases`);
 
 const everyProp = propStrings(allEvents);
 const ownProps = propStrings(allEvents.filter((e) => OWN.includes(e.phase)));
-chk(ownProps.length >= 8, "F. and the three private runs produced props of their own", `${ownProps.length} props`);
+chk(ownProps.length >= 8, "G. and the three private runs produced props of their own", `${ownProps.length} props`);
 
 const hitAll = (needle, list) => list.find((p) => withDecoded(p.str).toLowerCase().includes(needle.toLowerCase()));
 let h;
 h = hitAll("custom:", everyProp);
-chk(!h, 'F. no prop value anywhere contains "custom:"', h ? `${h.where}=${h.str}` : "");
+chk(!h, 'G. no prop value anywhere contains "custom:"', h ? `${h.where}=${h.str}` : "");
 h = hitAll(sample.id, everyProp);
-chk(!h, "F. no prop value anywhere contains the text's id", h ? `${h.where}=${h.str}` : "");
+chk(!h, "G. no prop value anywhere contains the text's id", h ? `${h.where}=${h.str}` : "");
 h = everyProp.find((p) => /c_[a-z0-9]{4,}/i.test(withDecoded(p.str)));
-chk(!h, "F. and none carries a c_-shaped id in any other form", h ? `${h.where}=${h.str}` : "");
+chk(!h, "G. and none carries a c_-shaped id in any other form", h ? `${h.where}=${h.str}` : "");
 h = hitAll(sample.title, everyProp);
-chk(!h, "F. no prop value anywhere contains the text's title", h ? `${h.where}=${h.str}` : "");
+chk(!h, "G. no prop value anywhere contains the text's title", h ? `${h.where}=${h.str}` : "");
 /* Word-level, and only over the private runs: "alice-in-wonderland" is
    a legitimate public slug in phase E and contains two of these words. */
 let wordHit = null;
@@ -396,26 +447,30 @@ for (const w of TITLE_WORDS) {
   const p = ownProps.find((x) => withDecoded(x.str).toLowerCase().includes(w));
   if (p) { wordHit = `${p.where}=${p.str} (${w})`; break; }
 }
-chk(!wordHit, "F. and no word of the title appears in a private run's props", wordHit || TITLE_WORDS.join(","));
+chk(!wordHit, "G. and no word of the title appears in a private run's props", wordHit || TITLE_WORDS.join(","));
+for (const word of [SENTINEL, "SECRET", "ZEBRA"]) {
+  h = hitAll(word, everyProp);
+  chk(!h, `G. no prop value anywhere contains "${word}" from the query string`, h ? `${h.where}=${h.str}` : "");
+}
 /* Nothing off the page either: the first sentence of what was typed. */
 const typedSample = dText.slice(0, 24).toLowerCase();
 h = ownProps.find((p) => typedSample && withDecoded(p.str).toLowerCase().includes(typedSample));
-chk(!h, "F. and nothing that was typed", h ? `${h.where}=${h.str}` : "");
+chk(!h, "G. and nothing that was typed", h ? `${h.where}=${h.str}` : "");
 for (const k of OWN) {
   chk(namesOf(phases[k]).includes("session_start") && namesOf(phases[k]).includes("session_finish"),
-    `F. ${k}: session_start and an end-of-run event were both recorded`,
+    `G. ${k}: session_start and an end-of-run event were both recorded`,
     `${phases[k].length} events`);
   /* Name level, not just value level: with the guard removed, a stopped
      run over "CHAPTER I. Down the Rabbit-Hole" reports worst_word
      "chapter", which is a word of the reader's document but not a word
      of its title — the value sweep above would let it through. */
   const leaked = namesOf(phases[k]).filter((n) => n === "worst_word" || n === "worst_char");
-  chk(leaked.length === 0, `F. ${k}: no event carries a character or a word out of the text`,
+  chk(leaked.length === 0, `G. ${k}: no event carries a character or a word out of the text`,
     leaked.join(","));
 }
 
-// ================================================================ G
-console.log("\nG. the source tripwire: no call site hands a private field to analytics");
+// ================================================================ H
+console.log("\nH. the source tripwire: no call site hands a private field to analytics");
 /* The driver above only visits practice-boot.js. This section reads
    every Analytics.*() and emit() call in src/assets/js and fails on a
    property whose VALUE expression names something private, unless that
@@ -499,9 +554,38 @@ for (const f of files) {
     }
   }
 }
-chk(sites >= 60, "G. the scan actually found the call sites", `${sites} Analytics/emit calls in ${files.length} files`);
-chk(offenders.length === 0, "G. none of them passes a private field unguarded",
+chk(sites >= 60, "H. the scan actually found the call sites", `${sites} Analytics/emit calls in ${files.length} files`);
+chk(offenders.length === 0, "H. none of them passes a private field unguarded",
   offenders.slice(0, 3).join(" | "));
+
+// ================================================================ I
+console.log("\nI. the tracker is told to drop the query string and the fragment");
+/* The props are only half of what leaves the page. Umami's own script
+   sends `url` with every pageview AND every event, and it strips the
+   query only when data-exclude-search="true" and the fragment only when
+   data-exclude-hash="true" (its code: N && (e.search = ""), O && (e.hash
+   = "")). Without those two attributes every event fired during a
+   chapter run carried url=/practice/?book=custom%3Ac_xxxx, whatever we
+   were careful to keep out of the props -- so this is read out of the
+   BUILT html, on the pages where a private id or a private fragment can
+   appear. */
+const TRACKER_PAGES = ["/practice/", "/custom/", "/library/"];
+const rStatus = await fetch(B + "/r/").then((r) => r.status).catch(() => 0);
+if (rStatus === 200) TRACKER_PAGES.push("/r/");
+else console.log(`  note: /r/ is not in this build (HTTP ${rStatus}) — the share page ships with its own check`);
+/* The build minifies: tinyHTML drops attribute quotes, so what is in
+   _site is data-exclude-search=true, not ="true". Match either, or
+   this check fails against a correct build -- which it did, first run. */
+const hasAttr = (tag, attr) => new RegExp('\\b' + attr + '=["\']?true["\']?', 'i').test(tag);
+for (const p of TRACKER_PAGES) {
+  const html = await fetch(B + p).then((r) => r.text()).catch(() => "");
+  const tag = (html.match(/<script[^>]*umami[^>]*>/i) || [])[0] || "";
+  chk(!!tag, `I. ${p} loads the tracker at all`, tag ? "" : "no umami script tag");
+  chk(hasAttr(tag, "data-exclude-search"), `I. ${p} — the tracker drops the query string`,
+    tag ? tag.replace(/data-website-id="[^"]*"/, 'data-website-id="…"') : "");
+  chk(hasAttr(tag, "data-exclude-hash"), `I. ${p} — and the fragment`,
+    tag ? tag.replace(/data-website-id="[^"]*"/, 'data-website-id="…"') : "");
+}
 
 await browser.close();
 server.close();
