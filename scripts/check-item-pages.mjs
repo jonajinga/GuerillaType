@@ -740,8 +740,8 @@ console.log("\nL. the poems keep their indentation");
    copies of the page's modules to read text that is already in the
    markup. One of them IS navigated to, below, to prove the two agree. */
 
-const NBSP = " ";
-const sameLine = (renderedText, jsonLine) => renderedText.replace(/ /g, " ") === jsonLine;
+const NBSP = "\u00A0"; // an escape, not a raw nbsp: the raw one is invisible in source
+const sameLine = (renderedText, jsonLine) => renderedText.replace(/\u00A0/g, " ") === jsonLine;
 
 // The comparison must be able to say no; these two fix that in place.
 chk(sameLine(`${NBSP}${NBSP}${NBSP}Life is but an empty dream!`, "   Life is but an empty dream!") === true,
@@ -796,7 +796,7 @@ for (const p of items.poem) {
       if (blank) continue;
       linesCompared++;
       if (!sameLine(got[i].text, want[i])) {
-        problem = `line ${i + 1}: rendered ${JSON.stringify(got[i].text.replace(/ /g, "·"))} vs JSON ${JSON.stringify(want[i])}`;
+        problem = `line ${i + 1}: rendered ${JSON.stringify(got[i].text.replace(/\u00A0/g, "·"))} vs JSON ${JSON.stringify(want[i])}`;
         break;
       }
     }
@@ -828,7 +828,7 @@ if (deepest) {
   const liveOk = live.length === wantDeep.length
     && live.every((l, i) => (wantDeep[i] === "" ? l.brk : sameLine(l.text, wantDeep[i])));
   chk(liveOk, `and the live page's lines are the JSON's lines (${deepest.id})`,
-    liveOk ? `${live.length} lines` : JSON.stringify(live.slice(0, 3).map((l) => l.text.replace(/ /g, "·"))));
+    liveOk ? `${live.length} lines` : JSON.stringify(live.slice(0, 3).map((l) => l.text.replace(/\u00A0/g, "·"))));
 }
 
 console.log("\nI. the browser had nothing to complain about");

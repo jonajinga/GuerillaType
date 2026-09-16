@@ -46,7 +46,7 @@ const FILE = path.resolve("src/data/poetry.json");
    stays on for the rest of the site. scripts/check-item-pages.mjs
    section L compares every rendered line against poetry.json with
    nbsp mapped back to a space, and fails if any page disagrees. */
-const NBSP = " ";
+const NBSP = "\u00A0"; // written as an escape on purpose: a raw nbsp in source is invisible
 const keepSpaces = (line) =>
   line
     .replace(/^ +/, (run) => NBSP.repeat(run.length))
