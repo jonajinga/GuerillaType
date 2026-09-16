@@ -236,6 +236,25 @@ const model = new AdaptiveModel(profile, { layout: state.layout });
 const lessonKeyOf = () =>
   (state.lessonId != null ? state.lessonId : (state._customLessonId || null));
 
+/* Is the text on the surface one the reader imported themselves?
+
+   Two URL shapes reach the same private import: ?mode=custom&custom=<id>
+   reads it a segment at a time, ?book=custom:<id>&ch=N&page=M reads it
+   by chapter -- and the second sets state.mode = "book", so neither
+   test alone covers both. Analytics must answer this question before
+   sending anything that came OUT of the text: its slug, its id, its
+   title, or a character or word lifted from its body.
+
+   Corpus items (quote / idiom / poem / parable) run through the same
+   "custom" pipeline and are public, so this predicate is occasionally
+   more careful than it strictly needs to be. That is deliberate: the
+   share payload draws the line in exactly this place already
+   (see the results-card ownText), and one predicate that is sometimes
+   too cautious beats two that can disagree about what is private. */
+function isOwnText() {
+  return isCustomBook(state.bookSlug) || state.mode === "custom";
+}
+
 let engine = null;
 
 async function buildText() {
@@ -1022,7 +1041,13 @@ function handleFinish(result) {
       for (const k of Object.keys(charMiss)) {
         if (charMiss[k] > worstChCount) { worstCh = k; worstChCount = charMiss[k]; }
       }
-      if (worstCh) emit("worstChar", { char: worstCh, missCount: worstChCount });
+      /* char and word below are literally cut out of the target. For a
+         library book or a wordlist that is public text; for someone's
+         own import it is a piece of their document, so it does not go.
+         finger_acc / worst_finger stay either way -- a finger name comes
+         from the keyboard layout, not from the text. */
+      const ownText = isOwnText();
+      if (worstCh && !ownText) emit("worstChar", { char: worstCh, missCount: worstChCount });
 
       // Per-finger totals + misses.
       const layout = state.layout || "qwerty";
@@ -1073,7 +1098,7 @@ function handleFinish(result) {
       for (const k of Object.keys(wordMiss)) {
         if (wordMiss[k] > worstWordCount) { worstWord = k; worstWordCount = wordMiss[k]; }
       }
-      if (worstWord) emit("worstWord", { word: worstWord, missCount: worstWordCount });
+      if (worstWord && !ownText) emit("worstWord", { word: worstWord, missCount: worstWordCount });
     }
   } catch {}
   // 100 % accuracy + non-trivial length is a celebration event.
@@ -1967,7 +1992,7 @@ function renderResults(r) {
           } else {
             link = p(`mode=${encodeURIComponent(state.mode || "time")}`);
           }
-          const ownText = isCustomBook(state.bookSlug) || state.mode === "custom";
+          const ownText = isOwnText();
           const label = ownText ? "custom text"
             : state.mode === "time" ? `${state.duration || 30}s test`
             : state.mode === "words" ? `${state.words || 25}-word test`
@@ -2262,7 +2287,14 @@ async function boot() {
       lessonId: state.lessonId || null,
       drillId: state.drillId || null,
       challenge: (activeChallenge && activeChallenge.id) || null,
-      bookSlug: state.bookSlug || null,
+      /* A library slug is a public book id: "moby-dick" means something
+         in aggregate and is ours to send. A custom slug is
+         "custom:c_9f3a1b" -- the id of a file on one person's device.
+         It means nothing in aggregate, and the server is only ever
+         supposed to see allowlisted public ids. Report the kind, the
+         same substitution book_completion makes at the end of this very
+         run (see handleFinish). */
+      bookSlug: state.bookSlug ? (isCustomBook(state.bookSlug) ? "custom" : state.bookSlug) : null,
     });
   } catch (err) {
     console.error(err);
