@@ -1212,10 +1212,14 @@ function handleFinish(result) {
   // Auto-advance is an opt-in, per-mode preference (the Auto button
   // in the toolbar, or /settings/). Never on a run the user ended
   // with Esc/Stop -- they asked to see the card -- never on a result
-  // the engine flagged as suspect, and never on a touch device, where
-  // the next run cannot take focus without a tap and the card is the
-  // only way to see the numbers. The old 10 s countdown is gone: when
-  // it fires, the next run loads in place and waits for a keystroke.
+  // the engine flagged as suspect, and never on a phone or tablet
+  // (isMobileLike: touch-first media query or a mobile user agent,
+  // nothing weaker), where the next run cannot take focus without a
+  // tap and the card is the only way to see the numbers. A narrow or
+  // zoomed desktop window and a desktop with a touch monitor are not
+  // that; they have keyboards, and the switch works there. The old
+  // 10 s countdown is gone: when it fires, the next run loads in place
+  // and waits for a keystroke.
   result._autoAdvance = !stopped && !result.suspect && !isMobileLike() && autoAdvanceOn();
   // Corpus item completion (quotes / idioms / parables / poetry).
   // Recorded only when the user typed all the way through AND
@@ -1332,10 +1336,11 @@ function syncAutoAdvanceButton() {
   const key = autoAdvanceKey();
   btn.hidden = !key;
   if (!key) return;
-  // Touch devices never auto-advance (the next run cannot take focus
-  // without a tap), so the button stays visible with the rest of the
-  // row but reads as unavailable instead of as a switch that does
-  // nothing.
+  // Phones and tablets never auto-advance (the next run cannot take
+  // focus without a tap), so the button stays visible with the rest of
+  // the row but reads as unavailable instead of as a switch that does
+  // nothing. Desktops always get the live switch, whatever the window
+  // width or the touch hardware attached (see isMobileLike).
   if (isMobileLike()) {
     btn.setAttribute("aria-disabled", "true");
     btn.setAttribute("aria-pressed", "false");
