@@ -51,9 +51,13 @@
   border-left:3px solid var(--accent);
   padding-left:var(--space-5);
 }
+/* An idiom is one phrase, so it is centred -- and a centred block
+   with the global blockquote's left accent rule reads as a mistake.
+   Padding goes with the rule. */
 .corpus-page__text--idiom{
   font-style:italic;text-align:center;
   font-size:var(--fs-600);
+  border-left:0;padding-left:0;padding-right:0;
 }
 .corpus-page__text--parable{
   border-left:3px solid var(--rule);
