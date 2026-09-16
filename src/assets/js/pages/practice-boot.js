@@ -25,6 +25,23 @@ import { Analytics } from "../analytics.js";
    and the fragment that carries the text and the keystroke replay.
    One call, from renderResults, and no share knowledge in this file. */
 import { wireResultShare } from "../share/result-link.js";
+/* The keystroke log of a finished run, kept in this browser so /stats/
+   can offer to share or replay a past session later. Never uploaded,
+   never in a query string. */
+import { save as saveReplayRecord, textHash } from "../engine/replay-store.js";
+import { prefsMask } from "../share/codec.js";
+
+function saveReplay(sessionId, result, preferences) {
+  try {
+    if (!sessionId || !Array.isArray(result.keylog) || !result.keylog.length) return;
+    saveReplayRecord({
+      id: sessionId,
+      keylog: result.keylog,
+      textHash: textHash(result.target),
+      prefs: prefsMask(preferences),
+    }).catch(() => {});
+  } catch {}
+}
 
 /* Inlined bucket helpers. These also live in analytics.js as named
    exports, but importing them from there would tie practice-boot
@@ -1176,8 +1193,13 @@ function handleFinish(result) {
       return p;
     });
   }
-  const { meta } = recordSession(result, model.serialize());
+  const { meta, id: sessionId } = recordSession(result, model.serialize());
   result._meta = meta || {};
+  /* File the keystroke log against this session, on this device only.
+     Fire and forget, and every failure inside is swallowed: a browser
+     with no IndexedDB, or a full one, must cost somebody a replay and
+     never the session that earned it. */
+  saveReplay(sessionId, result, prefs);
   // Challenge: evaluate goal and update bests.
   if (activeChallenge) {
     const evalRes = evaluateGoal(activeChallenge.goal, result);
