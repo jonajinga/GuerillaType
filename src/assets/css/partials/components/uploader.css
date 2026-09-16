@@ -29,6 +29,11 @@
 .saved-item__tags{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;margin:0;color:var(--fg-2);font-size:var(--fs-200)}
 .saved-item__size{white-space:nowrap;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
 .saved-item__meta{color:var(--fg-2);font-size:var(--fs-200);font-family:var(--font-mono)}
+/* The date is one token. At 375 px the meta line was breaking after
+   "Sep 16," and leaving "2026" alone on a line of its own -- the same
+   fault as the size, one measurement torn in half by a line break that
+   could not tell. The line may still wrap BEFORE the date. */
+.saved-item__when{white-space:nowrap}
 
 /* Band 2: the two ways to read the same text -- segments (~500
    characters at a time) and chapters (six paragraphs a page, the way

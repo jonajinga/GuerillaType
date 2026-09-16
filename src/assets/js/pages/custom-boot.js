@@ -12,7 +12,7 @@ import {
   getChapters, chapCountOf, renameSaved,
 } from "../engine/custom-text.js";
 import { ensureSample } from "../engine/custom-sample.js";
-import { parseFile } from "../engine/import-parsers.js";
+import { parseFile, cleanFilenameTitle } from "../engine/import-parsers.js";
 import { PARAS_PER_PAGE } from "../engine/chapter-detect.js";
 import { bookStructureSig, customBookSlug } from "../engine/book-structure.js";
 import { getActive } from "../profiles.js";
@@ -329,7 +329,15 @@ async function ingestFile(f) {
     });
     pendingChapters = Array.isArray(chapters) && chapters.length ? chapters : null;
     setChapterNotice(pendingChapters);
-    titleEl.value = title || f.name.replace(/\.[^.]+$/, "");
+    /* parseFile() already guarantees a non-blank title, so in practice
+       the right-hand side does not fire. It stays because this is a
+       FILENAME FALLBACK and there must not be a filename fallback in
+       this codebase that does its own extension-stripping: that is
+       exactly what was here before, a fourth copy of the rule sitting
+       outside engine/import-parsers.js where round one's sweep of that
+       one file could not see it. An EPUB with a whitespace-only
+       <dc:title> stored "My-Book-epub" because of this line. */
+    titleEl.value = (title || "").trim() || cleanFilenameTitle(f.name);
     /* Scanned books arrive full of characters the book never had. Show
        what the cleanup would do before it is saved, and let the user
        turn it off -- their file, their call. */
@@ -692,7 +700,7 @@ function savedItemHtml(it) {
         resuming ? ` · resuming at ${nf.format(Math.min((it.lastSeg | 0) + 1, count))} of ${nf.format(count)}` : ""
       }<span class="saved-item__chapmeta">${chCount ? ` · ${nf.format(chCount)} chapter${chCount === 1 ? "" : "s"}` : ""}</span>${
         bp ? ` · reading ${at}` : ""
-      } · Saved ${savedOn(it.createdAt)}</span>
+      } · Saved <span class="saved-item__when">${savedOn(it.createdAt)}</span></span>
       <div class="saved-item__actions saved-item__actions--segment">
         <span class="saved-item__how">Segments</span>
         <div class="saved-item__ways">

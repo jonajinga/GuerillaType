@@ -43,6 +43,18 @@ function asciify(s) {
     .replace(/…/g, "...");
 }
 
+/* Document formats whose name turns up as the last word of a download
+   filename. Matched case-insensitively, and NEVER against a name that
+   already contains a space -- see below.
+
+   Deliberately not "any three or four letters". "The-Odyssey-Full-text"
+   must keep its "text"; "My-Book-pdf" must lose its "pdf". The only
+   way to tell those apart is a list of the things a file format is
+   actually called, so this is that list and nothing more. */
+const FORMAT_WORDS = new Set([
+  "pdf", "epub", "txt", "md", "doc", "docx", "rtf", "html", "htm", "mobi", "azw3",
+]);
+
 /* The title a file gets when nothing inside it supplies one.
 
    The old rule was "drop the extension", which is how an import landed
@@ -51,9 +63,19 @@ function asciify(s) {
    hyphens or underscores, and the format is very often repeated as the
    last word before the real extension.
 
-   So: strip the extension. Then, ONLY if what is left has no spaces of
-   its own, read the separators as word breaks and drop a trailing word
-   that merely repeats the extension.
+   So: strip the real extension. Then, ONLY if what is left has no
+   spaces of its own, read runs of - and _ as word breaks and drop a
+   trailing word that names a document format.
+
+   Against the FORMAT_WORDS list, not against the file's own extension.
+   That distinction is the whole of round two of this fix: the first
+   version only dropped a trailing word that matched the REAL
+   extension, so "My-Book-pdf.pdf" came out right and
+   "My-Book-pdf.txt" came out "My Book pdf". The second is the common
+   case, not the rare one -- this importer's own error message tells
+   people with a scanned PDF to "run OCR first, then upload the .txt",
+   so a .txt whose name still says pdf is the path the product asks
+   for.
 
    The "no spaces" condition is the whole safety of this. A name that
    already contains a space was typed by a person, and a person's
@@ -62,29 +84,35 @@ function asciify(s) {
    spaces at all cannot be a sentence, so re-reading its separators
    cannot destroy one.
 
+   One trailing word, not a run of them: "My-Book-pdf-txt" keeps its
+   "pdf". Two stacked format words is not a shape real downloads
+   produce, and stripping greedily would eat a title that ends in a
+   word this list happens to contain.
+
    Nothing is lowercased or title-cased: "The Odyssey" and "the odyssey"
    are different titles and this function has no business choosing.
    Rename on the card is how a title gets edited.
 
-   Every filename fallback in this file goes through here -- the .txt/.md
-   path, the EPUB with no <dc:title>, and every PDF (a PDF's text layer
-   carries no title we trust). One of them skipping it is exactly the
-   kind of miss that leaves the fix looking done. */
+   EVERY filename fallback goes through here. There are four, and the
+   fourth is not in this file: pages/custom-boot.js writes the parser's
+   title into #paste-title and has its own fallback for when the parser
+   supplies none. Round one wired the three in this file and swept only
+   this file for stragglers, so the sweep reported "none left" while
+   one was left. parseFile() below now guarantees a non-blank title so
+   that fallback is belt to this braces, and the gate sweeps both
+   files. */
 export function cleanFilenameTitle(filename) {
   const raw = String(filename || "");
   const dot = raw.lastIndexOf(".");
-  const ext = dot > 0 ? raw.slice(dot + 1) : "";
   let base = dot > 0 ? raw.slice(0, dot) : raw;
   if (!/\s/.test(base)) {
-    base = base.replace(/[-_]+/g, " ").trim();
-    if (ext) {
-      // "My Book pdf" -> "My Book". Never down to nothing: a file
-      // honestly called "pdf.pdf" keeps the only word it has.
-      const stripped = base.replace(
-        new RegExp("\\s+" + ext.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$", "i"), ""
-      ).trim();
-      if (stripped) base = stripped;
+    const words = base.replace(/[-_]+/g, " ").trim().split(" ").filter(Boolean);
+    // Never down to nothing: a file honestly called "pdf.pdf" keeps
+    // the only word it has.
+    if (words.length > 1 && FORMAT_WORDS.has(words[words.length - 1].toLowerCase())) {
+      words.pop();
     }
+    base = words.join(" ");
   }
   return base.trim();
 }
@@ -120,7 +148,14 @@ export async function parseFile(file, onProgress) {
   const chapters = supplied.length >= 2
     ? supplied.map((c) => ({ title: asciify(c.title), body: asciify(c.body) }))
     : detectChapters(text);
-  return { title: asciify(result.title), text, chapters };
+  /* Whatever the format handed back, a blank is not a title. An EPUB
+     can carry `<dc:title>   </dc:title>` and a PDF carries none at
+     all, and a caller that gets "" has to invent one -- which is how
+     pages/custom-boot.js came to hold a fourth copy of the
+     strip-the-extension rule. Answer it here instead, once, so no
+     caller ever needs its own. */
+  const ownTitle = asciify(result.title).trim();
+  return { title: ownTitle || cleanFilenameTitle(file.name), text, chapters };
 }
 
 /* An EPUB chapter's own name. The <head><title> is the one the
@@ -185,7 +220,9 @@ async function parseEpub(file, onProgress) {
 
   // Title from OPF metadata.
   const titleMatch = opf.match(/<dc:title[^>]*>([^<]+)<\/dc:title>/i);
-  const title = (titleMatch ? titleMatch[1].trim() : cleanFilenameTitle(file.name));
+  // `(titleMatch ? ... : ...)` is not enough: a package can carry
+  // `<dc:title>   </dc:title>`, which matches and trims to nothing.
+  const title = (titleMatch && titleMatch[1].trim()) || cleanFilenameTitle(file.name);
 
   // Build manifest id → { href, props }. `properties` is how EPUB 3
   // marks the navigation document, which is apparatus, not a chapter.

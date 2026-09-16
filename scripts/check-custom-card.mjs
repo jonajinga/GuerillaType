@@ -415,6 +415,22 @@ const narrow = await page.evaluate(() => {
       right: c.getBoundingClientRect().right,
     })),
     listW: document.querySelector(".saved-list").getBoundingClientRect().width,
+    /* The saved date, measured the same way the size is. At 375 px the
+       meta line was breaking after "Sep 16," and leaving "2026" alone
+       on a line -- the same fault as the size, one measurement torn in
+       half by a line break that cannot tell it is one. The meta line
+       may still wrap BEFORE the date; the date itself may not. */
+    when: (() => {
+      const el = document.querySelector(".saved-item__when");
+      if (!el) return null;
+      const r = document.createRange();
+      r.selectNodeContents(el);
+      return {
+        text: el.textContent.trim(),
+        lines: [...r.getClientRects()].filter((x) => x.width > 0.5 && x.height > 0.5).length,
+        whiteSpace: getComputedStyle(el).whiteSpace,
+      };
+    })(),
     viewportW: document.documentElement.clientWidth,
     hows: hows.map((h) => ({ w: h.getBoundingClientRect().width, vis: h.getBoundingClientRect().width > 1, t: h.textContent.trim() })),
     wayLefts: ways.map((w) => w.getBoundingClientRect().left),
@@ -451,6 +467,11 @@ near(narrow.hows[0].w, narrow.hows[1].w, "D. …at the same width");
 near(narrow.wayLefts[0], narrow.wayLefts[1], "D. both button groups still start at the same x");
 chk(narrow.title.lines >= 2, "D. the unbreakable title wrapped instead of running on",
   `${narrow.title.lines} line boxes`);
+chk(!!narrow.when, "D. the saved date is an element of its own, so it can be held together");
+eq(narrow.when ? narrow.when.lines : 0, 1,
+  "D. …and it is ONE line box at 375 px — not ‘Sep 16,’ over ‘2026’");
+eq(narrow.when ? narrow.when.whiteSpace : null, "nowrap",
+  "D. …because it is told not to wrap");
 chk(narrow.title.widest <= narrow.viewportW + 0.5,
   "D. …and no line of it reaches off the screen",
   `widest right=${Math.round(narrow.title.widest)} viewport=${narrow.viewportW}`);
@@ -583,8 +604,20 @@ chk(typeof cleanFilenameTitle === "function",
 if (typeof cleanFilenameTitle === "function") {
   eq(cleanFilenameTitle("My-Book-pdf.pdf"), "My Book",
     "F. ‘My-Book-pdf.pdf’ → ‘My Book’");
+  /* The trailing word is matched against what a document format is
+     CALLED, not against this file's own extension. The first version
+     of this fix compared the two, so a name that said "pdf" on a .txt
+     kept it -- and that is the ordinary case, because the importer's
+     own error message tells people with a scanned PDF to run OCR and
+     upload the .txt. */
+  eq(cleanFilenameTitle("My-Book-pdf.txt"), "My Book",
+    "F. ‘My-Book-pdf.txt’ → ‘My Book’ — the stray word need not match the real extension");
   eq(cleanFilenameTitle("The-Odyssey-Homer-Full-text-pdf.pdf"), "The Odyssey Homer Full text",
     "F. the name from the screenshot loses its hyphens and its stray ‘pdf’");
+  eq(cleanFilenameTitle("The-Odyssey-Homer-Full-text-pdf.txt"), "The Odyssey Homer Full text",
+    "F. …and so does the OCR’d .txt of the same book");
+  eq(cleanFilenameTitle("My-Book-epub.txt"), "My Book",
+    "F. any of the format words goes, whatever the file really is");
   eq(cleanFilenameTitle("Already Titled.txt"), "Already Titled",
     "F. a name with spaces is left exactly as it was");
   eq(cleanFilenameTitle("How to read a PDF.pdf"), "How to read a PDF",
@@ -595,25 +628,59 @@ if (typeof cleanFilenameTitle === "function") {
     "F. a name that is nothing but its format keeps the one word it has");
   eq(cleanFilenameTitle("The-Odyssey.txt"), "The Odyssey",
     "F. nothing is lowercased or title-cased on the way through");
+  eq(cleanFilenameTitle("Full-text.txt"), "Full text",
+    "F. ‘text’ is not a document format — a word that merely looks like one survives");
+  eq(cleanFilenameTitle("My-Book-pdf-txt.txt"), "My Book pdf",
+    "F. exactly one trailing word goes, not a run of them");
 }
 
-/* Every filename fallback has to go through it. A helper wired into
-   two of three call sites looks finished and is not. */
-const parserSrc = await readFile(join(ROOT, "assets", "js", "engine", "import-parsers.js"), "utf8");
-const bareStrips = (parserSrc.match(/file\.name\.replace\(/g) || []).length;
-eq(bareStrips, 0, "F. no filename fallback still strips the extension by hand");
-const wired = (parserSrc.match(/cleanFilenameTitle\(file\.name\)/g) || []).length;
-eq(wired, 3, "F. all three fallbacks — .txt/.md, EPUB without a title, PDF — call the helper");
+/* Every filename fallback has to go through it, and "every" means
+   every FILE. Round one of this fix swept engine/import-parsers.js,
+   found nothing left, and reported the job done -- while a fourth
+   fallback sat in pages/custom-boot.js writing the parser's title
+   into #paste-title, with its own copy of the strip-the-extension
+   rule. A sweep that only looks where the author was looking cannot
+   find the one they missed, so this one names both files. */
+const SWEEP = [
+  ["engine/import-parsers.js", join(ROOT, "assets", "js", "engine", "import-parsers.js")],
+  ["pages/custom-boot.js", join(ROOT, "assets", "js", "pages", "custom-boot.js")],
+];
+let wiredTotal = 0;
+for (const [label, file] of SWEEP) {
+  const src = await readFile(file, "utf8").catch(() => "");
+  chk(src.length > 0, `F. could read ${label} to sweep it`);
+  /* Any `<something>.name.replace(` — file.name, f.name, whatever the
+     local is called. Naming the variable would let the next copy hide
+     behind a rename. */
+  const bare = (src.match(/\.name\.replace\(/g) || []).length;
+  eq(bare, 0, `F. ${label}: no filename fallback still strips the extension by hand`);
+  wiredTotal += (src.match(/cleanFilenameTitle\(/g) || []).length;
+}
+/* Four call sites and the declaration: .txt/.md, the EPUB with no
+   usable <dc:title>, the PDF, parseFile's own guarantee, and
+   custom-boot's fallback. */
+chk(wiredTotal >= 5, "F. every fallback in both files calls the helper", `${wiredTotal} calls`);
 
-await freshCustomPage();
-const txtRec = await importFile("My-Book-txt.txt", "text/plain",
-  Buffer.from(paras("Gamma", 6).join("\n\n"), "utf8"));
-eq(txtRec.title, "My Book", "F. a real .txt import through the real file input is titled ‘My Book’");
-
-await freshCustomPage();
-const plainRec = await importFile("Already Titled.txt", "text/plain",
-  Buffer.from(paras("Delta", 6).join("\n\n"), "utf8"));
-eq(plainRec.title, "Already Titled", "F. and ‘Already Titled.txt’ keeps its title untouched");
+/* Real imports, through the real file input and the real save button.
+   The names are the shapes the FIRST version of this fix got wrong: a
+   .txt whose name still says "pdf". This section used to import
+   "My-Book-txt.txt" -- the one shape where comparing the trailing word
+   against the file's REAL extension happens to work -- so it could not
+   tell the old rule from the new one and passed under both. */
+const BODY = Buffer.from(paras("Gamma", 6).join("\n\n"), "utf8");
+const IMPORTS = [
+  ["My-Book-pdf.txt", "My Book",
+    "F. a real .txt import named for a PDF is stored as ‘My Book’"],
+  ["The-Odyssey-Homer-Full-text-pdf.txt", "The Odyssey Homer Full text",
+    "F. …and the book from the screenshot, OCR’d to .txt, as ‘The Odyssey Homer Full text’"],
+  ["Already Titled.txt", "Already Titled",
+    "F. and ‘Already Titled.txt’ keeps its title untouched"],
+];
+for (const [name, want, why] of IMPORTS) {
+  await freshCustomPage();
+  const rec = await importFile(name, "text/plain", BODY);
+  eq(rec.title, want, why);
+}
 
 /* ── a store-only ZIP writer, so an EPUB needs no dependency. Lifted
       from scripts/check-custom-chapters.mjs, which lifted it from
@@ -663,16 +730,23 @@ function zipStore(entries) {
   end.writeUInt32LE(cenBuf.length, 12); end.writeUInt32LE(offset, 16);
   return Buffer.concat([Buffer.concat(chunks), cenBuf, end]);
 }
-/* No <dc:title> anywhere in the package, so the only title this EPUB
-   can possibly get is the one derived from its filename. */
-function buildUntitledEpub() {
+/* An EPUB whose package supplies no usable title, so the only title it
+   can possibly get is the one derived from its filename.
+
+   Two ways a package does that and they are not the same code path:
+   no <dc:title> element at all, and a <dc:title> that is there but
+   holds nothing but whitespace. The second one matched the regex and
+   trimmed to "", which the parser handed back as the title -- and the
+   caller, having been given a blank, invented its own from the raw
+   filename. */
+function buildUntitledEpub(titleEl = "") {
   const doc = (ps) => `<?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml"><head><title>One</title></head>
 <body>${ps.map((p) => `<p>${p}</p>`).join("\n")}</body></html>`;
   const opf = `<?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="id">
 <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
-<dc:identifier id="id">urn:uuid:untitled</dc:identifier>
+${titleEl}<dc:identifier id="id">urn:uuid:untitled</dc:identifier>
 </metadata>
 <manifest><item id="ch1" href="ch1.xhtml" media-type="application/xhtml+xml"/></manifest>
 <spine><itemref idref="ch1"/></spine>
@@ -692,6 +766,12 @@ await freshCustomPage();
 const epubRec = await importFile("My-Book-epub.epub", "application/epub+zip", buildUntitledEpub());
 eq(epubRec.title, "My Book",
   "F. an EPUB with no <dc:title> falls back through the same helper");
+
+await freshCustomPage();
+const epubBlank = await importFile("My-Book-epub.epub", "application/epub+zip",
+  buildUntitledEpub("<dc:title>   </dc:title>\n"));
+eq(epubBlank.title, "My Book",
+  "F. …and so does one whose <dc:title> is there but holds only whitespace");
 
 /* A title already on disk is a title someone may have chosen. The
    import-time cleanup must not reach back and rewrite it. */
