@@ -405,7 +405,11 @@ await page.waitForSelector("#corpus-done", { timeout: 20000 });
 const tickHidden = await page.$eval("#corpus-done", (el) => el.hidden);
 const tickText = await page.textContent("#corpus-done");
 chk(tickHidden === false, "the item page shows its own completion tick");
-chk(/typed/i.test(tickText || ""), "the tick says what it means", JSON.stringify((tickText || "").trim()));
+/* Visibility is part of this assertion on purpose: the element's
+   markup says "Typed" whether or not it is shown, so a text-only
+   check passes on a page whose tick never appeared. */
+chk(tickHidden === false && /typed/i.test(tickText || "") && /\d+\s*wpm/i.test(tickText || ""),
+  "the visible tick names the run", JSON.stringify((tickText || "").trim()));
 
 // ── H. Save to my texts ─────────────────────────────────────────────
 console.log("\nH. Save to my texts");
