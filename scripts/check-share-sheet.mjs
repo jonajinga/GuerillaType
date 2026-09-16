@@ -233,6 +233,20 @@ chk(!!mail && mail.href.startsWith("mailto:?subject="), "B. email is a mailto wi
 chk(!!mail && mail.href.includes(encodeURIComponent(FULL)), "B. email carries the full url");
 chk(!!mail && mail.href.includes(encodeURIComponent(TITLE).slice(0, 30)), "B. email subject is the title");
 
+/* Mastodon has no single intent host, so the sheet asks once and
+   remembers. Before it knows, the tile must not pretend to be a link. */
+const mastoBefore = byId.mastodon;
+chk(!!mastoBefore && mastoBefore.href === "#", "B. Mastodon has no link until an instance is known", mastoBefore && mastoBefore.href);
+await page.keyboard.press("Escape");
+await page.waitForTimeout(150);
+await page.evaluate(() => localStorage.setItem("tt:mastodon-instance", "https://Mas.Example.Social/"));
+await page.click("#fake-share");
+await page.waitForTimeout(150);
+const mastoAfter = (await grid()).find((a) => a.id === "mastodon");
+chk(!!mastoAfter && mastoAfter.href.startsWith("https://mas.example.social/share?text="),
+  "B. once remembered, Mastodon points at that instance (host normalised)", mastoAfter && mastoAfter.href.slice(0, 70));
+chk(!!mastoAfter && mastoAfter.href.includes(encodeURIComponent(SHORT)), "B. and carries the short url");
+
 // C. Copy link -> clipboard holds the FULL url.
 await page.evaluate(() => navigator.clipboard.writeText("__nothing__"));
 await clearEvents();
@@ -390,6 +404,30 @@ const openedRes = (await events()).find((e) => e.name === "share_opened");
 chk(!!openedRes && openedRes.props.surface === "result" && openedRes.props.mode === "words",
   "G. share_opened carries surface=result and the mode", JSON.stringify(openedRes && openedRes.props));
 await page.keyboard.press("Escape");
+
+// ================================================================ I
+console.log("\nI. the result links back to the text that produced it");
+/* Esc ends a run and shows the card, which is all this needs: what is
+   being checked is the URL the card builds, not the typing. */
+const endEarly = async (url) => {
+  await page.goto(url, { waitUntil: "networkidle" });
+  await page.waitForSelector(".tt-char", { timeout: 8000 });
+  await page.click(".tt-stage").catch(() => {});
+  await page.keyboard.type("th", { delay: 70 });
+  await page.keyboard.press("Escape");
+  await waitOr((t) => page.waitForSelector("#tt-share", { timeout: t }), `I. card with a Share button for ${url}`);
+  return page.getAttribute("#tt-share", "data-share-url");
+};
+const bookUrl = await endEarly(`${B}/practice/?book=a-christmas-carol&ch=0&page=0`);
+chk(bookUrl === `${B}/practice/?book=a-christmas-carol&ch=0&page=0`,
+  "I. a book page links back to that exact page", bookUrl);
+const lessonUrl = await endEarly(`${B}/practice/?lesson=3`);
+chk(lessonUrl === `${B}/practice/?lesson=3`, "I. a lesson links back to the lesson", lessonUrl);
+const quoteUrl = await endEarly(`${B}/practice/?mode=quote&qid=q-do-love`);
+chk(quoteUrl === `${B}/practice/?mode=quote&quote=id&qid=q-do-love`,
+  "I. a quote links back by public id", quoteUrl);
+const drillUrl = await endEarly(`${B}/practice/?drill=home-row`);
+chk(/\/practice\/\?drill=/.test(drillUrl || ""), "I. a drill links back to the drill", drillUrl);
 
 // ================================================================ H
 console.log("\nH. a custom text: the numbers travel, the text never does");
