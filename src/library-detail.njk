@@ -7,8 +7,16 @@ pagination:
 permalink: "/library/{{ book.slug }}/"
 layout: layouts/base.njk
 eleventyComputed:
-  title: "{{ book.title }} — {{ book.author }}"
-  description: "Type your way through {{ book.title }} by {{ book.author }}. Public-domain text, paragraph-by-paragraph progress tracking, your local profile."
+  # `| safe` is load-bearing, not decoration. These strings are rendered
+  # by Nunjucks with autoescaping ON, so "Alice's" became "Alice&#39;s"
+  # here -- and then base.njk escaped the result a second time, shipping
+  # og:title="Alice&amp;#39;s Adventures in Wonderland" to every scraper.
+  # 11 books previewed with a visible &#39; in their title. Escaping
+  # belongs to base.njk alone; the computed value must stay raw.
+  title: "{{ book.title | safe }} — {{ book.author | safe }}"
+  description: "Type your way through {{ book.title | safe }} by {{ book.author | safe }}. Public-domain text, paragraph-by-paragraph progress tracking, your local profile."
+  ogImage: "/og/book/{{ book.slug }}.png"
+  ogImageAlt: "{{ book.title | safe }} by {{ book.author | safe }} — type it on GuerillaType"
 ---
 <header class="book-header">
   <p class="eyebrow">Public-domain library</p>
@@ -24,6 +32,15 @@ eleventyComputed:
     <a class="btn" href="/library/">← All books</a>
     <button type="button" class="btn btn--primary" id="book-resume">Continue typing</button>
     <button type="button" class="btn btn--ghost" id="book-reset">Reset progress</button>
+    {# Wired by src/assets/js/share/share.js (owned by another branch),
+       which binds every [data-share] on every page. Data only here. #}
+    <button type="button" class="btn btn--ghost"
+      data-share
+      data-share-title="{{ book.title }} — {{ book.author }}"
+      data-share-text="Type your way through {{ book.title }} by {{ book.author }} on GuerillaType."
+      data-share-url="{{ site.url }}{{ page.url }}"
+      data-share-image="{{ site.url }}/og/book/{{ book.slug }}.png"
+      data-share-kind="book">Share</button>
   </div>
 </header>
 
