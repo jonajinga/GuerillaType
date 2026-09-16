@@ -1147,7 +1147,7 @@ function handleFinish(result) {
     .filter(Boolean);
   // Everything above has already been persisted; skipping the card
   // loses nothing. autoAdvance() returns false when there is nothing
-  // to advance to (end of a text, a failed lesson, lesson 500), and
+  // to advance to (end of a text, the last lesson or challenge), and
   // the card shows exactly as it would with the switch off.
   if (result._autoAdvance) {
     autoAdvance(result)
@@ -1244,8 +1244,9 @@ window.ttToggleAutoAdvance = () => {
 
 /* Resolve what "next" means for the run that just ended. Returns a
    plain action object, or null when the card should show instead:
-   the end of a text or book, a lesson that was not passed, a
-   challenge that was not cleared, a lone custom text, zen. Lookups
+   the end of a text or book, a lone custom text, zen. (A missed
+   challenge or a lesson that was not passed still advances; the strip
+   says so.) Lookups
    that need data (drills, challenges, corpus lists, lesson 501)
    happen in applyAdvance, which can also come back empty. */
 function getAutoAdvanceAction(result) {

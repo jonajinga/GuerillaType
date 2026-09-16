@@ -328,6 +328,29 @@ await page.goto(`${B}/practice/?mode=words&words=5&challenge=alphabet-sprint`, {
 await page.waitForSelector(".tt-char", { timeout: 8000 });
 const lit = await surfaceText();
 chk(lit.startsWith("abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz"), "K. alphabet-sprint types the alphabet, not the pangram", JSON.stringify(lit.slice(0, 30)));
+// Every challenge source type must produce its own text. The fallback
+// pangram is what an unimplemented type renders, so it is the tell.
+{
+  const PANGRAM = "the quick brown fox jumps over the lazy dog";
+  const all = await page.evaluate(async () => (await (await fetch("/data/challenges.json")).json()).map((c) => ({ id: c.id, type: c.source && c.source.type, mode: c.mode, dur: c.durationSec, words: c.words })));
+  const seen = new Map();
+  for (const c of all) if (!seen.has(c.type)) seen.set(c.type, c);
+  for (const [type, c] of seen) {
+    const q = new URLSearchParams({ mode: c.mode || "words" });
+    if (c.dur) q.set("duration", String(c.dur));
+    if (c.words) q.set("words", String(c.words));
+    q.set("challenge", c.id);
+    await page.goto(`${B}/practice/?${q}`, { waitUntil: "networkidle" });
+    await page.waitForSelector(".tt-char", { timeout: 8000 });
+    const txt = await surfaceText();
+    chk(txt.length > 20 && txt !== PANGRAM, `K. source type "${type}" (${c.id}) renders its own text`, JSON.stringify(txt.slice(0, 40)));
+    if (type === "poetry") chk((await page.$$eval(".tt-paragraph", (els) => els.length)) > 1, "K. poetry-run keeps its line breaks");
+    if (type === "speech") {
+      const isSpeech = await page.evaluate(async (t) => (await (await fetch("/data/lessons.json")).json()).some((l) => l.text && l.text.trim() === t), txt);
+      chk(isSpeech, "K. speech-run is one of the curriculum's speech excerpts");
+    }
+  }
+}
 
 // N. A quote saved through the custom pipeline (meta.kind quote) advances
 //    to another quote instead of retyping itself.
