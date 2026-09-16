@@ -12,25 +12,32 @@ import { Renderer } from "./renderer.js";
 import { netWpm, rawWpm, accuracy, consistency } from "./metrics.js";
 import { toast } from "../util/dom.js";
 
-/* Touch / mobile detection. Generous on purpose -- ANY positive signal
-   means we treat the device as touch + skip auto-focus. Tablets in
-   desktop-UA mode (iPadOS 13+) report hover:hover and pointer:fine,
-   so matchMedia alone misses them; touchstart support catches those.
-   Inverted: this is also true for laptops with touchscreens, which is
-   acceptable -- they have soft keyboards available too. */
+/* Touch-only detection: does this device type with a soft keyboard?
+   True for phones and tablets, false for desktops and laptops, and
+   deliberately so even when the desktop has a touch digitizer or the
+   browser window is narrow. An earlier version returned true on any
+   single touch signal (a window under 768 px, a bare coarse pointer,
+   ontouchstart, maxTouchPoints > 0). A zoomed-in desktop browser, or a
+   Windows machine with a touch monitor and a mouse, then never got
+   auto-focus and could never switch auto-advance on (the Auto button
+   read as unavailable and the header ignored the Settings switch).
+   What remains:
+   - the primary input cannot hover and is coarse: the standard
+     touch-first query. iPadOS keeps reporting it with a trackpad or
+     keyboard attached, so iPads stay on the tap-to-start path (known
+     limit, and the safe direction to be wrong in);
+   - a phone or tablet user agent, which also covers Android in
+     "desktop site" mode with a mouse attached;
+   - iPadOS in desktop-UA mode, which says Macintosh but has touch points.
+   Windows reports the primary pointer as fine and hover as possible
+   whenever a mouse or trackpad is present, so touch laptops count as
+   desktops, which is what their keyboards make them. */
 export function isMobileLike() {
   if (typeof window === "undefined") return false;
   try {
-    if (window.matchMedia) {
-      if (window.matchMedia("(max-width: 767px)").matches) return true;
-      if (window.matchMedia("(hover: none) and (pointer: coarse)").matches) return true;
-      if (window.matchMedia("(pointer: coarse)").matches) return true;
-    }
-    if ("ontouchstart" in window) return true;
-    if (navigator.maxTouchPoints > 0) return true;
-    // iPadOS reports as Mac Safari -- catch via UA platform check.
+    if (window.matchMedia && window.matchMedia("(hover: none) and (pointer: coarse)").matches) return true;
     const ua = (navigator.userAgent || "").toLowerCase();
-    if (/iphone|ipad|ipod|android/.test(ua)) return true;
+    if (/iphone|ipad|ipod|android|mobile/.test(ua)) return true;
     if (/macintosh/.test(ua) && navigator.maxTouchPoints > 1) return true;
   } catch {}
   return false;
@@ -128,11 +135,10 @@ export class TypingEngine {
     // is a jarring experience. Show the unfocused state instead;
     // input-capture's touchend/click handlers will turn the user's
     // first tap on the typing surface into a real focus that raises
-    // the keyboard. The mobile predicate is intentionally generous --
-    // touchstart support, coarse pointer, no-hover media query,
-    // viewport width, AND iOS-specific UA detection -- because any
-    // single signal can flip false on tablets in desktop-mode UA
-    // spoofing. If ANY signal says "touch device", we treat it as one.
+    // the keyboard. The predicate is isMobileLike() above: touch-first
+    // media query or a phone/tablet user agent, and nothing weaker,
+    // because a desktop that lands here by mistake has to click the
+    // surface before every run and can never auto-advance.
     if (isMobileLike()) {
       this.host.dataset.mobileWaiting = "true";
       this.host.dataset.focused = "false";
