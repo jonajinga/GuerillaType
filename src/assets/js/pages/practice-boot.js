@@ -76,6 +76,7 @@ let _challengesCache = null;
 async function loadChallenges() {
   if (_challengesCache) return _challengesCache;
   const res = await fetch("/data/challenges.json", { cache: "default" });
+  if (!res.ok) throw new Error(`Could not load the challenge list (HTTP ${res.status}).`);
   _challengesCache = await res.json();
   return _challengesCache;
 }
@@ -1148,7 +1149,7 @@ function handleFinish(result) {
     .filter(Boolean);
   // Everything above has already been persisted; skipping the card
   // loses nothing. autoAdvance() returns false when there is nothing
-  // to advance to (end of a text, a failed lesson, lesson 500), and
+  // to advance to (end of a text, the last lesson or challenge), and
   // the card shows exactly as it would with the switch off.
   if (result._autoAdvance) {
     autoAdvance(result)
@@ -1245,27 +1246,25 @@ window.ttToggleAutoAdvance = () => {
 
 /* Resolve what "next" means for the run that just ended. Returns a
    plain action object, or null when the card should show instead:
-   the end of a text or book, a lesson that was not passed, a
-   challenge that was not cleared, a lone custom text, zen. Lookups
+   the end of a text or book, a lone custom text, zen. (A missed
+   challenge or a lesson that was not passed still advances; the strip
+   says so.) Lookups
    that need data (drills, challenges, corpus lists, lesson 501)
    happen in applyAdvance, which can also come back empty. */
 function getAutoAdvanceAction(result) {
-  if (activeChallenge) {
-    if (!(result._challenge && result._challenge.passed)) return null;
-    return { kind: "challenge" };
-  }
+  // Challenges and lessons advance whether or not the goal was met; the
+  // last-run strip says "missed" or "not passed" so nothing is hidden.
+  // (Bests and lesson mastery are still recorded only on a clear/pass.)
+  if (activeChallenge) return { kind: "challenge" };
   if (state.bookSlug) {
     const next = nextBookPos();
     return next ? { kind: "book", ch: next.ch, page: next.page, para: next.para } : null;
   }
-  if (state.lessonId != null) {
-    if (!result.lessonPassed) return null;
-    return { kind: "lesson", id: state.lessonId + 1 };
-  }
+  if (state.lessonId != null) return { kind: "lesson", id: state.lessonId + 1 };
   if (state.drillId) return { kind: "drill" };
   if (state.mode === "custom") {
     const kind = state._customMeta && state._customMeta.kind;
-    if (kind === "idiom" || kind === "poem" || kind === "parable") return { kind: "corpus", corpus: kind };
+    if (kind === "idiom" || kind === "poem" || kind === "parable" || kind === "quote") return { kind: "corpus", corpus: kind };
     if (!isSegmentedCustom()) return null;
     const next = (state.customSeg || 0) + 1;
     if (next >= (state._customSegCount || 0)) return null;
@@ -1331,7 +1330,7 @@ async function applyAdvance(action) {
     url = `/practice/?${q.toString()}`;
   } else if (action.kind === "corpus") {
     const kind = action.corpus;
-    const file = kind === "poem" ? "poetry" : `${kind}s`;
+    const file = kind === "poem" ? "poetry" : `${kind}s`;   // idioms, parables, quotes
     const res = await fetch(`/data/${file}.json`, { cache: "default" }).catch(() => null);
     const items = res && res.ok ? await res.json() : [];
     if (!Array.isArray(items) || items.length < 2) return false;
@@ -1349,7 +1348,7 @@ async function applyAdvance(action) {
     }
     if (!next) next = items[(start + 1) % items.length];
     if (!next || next.id === curId) return false;
-    const title = next.title || (kind === "idiom" ? next.text : (next.text || "").slice(0, 60));
+    const title = next.title || (kind === "idiom" ? next.text : kind === "quote" && next.author ? next.author : (next.text || "").slice(0, 60));
     const item = await saveCustomText({
       title,
       raw: next.text,
@@ -1410,9 +1409,19 @@ function lastRunSummary(result, action) {
     const pos = bookParaPos();
     label = pos ? `Paragraph ${pos.n} of ${pos.total} done` : `Page ${(state.bookPage || 0) + 1} of ${state._totalPages || "?"} done`;
   }
-  else if (action.kind === "lesson") label = `Lesson ${state.lessonId} passed`;
+  else if (action.kind === "lesson") {
+    label = result.lessonPassed
+      ? `Lesson ${state.lessonId} passed`
+      : `Lesson ${state.lessonId} not passed (aim for 90% and 18 wpm)`;
+  }
   else if (action.kind === "drill") label = "Drill done";
-  else if (action.kind === "challenge") label = `${(activeChallenge && activeChallenge.name) || "Challenge"} cleared`;
+  else if (action.kind === "challenge") {
+    const name = (activeChallenge && activeChallenge.name) || "Challenge";
+    const c = result._challenge;
+    label = c && !c.passed
+      ? `${name} missed · ${(c.reasons || []).join(", ") || "goal not met"}`
+      : `${name} cleared`;
+  }
   else if (action.kind === "corpus") label = `${action.corpus[0].toUpperCase()}${action.corpus.slice(1)} done`;
   return { label, wpm, acc };
 }

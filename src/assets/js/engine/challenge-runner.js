@@ -4,6 +4,7 @@
 import { TypingEngine } from "./typing-engine.js";
 import { uniformText } from "./wordpicker.js";
 import { loadQuotes, pickQuote } from "./quotes.js";
+import { loadLessons } from "./lesson-text.js";
 
 export async function buildSourceText(source, opts = {}) {
   const { wordlist, pangrams, numbers } = opts;
@@ -43,6 +44,38 @@ export async function buildSourceText(source, opts = {}) {
         uniformText(med, 30),
         uniformText(hard, 30),
       ].join(" ");
+    }
+    case "poetry": {
+      // A public-domain poem, one paragraph block per line so the
+      // line breaks the blurb promises are visible on the surface.
+      try {
+        const res = await fetch("/data/poetry.json", { cache: "default" });
+        const poems = res.ok ? await res.json() : [];
+        const pool = poems.filter((p) => p && p.text && p.text.length >= 120 && p.text.length <= 900);
+        const poem = (pool.length ? pool : poems)[Math.floor(Math.random() * Math.max(1, (pool.length ? pool : poems).length))];
+        if (poem && poem.text) {
+          const lines = String(poem.text).replace(/\r\n?/g, "\n").split("\n").map((l) => l.trim()).filter(Boolean);
+          if (lines.length > 1) return lines;
+          return lines[0] || "the quick brown fox jumps over the lazy dog";
+        }
+      } catch {}
+      return "the quick brown fox jumps over the lazy dog";
+    }
+    case "speech": {
+      // The curriculum's speech excerpts (Lincoln, Douglass, Churchill,
+      // ...) are literal lessons tagged "speech"; borrow one at random.
+      try {
+        const lessons = await loadLessons();
+        const pool = lessons.filter((l) => l && l.source === "literal" && Array.isArray(l.tags) && l.tags.includes("speech") && l.text);
+        const pick = pool[Math.floor(Math.random() * pool.length)];
+        if (pick) return String(pick.text).trim();
+      } catch {}
+      return "the quick brown fox jumps over the lazy dog";
+    }
+    case "literal": {
+      // A fixed passage declared on the challenge itself (alphabet
+      // sprints). Without this case they fell through to the pangram.
+      return String(source.text || "").trim() || "the quick brown fox jumps over the lazy dog";
     }
     default: return "the quick brown fox jumps over the lazy dog";
   }
