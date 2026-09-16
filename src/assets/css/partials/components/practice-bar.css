@@ -135,6 +135,15 @@ body[data-page="practice"] .site-main{padding-top:0}
   background:color-mix(in oklab, var(--accent) 14%, transparent);
   box-shadow:inset 0 -2px 0 var(--accent);
 }
+/* Auto-advance toggle: lit when on, hidden in modes with nothing to
+   advance to (zen). practice-boot owns the hidden attribute. */
+.practice-bar__action--auto[aria-pressed="true"],
+.practice-bar__action--auto.is-active{
+  color:var(--accent);
+  background:color-mix(in oklab, var(--accent) 14%, transparent);
+  box-shadow:inset 0 -2px 0 var(--accent);
+}
+.practice-bar__action--auto[hidden]{display:none}
 .practice-bar__action--stop{color:color-mix(in oklab, var(--bad) 80%, var(--fg-2))}
 .practice-bar__action--stop:hover{
   color:var(--bad);
@@ -238,6 +247,10 @@ body:not(:has(#tt-stage[data-state="running"])) .practice-bar__action--stop:hove
   }
   /* Drop the two secondary (ghost) buttons on mobile. */
   .practice-bar__action--ghost{display:none !important}
+  /* Auto-advance needs the engine to regain focus on its own, which
+     touch browsers refuse; the results card shows instead. The switch
+     stays reachable on /settings/. */
+  .practice-bar__action--auto{display:none !important}
   /* Tighten stats so the metric trio + 3 action buttons fit one row. */
   .practice-bar__stats{padding-right:.5rem}
   .practice-bar .live-stats{gap:.7rem !important}

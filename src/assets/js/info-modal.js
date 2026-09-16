@@ -37,7 +37,7 @@ const TOPICS_DESKTOP = {
         <li><strong>Toolbar layout</strong> — live stats sit centered (WPM, accuracy, seconds left / words typed / % complete). Action buttons sit on the right: Restart, Pause, Stop, How it works, Send feedback.</li>
         <li><strong>Pause is now strict</strong> — only the Pause button pauses. Clicking outside the typing area or losing focus no longer pauses anything; the next keystroke just refocuses.</li>
         <li><strong>Typing</strong> — correct keystrokes light up in the accent color, mistakes underline in red. Sound effects (click / typewriter / pop) play if enabled in <a href="/settings/">/settings/</a>.</li>
-        <li><strong>Results card</strong> — appears when the session ends. Shows WPM, accuracy, weak keys, per-word chart, and a row of next-action buttons including Send feedback and Leave a review. Auto-advance is OFF; you choose what's next.</li>
+        <li><strong>Results card</strong> — appears when the session ends. Shows WPM, accuracy, weak keys, per-word chart, and a row of next-action buttons including Send feedback and Leave a review. Turn on <strong>Auto</strong> in the toolbar and the card is skipped: the next segment, page, lesson, or test loads in place, with a one-line summary of the run you just finished.</li>
       </ul>
       <p class="info-modal__shortcut-row">
         <kbd>Tab</kbd> then <kbd>Enter</kbd> restarts ·
@@ -71,7 +71,7 @@ const TOPICS_MOBILE = {
         <li><strong>Toolbar</strong> — three live stats stacked at the start (WPM, accuracy, seconds left / progress), three action buttons on the right (Restart, Pause, Stop). How it works + Send feedback are hidden on mobile to keep the row from overflowing; both are reachable from the hamburger menu.</li>
         <li><strong>Type</strong> — tap the typing area to focus and bring up your soft keyboard. Correct keystrokes light up; mistakes underline in red. Sounds (click / typewriter / pop) play if enabled in <a href="/settings/">/settings/</a>.</li>
         <li><strong>Pause is strict</strong> — only the Pause button pauses. Tapping outside the surface no longer pauses; the next tap just refocuses.</li>
-        <li><strong>Results</strong> — when the session ends, a card appears with WPM, accuracy, weak keys, and a stack of next-action buttons including Send feedback and Leave a review. Auto-advance is off; you decide what's next.</li>
+        <li><strong>Results</strong> — when the session ends, a card appears with WPM, accuracy, weak keys, and a stack of next-action buttons including Send feedback and Leave a review. Auto-advance can be switched on per mode in <a href="/settings/">/settings/</a>; on a phone the card still shows so you can tap to continue.</li>
       </ul>
       <p class="info-modal__shortcut-row">
         Tap the surface to focus · tap <strong>Restart</strong> (circular-arrow icon) to retry · use the hamburger menu to switch modes.

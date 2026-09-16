@@ -2,11 +2,11 @@
    card, and adaptive engine. Reads ?mode= ?duration= ?words= ?quote=
    from the URL on load to support deep links from the homepage. */
 
-import { TypingEngine } from "../engine/typing-engine.js";
+import { TypingEngine, isMobileLike } from "../engine/typing-engine.js";
 import { AdaptiveModel } from "../engine/adaptive.js";
 import { buildPicker, uniformText, drillText } from "../engine/wordpicker.js";
 import { recordSession } from "../engine/session-recorder.js";
-import { setSegProgress, getSaved as getSavedCustom, listSaved as listSavedCustom, getSegments as getCustomSegments, normalizeTypeable, cleanForDisplay } from "../engine/custom-text.js";
+import { setSegProgress, getSaved as getSavedCustom, listSaved as listSavedCustom, getSegments as getCustomSegments, normalizeTypeable, cleanForDisplay, saveText as saveCustomText } from "../engine/custom-text.js";
 import { byId as achievementById } from "../engine/achievements.js";
 import { fingerForKey } from "../engine/layouts.js";
 import { bookStructureSig } from "../engine/book-structure.js";
@@ -709,6 +709,9 @@ function startEngine(target) {
   const onCharShared = (prev, ch, ok, ms) => {
     model.record(prev, ch, ok, ms);
     recordKeystroke(ok, ms);
+    // The last-run strip belongs to the gap between runs; the first
+    // keystroke of the new one clears it.
+    hideLastRun();
     // Per-keystroke audio feedback. setSoundPrefs is called once
     // at boot from the user's settings so playKey/playMistake know
     // which theme + volume to use.
@@ -789,6 +792,11 @@ function startEngine(target) {
   renderCustomHeader();
   renderBackLink();
   renderAttributionHeader();
+  // The toggle's key depends on what buildText() just resolved (a
+  // corpus piece vs. a plain custom text), so sync it here, not at
+  // module load.
+  syncAutoAdvanceButton();
+  hideLastRun();
 
   // Live aids — driven by per-profile preferences. Re-read profile
   // fresh each start so toggles made in Settings (potentially in a
@@ -1081,11 +1089,14 @@ function handleFinish(result) {
       return p;
     });
   }
-  // Auto-advance is disabled: every session ends at the results
-  // card and waits for the user to pick what's next. The previous
-  // "10s countdown then jump" flow was rushing users through
-  // sessions; the explicit action buttons below cover every path.
-  result._autoAdvance = false;
+  // Auto-advance is an opt-in, per-mode preference (the Auto button
+  // in the toolbar, or /settings/). Never on a run the user ended
+  // with Esc/Stop -- they asked to see the card -- never on a result
+  // the engine flagged as suspect, and never on a touch device, where
+  // the next run cannot take focus without a tap and the card is the
+  // only way to see the numbers. The old 10 s countdown is gone: when
+  // it fires, the next run loads in place and waits for a keystroke.
+  result._autoAdvance = !stopped && !result.suspect && !isMobileLike() && autoAdvanceOn();
   // Corpus item completion (quotes / idioms / parables / poetry).
   // Recorded only when the user typed all the way through AND
   // accuracy was at least 80% — same threshold as book auto-advance.
@@ -1133,7 +1144,285 @@ function handleFinish(result) {
   result._earnedAchievements = ((meta && meta.achievementsEarned) || [])
     .map((id) => achievementById(id))
     .filter(Boolean);
+  // Everything above has already been persisted; skipping the card
+  // loses nothing. autoAdvance() returns false when there is nothing
+  // to advance to (end of a text, a failed lesson, lesson 500), and
+  // the card shows exactly as it would with the switch off.
+  if (result._autoAdvance) {
+    autoAdvance(result)
+      .then((done) => { if (!done) renderResults(result); })
+      .catch((err) => { console.warn("[auto-advance]", err); renderResults(result); });
+    return;
+  }
   renderResults(result);
+}
+
+/* ── Auto-advance ──────────────────────────────────────────────────
+   Which preference key governs the current session. Corpus pieces
+   (idiom / poem / parable) run through custom mode, so the kind on
+   the custom meta decides, not state.mode. Null means the mode has
+   no "next" (zen) and the toggle is hidden. */
+function autoAdvanceKey() {
+  if (activeChallenge) return "challenge";
+  if (state.bookSlug) return "book";
+  if (state.lessonId != null) return "lesson";
+  if (state.drillId) return "drill";
+  if (state.mode === "custom") {
+    const kind = state._customMeta && state._customMeta.kind;
+    if (kind === "idiom" || kind === "poem" || kind === "parable") return kind;
+    if (kind === "quote") return "quote";
+    return "custom";
+  }
+  if (state.mode === "zen" || state.mode === "tape-zen") return null;
+  if (state.mode === "tape") return "time";
+  return state.mode;
+}
+function readAutoAdvanceMap() {
+  const p = getActive();
+  const map = p && p.preferences && p.preferences.autoAdvance;
+  return (map && typeof map === "object") ? map : {};
+}
+function autoAdvanceOn() {
+  const key = autoAdvanceKey();
+  return !!key && readAutoAdvanceMap()[key] === true;
+}
+function setAutoAdvance(on) {
+  const key = autoAdvanceKey();
+  if (!key) return;
+  updateActive((p) => {
+    p.preferences = p.preferences || {};
+    const cur = p.preferences.autoAdvance;
+    p.preferences.autoAdvance = (cur && typeof cur === "object") ? cur : {};
+    p.preferences.autoAdvance[key] = !!on;
+    return p;
+  });
+}
+const AUTO_ADVANCE_LABELS = {
+  time: "time tests", words: "word tests", quote: "quotes", adaptive: "adaptive runs",
+  custom: "this text", book: "this book", lesson: "lessons", drill: "drills",
+  challenge: "challenges", idiom: "idioms", poem: "poems", parable: "parables",
+};
+function syncAutoAdvanceButton() {
+  const btn = document.getElementById("tt-autoadvance");
+  if (!btn) return;
+  const key = autoAdvanceKey();
+  btn.hidden = !key;
+  if (!key) return;
+  const on = autoAdvanceOn();
+  btn.setAttribute("aria-pressed", on ? "true" : "false");
+  btn.classList.toggle("is-active", on);
+}
+window.ttToggleAutoAdvance = () => {
+  const key = autoAdvanceKey();
+  if (!key) return;
+  const next = !autoAdvanceOn();
+  setAutoAdvance(next);
+  syncAutoAdvanceButton();
+  Analytics.prefToggled({ key: `autoAdvance.${key}`, value: next });
+  const what = AUTO_ADVANCE_LABELS[key] || key;
+  toast(next ? `Auto-advance on for ${what}. Esc or Stop still shows your results.` : `Auto-advance off for ${what}.`);
+  // Keep the keyboard on the typing surface; the click just took it.
+  if (engine && engine.capture && !isMobileLike()) engine.capture.focus();
+};
+
+/* Resolve what "next" means for the run that just ended. Returns a
+   plain action object, or null when the card should show instead:
+   the end of a text or book, a lesson that was not passed, a
+   challenge that was not cleared, a lone custom text, zen. Lookups
+   that need data (drills, challenges, corpus lists, lesson 501)
+   happen in applyAdvance, which can also come back empty. */
+function getAutoAdvanceAction(result) {
+  if (activeChallenge) {
+    if (!(result._challenge && result._challenge.passed)) return null;
+    return { kind: "challenge" };
+  }
+  if (state.bookSlug) {
+    const next = nextBookPos();
+    return next ? { kind: "book", ch: next.ch, page: next.page } : null;
+  }
+  if (state.lessonId != null) {
+    if (!result.lessonPassed) return null;
+    return { kind: "lesson", id: state.lessonId + 1 };
+  }
+  if (state.drillId) return { kind: "drill" };
+  if (state.mode === "custom") {
+    const kind = state._customMeta && state._customMeta.kind;
+    if (kind === "idiom" || kind === "poem" || kind === "parable") return { kind: "corpus", corpus: kind };
+    if (!isSegmentedCustom()) return null;
+    const next = (state.customSeg || 0) + 1;
+    if (next >= (state._customSegCount || 0)) return null;
+    return { kind: "segment", seg: next };
+  }
+  if (state.mode === "zen" || state.mode === "tape-zen") return null;
+  // time / words / quote / adaptive / tape: buildText() draws fresh
+  // text for the same settings on every boot.
+  return { kind: "restart" };
+}
+
+/* Mutate state so the next boot() lands on the next item, and
+   rewrite the URL to match so refresh and back-button agree.
+   Returns false when there is no next item. Shared by the automatic
+   path and the "Next drill" / "Next challenge" card buttons. */
+async function applyAdvance(action) {
+  const from = params.get("from");
+  const fromQ = from ? `&from=${encodeURIComponent(from)}` : "";
+  let url = null;
+  if (action.kind === "segment") {
+    state.customSeg = action.seg;
+    url = `/practice/?mode=custom&custom=${encodeURIComponent(state.customId)}&seg=${action.seg}${fromQ}`;
+  } else if (action.kind === "book") {
+    state.bookCh = action.ch;
+    state.bookPage = action.page;
+    state.bookParaId = null;
+    url = `/practice/?book=${encodeURIComponent(state.bookSlug)}&ch=${action.ch}&page=${action.page}`;
+  } else if (action.kind === "lesson") {
+    const lesson = await getLesson(action.id);
+    if (!lesson) return false;
+    state.lessonId = action.id;
+    state.mode = "lesson";
+    url = `/practice/?lesson=${action.id}`;
+  } else if (action.kind === "drill") {
+    const res = await fetch("/data/drills.json", { cache: "default" }).catch(() => null);
+    const drills = res && res.ok ? await res.json() : [];
+    const i = drills.findIndex((d) => d.id === state.drillId);
+    const next = i >= 0 ? drills[i + 1] : null;
+    if (!next) return false;
+    state.drillId = next.id;
+    state.mode = "drill";
+    url = `/practice/?mode=words&words=20&drill=${encodeURIComponent(next.id)}`;
+  } else if (action.kind === "challenge") {
+    const all = await loadChallenges();
+    const i = all.findIndex((c) => c.id === (activeChallenge && activeChallenge.id));
+    const next = i >= 0 ? all[i + 1] : null;
+    if (!next) return false;
+    activeChallenge = next;
+    state.mode = next.mode || state.mode;
+    if (next.durationSec) state.duration = next.durationSec;
+    if (next.words) state.words = next.words;
+    const q = new URLSearchParams();
+    q.set("mode", state.mode);
+    if (next.durationSec) q.set("duration", String(next.durationSec));
+    if (next.words) q.set("words", String(next.words));
+    q.set("challenge", next.id);
+    url = `/practice/?${q.toString()}`;
+  } else if (action.kind === "corpus") {
+    const kind = action.corpus;
+    const file = kind === "poem" ? "poetry" : `${kind}s`;
+    const res = await fetch(`/data/${file}.json`, { cache: "default" }).catch(() => null);
+    const items = res && res.ok ? await res.json() : [];
+    if (!Array.isArray(items) || items.length < 2) return false;
+    const curId = state._customMeta && state._customMeta.sourceId;
+    const prof = getActive();
+    const done = (prof && prof.corpusProgress && prof.corpusProgress[kind]) || {};
+    const start = Math.max(0, items.findIndex((it) => it.id === curId));
+    // Walk forward from the current item, wrapping, and take the first
+    // piece not yet completed. Falls back to the next item in order
+    // when everything is done, so the loop never stalls.
+    let next = null;
+    for (let k = 1; k < items.length; k++) {
+      const it = items[(start + k) % items.length];
+      if (it && it.id !== curId && !done[it.id]) { next = it; break; }
+    }
+    if (!next) next = items[(start + 1) % items.length];
+    if (!next || next.id === curId) return false;
+    const title = next.title || (kind === "idiom" ? next.text : (next.text || "").slice(0, 60));
+    const item = await saveCustomText({
+      title,
+      raw: next.text,
+      meta: {
+        kind, sourceId: next.id || null, title: next.title || null, author: next.author || null,
+        year: next.year || null, source: next.source || null, meaning: next.meaning || null, moral: next.moral || null,
+      },
+    });
+    if (!item || !item.id) return false;
+    state.customId = item.id;
+    state.customSeg = 0;
+    state.mode = "custom";
+    url = `/practice/?mode=custom&custom=${encodeURIComponent(item.id)}&seg=0&from=${encodeURIComponent(kind)}`;
+  } else if (action.kind === "restart") {
+    // A single quote deep-linked by id would come back identical;
+    // drop the pin so the bucket picker draws a fresh one. Daily
+    // quote likewise: the day's quote is the same on every boot.
+    if (state.mode === "quote") {
+      params.delete("qid");
+      if (state.quote === "daily") state.quote = "random";
+    }
+  } else {
+    return false;
+  }
+  if (url) { try { history.replaceState(null, "", url); } catch {} }
+  return true;
+}
+
+/* Run the advance: swap the text in place, paint the last-run strip,
+   surface anything the card would have celebrated as a toast. */
+async function autoAdvance(result) {
+  const action = getAutoAdvanceAction(result);
+  if (!action) return false;
+  const summary = lastRunSummary(result, action);
+  if (!(await applyAdvance(action))) return false;
+  Analytics.autoAdvance({ mode: state.mode, kind: action.kind });
+  const meta = result._meta || {};
+  const earned = result._earnedAchievements || [];
+  const notes = [];
+  if (meta.newOverallBest) notes.push(`New lifetime best: ${Math.round(result.wpm)} wpm`);
+  else if (meta.newModeBest) notes.push(`New mode best: ${Math.round(result.wpm)} wpm`);
+  if (earned.length) notes.push(`★ ${earned.map((a) => a.name).join(", ")}`);
+  if (notes.length) toast(notes.join(" · "));
+  resultsEl.hidden = true;
+  await boot();
+  if (engine) engine._ignoreUntil = performance.now() + 400;
+  showLastRun(summary);
+  scrollStageIntoView();
+  return true;
+}
+
+function lastRunSummary(result, action) {
+  const wpm = Math.round(result.wpm || 0);
+  const acc = Math.round(result.accuracy || 0);
+  let label = "Last run";
+  if (action.kind === "segment") label = `Segment ${(state.customSeg || 0) + 1} of ${state._customSegCount} done`;
+  else if (action.kind === "book") label = `Page ${(state.bookPage || 0) + 1} of ${state._totalPages || "?"} done`;
+  else if (action.kind === "lesson") label = `Lesson ${state.lessonId} passed`;
+  else if (action.kind === "drill") label = "Drill done";
+  else if (action.kind === "challenge") label = `${(activeChallenge && activeChallenge.name) || "Challenge"} cleared`;
+  else if (action.kind === "corpus") label = `${action.corpus[0].toUpperCase()}${action.corpus.slice(1)} done`;
+  return { label, wpm, acc };
+}
+let _lastRunTimer = 0;
+function showLastRun({ label, wpm, acc }) {
+  const el = document.getElementById("tt-last-run");
+  if (!el) return;
+  el.innerHTML = `${htmlEscape(label)} <span class="tt-last-run__stat">· <b>${wpm}</b> wpm · <b>${acc}%</b> accuracy</span>`;
+  el.hidden = false;
+  clearTimeout(_lastRunTimer);
+  _lastRunTimer = setTimeout(hideLastRun, 8000);
+}
+function hideLastRun() {
+  const el = document.getElementById("tt-last-run");
+  if (el && !el.hidden) el.hidden = true;
+  clearTimeout(_lastRunTimer);
+}
+
+/* Manual "next" from the results card for the two modes that had no
+   next button at all (drills, challenges). Same in-place path as
+   auto-advance, minus the gating. */
+window.ttAdvance = async (kind) => {
+  const ok = await applyAdvance({ kind }).catch(() => false);
+  if (!ok) { toast("That was the last one."); return; }
+  resultsEl.hidden = true;
+  await boot();
+  scrollStageIntoView();
+};
+
+function scrollStageIntoView() {
+  requestAnimationFrame(() => {
+    const headerH = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--header-h")) || 58;
+    const bar = document.querySelector(".practice-bar");
+    const barH = bar ? bar.offsetHeight : 0;
+    const top = stage.getBoundingClientRect().top + window.scrollY - headerH - barH - 12;
+    window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+  });
 }
 
 /* Show a contextual back link above the typing surface so the user
@@ -1336,6 +1625,22 @@ function nextCustomUrl() {
   return `/practice/?mode=custom&custom=${encodeURIComponent(state.customId)}&seg=${next}`;
 }
 
+/* Next page position in the active book: within the chapter, then the
+   next chapter's first page, or null at the end of the book (or when
+   the book JSON is not cached / page mode is not active). */
+function nextBookPos() {
+  if (!state.bookSlug || !state._book || state.bookPage == null) return null;
+  const book = state._book;
+  const ch = state.bookCh != null ? state.bookCh : 0;
+  const page = state.bookPage;
+  const chapter = book.chapters[ch];
+  if (!chapter) return null;
+  const pagesInChapter = Math.max(1, Math.ceil(chapter.paragraphs.length / PARAS_PER_PAGE));
+  if (page + 1 < pagesInChapter) return { ch, page: page + 1 };
+  if (ch + 1 < book.chapters.length) return { ch: ch + 1, page: 0 };
+  return null;
+}
+
 function nextBookUrl() {
   if (!state.bookSlug) return "";
   const book = state._book;
@@ -1345,16 +1650,8 @@ function nextBookUrl() {
   if (!book) {
     return `/practice/?book=${encodeURIComponent(state.bookSlug)}&ch=${ch}&page=${page + 1}`;
   }
-  const chapter = book.chapters[ch];
-  if (!chapter) return `/library/${encodeURIComponent(state.bookSlug)}/`;
-  const pagesInChapter = Math.max(1, Math.ceil(chapter.paragraphs.length / PARAS_PER_PAGE));
-  if (page + 1 < pagesInChapter) {
-    return `/practice/?book=${encodeURIComponent(state.bookSlug)}&ch=${ch}&page=${page + 1}`;
-  }
-  // End of chapter — walk to next chapter.
-  if (ch + 1 < book.chapters.length) {
-    return `/practice/?book=${encodeURIComponent(state.bookSlug)}&ch=${ch + 1}&page=0`;
-  }
+  const next = nextBookPos();
+  if (next) return `/practice/?book=${encodeURIComponent(state.bookSlug)}&ch=${next.ch}&page=${next.page}`;
   // End of book — back to the index.
   return `/library/${encodeURIComponent(state.bookSlug)}/`;
 }
@@ -1479,6 +1776,12 @@ function renderResults(r) {
         const tail = state.lessonId
           ? wrap(ICONS.lesson, "Next lesson", { tag: "a", attrs: `href="/practice/?lesson=${state.lessonId + 1}"` }, "Move on to the next lesson in the curriculum.")
             + wrap(ICONS.list, "All lessons", { tag: "a", attrs: `href="/lessons/"` }, "See every lesson available.")
+          : state.drillId
+            ? wrap(ICONS.next, "Next drill →", { attrs: `id="tt-next-drill" type="button" onclick="window.ttAdvance && window.ttAdvance('drill')"` }, "Move on to the next drill in the list.")
+              + wrap(ICONS.list, "All drills", { tag: "a", attrs: `href="/drills/"` }, "See every drill available.")
+          : activeChallenge
+            ? wrap(ICONS.next, "Next challenge →", { attrs: `id="tt-next-challenge" type="button" onclick="window.ttAdvance && window.ttAdvance('challenge')"` }, "Move on to the next challenge in the list.")
+              + wrap(ICONS.list, "All challenges", { tag: "a", attrs: `href="/challenges/"` }, "See every challenge available.")
           : wrap(ICONS.adaptive, "Practice weak keys", { tag: "a", attrs: `href="/practice/?mode=adaptive"` }, "Switch to adaptive mode -- the picker weights your weakest keys more heavily.")
             + wrap(ICONS.stats, "View stats", { tag: "a", attrs: `href="/stats/"` }, "Open your full performance dashboard with charts, heatmaps, and history.");
         // Always-visible feedback path: a "Send feedback" button
@@ -1493,7 +1796,6 @@ function renderResults(r) {
       })()}
     </div>
     ${testimonialPrompt}
-    ${r._autoAdvance ? `<p class="muted" id="tt-autoadvance-note" style="margin-top:1rem;text-align:center">Auto-advancing in <span id="tt-autoadvance-count">10</span>s -- press Esc to stay.</p>` : ''}
   `;
   // Wire the testimonial-prompt dismiss button if rendered.
   const dismissBtn = document.getElementById("tt-testimonial-dismiss");
@@ -1519,58 +1821,6 @@ function renderResults(r) {
     const top = resultsEl.getBoundingClientRect().top + window.scrollY - headerH - barH - 12;
     window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
   });
-
-  // Universal auto-advance: 10 s countdown, then either navigate to
-  // a fresh URL (book/lesson/quote) or restart the same session
-  // (time/words/practice). Esc cancels. Suppressed entirely when
-  // the user pressed Stop (engine._stopped via handleFinish).
-  if (r._autoAdvance) {
-    const action = getAutoAdvanceAction();
-    if (action) {
-      const note = document.getElementById("tt-autoadvance-note");
-      const counter = document.getElementById("tt-autoadvance-count");
-      let remaining = 10;
-      let cancelled = false;
-      const tick = setInterval(() => {
-        remaining--;
-        if (cancelled) { clearInterval(tick); return; }
-        if (counter) counter.textContent = String(remaining);
-        if (remaining <= 0) {
-          clearInterval(tick);
-          if (cancelled) return;
-          if (action.url) window.location.href = action.url;
-          else if (action.restart && window.ttRestart) window.ttRestart();
-        }
-      }, 1000);
-      const cancel = (e) => {
-        if (e.key === "Escape") {
-          cancelled = true; clearInterval(tick);
-          if (note) note.textContent = "Auto-advance cancelled.";
-          document.removeEventListener("keydown", cancel);
-        }
-      };
-      document.addEventListener("keydown", cancel);
-    }
-  }
-}
-
-/* Resolve the next action for auto-advance based on current mode.
-   Returns { url } to navigate, { restart: true } to re-boot in
-   place, or null when no sensible auto-advance applies (zen,
-   adaptive). */
-function getAutoAdvanceAction() {
-  if (state.bookSlug) return { url: nextBookUrl() };
-  if (state.lessonId != null) return { url: `/practice/?lesson=${state.lessonId + 1}` };
-  if (state.mode === "quote") {
-    // Preserve the user's chosen length bucket (medium/long/etc.)
-    // when auto-advancing; only daily mode forces "random". The
-    // timestamp param defeats any browser/SW caching of the page.
-    const bucket = state.quote && state.quote !== "daily" ? state.quote : "random";
-    const tag = state.quoteTag ? `&tag=${encodeURIComponent(state.quoteTag)}` : "";
-    return { url: `/practice/?mode=quote&quote=${bucket}${tag}&t=${Date.now()}` };
-  }
-  if (state.mode === "zen" || state.mode === "adaptive") return null;
-  return { restart: true };
 }
 
 function drawSessionChart(svg, samples) {
@@ -1849,14 +2099,8 @@ window.ttRestart = () => {
   // Scroll the typing stage to the top of the viewport (accounting
   // for the sticky site header + practice toolbar) so the user sees
   // the fresh target instead of staying parked at the previous
-  // results card. requestAnimationFrame defers until layout settles.
-  requestAnimationFrame(() => {
-    const headerH = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--header-h")) || 58;
-    const bar = document.querySelector(".practice-bar");
-    const barH = bar ? bar.offsetHeight : 0;
-    const top = stage.getBoundingClientRect().top + window.scrollY - headerH - barH - 12;
-    window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
-  });
+  // results card.
+  scrollStageIntoView();
 };
 
 bindModeBar();

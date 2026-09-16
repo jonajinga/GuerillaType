@@ -165,6 +165,43 @@ PREF_SELECTS.forEach((k) => bindPreference(document.getElementById(`pref-${k}`),
 bindPreference(document.getElementById("pref-soundVolume"), "soundVolume", (v) => parseInt(v, 10) / 100);
 syncPreferences();
 
+/* Auto-advance is one preference holding a per-mode map, not a flat
+   boolean per row, so the practice page can look up "is it on for
+   the mode I am in" with a single key. Same event wiring as
+   bindPreference (change + input + deferred label click). */
+const AUTO_ADVANCE_KEYS = [
+  "time", "words", "quote", "adaptive", "custom", "book",
+  "lesson", "drill", "challenge", "idiom", "poem", "parable",
+];
+function syncAutoAdvance() {
+  const prefs = getActive().preferences || {};
+  const map = (prefs.autoAdvance && typeof prefs.autoAdvance === "object") ? prefs.autoAdvance : {};
+  AUTO_ADVANCE_KEYS.forEach((k) => {
+    const el = document.getElementById(`pref-autoAdvance-${k}`);
+    if (el) el.checked = map[k] === true;
+  });
+}
+AUTO_ADVANCE_KEYS.forEach((k) => {
+  const el = document.getElementById(`pref-autoAdvance-${k}`);
+  if (!el) return;
+  const save = () => {
+    const val = !!el.checked;
+    updateActive((p) => {
+      p.preferences = p.preferences || {};
+      const cur = p.preferences.autoAdvance;
+      p.preferences.autoAdvance = (cur && typeof cur === "object") ? cur : {};
+      p.preferences.autoAdvance[k] = val;
+      return p;
+    });
+    Analytics.prefToggled({ key: `autoAdvance.${k}`, value: val });
+  };
+  el.addEventListener("change", save);
+  el.addEventListener("input", save);
+  const wrap = el.closest("label");
+  if (wrap) wrap.addEventListener("click", () => setTimeout(save, 0));
+});
+syncAutoAdvance();
+
 // Theme preset — persists separately from the light/dark toggle and
 // applies live so the user can preview changes.
 const themePreset = document.getElementById("pref-themePreset");
