@@ -402,20 +402,44 @@ const narrow = await page.evaluate(() => {
   return {
     over: out,
     doc: { scrollWidth: document.documentElement.scrollWidth, clientWidth: document.documentElement.clientWidth },
+    /* The card measured against what HOLDS it, not against itself.
+       Everything above compares a child to its card -- and on the build
+       this gate was written against, the card was the thing that blew
+       out: an unbreakable 69-character title stretched the grid column
+       to 689 px inside a 375 px viewport, so every child was still
+       "inside the card" and the card was off the side of the screen.
+       A containment check whose reference frame moves with the failure
+       measures nothing. */
+    cards: [...document.querySelectorAll(".saved-item")].map((c) => ({
+      w: c.getBoundingClientRect().width,
+      right: c.getBoundingClientRect().right,
+    })),
+    listW: document.querySelector(".saved-list").getBoundingClientRect().width,
+    viewportW: document.documentElement.clientWidth,
     hows: hows.map((h) => ({ w: h.getBoundingClientRect().width, vis: h.getBoundingClientRect().width > 1, t: h.textContent.trim() })),
     wayLefts: ways.map((w) => w.getBoundingClientRect().left),
     /* A Range over the CONTENTS, not the element. An <h3> is a block
        box and getClientRects() on the element returns exactly one rect
        however many lines of text are inside it -- which is how this
        assertion first read a wrapped title as unwrapped. */
-    titleWraps: (() => {
+    title: (() => {
       const r = document.createRange();
       r.selectNodeContents(document.querySelector(".saved-item__title"));
-      return [...r.getClientRects()].filter((x) => x.width > 0.5 && x.height > 0.5).length;
+      const rects = [...r.getClientRects()].filter((x) => x.width > 0.5 && x.height > 0.5);
+      return {
+        lines: rects.length,
+        widest: rects.reduce((m, x) => Math.max(m, x.right), 0),
+      };
     })(),
   };
 });
 eq(narrow.over.length, 0, "D. nothing in either card reaches past the card's own edge");
+chk(narrow.cards.every((c) => c.w <= narrow.listW + 0.5),
+  "D. …and no card is wider than the list holding it",
+  JSON.stringify({ cards: narrow.cards.map((c) => Math.round(c.w)), list: Math.round(narrow.listW) }));
+chk(narrow.cards.every((c) => c.right <= narrow.viewportW + 0.5),
+  "D. …nor off the right edge of a 375 px screen",
+  JSON.stringify({ rights: narrow.cards.map((c) => Math.round(c.right)), viewport: narrow.viewportW }));
 if (narrow.over.length) console.log("        " + narrow.over.slice(0, 6).join("\n        "));
 chk(narrow.doc.scrollWidth <= narrow.doc.clientWidth + 0.5,
   "D. and the page itself does not scroll sideways",
@@ -425,8 +449,11 @@ chk(narrow.hows.every((h) => h.vis), "D. …and both still take up room — the 
   JSON.stringify(narrow.hows));
 near(narrow.hows[0].w, narrow.hows[1].w, "D. …at the same width");
 near(narrow.wayLefts[0], narrow.wayLefts[1], "D. both button groups still start at the same x");
-chk(narrow.titleWraps >= 2, "D. the unbreakable title wrapped rather than overflowing",
-  `${narrow.titleWraps} line boxes`);
+chk(narrow.title.lines >= 2, "D. the unbreakable title wrapped instead of running on",
+  `${narrow.title.lines} line boxes`);
+chk(narrow.title.widest <= narrow.viewportW + 0.5,
+  "D. …and no line of it reaches off the screen",
+  `widest right=${Math.round(narrow.title.widest)} viewport=${narrow.viewportW}`);
 
 console.log("\n## D(b). 1100 px: each way-to-read row is one line");
 await page.setViewportSize({ width: 1100, height: 940 });
