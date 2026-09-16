@@ -1,11 +1,12 @@
 ---
 layout: layouts/base.njk
 title: "Custom Text"
-description: "Drop a .txt, .md, .epub, or .pdf file or paste a chapter. Whole books, split into segments you can pick from."
+description: "Drop a .txt, .md, .epub, or .pdf file or paste a chapter. Whole books, read by chapter or by segment, saved on your device."
 ---
 <header class="page__head">
   <h1>Custom text</h1>
-  <p class="page__subtitle">Drop a <code>.txt</code>, <code>.md</code>, <code>.epub</code>, or <code>.pdf</code> file — or paste a chapter. Sanitized, split into ~500-char segments, and saved on this device. Whole books are fine: nothing is trimmed, and you pick the segment you want to type.</p>
+  <p class="page__subtitle">Drop a <code>.txt</code>, <code>.md</code>, <code>.epub</code>, or <code>.pdf</code> file — or paste a chapter. Sanitized and saved on this device. Whole books are fine: nothing is trimmed.</p>
+  <p class="page__subtitle">Every saved text can be read <strong>two ways, always both available</strong>: by <strong>segment</strong>, ~500 characters at a time, or by <strong>chapter</strong>, six paragraphs a page, the way the <a href="/library/">library</a> reads. Chapters come from the file's own headings — an EPUB's chapters, or <code>CHAPTER I</code>, <code>##</code> markdown headings and the like in a plain file. If there are no headings, the chapter view is simply the whole text, six paragraphs at a time.</p>
 </header>
 
 <div class="custom-form">
@@ -31,6 +32,7 @@ description: "Drop a .txt, .md, .epub, or .pdf file or paste a chapter. Whole bo
     </label>
     <p class="ocr-panel__hint">Untick to keep the file exactly as it came — here, and every time you type it.</p>
   </div>
+  <p class="custom-form__notice" id="chapter-notice" hidden></p>
   <p class="custom-form__notice" id="paste-notice" hidden></p>
   <div class="custom-form__row">
     <button type="button" class="btn btn--primary" id="paste-save">Save text</button>

@@ -6,7 +6,8 @@ import { TypingEngine, isMobileLike } from "../engine/typing-engine.js";
 import { AdaptiveModel } from "../engine/adaptive.js";
 import { buildPicker, uniformText, drillText } from "../engine/wordpicker.js";
 import { recordSession } from "../engine/session-recorder.js";
-import { setSegProgress, getSaved as getSavedCustom, listSaved as listSavedCustom, getSegments as getCustomSegments, normalizeTypeable, cleanForDisplay, saveText as saveCustomText } from "../engine/custom-text.js";
+import { setSegProgress, getSaved as getSavedCustom, listSaved as listSavedCustom, getSegments as getCustomSegments, getChapters as getCustomChapters, normalizeTypeable, cleanForDisplay, saveText as saveCustomText } from "../engine/custom-text.js";
+import { PARAS_PER_PAGE } from "../engine/chapter-detect.js";
 import { byId as achievementById } from "../engine/achievements.js";
 import { fingerForKey } from "../engine/layouts.js";
 import { bookStructureSig } from "../engine/book-structure.js";
@@ -110,7 +111,21 @@ const bookSlug = params.get("book") || null;
 const bookCh = params.get("ch") != null ? parseInt(params.get("ch"), 10) : null;
 const bookParaId = params.get("p") || null;
 const bookPage = params.get("page") != null ? parseInt(params.get("page"), 10) : null;
-const PARAS_PER_PAGE = 6;
+
+/* A custom text read by chapter IS a book, as far as this page is
+   concerned: ?book=custom:<id>. The slug prefix is the only thing that
+   tells the two apart, and it decides three things -- where the
+   chapters come from (IndexedDB, not /data/books/), what the header
+   calls it, and where "back" goes. Everything between those three is
+   the library reader, unchanged. */
+const CUSTOM_BOOK_PREFIX = "custom:";
+const isCustomBook = (slug) => typeof slug === "string" && slug.startsWith(CUSTOM_BOOK_PREFIX);
+const customBookId = (slug) => String(slug || "").slice(CUSTOM_BOOK_PREFIX.length);
+/* Where "back to the chapter list" goes for an imported text. There is
+   no /library/<slug>/ page for one, so it is the card for this text on
+   /custom/, opened straight onto its chapter picker. */
+const customChapterListUrl = () =>
+  `/custom/#chapters-${encodeURIComponent(customBookId(state.bookSlug))}`;
 const state = {
   mode: params.get("mode") || "time",
   duration: parseInt(params.get("duration") || "30", 10),
@@ -550,9 +565,33 @@ async function buildText() {
     // Public-domain library — fetch the book's JSON (cached on state
     // so renderResults can compute next-page URLs without a refetch).
     if (!state._book) {
-      const res = await fetch(`/data/books/${encodeURIComponent(state.bookSlug)}.json`, { cache: "default" }).catch(() => null);
-      if (!res || !res.ok) return "Book not found.";
-      state._book = await res.json();
+      if (isCustomBook(state.bookSlug)) {
+        /* A text the user imported, read by chapter. Same JSON shape as
+           a library book -- {title, author, chapters:[{title,
+           paragraphs:[{id,text}]}]} -- so everything below this point,
+           including paging, the reader header, per-paragraph progress
+           and auto-advance, is the library code path with no branch in
+           it. Only where the chapters come from is different. */
+        const cid = customBookId(state.bookSlug);
+        const item = getSavedCustom(cid);
+        const chapters = await getCustomChapters(cid).catch(() => []);
+        if (!chapters.length) {
+          return "This text could not be read back from storage. Re-import it on the custom text page.";
+        }
+        state._book = {
+          title: (item && item.title) || "Custom text",
+          author: (item && item.meta && item.meta.author) || null,
+          chapters,
+        };
+        // The title and any author line the segment reader would show,
+        // so the header has them without a second lookup.
+        state._customTitle = state._book.title;
+        state._customMeta = (item && item.meta) || null;
+      } else {
+        const res = await fetch(`/data/books/${encodeURIComponent(state.bookSlug)}.json`, { cache: "default" }).catch(() => null);
+        if (!res || !res.ok) return "Book not found.";
+        state._book = await res.json();
+      }
     }
     const book = state._book;
     const ch = (state.bookCh != null && book.chapters[state.bookCh]) ? book.chapters[state.bookCh] : book.chapters[0];
@@ -945,7 +984,14 @@ function handleFinish(result) {
 
   if (state.bookSlug) {
       const completed = (result.endCursor || 0) >= (result.targetLen || 0) && acc >= 80;
-      emit("bookCompletion", { book: state.bookSlug, event: completed ? "finished" : "started" });
+      /* A library slug is a public book id and says something useful in
+         aggregate. A custom slug is "custom:c_9f3a1b" -- an id for a
+         file on one person's device, which tells the analytics nothing
+         and is not ours to send. Report the kind instead. */
+      emit("bookCompletion", {
+        book: isCustomBook(state.bookSlug) ? "custom" : state.bookSlug,
+        event: completed ? "finished" : "started",
+      });
     }
 
     // ── Most-missed character / finger / word ──────────────────
@@ -1085,6 +1131,13 @@ function handleFinish(result) {
         bp.typed[`${state.bookCh}:${pid}`] = { wpm: result.wpm, acc: result.accuracy, at: new Date().toISOString() };
       }
       bp.lastChapter = state.bookCh;
+      /* Which PAGE the reader was on, not only which paragraph. The
+         library page recomputes a page from lastParagraphId when it
+         opens, but /custom/ paints its "Resume" link before it has the
+         chapters in hand, and a resume that always landed on page 1 of
+         the right chapter is not a resume. Written in page mode only;
+         paragraph mode has no page to record. */
+      if (state.bookPage != null) bp.lastPage = state.bookPage;
       if (completedIds.length) bp.lastParagraphId = completedIds[completedIds.length - 1];
       return p;
     });
@@ -1164,7 +1217,11 @@ function handleFinish(result) {
    no "next" (zen) and the toggle is hidden. */
 function autoAdvanceKey() {
   if (activeChallenge) return "challenge";
-  if (state.bookSlug) return "book";
+  /* One switch per text, whichever way it is being read. A custom text
+     opened by chapter is book mode internally, but "Auto-advance for
+     this book" is the library's switch and turning it on for an
+     imported PDF would turn it on for Moby-Dick too. */
+  if (state.bookSlug) return isCustomBook(state.bookSlug) ? "custom" : "book";
   if (state.lessonId != null) return "lesson";
   if (state.drillId) return "drill";
   if (state.mode === "custom") {
@@ -1468,8 +1525,13 @@ function renderBackLink() {
   else if (from === "poem") { label = "← Back to poetry"; href = "/poetry/"; }
   else if (from === "quote") { label = "← Back to quotes"; href = "/quotes/"; }
   else if (state.bookSlug) {
-    label = "← Back to book";
-    href = `/library/${encodeURIComponent(state.bookSlug)}/`;
+    if (isCustomBook(state.bookSlug)) {
+      label = "← Back to your custom texts";
+      href = customChapterListUrl();
+    } else {
+      label = "← Back to book";
+      href = `/library/${encodeURIComponent(state.bookSlug)}/`;
+    }
   } else if (state.lessonId != null) {
     label = "← Back to lessons";
     href = "/lessons/";
@@ -1585,8 +1647,16 @@ function renderBookReaderHeader() {
   // whatever paragraph was open.
   const pos = bookParaPos();
   const counter = pos ? `Paragraph ${pos.n} of ${pos.total}` : `Page ${pageNum} of ${totalPages}`;
+  /* The eyebrow names where the text came from. For a library book
+     that is the book's title; for an imported one the title is the
+     user's own file name and "Custom text" is the useful label, the
+     same one the segment reader's header carries. */
+  const eyebrow = isCustomBook(state.bookSlug)
+    ? "Custom text"
+    : (state._bookTitle || "");
   const html = `
-    <p class="tt-book-eyebrow">${htmlEscape(state._bookTitle || "")}</p>
+    <p class="tt-book-eyebrow">${htmlEscape(eyebrow)}</p>
+    ${isCustomBook(state.bookSlug) && state._bookTitle ? `<p class="tt-book-author">${htmlEscape(state._bookTitle)}</p>` : ""}
     ${state._bookAuthor ? `<p class="tt-book-author">${htmlEscape(state._bookAuthor)}</p>` : ""}
     <h2 class="tt-book-chapter">${htmlEscape(state._chapterTitle || "")}</h2>
     <p class="tt-book-page">${counter}</p>
@@ -1704,8 +1774,10 @@ function nextBookUrl() {
   const next = nextBookPos();
   if (next && next.para != null) return `/practice/?book=${encodeURIComponent(state.bookSlug)}&ch=${next.ch}&p=${encodeURIComponent(next.para)}`;
   if (next) return `/practice/?book=${encodeURIComponent(state.bookSlug)}&ch=${next.ch}&page=${next.page}`;
-  // End of book — back to the index.
-  return `/library/${encodeURIComponent(state.bookSlug)}/`;
+  // End of book — back to the index it came from.
+  return isCustomBook(state.bookSlug)
+    ? customChapterListUrl()
+    : `/library/${encodeURIComponent(state.bookSlug)}/`;
 }
 
 function renderResults(r) {
@@ -1800,7 +1872,7 @@ function renderResults(r) {
           const paraMode = state.bookPage == null;
           return wrap(ICONS.next, paraMode ? "Next paragraph →" : "Next page →", { tag: "a", attrs: `id="tt-next-page" href="${nextBookUrl()}"` }, paraMode ? "Move on to the next paragraph in this chapter." : "Move on to the next page in this book.", true)
             + wrap(ICONS.retry, paraMode ? "Type paragraph again" : "Type page again", { attrs: `type="button" onclick="window.ttRestart && window.ttRestart()"` }, "Retype this same passage from the start.")
-            + wrap(ICONS.book, "Back to chapter list", { tag: "a", attrs: `href="/library/${encodeURIComponent(state.bookSlug)}/"` }, "Return to the book's chapter index.");
+            + wrap(ICONS.book, "Back to chapter list", { tag: "a", attrs: `href="${isCustomBook(state.bookSlug) ? customChapterListUrl() : `/library/${encodeURIComponent(state.bookSlug)}/`}"` }, isCustomBook(state.bookSlug) ? "Return to this text's chapter list." : "Return to the book's chapter index.");
         }
         // Custom text with more than one segment: offer the next one.
         // "Next test" alone just restarted the SAME segment, which is why

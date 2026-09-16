@@ -8,6 +8,8 @@
    The CDN imports are deferred via dynamic import() so the cost is
    only paid when the user actually drops a file of that type. */
 
+import { detectChapters } from "./chapter-detect.js";
+
 const FFLATE_CDN = "https://esm.sh/fflate@0.8.2";
 const PDFJS_CDN = "https://esm.sh/pdfjs-dist@4.5.136/build/pdf.mjs";
 const PDFJS_WORKER = "https://esm.sh/pdfjs-dist@4.5.136/build/pdf.worker.mjs";
@@ -41,8 +43,22 @@ function asciify(s) {
     .replace(/…/g, "...");
 }
 
-/* parseFile(file, onProgress): { title, text } — works for .txt, .md,
-   .epub, .pdf. Throws on parse failure; caller renders the message.
+/* parseFile(file, onProgress): { title, text, chapters } — works for
+   .txt, .md, .epub, .pdf. Throws on parse failure; caller renders the
+   message.
+
+   `text` is the whole document as one string and is exactly what it
+   always was: it is what gets sanitized and cut into ~500-character
+   segments, and scripts/check-import-extraction.mjs holds it to a
+   word-for-word round trip. Nothing below changes it.
+
+   `chapters` is new, and is the same document divided: [{title, body}].
+   Where the format knows its own divisions -- an EPUB's spine items ARE
+   its chapters -- they are taken from the file. Otherwise they are
+   detected from the text (engine/chapter-detect.js). A format that
+   knows better than the detector but only found one section falls back
+   to detection too, because a single-file EPUB is a book in one blob
+   and its headings are still in the prose.
 
    onProgress(done, total, unit) is optional and fires while a long
    document is being walked. A 600-page PDF takes a while, and "Parsing
@@ -53,7 +69,53 @@ export async function parseFile(file, onProgress) {
   if (name.endsWith(".epub")) result = await parseEpub(file, onProgress);
   else if (name.endsWith(".pdf")) result = await parsePdf(file, onProgress);
   else result = { title: file.name.replace(/\.[^.]+$/, ""), text: await file.text() };
-  return { title: asciify(result.title), text: asciify(result.text) };
+  const text = asciify(result.text);
+  const supplied = Array.isArray(result.chapters) ? result.chapters : [];
+  const chapters = supplied.length >= 2
+    ? supplied.map((c) => ({ title: asciify(c.title), body: asciify(c.body) }))
+    : detectChapters(text);
+  return { title: asciify(result.title), text, chapters };
+}
+
+/* An EPUB chapter's own name. The <head><title> is the one the
+   producer wrote for that file; a first h1/h2/h3 is the one the reader
+   sees. Both are read from the RAW xhtml, before htmlToText() deletes
+   the whole <head> and flattens the headings into ordinary lines --
+   after that pass the title is either gone or indistinguishable from
+   the first sentence. */
+function epubItemTitle(html) {
+  const head = html.match(/<head\b[\s\S]*?<\/head>/i);
+  const inHead = head && head[0].match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  const h = html.match(/<h[1-3][^>]*>([\s\S]*?)<\/h[1-3]>/i);
+  const raw = (inHead && inHead[1]) || (h && h[1]) || "";
+  return htmlToText(raw).replace(/\s+/g, " ").trim().slice(0, 120);
+}
+
+/* Spine items that are apparatus rather than text: the navigation
+   document (EPUB 3 marks it properties="nav"), and the cover, contents
+   or title page, which are short files with telling names. They stay
+   in `text` -- that is deliberately unchanged -- but a chapter list
+   that opens on "Cover" and "Table of Contents" is a worse list. */
+const FRONT_MATTER_NAME = /(?:^|\/)(?:nav|toc|contents|cover|title(?:page)?)[^/]*$/i;
+function isApparatusItem(item, body) {
+  if (/\bnav\b/i.test(item.props || "")) return true;
+  if (!body || body.trim().length < 40) return true;
+  return body.trim().length < 200 && FRONT_MATTER_NAME.test(item.href || "");
+}
+
+/* An h1 taken as the chapter title is still sitting at the top of the
+   body; leaving it there asks the user to type the heading twice. A
+   <head><title> is not in the body at all, so the comparison simply
+   finds nothing and the body is returned untouched. */
+function dropLeadingTitle(body, title) {
+  if (!title) return body;
+  const lines = body.split("\n");
+  let i = 0;
+  while (i < lines.length && !lines[i].trim()) i++;
+  if (i < lines.length && lines[i].trim() === title) {
+    return lines.slice(i + 1).join("\n").replace(/^\n+/, "");
+  }
+  return body;
 }
 
 /* Hand the main thread back so a progress message can actually paint.
@@ -79,7 +141,8 @@ async function parseEpub(file, onProgress) {
   const titleMatch = opf.match(/<dc:title[^>]*>([^<]+)<\/dc:title>/i);
   const title = (titleMatch ? titleMatch[1] : file.name.replace(/\.[^.]+$/, "")).trim();
 
-  // Build manifest id → href.
+  // Build manifest id → { href, props }. `properties` is how EPUB 3
+  // marks the navigation document, which is apparatus, not a chapter.
   const manifest = new Map();
   const itemRe = /<item\b[^>]*\/>/g;
   let im;
@@ -88,7 +151,8 @@ async function parseEpub(file, onProgress) {
     const id = (tag.match(/\bid="([^"]+)"/) || [])[1];
     const href = (tag.match(/\bhref="([^"]+)"/) || [])[1];
     const type = (tag.match(/\bmedia-type="([^"]+)"/) || [])[1] || "";
-    if (id && href && /xhtml|html/.test(type)) manifest.set(id, opfDir + href);
+    const props = (tag.match(/\bproperties="([^"]*)"/) || [])[1] || "";
+    if (id && href && /xhtml|html/.test(type)) manifest.set(id, { href: opfDir + href, props });
   }
 
   // Spine order.
@@ -100,11 +164,35 @@ async function parseEpub(file, onProgress) {
     if (ref) spine.push(ref);
   }
 
-  // Concatenate chapter text.
+  /* Walk the spine once, keeping BOTH readings.
+
+     `chunks` is what it always was and is joined into the text the
+     segments are cut from -- every spine item, in order, nothing
+     dropped. `chapters` is the same walk with the file's own divisions
+     kept: one entry per spine item, titled from its <head><title> or
+     its first heading, with the navigation document and the short
+     cover/contents files left out.
+
+     The title has to be read from the RAW xhtml, because htmlToText()
+     deletes <head> outright and turns <h1> into a plain line. That is
+     why the chapter boundaries the EPUB already had have been thrown
+     away until now: by the time anything looked, they were gone. */
   const chunks = [];
+  const chapters = [];
   for (let i = 0; i < spine.length; i++) {
-    const bytes = files[spine[i]];
-    if (bytes) chunks.push(htmlToText(strFromU8(bytes)));
+    const bytes = files[spine[i].href];
+    if (bytes) {
+      const html = strFromU8(bytes);
+      const body = htmlToText(html);
+      chunks.push(body);
+      if (!isApparatusItem(spine[i], body)) {
+        const t = epubItemTitle(html);
+        chapters.push({
+          title: t || `Section ${chapters.length + 1}`,
+          body: dropLeadingTitle(body, t),
+        });
+      }
+    }
     if (onProgress && (i === 0 || i % 5 === 4 || i === spine.length - 1)) {
       onProgress(i + 1, spine.length, "chapter");
       await breathe();
@@ -112,7 +200,7 @@ async function parseEpub(file, onProgress) {
   }
   const text = chunks.filter(Boolean).join("\n\n");
   if (!text.trim()) throw new Error("EPUB had no readable text content.");
-  return { title, text };
+  return { title, text, chapters };
 }
 
 /* Join a page's text items into a line of text.
