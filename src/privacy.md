@@ -2,7 +2,7 @@
 layout: layouts/article.njk
 title: "Privacy"
 eyebrow: "Your data"
-lede: "What I collect (almost nothing), what stays on your device (everything else), what your rights are."
+lede: "What I collect (almost nothing), what stays on your device (everything else), what a share link carries, what your rights are."
 description: "Privacy policy for GuerillaType — privacy-first by design, no accounts, no cookies, no third-party tracking."
 ---
 
@@ -11,7 +11,7 @@ description: "Privacy policy for GuerillaType — privacy-first by design, no ac
 - No accounts. No signup. No email collection.
 - No cookies for tracking, sessions, or anything else.
 - No third-party trackers (no Google Analytics, Facebook Pixel, Hotjar, Segment).
-- No data leaves your device, except optional aggregate page-view analytics if the site operator has enabled them.
+- Nothing leaves your device unless you press Share. The one thing running in the background is cookieless page-view analytics, and it never carries what you typed.
 
 ## What stays on your device
 
@@ -22,6 +22,18 @@ All of it:
 - Theme preference, keyboard layout selection.
 
 This is in your browser's `localStorage` under keys prefixed `tt:`. Open dev tools → Application → Local Storage to see it. Clearing browser storage clears it.
+
+## Sharing a result or a page
+
+Pressing Share is the only way anything about your typing leaves this device. Nothing is shared until you press it, and what gets built is a link.
+
+**What the link carries where a server can see it.** Numbers: wpm, raw wpm, accuracy, consistency, duration and character counts. Then the mode, the date, and a public content id saying which quote, book page, poem, idiom, parable, lesson, challenge or drill you typed. That is the whole list. It never carries the text you typed, the title of a custom text, or your keystrokes.
+
+**What travels after the `#`.** When the text is not something this site already has -- a custom text of your own -- the words ride in the fragment, the part of a link after `#`. So does the keystroke replay, when a run has one. Browsers never send that part to any server: it goes to the share page and is decoded there, in the browser of whoever opened it. Which is the other half of the point: anyone holding the link can read everything in it. A share link is public. Treat it that way.
+
+**The preview image.** The card that X, Slack or iMessage shows is a file written when the site is built. There is one per public quote, idiom, parable, poem, book, lesson, challenge and drill, plus a grid of result cards covering each whole number of wpm and an accuracy band. Nothing is drawn per visitor, so no server ever receives your run in order to paint a picture of it. Cloudflare's standard edge logs record the request for a share link the same way they record the request for any other page on the site.
+
+**Custom texts.** A custom text lives only on the device that made it, so only you can share it, and only your link carries the words, in the fragment. The pre-built preview image can never show a custom text: the machine that drew it never had the text.
 
 ## Optional aggregate analytics — currently active
 
@@ -34,7 +46,7 @@ This site runs **[Umami](https://umami.is/)** — a privacy-friendly, cookieless
 - Browser + OS (e.g. "Chrome on macOS").
 - Screen size bucket.
 - Country (derived from IP, then IP discarded).
-- Event names + structural properties: which modes are picked, when sessions start / finish, which library books are opened, which settings get toggled. None of these include user-typed text, the actual quote / paragraph content, or any string the user input.
+- Event names + structural properties: which modes are picked, when sessions start / finish, which library books are opened, which settings get toggled. None of these include user-typed text, the actual quote / paragraph content, or any string the user input. That still holds for a shared result: Umami records the address of the share page, which is the numbers and the public content id, and never the part after `#`, because a browser does not send it.
 
 **What Umami does NOT record:**
 
@@ -46,7 +58,7 @@ This site runs **[Umami](https://umami.is/)** — a privacy-friendly, cookieless
 
 Umami can be blocked by any privacy extension or by adding `umami.is` to a host blocklist; doing so does not affect the typing experience.
 
-Cloudflare Web Analytics is wired in but disabled by default.
+Cloudflare Web Analytics is wired in and switched off. Umami is the only analytics this site runs.
 
 ## Cookies
 

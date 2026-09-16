@@ -29,7 +29,21 @@ Use the [Contribute hub](/contribute/). Eight forms cover quotes, books, parable
 
 ## Where is my data stored?
 
-In your browser's `localStorage` on this device only. Nothing is sent to a server. Clearing browser storage clears your data — export to JSON first if you want a backup. See the [Analytics page](/analytics/) for the full data story.
+In your browser's `localStorage` on this device only. Nothing goes anywhere unless you press Share, and then a server sees numbers and a public content id, never what you typed. Clearing browser storage clears your data — export to JSON first if you want a backup. See the [Analytics page](/analytics/) for the full data story.
+
+## What is in a share link?
+
+Two parts, and the difference is the whole privacy story.
+
+Before the `#` come the numbers and a public id: wpm, raw wpm, accuracy, consistency, duration, character counts, the mode, the date, and which quote, book page, poem, idiom, parable, lesson, challenge or drill you typed. That part is in the address, so a server sees it and the site's page-view analytics record it.
+
+After the `#` comes anything the site cannot look up for itself: the words of a custom text, and the keystroke replay when a run has one. Browsers never send that part to a server. It is decoded in the browser of whoever opens the link.
+
+So a server never sees your words, and anyone you send the link to sees everything in it. A share link is public. Nothing is shared until you press Share.
+
+## Can I share a custom text?
+
+Yes, and the words travel in the part of the link after the `#`. The site keeps no copy of your custom text, so the link is the only thing carrying it, and it is read back in the browser of whoever opens it. The preview image that social apps show is built ahead of time from public content, so it can never contain your text. Anyone with the link can read the whole thing, so do not share a text you would not publish.
 
 ## Why does the heatmap show wrong keys for Dvorak / Colemak?
 

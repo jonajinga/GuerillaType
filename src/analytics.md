@@ -127,7 +127,7 @@ pageSlug: analytics
 
 ## What is NOT tracked
 
-- The character stream you type. None of it leaves your browser.
+- The character stream you type. Analytics never receives it. The only way any of it leaves your browser is a share link you build yourself, and even then the words sit after the `#`, which a browser does not send.
 - Cookies. Umami is cookieless.
 - Cross-site activity. Nothing follows you off `guerillatype.com`.
 - Identifiers tied to a real person (name, email, IP).

@@ -338,12 +338,13 @@ To move profiles between devices: Export JSON on device A → Import JSON on dev
 
 ## Privacy
 
-Nothing leaves your device unless the site operator has enabled optional aggregate analytics, and even those don't carry personal data.
+Nothing leaves your device unless you press Share. The one thing running in the background is aggregate page-view analytics, which carries no personal data and nothing you typed.
 
 - No accounts. No signup. No email collection.
 - No cookies for tracking, sessions, or fingerprinting.
 - No third-party tracking scripts.
-- Optional Umami / Cloudflare Web Analytics (page-views only, no personal data, disabled by default).
+- Umami page-view analytics: cookieless, no personal data, dashboard public at [/analytics/](/analytics/). Cloudflare Web Analytics is wired in and switched off.
+- Share links: numbers and a public content id in the address; a custom text's words and a keystroke replay only after the `#`, which browsers never send to a server. Anyone with the link can read it.
 
 See [Analytics](/analytics/) and [Privacy](/privacy/) for the full breakdown.
 

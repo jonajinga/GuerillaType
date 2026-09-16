@@ -40,9 +40,13 @@ The site is pre-rendered to plain HTML at build time. Cloudflare Pages serves th
 
 There is no database. Every user's data lives in their browser's `localStorage`. I never touch it, never store it, never have to back it up. The cost of "user data" is zero because I don't have any.
 
-### No backend
+### No application server
 
-There's no API server, no auth service, no queue, no cache layer. Every interactive feature — typing, stats, adaptive learning — runs in the visitor's browser using vanilla JavaScript.
+There's no API server, no auth service, no queue, no cache layer. Every interactive feature — typing, stats, adaptive learning — runs in the visitor's browser using vanilla JavaScript. The one exception is a few lines at Cloudflare's edge that fill in the preview tags on a shared link, which costs a millisecond or two of CPU per request and stays inside the free plan.
+
+### Share preview images
+
+Every share card is drawn at build time, not per visitor: one per quote, idiom, parable, poem, book, lesson, challenge and drill, plus a grid of result cards. That is about 3,600 PNGs and roughly 140 MB added to each deploy. Cloudflare Pages' free tier charges nothing for the storage or the bandwidth, and deploys upload only the files that changed, so the running cost of the whole thing is still zero. Drawing them on demand would mean paying for CPU per request, which is why they are not drawn on demand.
 
 ### Free fonts
 
@@ -50,7 +54,7 @@ There's no API server, no auth service, no queue, no cache layer. Every interact
 
 ### Privacy-friendly analytics
 
-Cloudflare Web Analytics is free. Umami can be self-hosted on a $5/month VPS if needed, but the project doesn't run its own — operators who fork can decide.
+This site runs Umami's hosted service for page-view analytics, and the dashboard is public at [/analytics/](/analytics/). Cloudflare Web Analytics is wired in, switched off, and free if you turn it on. Self-hosting Umami runs about $5/month on a VPS, which is the route a fork would take.
 
 ## What does cost something
 

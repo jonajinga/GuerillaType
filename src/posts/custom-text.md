@@ -40,7 +40,7 @@ After saving, you can pin a custom text. It then appears at the bottom of the [/
 
 ## What it does not do
 
-**It does not phone home.** Your text never leaves your browser. The custom-text feature uses local storage, full stop. There is no upload, no sync, no telemetry.
+**It does not phone home.** The custom-text feature uses local storage, full stop. There is no upload, no sync, no telemetry. The one way the words travel is a share link you build yourself, and then they ride after the `#` -- the part of a link a browser never sends to a server, decoded in the browser of whoever opens it. Anyone with that link can read the text, so share one only if you would publish it.
 
 **It does not OCR images.** PDFs need to have a text layer. If a PDF was scanned but never OCR'd, you will get garbage. Run it through a tool that adds the text layer first.
 
