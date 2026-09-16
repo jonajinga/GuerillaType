@@ -46,20 +46,22 @@
   {# Synchronous flip to data-focused="false" on touch devices. Runs
      before paint so the user never sees the brief "focused with
      cursor blinking" flash before the engine boots. The same
-     predicate as isMobileLike() in typing-engine.js. #}
+     predicate as isMobileLike() in typing-engine.js, copied by hand
+     because it has to run before any module loads: touch-first media
+     query, phone or tablet user agent, iPadOS in desktop-UA mode. Not
+     the window width and not the touch-point count: a zoomed desktop
+     browser and a desktop with a touch monitor have keyboards, and
+     "Tap here to start typing" is wrong there. Change both together;
+     check-auto-advance.mjs section O fails when they disagree. #}
   <script>
     (function(){
       try{
         var w = window;
         var touch = false;
-        if (w.matchMedia){
-          if (w.matchMedia("(max-width: 767px)").matches) touch = true;
-          else if (w.matchMedia("(hover: none) and (pointer: coarse)").matches) touch = true;
-          else if (w.matchMedia("(pointer: coarse)").matches) touch = true;
-        }
-        if (!touch && "ontouchstart" in w) touch = true;
-        if (!touch && navigator.maxTouchPoints > 0) touch = true;
-        if (!touch && /iphone|ipad|ipod|android/i.test(navigator.userAgent || "")) touch = true;
+        var ua = (navigator.userAgent || "").toLowerCase();
+        if (w.matchMedia && w.matchMedia("(hover: none) and (pointer: coarse)").matches) touch = true;
+        if (!touch && /iphone|ipad|ipod|android|mobile/.test(ua)) touch = true;
+        if (!touch && /macintosh/.test(ua) && navigator.maxTouchPoints > 1) touch = true;
         if (touch) document.documentElement.setAttribute("data-touch", "true");
       }catch(e){}
     })();

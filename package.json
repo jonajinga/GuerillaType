@@ -61,6 +61,7 @@
     "og-render": "node scripts/check-og-render.mjs",
     "og-images": "node scripts/check-og-images.mjs",
     "share-sheet": "node scripts/check-share-sheet.mjs",
+    "item-pages": "node scripts/check-item-pages.mjs",
     "analytics-privacy": "node scripts/check-analytics-privacy.mjs"
   },
   "dependencies": {

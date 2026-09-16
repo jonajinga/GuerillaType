@@ -1,0 +1,78 @@
+{# Shared action row + client wiring for the four per-item corpus
+   pages (/quotes/<id>/, /idioms/<id>/, /parables/<id>/, /poetry/<id>/).
+
+   Expects two variables set by the including template:
+     ITEM      a dict: { kind, id, title, text, author, year, source,
+                         meaning, moral, saveTitle }
+     typeHref  the practice deep link for this item
+
+   The Share button carries ONLY data attributes. src/assets/js/share/
+   is owned by another branch; it wires every [data-share] on every
+   page from main.js. Nothing here imports it, so these pages work
+   (minus sharing) whether or not that module has landed. #}
+<div class="corpus-page__actions">
+  <a class="btn btn--primary" href="{{ typeHref }}" data-type-this>Type this</a>
+  <button type="button" class="btn" id="corpus-save">Save to my texts</button>
+  <button type="button" class="btn btn--ghost"
+    data-share
+    data-share-title="{{ shareTitle }}"
+    data-share-text="{{ shareText }}"
+    data-share-url="{{ site.url }}{{ page.url }}"
+    data-share-image="{{ site.url }}/og/{{ ITEM.kind }}/{{ ITEM.id }}.png"
+    data-share-kind="{{ ITEM.kind }}">Share</button>
+</div>
+
+<script type="module">
+  import { saveText } from "/assets/js/engine/custom-text.js?v={{ cssVersion }}";
+  import { getActive } from "/assets/js/profiles.js?v={{ cssVersion }}";
+  import { toast } from "/assets/js/util/dom.js?v={{ cssVersion }}";
+
+  /* The item as JSON rather than data- attributes: a poem's text is
+     multi-line and the HTML minifier is free to collapse whitespace
+     inside an attribute value, which would quietly change what gets
+     saved and typed. */
+  const ITEM = {{ ITEM | dump | safe }};
+
+  /* Completion tick. corpusProgress[kind][id] is written by
+     practice-boot's handleFinish when a run reaches the end of the
+     text at >= 80% accuracy -- the same record the list pages read. */
+  const done = (((getActive() || {}).corpusProgress || {})[ITEM.kind] || {})[ITEM.id];
+  const tick = document.getElementById("corpus-done");
+  if (tick && done) {
+    tick.hidden = false;
+    const wpm = Math.round(done.wpm || 0);
+    if (wpm) tick.textContent = `✓ Typed · ${wpm} wpm`;
+  }
+
+  /* Save to my texts. The meta shape is exactly the one
+     corpus-boot.js typeItem() builds, so a saved item renders the
+     same attribution header and records completion against the same
+     corpus id as one opened straight from the list page. */
+  const saveBtn = document.getElementById("corpus-save");
+  if (saveBtn) {
+    saveBtn.addEventListener("click", async () => {
+      saveBtn.disabled = true;
+      try {
+        await saveText({
+          title: ITEM.saveTitle || ITEM.title || ITEM.id,
+          raw: ITEM.text,
+          meta: {
+            kind: ITEM.kind,
+            sourceId: ITEM.id,
+            title: ITEM.title || null,
+            author: ITEM.author || null,
+            year: ITEM.year || null,
+            source: ITEM.source || null,
+            meaning: ITEM.meaning || null,
+            moral: ITEM.moral || null,
+          },
+        });
+        toast(`Saved "${ITEM.saveTitle || ITEM.title || ITEM.id}" to your texts`);
+      } catch (e) {
+        toast((e && e.message) || "Couldn't save that.", "bad");
+      } finally {
+        saveBtn.disabled = false;
+      }
+    });
+  }
+</script>

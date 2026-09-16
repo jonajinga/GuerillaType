@@ -1,0 +1,53 @@
+---
+pagination:
+  data: quotes
+  size: 1
+  alias: quote
+  addAllPagesToCollections: true
+permalink: "/quotes/{{ quote.id }}/"
+layout: layouts/base.njk
+pageSlug: "quote-detail"
+eleventyComputed:
+  # `| safe` everywhere in this block: Nunjucks autoescapes a computed
+  # front-matter string, and base.njk escapes it AGAIN when it prints
+  # og:title. Without `safe` an apostrophe ships as "&amp;#39;" and the
+  # share preview reads O&#39;Brien. Escaping is base.njk's job alone.
+  title: "{{ quote.text | truncate(60) | safe }} — {{ quote.author | safe }}"
+  description: "{{ quote.text | truncate(160) | safe }}"
+  ogImage: "/og/quote/{{ quote.id }}.png"
+  ogImageAlt: "A quote by {{ quote.author | safe }}, on a GuerillaType card"
+---
+{% set ITEM = {
+  kind: "quote",
+  id: quote.id,
+  title: quote.text | truncate(60),
+  saveTitle: quote.text | truncate(60),
+  text: quote.text,
+  author: quote.author,
+  year: quote.year,
+  source: quote.source
+} %}
+{% set typeHref = "/practice/?mode=quote&quote=id&qid=" + quote.id + "&from=quote" %}
+{% set shareTitle = quote.text | truncate(60) %}
+{% set shareText = quote.text + " — " + quote.author %}
+
+<article class="corpus-page corpus-page--quote" data-corpus-kind="quote" data-corpus-id="{{ quote.id }}">
+  <header class="corpus-page__head">
+    <p class="eyebrow">Quote</p>
+    <h1 class="corpus-page__title">{{ quote.text | truncate(60) }}</h1>
+    <p class="corpus-page__byline">{{ quote.author }}{% if quote.year %} · {{ quote.year }}{% endif %}{% if quote.source %} · {{ quote.source }}{% endif %}</p>
+    <p class="corpus-page__done" id="corpus-done" hidden>✓ Typed</p>
+  </header>
+
+  <blockquote class="corpus-page__text corpus-page__text--quote">{{ quote.text }}</blockquote>
+
+  {% include "partials/corpus/detail-actions.njk" %}
+
+  <nav class="corpus-page__nav" aria-label="Quote navigation">
+    <a class="corpus-page__back" href="/quotes/">← All quotes</a>
+    <span class="corpus-page__seq">
+      {% if pagination.href.previous %}<a href="{{ pagination.href.previous }}" rel="prev">← Previous</a>{% endif %}
+      {% if pagination.href.next %}<a href="{{ pagination.href.next }}" rel="next">Next →</a>{% endif %}
+    </span>
+  </nav>
+</article>
