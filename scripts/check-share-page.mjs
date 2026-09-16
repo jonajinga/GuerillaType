@@ -505,8 +505,20 @@ chk(referrers.length === 0, "C. no Referer header carries a fragment either");
    to gateway.umami.is. /r/ therefore loads no third-party analytics at
    all. Asserted twice -- once against the built HTML, which holds with
    no network, and once against what the page actually did. */
-chk(!/umami|cloudflareinsights/.test(rawHtmlEarly),
-  "C. /r/ ships no third-party analytics tag at all");
+/* Written as "either/or" on purpose, not as a flat "no umami here".
+   Intercepting requests is not enough on its own -- a gate that stubs
+   window.umami sees nothing and concludes the page is clean -- so this
+   is the assertion that holds with no network at all. Today /r/ ships
+   no tracker; if somebody decides later that it should have one, this
+   still holds them to the two attributes that keep the query and the
+   fragment out of the payload, rather than silently going quiet. */
+const umamiTag = (rawHtmlEarly.match(/<script[^>]*umami[^>]*>/i) || [""])[0];
+const noTracker = !/umami|cloudflareinsights/.test(rawHtmlEarly);
+const guardedTracker = /data-exclude-hash=["']?true/i.test(umamiTag)
+  && /data-exclude-search=["']?true/i.test(umamiTag);
+chk(noTracker || guardedTracker,
+  "C. /r/ either ships no tracker, or one that excludes the query and the hash",
+  noTracker ? "no tracker at all" : umamiTag.slice(0, 120) || "(tag not found)");
 const thirdParty = seen.filter((r) => !r.url.startsWith(B) && !r.url.startsWith("data:") && !r.url.startsWith("blob:"));
 const analyticsHits = thirdParty.filter((r) => /umami|cloudflareinsights|analytics/i.test(r.url));
 chk(analyticsHits.length === 0, "C. and sent nothing to an analytics endpoint",
@@ -521,6 +533,14 @@ chk(!(await pageC.isHidden('[data-r="text"]')), "C. and it is actually visible")
 const tryHref = await pageC.getAttribute("#tt-try", "href");
 chk(tryHref === "/practice/?mode=words", "C. Try this yourself deep-links to the same kind of run", tryHref);
 chk(cErrors.length === 0, "C. the page threw nothing", cErrors.join(" | "));
+
+/* The promise, in the words a reader actually sees. Asserted verbatim
+   because it is a claim about behaviour, and the two must not drift
+   apart quietly. */
+const footnote = (await pageC.textContent('[data-r="footnote"]') || "").replace(/\s+/g, " ").trim();
+chk(footnote.startsWith("The numbers and the public id travel in the address. The text you typed and the replay, if any, sit after the # and never reach a server."),
+  "C. the privacy footnote says what actually happens", footnote.slice(0, 120));
+chk(/analytics/i.test(footnote), "C. and that this page reports nothing", footnote.slice(-70));
 
 const robots = await pageC.getAttribute('meta[name="robots"]', "content");
 chk(/noindex/.test(robots || ""), "C. the template carries noindex", robots || "(absent)");
