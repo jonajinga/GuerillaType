@@ -308,6 +308,56 @@ await page.waitForTimeout(1500);
 chk(!(await page.$eval("#tt-results", (el) => el.hidden)) && /challenge=word-50/.test(page.url()), "K. challenge missed -> card, same challenge", page.url());
 chk(await page.isVisible("#tt-next-challenge"), "K. card offers Next challenge");
 
+// M. Library paragraph mode (the reader's click-one-paragraph link)
+//    advances paragraph by paragraph and rolls into the next chapter.
+{
+  await setAuto({ book: true });
+  const book = await page.evaluate(async () => {
+    const b = await (await fetch("/data/books/the-good-soldier.json")).json();
+    const chs = b.chapters.map((c) => c.paragraphs.map((p) => ({ id: p.id, len: p.text.length })));
+    // A chapter whose last paragraph is short and that has a successor,
+    // so the chapter roll-over can be typed at human pace.
+    let roll = null;
+    for (let i = 0; i + 1 < chs.length; i++) {
+      const last = chs[i][chs[i].length - 1];
+      if (last && last.len < 220 && chs[i + 1].length) { roll = { ch: i, para: last.id, nextPara: chs[i + 1][0].id }; break; }
+    }
+    return { slug: b.slug || "the-good-soldier", first: chs[0][0].id, second: chs[0][1] && chs[0][1].id, total: chs[0].length, roll };
+  });
+  await page.goto(`${B}/practice/?book=${book.slug}&ch=0&p=${encodeURIComponent(book.first)}`, { waitUntil: "networkidle" });
+  await page.waitForSelector(".tt-char", { timeout: 8000 });
+  chk(await page.isVisible("#tt-autoadvance") && (await page.getAttribute("#tt-autoadvance", "aria-disabled")) === null, "M. Auto button available in paragraph mode");
+  const hdr0 = (await page.textContent(".tt-book-page").catch(() => "")) || "";
+  chk(new RegExp(`Paragraph 1 of ${book.total}`).test(hdr0), "M. header counts paragraphs, not pages", JSON.stringify(hdr0.trim()));
+  await page.click(".tt-stage").catch(() => {});
+  await typeWithErrors(0);
+  await page.waitForTimeout(1200);
+  chk(await page.$eval("#tt-results", (el) => el.hidden), "M. no card after a paragraph");
+  chk(page.url().includes(`p=${encodeURIComponent(book.second)}`), "M. URL moved to the second paragraph", page.url());
+  const hdr1 = (await page.textContent(".tt-book-page").catch(() => "")) || "";
+  chk(/Paragraph 2 of/.test(hdr1), "M. header reads Paragraph 2", JSON.stringify(hdr1.trim()));
+  chk(/Paragraph 1 of \d+ done/.test((await page.textContent("#tt-last-run").catch(() => "")) || ""), "M. strip names the paragraph");
+  if (book.roll) {
+    await page.goto(`${B}/practice/?book=${book.slug}&ch=${book.roll.ch}&p=${encodeURIComponent(book.roll.para)}`, { waitUntil: "networkidle" });
+    await page.waitForSelector(".tt-char", { timeout: 8000 });
+    await page.click(".tt-stage").catch(() => {});
+    await typeWithErrors(0);
+    await page.waitForTimeout(1200);
+    chk(page.url().includes(`ch=${book.roll.ch + 1}&p=${encodeURIComponent(book.roll.nextPara)}`), "M. last paragraph rolls into the next chapter", page.url());
+  } else {
+    chk(false, "M. no short chapter-ending paragraph found to test the roll-over");
+  }
+  // Switch off: the card offers Next paragraph.
+  await setAuto({ book: false });
+  await page.goto(`${B}/practice/?book=${book.slug}&ch=0&p=${encodeURIComponent(book.first)}`, { waitUntil: "networkidle" });
+  await page.waitForSelector(".tt-char", { timeout: 8000 });
+  await page.click(".tt-stage").catch(() => {});
+  await typeWithErrors(0);
+  await page.waitForTimeout(1200);
+  const nextHref = await page.getAttribute("#tt-next-page", "href").catch(() => null);
+  chk(!!nextHref && nextHref.includes(`p=${encodeURIComponent(book.second)}`), "M. card's next link points at the next paragraph", nextHref || "(missing)");
+}
+
 // L. Touch devices always get the card: the next run cannot take
 //    focus without a tap, so there is nothing smooth to swap to.
 {
