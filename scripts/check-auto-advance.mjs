@@ -291,7 +291,8 @@ await page.waitForSelector(".tt-char", { timeout: 8000 });
 await page.click(".tt-stage").catch(() => {});
 await typeWithErrors(3);
 await page.waitForTimeout(1200);
-chk(!(await page.$eval("#tt-results", (el) => el.hidden)) && /lesson=1/.test(page.url()), "J. lesson failed -> card, still lesson 1", page.url());
+chk(await page.$eval("#tt-results", (el) => el.hidden) && /lesson=2/.test(page.url()), "J. lesson NOT passed -> still advances to lesson 2", page.url());
+chk(/Lesson 1 not passed/.test((await page.textContent("#tt-last-run").catch(() => "")) || ""), "J. strip says the lesson was not passed");
 
 // K. Challenges advance only on a clear (word-50: 65 wpm, 95 % acc).
 await page.goto(`${B}/practice/?mode=words&words=50&challenge=word-50`, { waitUntil: "networkidle" });
@@ -305,8 +306,49 @@ await page.waitForSelector(".tt-char", { timeout: 8000 });
 await page.click(".tt-stage").catch(() => {});
 await typeWithErrors(4);
 await page.waitForTimeout(1500);
-chk(!(await page.$eval("#tt-results", (el) => el.hidden)) && /challenge=word-50/.test(page.url()), "K. challenge missed -> card, same challenge", page.url());
-chk(await page.isVisible("#tt-next-challenge"), "K. card offers Next challenge");
+chk(await page.$eval("#tt-results", (el) => el.hidden) && /challenge=word-200/.test(page.url()), "K. challenge missed -> still advances to the next challenge", page.url());
+chk(/50 Words missed/.test((await page.textContent("#tt-last-run").catch(() => "")) || ""), "K. strip says missed and why", JSON.stringify(((await page.textContent("#tt-last-run").catch(() => "")) || "").trim()));
+// The 100-word challenge the owner reported: missed goal still advances.
+await page.goto(`${B}/practice/?mode=words&words=100&challenge=word-100`, { waitUntil: "networkidle" });
+await page.waitForSelector(".tt-char", { timeout: 8000 });
+await page.click(".tt-stage").catch(() => {});
+await typeWithErrors(5);
+await page.waitForTimeout(1500);
+chk(await page.$eval("#tt-results", (el) => el.hidden) && /challenge=word-500/.test(page.url()), "K. 100 Words missed -> advances to 500 Words", page.url());
+// Manual Next challenge on the card still exists when the switch is off.
+await setAuto({ challenge: false });
+await page.goto(`${B}/practice/?mode=words&words=50&challenge=word-50`, { waitUntil: "networkidle" });
+await page.waitForSelector(".tt-char", { timeout: 8000 });
+await page.click(".tt-stage").catch(() => {});
+await typeWithErrors(4);
+await page.waitForTimeout(1200);
+chk(!(await page.$eval("#tt-results", (el) => el.hidden)) && (await page.isVisible("#tt-next-challenge")), "K. switch off: card with Next challenge button");
+// Literal-source challenges type what they declare, not a pangram.
+await page.goto(`${B}/practice/?mode=words&words=5&challenge=alphabet-sprint`, { waitUntil: "networkidle" });
+await page.waitForSelector(".tt-char", { timeout: 8000 });
+const lit = await surfaceText();
+chk(lit.startsWith("abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz"), "K. alphabet-sprint types the alphabet, not the pangram", JSON.stringify(lit.slice(0, 30)));
+
+// N. A quote saved through the custom pipeline (meta.kind quote) advances
+//    to another quote instead of retyping itself.
+{
+  const q = await page.evaluate(async () => { const all = await (await fetch("/data/quotes.json")).json(); return all.slice(0, 2).map((x) => ({ id: x.id, text: x.text, author: x.author })); });
+  await page.evaluate(({ q }) => {
+    const list = JSON.parse(localStorage.getItem("tt:custom-texts") || "[]");
+    list.unshift({ id: "c_quote", title: q[0].author || "Quote", createdAt: new Date().toISOString(), bytes: q[0].text.length, lastSeg: 0, segments: [q[0].text], meta: { kind: "quote", sourceId: q[0].id, author: q[0].author } });
+    localStorage.setItem("tt:custom-texts", JSON.stringify(list));
+    const ps = JSON.parse(localStorage.getItem("tt:profiles")); ps[0].preferences.autoAdvance = { quote: true }; localStorage.setItem("tt:profiles", JSON.stringify(ps));
+  }, { q });
+  await page.goto(`${B}/practice/?mode=custom&custom=c_quote&seg=0&from=quote`, { waitUntil: "networkidle" });
+  await page.waitForSelector(".tt-char", { timeout: 8000 });
+  chk((await page.getAttribute("#tt-autoadvance", "aria-pressed")) === "true", "N. quote switch is on for a custom-pipeline quote");
+  await page.click(".tt-stage").catch(() => {});
+  const before = await typeWithErrors(0);
+  await page.waitForTimeout(1500);
+  const after = await surfaceText();
+  chk(await page.$eval("#tt-results", (el) => el.hidden) && after !== before && !/custom=c_quote/.test(page.url()), "N. custom-pipeline quote advances to a different quote", page.url());
+  chk(/Quote done/.test((await page.textContent("#tt-last-run").catch(() => "")) || ""), "N. strip reads Quote done");
+}
 
 // M. Library paragraph mode (the reader's click-one-paragraph link)
 //    advances paragraph by paragraph and rolls into the next chapter.
