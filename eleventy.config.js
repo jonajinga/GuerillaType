@@ -126,6 +126,25 @@ export default function (eleventyConfig) {
   // render /assets/fonts/README/index.html. Ignore it as a template.
   eleventyConfig.ignores.add("src/assets/fonts/README.md");
   eleventyConfig.addPassthroughCopy("src/assets/js");
+  /* Vendored third-party code the browser needs but npm cannot deliver:
+     the satori bundle and HarfBuzz's wasm, plus their licences. Nothing
+     on a page visit touches any of it -- share/local-card.js imports it
+     on the first Download PNG of a result typed from your own text.
+     Same README-is-not-a-template problem as the fonts directory. */
+  eleventyConfig.addPassthroughCopy("src/assets/vendor");
+  eleventyConfig.ignores.add("src/assets/vendor/README.md");
+  /* lib/og/ is the renderer the build-time cards are drawn with, and it
+     lives OUTSIDE src/ on purpose (Eleventy's input dir is src, so a
+     .js there would not be globbed as a template anyway -- but it is
+     also meant to run in a Cloudflare Worker). Exactly the five files
+     the browser card needs are copied, by name rather than as a
+     directory, so adding a Node-only file to lib/og/ cannot silently
+     start shipping it to every visitor. Copying rather than duplicating
+     is the whole point: the browser draws from the same card.js the
+     build does, so the two cannot drift. */
+  for (const f of ["card.js", "theme.js", "labels.js", "render.js", "validate.js"]) {
+    eleventyConfig.addPassthroughCopy({ [`lib/og/${f}`]: `assets/vendor/og/${f}` });
+  }
   // src/data -> _site/data. The default 11ty passthrough uses
   // @11ty/recursive-copy which races against OneDrive's sync locks
   // and emits cryptic "Benchmark after() without a before()" errors.

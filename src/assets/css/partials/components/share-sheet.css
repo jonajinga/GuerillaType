@@ -67,6 +67,12 @@
 .share-sheet__note{
   margin:0;color:var(--fg-2);font-size:var(--fs-200);line-height:1.45;
 }
+/* Only on a result typed from a text of your own, where Download PNG
+   draws the card in this browser instead of fetching the pre-rendered
+   one. hidden is toggled by share.js, so it has to win over the
+   display the flex column would otherwise give it. */
+.share-sheet__note--local{color:var(--secondary)}
+.share-sheet__note[hidden]{display:none}
 
 @media (prefers-reduced-motion: reduce){
   .share-sheet__target{transition:none}

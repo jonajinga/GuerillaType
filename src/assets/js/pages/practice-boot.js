@@ -24,7 +24,7 @@ import { Analytics } from "../analytics.js";
    contract with scripts/gen-og-images.mjs, and the accuracy band in it
    had four copies. This is the browser-side one; it mirrors bandFor()
    in lib/og/labels.js, which runs in Node where satori does. */
-import { resultImagePath } from "../share/share.js";
+import { resultImagePath, setLocalCard } from "../share/share.js";
 
 /* Inlined bucket helpers. These also live in analytics.js as named
    exports, but importing them from there would tie practice-boot
@@ -2066,6 +2066,35 @@ function renderResults(r) {
             link = p(`mode=${encodeURIComponent(state.mode || "time")}`);
           }
           const ownText = isCustomBook(state.bookSlug) || state.mode === "custom";
+          /* A text of your own -- not a poem or a parable routed through
+             custom mode, which have a public id and a public page. Those
+             are the only runs whose card the server can never draw, so
+             they are the only ones whose Download PNG is rendered here
+             in the browser (share/local-card.js). The excerpt goes
+             through setLocalCard, NEVER into a data-share-* attribute:
+             the dataset is what builds urls. */
+          const privateText = ownText && !srcId;
+          /* validate.js takes digits with at most two decimals, and
+             card.js prints one. "96" and "96.4", never "96.42857". */
+          const num1 = (n) => {
+            const v = Math.max(0, Number(n) || 0);
+            return Number.isInteger(v) ? String(v) : v.toFixed(1);
+          };
+          setLocalCard(privateText ? {
+            text: targetStr.slice(0, 600),
+            stats: new URLSearchParams({
+              /* Clamped to validate.js's own ranges, so a 90-minute
+                 chapter still draws a card. wpm is NOT clamped: over
+                 400 the model is refused and the grid card is served
+                 instead, which is better than printing "400". */
+              v: "1", wpm: String(wpmN),
+              raw: String(Math.min(600, Math.max(0, Math.round(r.raw || 0)))),
+              acc: num1(r.accuracy), con: num1(r.consistency),
+              dur: String(Math.min(3600, Math.max(0, Math.round((r.ms || 0) / 1000)))),
+              mode: "custom", d: new Date().toISOString().slice(0, 10),
+              ...(meta.newOverallBest ? { pb: "2" } : meta.newModeBest ? { pb: "1" } : {}),
+            }).toString(),
+          } : null);
           const label = ownText ? "custom text"
             : state.mode === "time" ? `${state.duration || 30}s test`
             : state.mode === "words" ? `${state.words || 25}-word test`
@@ -2075,6 +2104,7 @@ function renderResults(r) {
           const text = `${wpmN} wpm · ${accN}% accuracy · ${label} · GuerillaType`;
           const title = `${wpmN} wpm on GuerillaType`;
           return `type="button" data-share data-share-kind="result" data-share-surface="result"`
+            + (privateText ? ` data-share-private="1"` : ``)
             + ` data-share-mode="${htmlEscape(ownText ? "custom" : (state.mode || ""))}"`
             + ` data-share-title="${htmlEscape(title)}"`
             + ` data-share-text="${htmlEscape(text)}"`

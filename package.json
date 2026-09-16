@@ -58,9 +58,11 @@
     "og-meta": "node scripts/check-og-meta.mjs",
     "scroll-jolt": "node scripts/check-scroll-jolt.mjs",
     "og-images-gen": "node scripts/gen-og-images.mjs",
+    "og-bundle": "node scripts/build-og-browser-bundle.mjs",
     "og-render": "node scripts/check-og-render.mjs",
     "og-images": "node scripts/check-og-images.mjs",
     "share-sheet": "node scripts/check-share-sheet.mjs",
+    "share-local-png": "node scripts/check-share-local-png.mjs",
     "item-pages": "node scripts/check-item-pages.mjs"
   },
   "dependencies": {

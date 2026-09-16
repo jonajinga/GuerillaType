@@ -105,6 +105,17 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // Vendored renderer for the browser-drawn share card: pass through,
+  // let the HTTP cache own it. The cache-first branch below would be
+  // tempting -- 915 KB fetched once, instant the second time -- but
+  // /assets/vendor/og/card.js is imported BY render.js, not by anything
+  // the build versions, so its URL never changes. Cache-first would
+  // pin a design change out of a returning visitor's browser forever.
+  // src/_headers gives these a day.
+  if (url.pathname.startsWith("/assets/vendor/")) {
+    return;
+  }
+
   // Cache-first for everything else (fonts, images, CSS that carries
   // its own ?v=cssVersion cache-bust on the <link> href).
   event.respondWith((async () => {

@@ -32,6 +32,14 @@
 /og/*
   Cache-Control: public, max-age=86400
 
+# Vendored third-party code for the browser-drawn share card (satori's
+# bundle, HarfBuzz's wasm, the copies of lib/og/). Fetched only on a
+# Download PNG click, never on a page visit, and the entry modules carry
+# the build's ?v= -- so a day is a cache, not a trap. Not `immutable`:
+# hb.wasm has no version in its name.
+/assets/vendor/*
+  Cache-Control: public, max-age=86400
+
 /data/*
   Cache-Control: public, max-age=86400
 

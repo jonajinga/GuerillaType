@@ -175,6 +175,32 @@ async function askMastodonHost() {
   return host;
 }
 
+/* ── the private-text card ─────────────────────────────────────────
+   A result typed from a text of your own cannot be previewed by the
+   server: the text is on this device and nowhere else. Download PNG for
+   those runs draws the card in the browser instead
+   (share/local-card.js), so the picture can include the words.
+
+   The excerpt travels through this module-level slot rather than a
+   data-share-* attribute, deliberately. Everything in that dataset is
+   one careless template away from an intent url, and
+   scripts/check-share-sheet.mjs asserts the whole dataset is free of
+   anything typed. A page sets this when it renders a result and the
+   sheet reads it; it never reaches a url, an analytics prop, or the
+   dialog's own text.
+
+     setLocalCard({ text, stats })   stats is the canonical share query
+                                     (v=1&wpm=..&acc=..), the same shape
+                                     lib/og/validate.js parses.
+     setLocalCard(null)              forget it. */
+let localCard = null;
+
+export function setLocalCard(src) {
+  localCard = src && src.text && src.stats
+    ? { text: String(src.text), stats: String(src.stats) }
+    : null;
+}
+
 /* ── the dialog ────────────────────────────────────────────────── */
 let sheetEl = null;
 let ctx = null;        // the share currently on screen
@@ -202,6 +228,7 @@ function ensureSheet() {
         <button type="button" class="btn share-sheet__action" data-share-download hidden>${ICONS.download}<span>Download PNG</span></button>
       </div>
       <p class="share-sheet__note">Links carry your numbers, never what you typed.</p>
+      <p class="share-sheet__note share-sheet__note--local" data-share-local-note hidden>The picture includes your text and is made on your device</p>
     </div>
   `;
   document.body.appendChild(el);
@@ -372,22 +399,42 @@ export async function copyLink(c) {
   return ok;
 }
 
+function saveBlob(blob) {
+  const href = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = href;
+  a.download = fileName(ctx);
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(href), 10000);
+}
+
 async function onDownload() {
   if (!ctx || !ctx.imageUrl) return;
+  /* A result typed from your own text: draw the real card here, with
+     the words in it. The module (and the 915 KB behind it) is imported
+     on this click and never before. If any of it fails -- wasm blocked,
+     a browser too old for the SVG path, numbers that do not validate --
+     say what the user is about to get and fall through to the
+     pre-rendered grid card, which is always a correct picture of the
+     run; it just cannot show the text. */
+  if (ctx.private && ctx.localCard) {
+    try {
+      const mod = await import("./local-card.js");
+      saveBlob(await mod.renderCardPng(ctx.localCard));
+      emit("shareImageSaved", { kind: ctx.kind || "page", mode: ctx.mode || "", method: "local" });
+      return;
+    } catch {
+      toast("Saved the plain card — the picture will not include your text.", "bad");
+    }
+  }
   try {
     const res = await fetch(ctx.imageUrl);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const blob = await res.blob();
-    const href = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = href;
-    a.download = fileName(ctx);
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(href), 10000);
-    /* "server" = the card the build pre-rendered. Phase D4 adds a
-       canvas fallback for custom text, which reports "canvas". */
+    saveBlob(await res.blob());
+    /* "server" = the card the build pre-rendered; "local" = drawn in
+       this browser by share/local-card.js. */
     emit("shareImageSaved", { kind: ctx.kind || "page", mode: ctx.mode || "", method: "server" });
   } catch {
     toast("Could not download the image.", "bad");
@@ -408,6 +455,12 @@ export function openShareSheet(opts) {
     kind: o.kind || "page",
     mode: o.mode || "",
     surface: o.surface || (document.body && document.body.dataset.page) || "page",
+    /* Private only when the caller says so AND a page actually left a
+       text here. `imageUrl` stays the grid card either way: it is what
+       goes into og:image, and a scraper must never be sent a picture of
+       something the server has never seen. */
+    private: !!o.private && !!localCard,
+    localCard: o.private ? localCard : null,
   };
   const el = ensureSheet();
   el.querySelector("[data-share-heading]").textContent = o.heading || "Share";
@@ -416,6 +469,7 @@ export function openShareSheet(opts) {
   native.hidden = typeof navigator.share !== "function";
   const dl = el.querySelector("[data-share-download]");
   dl.hidden = !ctx.imageUrl;
+  el.querySelector("[data-share-local-note]").hidden = !ctx.private;
   paintGrid();
   opener = o.opener || (document.activeElement instanceof HTMLElement ? document.activeElement : null);
   if (!el.open) el.showModal();
@@ -443,6 +497,8 @@ export function shareOptsFrom(el) {
     kind: d.shareKind || "page",
     mode: d.shareMode || "",
     surface: d.shareSurface || (document.body && document.body.dataset.page) || "page",
+    /* A flag, not the text. The text is in setLocalCard(). */
+    private: d.sharePrivate === "1",
     opener: el,
   };
 }
