@@ -387,7 +387,14 @@ const imgBuf = imgRes && imgRes.ok ? Buffer.from(await imgRes.arrayBuffer()) : n
 chk(!!imgBuf && imgBuf.length > 1000 && imgBuf[0] === 0x89 && imgBuf.toString("latin1", 1, 4) === "PNG",
   "G. that card exists in the build and is a PNG",
   imgBuf ? `${imgBuf.length} bytes` : `HTTP ${imgRes ? imgRes.status : "?"} (build without OG_SKIP=1)`);
-chk(shareData.d.shareUrl === `${B}/practice/?mode=words`, "G. a words run links to the mode, absolute", shareData.d.shareUrl);
+/* Phase D2 changed what a result links TO. It used to be whichever
+   public page reproduced the same text; it is now /r/, the landing
+   page that shows the run. The short url is the query alone -- and for
+   a run on random words there is no public source to name. */
+chk(new URL(shareData.d.shareShortUrl).pathname === "/r/"
+  && !shareData.d.shareShortUrl.includes("#")
+  && !new URLSearchParams(new URL(shareData.d.shareShortUrl).search).has("src"),
+  "G. a words run links to /r/ and names no public source", shareData.d.shareShortUrl);
 chk(shareData.d.shareKind === "result", "G. kind=result");
 chk(/^\d+ wpm · \d+% accuracy/.test(shareData.d.shareText), "G. the text is numbers first", shareData.d.shareText);
 
@@ -447,18 +454,22 @@ const endEarly = async (url) => {
   await page.keyboard.type("th", { delay: 70 });
   await page.keyboard.press("Escape");
   await waitOr((t) => page.waitForSelector("#tt-share", { timeout: t }), `I. card with a Share button for ${url}`);
-  return page.getAttribute("#tt-share", "data-share-url");
+  /* The SHORT url: query only, no fragment. Which public thing was
+     typed is now carried by its `src` parameter rather than by the
+     shape of a /practice/ link -- see lib/og/validate.js for the
+     grammar, and share/result-link.js for the mapping. */
+  const short = await page.getAttribute("#tt-share", "data-share-short-url");
+  return new URLSearchParams(new URL(short).search).get("src");
 };
-const bookUrl = await endEarly(`${B}/practice/?book=a-christmas-carol&ch=0&page=0`);
-chk(bookUrl === `${B}/practice/?book=a-christmas-carol&ch=0&page=0`,
-  "I. a book page links back to that exact page", bookUrl);
-const lessonUrl = await endEarly(`${B}/practice/?lesson=3`);
-chk(lessonUrl === `${B}/practice/?lesson=3`, "I. a lesson links back to the lesson", lessonUrl);
-const quoteUrl = await endEarly(`${B}/practice/?mode=quote&qid=q-do-love`);
-chk(quoteUrl === `${B}/practice/?mode=quote&quote=id&qid=q-do-love`,
-  "I. a quote links back by public id", quoteUrl);
-const drillUrl = await endEarly(`${B}/practice/?drill=home-row`);
-chk(/\/practice\/\?drill=/.test(drillUrl || ""), "I. a drill links back to the drill", drillUrl);
+const bookSrc = await endEarly(`${B}/practice/?book=a-christmas-carol&ch=0&page=0`);
+chk(bookSrc === "bk:a-christmas-carol:0:0",
+  "I. a book page links back to that exact page", bookSrc);
+const lessonSrc = await endEarly(`${B}/practice/?lesson=3`);
+chk(lessonSrc === "ls:3", "I. a lesson links back to the lesson", lessonSrc);
+const quoteSrc = await endEarly(`${B}/practice/?mode=quote&qid=q-do-love`);
+chk(quoteSrc === "q:q-do-love", "I. a quote links back by public id", quoteSrc);
+const drillSrc = await endEarly(`${B}/practice/?drill=home-row`);
+chk(/^dr:/.test(drillSrc || ""), "I. a drill links back to the drill", drillSrc);
 
 // ================================================================ H
 console.log("\nH. a custom text: the numbers travel, the text never does");
@@ -480,19 +491,57 @@ for (const ch of customTarget) await page.keyboard.type(ch, { delay: 70 });
 await waitOr((t) => page.waitForSelector("#tt-results:not([hidden])", { timeout: t }),
   "H. the custom-text run finished and the card is up");
 const customShare = await page.evaluate(() => Object.assign({}, document.getElementById("tt-share").dataset));
-chk(customShare.shareUrl === `${B}/practice/?mode=custom`,
-  "H. a custom text links to the generic mode — no id, no title", customShare.shareUrl);
+{
+  const q = new URLSearchParams(new URL(customShare.shareShortUrl).search);
+  chk(q.get("mode") === "custom" && !q.has("src") && !customShare.shareShortUrl.includes("#"),
+    "H. a custom text links to /r/ with no public source — no id, no title", customShare.shareShortUrl);
+}
 await clearEvents();
 await page.click("#tt-share");
 await page.waitForTimeout(150);
 const gCustom = await grid();
 const dialogText = await page.textContent("#share-sheet");
 const evJson = JSON.stringify(await events());
-const hay = [JSON.stringify(gCustom), JSON.stringify(customShare), dialogText, evJson].join(" ");
-for (const secret of ["ZEBRAQUARTZ", "velvetmoose", "pumpernickel", "c_share"]) {
-  chk(!hay.toLowerCase().includes(secret.toLowerCase())
-    && !hay.includes(encodeURIComponent(secret)),
-    `H. "${secret}" appears nowhere — not in a url, the dialog, or an event`);
+
+/* Two haystacks, because Phase D2 made the distinction real.
+
+   `everything` is every string the sheet produced. A custom text's
+   TITLE and its private ID must not appear in any of it, ever: they
+   are not part of a share in any form.
+
+   `visible` is only the part a server could ever see -- a url's origin,
+   path and query, with the fragment of any /r/ link inside it removed.
+   The BODY of a custom text now travels legitimately, in that
+   fragment, which browsers do not send. Copy link and Telegram carry
+   it on purpose, because those go to a person. It must still reach no
+   query, no analytics property and no dialog preview. */
+const serverVisible = (raw) => {
+  const s = String(raw || "");
+  try {
+    const u = new URL(s, B);
+    const bits = [u.protocol, u.host, u.pathname];
+    for (const [k, v] of u.searchParams) {
+      const hash = v.indexOf("#");
+      bits.push(`${k}=${hash !== -1 && /\/r\//.test(v) ? v.slice(0, hash) : v}`);
+    }
+    return bits.join(" ");
+  } catch {
+    return s.split("#")[0];
+  }
+};
+const everything = [JSON.stringify(gCustom), JSON.stringify(customShare), dialogText, evJson].join(" ");
+const visible = [
+  gCustom.map((a) => serverVisible(a.href)).join(" "),
+  serverVisible(customShare.shareUrl), serverVisible(customShare.shareShortUrl),
+  customShare.shareText, customShare.shareTitle, dialogText, evJson,
+].join(" ");
+const absent = (hay, secret) => !hay.toLowerCase().includes(secret.toLowerCase())
+  && !hay.includes(encodeURIComponent(secret));
+for (const secret of ["ZEBRAQUARTZ", "c_share"]) {
+  chk(absent(everything, secret), `H. "${secret}" appears nowhere at all — not even after the #`);
+}
+for (const secret of ["velvetmoose", "pumpernickel"]) {
+  chk(absent(visible, secret), `H. "${secret}" reaches no server — not in a query, the dialog, or an event`);
 }
 await page.keyboard.press("Escape");
 
@@ -540,8 +589,11 @@ await page.keyboard.type("Al", { delay: 70 });
 await page.keyboard.press("Escape");
 await waitOr((t) => page.waitForSelector("#tt-share", { timeout: t }), "J. the card came up for the chapter run");
 const chapShare = await page.evaluate(() => Object.assign({}, document.getElementById("tt-share").dataset));
-chk(chapShare.shareUrl === `${B}/practice/?mode=custom`,
-  "J. ?book=custom:<id> shares the generic custom link, not the slug", chapShare.shareUrl);
+{
+  const q = new URLSearchParams(new URL(chapShare.shareShortUrl).search);
+  chk(q.get("mode") === "custom" && !q.has("src"),
+    "J. ?book=custom:<id> shares no public source, and calls itself custom", chapShare.shareShortUrl);
+}
 
 const shortPage = await openChapter(8, 15);
 chk(shortPage.length > 0 && shortPage.length < 700, "J. a page short enough to finish at 70 ms/key", `${shortPage.length} chars`);
@@ -549,8 +601,11 @@ for (const ch of shortPage) await page.keyboard.type(ch, { delay: 70 });
 await waitOr((t) => page.waitForSelector("#tt-results:not([hidden])", { timeout: t }),
   "J. the page was finished and the card is up");
 const finishedShare = await page.evaluate(() => Object.assign({}, document.getElementById("tt-share").dataset));
-chk(finishedShare.shareUrl === `${B}/practice/?mode=custom`,
-  "J. and a FINISHED page shares the same generic link", finishedShare.shareUrl);
+{
+  const q = new URLSearchParams(new URL(finishedShare.shareShortUrl).search);
+  chk(q.get("mode") === "custom" && !q.has("src"),
+    "J. and a FINISHED page shares the same kind of link", finishedShare.shareShortUrl);
+}
 await clearEvents();
 await page.click("#tt-share");
 await page.waitForTimeout(200);
@@ -562,9 +617,22 @@ const chapRaw = [JSON.stringify(gChap), JSON.stringify(finishedShare), JSON.stri
    check passed against a live leak for exactly that reason. */
 let chapHay = chapRaw;
 try { chapHay += " " + decodeURIComponent(chapRaw.replace(/%(?![0-9a-f]{2})/gi, "%25")); } catch {}
-for (const secret of ["custom:", sample.id, encodeURIComponent(sampleSlug), "Alice"]) {
+for (const secret of ["custom:", sample.id, encodeURIComponent(sampleSlug)]) {
   chk(!chapHay.includes(secret), `J. "${secret}" appears in no url, no dialog text and no event`);
 }
+/* The book's WORDS are a different question from its identity. Since
+   Phase D2 they travel in the fragment on purpose -- that is how the
+   person you send the link to sees what you typed -- so "Alice" is
+   checked against the server-visible part only, the same split section
+   H makes. The id checks above still span everything, fragment
+   included, because an id must never travel in any form. */
+const chapVisible = [
+  gChap.map((a) => serverVisible(a.href)).join(" "),
+  serverVisible(finishedShare.shareUrl), serverVisible(finishedShare.shareShortUrl),
+  finishedShare.shareText, finishedShare.shareTitle,
+  await page.textContent("#share-sheet"), JSON.stringify(await events()),
+].join(" ");
+chk(!chapVisible.includes("Alice"), "J. \"Alice\" reaches no server — not in a query, no dialog text, no event");
 const idLike = chapHay.match(/c_[a-z0-9]{4,}/i);
 chk(!idLike, "J. no custom-text id in any shape", idLike ? idLike[0] : "");
 
