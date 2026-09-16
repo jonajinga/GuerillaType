@@ -6,7 +6,7 @@ tags: [features]
 eyebrow: "Features"
 ---
 
-The [/custom/](/custom/) page lets you paste text and type it. The text stays on your device. It is the most flexible mode in the site, and the most underused.
+The [/custom/](/custom/) page lets you paste text and type it. The text stays on your device unless you share a run of it, and then it travels only in the part of the link after the `#`, which browsers never send to a server. [What a share link carries](/privacy/#sharing-a-result-or-a-page). It is the most flexible mode in the site, and the most underused.
 
 ## What it does
 

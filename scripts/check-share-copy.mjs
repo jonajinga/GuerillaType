@@ -196,12 +196,15 @@ const MUST = [
   ["/privacy/", "Sharing a result or a page"],
   ["/privacy/", "Nothing leaves your device unless you press Share."],
   ["/privacy/", "the words ride in the fragment, the part of a link after #"],
+  ["/privacy/", "Then the mode, the word list, the keyboard layout, whether the run was a personal best, whether a challenge was cleared, the date, and a public content id"],
+  ["/privacy/", "That is everything the site puts in the link."],
   ["/privacy/", "It never carries the text you typed, the title of a custom text, or your keystrokes."],
+  ["/privacy/", "every whole number of wpm up to 200, one card for anything faster"],
   ["/privacy/", "Browsers never send that part to any server"],
   ["/privacy/", "A share link is public."],
   ["/privacy/", "Nothing is drawn per visitor"],
   ["/privacy/", "Cloudflare's standard edge logs record the request for a share link"],
-  ["/privacy/", "and never the part after #, because a browser does not send it."],
+  ["/privacy/", "the personal-best and challenge-result flags, the date and the public content id, and never the part after #, because a browser does not send it."],
   ["/privacy/", "The pre-built preview image can never show a custom text"],
   ["/privacy/", "Umami is the only analytics this site runs."],
   ["/about/", "Nothing leaves your device unless you press Share."],
@@ -212,19 +215,24 @@ const MUST = [
   ["/faq/", "Can I share a custom text?"],
   ["/faq/", "So a server never sees your words, and anyone you send the link to sees everything in it."],
   ["/faq/", "Nothing goes anywhere unless you press Share"],
+  ["/faq/", "the mode, the word list, the keyboard layout, whether it was a personal best, whether a challenge was cleared, the date"],
   ["/features/", "unless you press Share"],
   ["/guide/", "Nothing leaves your device unless you press Share."],
   ["/guide/", "Cloudflare Web Analytics is wired in and switched off."],
-  ["/tech-stack/", "It never sees the part of the link after #"],
+  ["/tech-stack/", "it never sees the part of the link after #"],
   ["/cost/", "Share preview images"],
   ["/cost/", "roughly 140 MB added to each deploy"],
+  ["/cost/", "every whole number of wpm up to 200, one card for anything faster"],
   ["/cost/", "No application server"],
   ["/", "The keys you press never leave your device unless you press Share."],
   ["/blog/custom-text/", "The one way the words travel is a share link you build yourself"],
+  ["/blog/custom-text/", "The text stays on your device unless you share a run of it"],
+  ["/settings/", "until you export it, or share a result"],
   ["/analytics/", "Analytics never receives it."],
   ["/why-contribute/", "nothing you actually type ever leaves your browser unless you press Share"],
   ["/blog/modes-explained/", "the words ride in the part of the link after the #"],
   ["/roadmap/", "Share your result, or share any page."],
+  ["/roadmap/", "the word list, the keyboard layout, whether it was a personal best or a cleared challenge"],
   ["/roadmap/", "Session replay."],
   ["/changelog/", "Sharing, auto-advance everywhere, custom books by chapter, and a page that stops jolting"],
   ["/changelog/", "What a share link carries, exactly"],
@@ -234,6 +242,34 @@ for (const [route, sentence] of MUST) {
   if (t === null) { chk(false, `${route} was built`, "missing"); continue; }
   chk(t.includes(sentence), `${route} says "${sentence.slice(0, 58)}${sentence.length > 58 ? "…" : ""}"`);
 }
+
+/* A list that says "that is everything" has to match the thing that
+   decides what a link may carry. lib/og/validate.js is that thing: every
+   key it accepts must be named in the privacy page's enumeration, or the
+   page is telling the reader a shorter story than the code allows. This
+   caught the first version of this copy, which stopped at "the mode, the
+   date, and a public content id" and left out lang, lay, pb and ok. */
+const VALIDATOR_KEYS = {
+  wpm: "wpm", raw: "raw wpm", acc: "accuracy", con: "consistency", dur: "duration",
+  n: "character counts", err: "character counts", mode: "the mode",
+  lang: "the word list", lay: "the keyboard layout",
+  pb: "personal best", ok: "challenge was cleared",
+  d: "the date", src: "public content id",
+};
+const validatorSrc = readFileSync(resolve(ROOT, "lib/og/validate.js"), "utf8");
+/* Two shapes in that file: the num/pick/date helpers take the key as a
+   literal, and `src` is read with params.has("src") + parseSrc. Miss the
+   second and the gate would never check that "which item you typed" is
+   documented. */
+const accepted = [...new Set([
+  ...[...validatorSrc.matchAll(/(?:num|pick|date)\(params, "([a-z]+)"/g)].map((m) => m[1]),
+  ...[...validatorSrc.matchAll(/params\.has\("([a-z]+)"\)/g)].map((m) => m[1]),
+])];
+chk(accepted.length >= 14, "read the accepted query keys out of lib/og/validate.js", accepted.join(" "));
+chk(accepted.includes("lang") && accepted.includes("lay") && accepted.includes("pb") && accepted.includes("ok") && accepted.includes("src"),
+  "the four keys the first draft of this copy missed are among them", "lang lay pb ok src");
+const undocumented = accepted.filter((k) => !(k in VALIDATOR_KEYS));
+chk(undocumented.length === 0, "every key validate.js accepts has a phrase this gate knows about", undocumented.join(", "));
 
 /* The privacy page must explain the fragment, and it must do it in the
    sharing section. Checking the whole page is not enough: the word
@@ -248,6 +284,11 @@ const shareSection = secStart === -1 ? "" : priv.slice(secStart, secEnd === -1 ?
 chk(shareSection.length > 800, "the sharing section is a real section, not a heading with nothing under it", `${shareSection.length} chars`);
 chk(shareSection.includes("after #") || shareSection.includes("fragment"), "the sharing section explains the part after # / the fragment");
 chk(shareSection.includes("after #") && shareSection.includes("fragment"), "the sharing section uses both 'after #' and 'fragment'");
+
+const missingFromCopy = [...new Set(accepted.map((k) => VALIDATOR_KEYS[k]).filter(Boolean))]
+  .filter((phrase) => !shareSection.toLowerCase().includes(phrase.toLowerCase()));
+chk(missingFromCopy.length === 0,
+  "the sharing section names every field validate.js lets into a link", missingFromCopy.join(", "));
 
 /* about.md's stale analytics claim, checked on its own because it is the
    one the task names. */
@@ -290,7 +331,6 @@ chk(faq.length > 4000, "the FAQ page is a full page, not a stub", `${faq.length}
 // ── F. the SVG share card is gone ───────────────────────────────────
 console.log("\nF. og-default.svg");
 
-const svgInSite = files.length && htmlFiles(SITE).length ? [] : [];
 const strays = [];
 (function walk(dir) {
   for (const e of readdirSync(dir, { withFileTypes: true })) {

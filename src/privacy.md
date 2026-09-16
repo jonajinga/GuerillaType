@@ -27,11 +27,11 @@ This is in your browser's `localStorage` under keys prefixed `tt:`. Open dev too
 
 Pressing Share is the only way anything about your typing leaves this device. Nothing is shared until you press it, and what gets built is a link.
 
-**What the link carries where a server can see it.** Numbers: wpm, raw wpm, accuracy, consistency, duration and character counts. Then the mode, the date, and a public content id saying which quote, book page, poem, idiom, parable, lesson, challenge or drill you typed. That is the whole list. It never carries the text you typed, the title of a custom text, or your keystrokes.
+**What the link carries where a server can see it.** Numbers: wpm, raw wpm, accuracy, consistency, duration and character counts. Then the mode, the word list, the keyboard layout, whether the run was a personal best, whether a challenge was cleared, the date, and a public content id saying which quote, book page, poem, idiom, parable, lesson, challenge or drill you typed. That is everything the site puts in the link. It never carries the text you typed, the title of a custom text, or your keystrokes.
 
 **What travels after the `#`.** When the text is not something this site already has -- a custom text of your own -- the words ride in the fragment, the part of a link after `#`. So does the keystroke replay, when a run has one. Browsers never send that part to any server: it goes to the share page and is decoded there, in the browser of whoever opened it. Which is the other half of the point: anyone holding the link can read everything in it. A share link is public. Treat it that way.
 
-**The preview image.** The card that X, Slack or iMessage shows is a file written when the site is built. There is one per public quote, idiom, parable, poem, book, lesson, challenge and drill, plus a grid of result cards covering each whole number of wpm and an accuracy band. Nothing is drawn per visitor, so no server ever receives your run in order to paint a picture of it. Cloudflare's standard edge logs record the request for a share link the same way they record the request for any other page on the site.
+**The preview image.** The card that X, Slack or iMessage shows is a file written when the site is built. There is one per public quote, idiom, parable, poem, book, lesson, challenge and drill, plus a grid of result cards covering every whole number of wpm up to 200, one card for anything faster, each crossed with an accuracy band. Nothing is drawn per visitor, so no server ever receives your run in order to paint a picture of it. Cloudflare's standard edge logs record the request for a share link the same way they record the request for any other page on the site.
 
 **Custom texts.** A custom text lives only on the device that made it, so only you can share it, and only your link carries the words, in the fragment. The pre-built preview image can never show a custom text: the machine that drew it never had the text.
 
@@ -46,7 +46,7 @@ This site runs **[Umami](https://umami.is/)** — a privacy-friendly, cookieless
 - Browser + OS (e.g. "Chrome on macOS").
 - Screen size bucket.
 - Country (derived from IP, then IP discarded).
-- Event names + structural properties: which modes are picked, when sessions start / finish, which library books are opened, which settings get toggled. None of these include user-typed text, the actual quote / paragraph content, or any string the user input. That still holds for a shared result: Umami records the address of the share page, which is the numbers and the public content id, and never the part after `#`, because a browser does not send it.
+- Event names + structural properties: which modes are picked, when sessions start / finish, which library books are opened, which settings get toggled. None of these include user-typed text, the actual quote / paragraph content, or any string the user input. That still holds for a shared result: Umami records the address of the share page, which is the numbers, the mode, the word list, the keyboard layout, the personal-best and challenge-result flags, the date and the public content id, and never the part after `#`, because a browser does not send it.
 
 **What Umami does NOT record:**
 

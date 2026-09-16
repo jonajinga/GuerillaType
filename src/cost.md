@@ -42,11 +42,11 @@ There is no database. Every user's data lives in their browser's `localStorage`.
 
 ### No application server
 
-There's no API server, no auth service, no queue, no cache layer. Every interactive feature — typing, stats, adaptive learning — runs in the visitor's browser using vanilla JavaScript. The one exception is a few lines at Cloudflare's edge that fill in the preview tags on a shared link, which costs a millisecond or two of CPU per request and stays inside the free plan.
+There's no API server, no auth service, no queue, no cache layer. Every interactive feature — typing, stats, adaptive learning — runs in the visitor's browser using vanilla JavaScript. The one exception is the share page, where Cloudflare's edge fills a link's preview tags in before the page goes out. That is a millisecond or two of CPU on a request, against the free plan's 10 ms, and it runs on no other page.
 
 ### Share preview images
 
-Every share card is drawn at build time, not per visitor: one per quote, idiom, parable, poem, book, lesson, challenge and drill, plus a grid of result cards. That is about 3,600 PNGs and roughly 140 MB added to each deploy. Cloudflare Pages' free tier charges nothing for the storage or the bandwidth, and deploys upload only the files that changed, so the running cost of the whole thing is still zero. Drawing them on demand would mean paying for CPU per request, which is why they are not drawn on demand.
+Every share card is drawn at build time, not per visitor: one per quote, idiom, parable, poem, book, lesson, challenge and drill, plus a grid of result cards covering every whole number of wpm up to 200, one card for anything faster, each crossed with an accuracy band. That is about 3,600 PNGs and roughly 140 MB added to each deploy. Cloudflare Pages' free tier charges nothing for the storage or the bandwidth, and deploys upload only the files that changed, so the running cost of the whole thing is still zero. Drawing them on demand would mean paying for CPU per request, which is why they are not drawn on demand.
 
 ### Free fonts
 
