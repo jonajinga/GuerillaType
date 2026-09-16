@@ -595,7 +595,7 @@ async function toggleChapters(id, host, btn) {
      picker that was just opened. */
   const label = card && card.querySelector(".saved-item__chapmeta");
   if (label) {
-    label.textContent = `${nf.format(chapters.length)} chapter${chapters.length === 1 ? "" : "s"}`;
+    label.textContent = ` · ${nf.format(chapters.length)} chapter${chapters.length === 1 ? "" : "s"}`;
     card.dataset.chapCount = String(chapters.length);
   }
 }
@@ -656,7 +656,7 @@ function render() {
       }
       <span class="saved-item__meta">${nf.format(count)} segment${count === 1 ? "" : "s"}${
         resuming ? ` · resuming at ${nf.format(Math.min((it.lastSeg | 0) + 1, count))} of ${nf.format(count)}` : ""
-      } · <span class="saved-item__chapmeta">${chCount ? `${nf.format(chCount)} chapter${chCount === 1 ? "" : "s"}` : "chapters on demand"}</span> · ${new Date(it.createdAt).toLocaleDateString()}</span>
+      }<span class="saved-item__chapmeta">${chCount ? ` · ${nf.format(chCount)} chapter${chCount === 1 ? "" : "s"}` : ""}</span> · ${new Date(it.createdAt).toLocaleDateString()}</span>
       <div class="saved-item__actions">
         <span class="saved-item__how">By segment</span>
         <a class="btn btn--small btn--primary" href="${practiceUrl(it.id, seg)}">${resuming ? "Resume" : "Type"}</a>${

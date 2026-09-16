@@ -346,6 +346,9 @@ chk(/^Found 3 chapters\b/.test(notice),
 
 const rec = await page.evaluate(() => JSON.parse(localStorage.getItem("tt:custom-texts") || "[]")[0]);
 eq(rec.chapCount, 3, "A. chapCount lands on the index record");
+const cardMeta = ((await page.textContent(".saved-item__meta").catch(() => "")) || "").replace(/\s+/g, " ").trim();
+chk(/·\s*3 chapters\b/.test(cardMeta) && /\bsegments\b/.test(cardMeta),
+  "A. and the card says so, next to its segment count", JSON.stringify(cardMeta));
 chk((rec.segCount | 0) >= 2, "A. and the segment count is still there — both readings exist",
   `segCount=${rec.segCount}`);
 chk(!rec.chapters,
@@ -545,6 +548,50 @@ const segText = await surfaceText();
 chk(segText.startsWith("CHAPTER I. THE ARRIVAL"),
   "H. the segment holds the text from the top, headings and all",
   JSON.stringify(segText.slice(0, 40)));
+
+// ═════════════ J. a text saved before chapters existed gets one anyway
+console.log("\n## J. A text imported before this feature still opens by chapter");
+await freshCustomPage();
+/* The pre-chapters record shape: segments inline on the index record,
+   no chapters anywhere. getChapters() has only the segments to work
+   with, and segments are sentence chunks rejoined with spaces, so the
+   document's line breaks — and with them its headings — are already
+   gone. The honest answer is one "Full text" chapter, and the gate says
+   so out loud rather than leaving the limit undocumented. */
+await page.evaluate((segs) => {
+  localStorage.setItem("tt:custom-texts", JSON.stringify([{
+    id: "c_legacy", title: "Saved last month", createdAt: new Date().toISOString(),
+    bytes: 400, segCount: segs.length, lastSeg: 0, segments: segs, meta: null,
+  }]));
+}, [CH1.slice(0, 4).join(" "), CH1.slice(4).join(" ")]);
+await page.reload({ waitUntil: "domcontentloaded" });
+await need(`.saved-item [data-action="chapters"][data-id="c_legacy"]`, "J. the old record still gets a By chapter row", 20000);
+const legacyMetaBefore = ((await page.textContent(".saved-item__meta").catch(() => "")) || "").replace(/\s+/g, " ").trim();
+chk(!/chapter/.test(legacyMetaBefore),
+  "J. it claims no chapter count before anything has counted them", JSON.stringify(legacyMetaBefore));
+await page.click(`.saved-item [data-action="chapters"][data-id="c_legacy"]`);
+await need(`#chapters-c_legacy .seg-picker__item`, "J. the picker opened for the old record", 20000);
+const legacyRows = await page.$$eval(`#chapters-c_legacy .seg-picker__item`, (els) =>
+  els.map((e) => e.textContent.replace(/\s+/g, " ").trim()));
+eq(legacyRows.length, 1, "J. one chapter — derived from the segments, which have no line breaks left");
+chk(legacyRows[0].includes("Full text"), "J. …named ‘Full text’", JSON.stringify(legacyRows[0]));
+const legacyMetaAfter = ((await page.textContent(".saved-item__meta").catch(() => "")) || "").replace(/\s+/g, " ").trim();
+chk(/·\s*1 chapter\b/.test(legacyMetaAfter),
+  "J. and the card learns the count without a reload", JSON.stringify(legacyMetaAfter));
+const legacyStored = await page.evaluate(() => new Promise((res) => {
+  const q = indexedDB.open("tt-custom");
+  q.onerror = q.onblocked = () => res(null);
+  q.onsuccess = () => {
+    try {
+      const g = q.result.transaction("segments", "readonly").objectStore("segments").get("c_legacy");
+      g.onsuccess = () => res(g.result || null);
+      g.onerror = () => res(null);
+    } catch { res(null); }
+  };
+}));
+chk(!!legacyStored && Array.isArray(legacyStored.chapters) && legacyStored.chapters.length === 1,
+  "J. the derived structure was written back, so it is derived once and not on every visit",
+  legacyStored ? `chapters=${(legacyStored.chapters || []).length}` : "no record");
 
 // ══════════════════════════════════ I. an EPUB brings its own titles
 console.log("\n## I. An EPUB's chapter titles come from the file");
