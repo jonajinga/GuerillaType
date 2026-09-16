@@ -240,6 +240,26 @@ function focusables(root) {
   )).filter((e) => !e.hidden && e.offsetParent !== null);
 }
 
+/* Same shape as practice-boot's emit(): call the named helper when the
+   loaded analytics.js has it, fall back to Analytics.custom with the
+   wire name when it does not. Every import now carries the build's
+   ?v=, so a stale analytics.js should be impossible -- but a share
+   that throws on the way to a dashboard would be a silly way to break
+   the button, and Analytics.custom has always existed. */
+const EMIT_NAMES = {
+  shareOpened: "share_opened",
+  shareTarget: "share_target",
+  shareCopied: "share_copied",
+  shareImageSaved: "share_image_saved",
+};
+function emit(name, p) {
+  try {
+    const fn = Analytics && Analytics[name];
+    if (typeof fn === "function") fn(p);
+    else if (Analytics && typeof Analytics.custom === "function") Analytics.custom(EMIT_NAMES[name] || name, p);
+  } catch {}
+}
+
 /* Analytics props. Everything the sheet knows that is NOT in here —
    title, text, both URLs, the image URL — is either user content or
    points at it. Keep this function the only source of props. */
@@ -280,7 +300,7 @@ async function onGridClick(e) {
     const href = intent.href(ctx, host);
     a.setAttribute("href", href);
     a.removeAttribute("data-share-needs-host");
-    Analytics.shareTarget(props({ target: id, variant: intent.variant }));
+    emit("shareTarget", props({ target: id, variant: intent.variant }));
     /* The prompt broke the user-gesture chain, so window.open may be
        refused. If it is, the link is now live — say so rather than
        silently doing nothing. */
@@ -288,7 +308,7 @@ async function onGridClick(e) {
     if (!w) toast("Instance saved — tap Mastodon again to post.");
     return;
   }
-  Analytics.shareTarget(props({ target: id, variant: intent.variant }));
+  emit("shareTarget", props({ target: id, variant: intent.variant }));
 }
 
 async function onNativeShare() {
@@ -311,7 +331,7 @@ async function onNativeShare() {
   } catch {}
   try {
     await navigator.share(payload);
-    Analytics.shareTarget(props({ target: "native", variant: "full" }));
+    emit("shareTarget", props({ target: "native", variant: "full" }));
   } catch (err) {
     /* AbortError is the user closing the OS sheet — not a failure. */
     if (err && err.name === "AbortError") return;
@@ -345,7 +365,7 @@ export async function copyLink(c) {
   }
   if (ok) {
     toast("Link copied");
-    Analytics.shareCopied({ kind: (c && c.kind) || "page", mode: (c && c.mode) || "" });
+    emit("shareCopied", { kind: (c && c.kind) || "page", mode: (c && c.mode) || "" });
   } else {
     toast("Could not copy the link.", "bad");
   }
@@ -368,7 +388,7 @@ async function onDownload() {
     setTimeout(() => URL.revokeObjectURL(href), 10000);
     /* "server" = the card the build pre-rendered. Phase D4 adds a
        canvas fallback for custom text, which reports "canvas". */
-    Analytics.shareImageSaved({ kind: ctx.kind || "page", mode: ctx.mode || "", method: "server" });
+    emit("shareImageSaved", { kind: ctx.kind || "page", mode: ctx.mode || "", method: "server" });
   } catch {
     toast("Could not download the image.", "bad");
   }
@@ -401,7 +421,7 @@ export function openShareSheet(opts) {
   if (!el.open) el.showModal();
   const firstBtn = native.hidden ? el.querySelector("[data-share-target]") : native;
   if (firstBtn) setTimeout(() => { try { firstBtn.focus(); } catch {} }, 20);
-  Analytics.shareOpened({ surface: ctx.surface, kind: ctx.kind, mode: ctx.mode });
+  emit("shareOpened", { surface: ctx.surface, kind: ctx.kind, mode: ctx.mode });
   return el;
 }
 
@@ -459,11 +479,11 @@ function wireRow(root) {
       el.setAttribute("target", "_blank");
       el.setAttribute("rel", "noopener");
       el.addEventListener("click", () => {
-        Analytics.shareTarget({ kind: c.kind, mode: c.mode, target: id, variant: intent.variant });
+        emit("shareTarget", { kind: c.kind, mode: c.mode, target: id, variant: intent.variant });
       });
     } else {
       el.addEventListener("click", () => {
-        Analytics.shareTarget({ kind: c.kind, mode: c.mode, target: id, variant: intent.variant });
+        emit("shareTarget", { kind: c.kind, mode: c.mode, target: id, variant: intent.variant });
         window.open(intent.href(c, host), "_blank", "noopener");
       });
     }
