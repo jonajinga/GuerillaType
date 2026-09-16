@@ -259,24 +259,29 @@ const sizeBox = await page.evaluate(() => {
   };
 });
 chk(!!sizeBox, "A. the card has a size element of its own");
-if (!sizeBox) {
-  console.log("\nRUN ABORTED — without it nothing in section A can be measured.");
-  await browser.close(); server.close();
-  console.log(`\n${pass} passed, ${fail} failed`); process.exit(1);
-}
-eq(sizeBox.text, "826.8 KB", "A. it reads the size the screenshot showed");
-eq(sizeBox.lines, 1, "A. …as ONE line box — a value split over two lines counts as two");
-chk(sizeBox.height <= sizeBox.lineHeight * 1.5 + 1,
+/* Deliberately NOT an abort. A build without the fix has no size
+   element, and a gate that stops at the first missing node tells a
+   verifier one thing when it could tell them seven. Every measurement
+   below is written against a stand-in that fails each assertion on its
+   own, so the reverted run reports the true breadth of the damage
+   instead of a single line. */
+const S = sizeBox || {
+  text: null, lines: 0, height: Infinity, lineHeight: 0, width: Infinity,
+  parentWidth: 0, right: Infinity, contentRight: 0, whiteSpace: null, insideHeading: true,
+};
+eq(S.text, "826.8 KB", "A. it reads the size the screenshot showed");
+eq(S.lines, 1, "A. …as ONE line box — a value split over two lines counts as two");
+chk(S.height <= S.lineHeight * 1.5 + 1,
   "A. …and is one line tall by measurement too",
-  `height=${sizeBox.height.toFixed(1)} line-height=${sizeBox.lineHeight.toFixed(1)}`);
-eq(sizeBox.whiteSpace, "nowrap", "A. it is told not to wrap, so a narrower card cannot break it either");
-chk(sizeBox.width <= sizeBox.parentWidth + 0.5,
+  `height=${S.height.toFixed(1)} line-height=${S.lineHeight.toFixed(1)}`);
+eq(S.whiteSpace, "nowrap", "A. it is told not to wrap, so a narrower card cannot break it either");
+chk(S.width <= S.parentWidth + 0.5,
   "A. it is no wider than the line it sits on",
-  `${sizeBox.width.toFixed(1)} vs ${sizeBox.parentWidth.toFixed(1)}`);
-chk(sizeBox.right <= sizeBox.contentRight + 0.5,
+  `${S.width.toFixed(1)} vs ${S.parentWidth.toFixed(1)}`);
+chk(S.right <= S.contentRight + 0.5,
   "A. …and does not reach past the card's padding",
-  `right=${sizeBox.right.toFixed(1)} limit=${sizeBox.contentRight.toFixed(1)}`);
-chk(!sizeBox.insideHeading,
+  `right=${S.right.toFixed(1)} limit=${S.contentRight.toFixed(1)}`);
+chk(!S.insideHeading,
   "A. it is NOT inside the heading — the arrangement that broke it");
 
 const metaLine = ((await page.textContent(".saved-item__meta")) || "").replace(/\s+/g, " ").trim();
@@ -461,72 +466,81 @@ const RID = imported.id;
 eq(imported.title, "A Borrowed Book",
   "E. the import is titled from its filename, so the rename below has something to change");
 
-await need(`[data-action="rename"][data-id="${RID}"]`, "E. the card offers Rename");
-await page.focus(`[data-action="rename"][data-id="${RID}"]`);
-await page.keyboard.press("Enter");
-await need(`#rename-${RID}:not([hidden])`, "E. Enter on Rename opens the field");
-const focusedId = await page.evaluate(() => document.activeElement.id);
-eq(focusedId, `rename-field-${RID}`, "E. …and focus moves into it, so a keyboard user can just type");
-await page.keyboard.type("  Notes On A Borrowed Book  ");
-await page.keyboard.press("Enter");
-await page.waitForTimeout(250);
+/* A soft check, not need(). A build without Rename should report every
+   other thing this gate knows how to measure -- sections F and G do not
+   depend on it -- so a missing button skips this section instead of
+   ending the run. */
+const hasRename = await page.$(`[data-action="rename"][data-id="${RID}"]`) !== null;
+chk(hasRename, "E. the card offers Rename");
+if (!hasRename) {
+  chk(false, "E. SKIPPED — every rename assertion below needs that button");
+} else {
+  await page.focus(`[data-action="rename"][data-id="${RID}"]`);
+  await page.keyboard.press("Enter");
+  await need(`#rename-${RID}:not([hidden])`, "E. Enter on Rename opens the field");
+  const focusedId = await page.evaluate(() => document.activeElement.id);
+  eq(focusedId, `rename-field-${RID}`, "E. …and focus moves into it, so a keyboard user can just type");
+  await page.keyboard.type("  Notes On A Borrowed Book  ");
+  await page.keyboard.press("Enter");
+  await page.waitForTimeout(250);
 
-const afterSave = await page.evaluate(() =>
-  JSON.parse(localStorage.getItem("tt:custom-texts") || "[]")[0].title);
-eq(afterSave, "Notes On A Borrowed Book", "E. Enter saves the new title, trimmed");
-eq((await page.textContent(".saved-item__title")).trim(), "Notes On A Borrowed Book",
-  "E. …and the card says so without a reload");
-const savedToast = ((await page.textContent("#toast")) || "").trim();
-chk(/Renamed to "Notes On A Borrowed Book"/.test(savedToast),
-  "E. …with a toast naming the new title", JSON.stringify(savedToast));
-await page.reload({ waitUntil: "domcontentloaded" });
-await need(".saved-item__title", "E. the list came back after a reload");
-eq((await page.textContent(".saved-item__title")).trim(), "Notes On A Borrowed Book",
-  "E. the new title survives a reload — it was really written, not just painted");
+  const afterSave = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem("tt:custom-texts") || "[]")[0].title);
+  eq(afterSave, "Notes On A Borrowed Book", "E. Enter saves the new title, trimmed");
+  eq((await page.textContent(".saved-item__title")).trim(), "Notes On A Borrowed Book",
+    "E. …and the card says so without a reload");
+  const savedToast = ((await page.textContent("#toast")) || "").trim();
+  chk(/Renamed to "Notes On A Borrowed Book"/.test(savedToast),
+    "E. …with a toast naming the new title", JSON.stringify(savedToast));
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await need(".saved-item__title", "E. the list came back after a reload");
+  eq((await page.textContent(".saved-item__title")).trim(), "Notes On A Borrowed Book",
+    "E. the new title survives a reload — it was really written, not just painted");
 
-await page.goto(`${B}/practice/?mode=custom&custom=${encodeURIComponent(RID)}&seg=0`,
-  { waitUntil: "domcontentloaded" });
-await need("#tt-custom-header .tt-custom-title", "E. the practice page painted its custom header");
-eq((await page.textContent("#tt-custom-header .tt-custom-title")).trim(), "Notes On A Borrowed Book",
-  "E. the segment reader's header shows the renamed title");
-await page.goto(`${B}/practice/?book=custom:${encodeURIComponent(RID)}&ch=0&page=0`,
-  { waitUntil: "domcontentloaded" });
-await need("#tt-book-header", "E. the chapter reader painted its header");
-const bookHdr = (await page.textContent("#tt-book-header")).replace(/\s+/g, " ").trim();
-chk(bookHdr.includes("Notes On A Borrowed Book"),
-  "E. the chapter reader's header shows it too", JSON.stringify(bookHdr.slice(0, 80)));
+  await page.goto(`${B}/practice/?mode=custom&custom=${encodeURIComponent(RID)}&seg=0`,
+    { waitUntil: "domcontentloaded" });
+  await need("#tt-custom-header .tt-custom-title", "E. the practice page painted its custom header");
+  eq((await page.textContent("#tt-custom-header .tt-custom-title")).trim(), "Notes On A Borrowed Book",
+    "E. the segment reader's header shows the renamed title");
+  await page.goto(`${B}/practice/?book=custom:${encodeURIComponent(RID)}&ch=0&page=0`,
+    { waitUntil: "domcontentloaded" });
+  await need("#tt-book-header", "E. the chapter reader painted its header");
+  const bookHdr = (await page.textContent("#tt-book-header")).replace(/\s+/g, " ").trim();
+  chk(bookHdr.includes("Notes On A Borrowed Book"),
+    "E. the chapter reader's header shows it too", JSON.stringify(bookHdr.slice(0, 80)));
 
-await page.goto(B + "/custom/", { waitUntil: "domcontentloaded" });
-await need(`[data-action="rename"][data-id="${RID}"]`, "E. back on /custom/");
-await page.focus(`[data-action="rename"][data-id="${RID}"]`);
-await page.keyboard.press("Enter");
-await need(`#rename-${RID}:not([hidden])`, "E. the field opened again");
-await page.keyboard.press("Control+a");
-await page.keyboard.type("Something Else Entirely");
-await page.keyboard.press("Escape");
-await page.waitForTimeout(200);
-const afterEsc = await page.evaluate(() => ({
-  title: JSON.parse(localStorage.getItem("tt:custom-texts") || "[]")[0].title,
-  hidden: document.querySelector(".saved-item__rename").hidden,
-  focus: document.activeElement.getAttribute("data-action"),
-}));
-eq(afterEsc.title, "Notes On A Borrowed Book", "E. Escape throws the edit away");
-eq(afterEsc.hidden, true, "E. …and closes the field");
-eq(afterEsc.focus, "rename", "E. …and gives focus back to the button that opened it");
+  await page.goto(B + "/custom/", { waitUntil: "domcontentloaded" });
+  await need(`[data-action="rename"][data-id="${RID}"]`, "E. back on /custom/");
+  await page.focus(`[data-action="rename"][data-id="${RID}"]`);
+  await page.keyboard.press("Enter");
+  await need(`#rename-${RID}:not([hidden])`, "E. the field opened again");
+  await page.keyboard.press("Control+a");
+  await page.keyboard.type("Something Else Entirely");
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(200);
+  const afterEsc = await page.evaluate(() => ({
+    title: JSON.parse(localStorage.getItem("tt:custom-texts") || "[]")[0].title,
+    hidden: document.querySelector(".saved-item__rename").hidden,
+    focus: document.activeElement.getAttribute("data-action"),
+  }));
+  eq(afterEsc.title, "Notes On A Borrowed Book", "E. Escape throws the edit away");
+  eq(afterEsc.hidden, true, "E. …and closes the field");
+  eq(afterEsc.focus, "rename", "E. …and gives focus back to the button that opened it");
 
-await page.keyboard.press("Enter");
-await need(`#rename-${RID}:not([hidden])`, "E. the field opened a third time");
-await page.fill(`#rename-field-${RID}`, "     ");
-await page.keyboard.press("Enter");
-await page.waitForTimeout(200);
-const afterBlank = await page.evaluate(() => ({
-  title: JSON.parse(localStorage.getItem("tt:custom-texts") || "[]")[0].title,
-  toast: (document.getElementById("toast") || {}).textContent || "",
-}));
-eq(afterBlank.title, "Notes On A Borrowed Book", "E. a blank title is refused, not saved");
-chk(/empty/i.test(afterBlank.toast), "E. …and the refusal is said out loud",
-  JSON.stringify(afterBlank.toast.trim()));
-await page.keyboard.press("Escape");
+  await page.keyboard.press("Enter");
+  await need(`#rename-${RID}:not([hidden])`, "E. the field opened a third time");
+  await page.fill(`#rename-field-${RID}`, "     ");
+  await page.keyboard.press("Enter");
+  await page.waitForTimeout(200);
+  const afterBlank = await page.evaluate(() => ({
+    title: JSON.parse(localStorage.getItem("tt:custom-texts") || "[]")[0].title,
+    toast: (document.getElementById("toast") || {}).textContent || "",
+  }));
+  eq(afterBlank.title, "Notes On A Borrowed Book", "E. a blank title is refused, not saved");
+  chk(/empty/i.test(afterBlank.toast), "E. …and the refusal is said out loud",
+    JSON.stringify(afterBlank.toast.trim()));
+  await page.keyboard.press("Escape");
+}
 
 // ══════════════════════════════════ F. default titles at import
 console.log("\n## F. What a file is called when nothing inside it says");
