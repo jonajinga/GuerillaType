@@ -26,12 +26,16 @@ import { toast } from "../util/dom.js";
      touch-first query. iPadOS keeps reporting it with a trackpad or
      keyboard attached, so iPads stay on the tap-to-start path (known
      limit, and the safe direction to be wrong in);
-   - a phone or tablet user agent, which also covers Android in
-     "desktop site" mode with a mouse attached;
+   - a phone or tablet user agent. (Chrome for Android in "desktop
+     site" mode sends a Linux UA with neither word, and then depends
+     on the media query above staying coarse, which it does unless a
+     mouse is paired: with a mouse, it is a desktop here.)
    - iPadOS in desktop-UA mode, which says Macintosh but has touch points.
    Windows reports the primary pointer as fine and hover as possible
    whenever a mouse or trackpad is present, so touch laptops count as
    desktops, which is what their keyboards make them. */
+/* Copied by hand into src/_includes/partials/practice/typing-shell.njk,
+   which stamps <html data-touch> before any module loads. Change both. */
 export function isMobileLike() {
   if (typeof window === "undefined") return false;
   try {

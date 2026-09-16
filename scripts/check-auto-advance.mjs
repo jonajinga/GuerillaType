@@ -449,6 +449,7 @@ chk(lit.startsWith("abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz"), "K.
   await mobile.waitForTimeout(1500);
   chk(!(await mobile.$eval("#tt-results", (el) => el.hidden)), "L. touch device still shows the card with the switch on");
   chk((await mobile.getAttribute("#tt-autoadvance", "aria-disabled")) === "true", "L. and the Auto button reads as unavailable there");
+  chk((await mobile.getAttribute("html", "data-touch")) === "true", "L. the page is stamped data-touch, so the surface says tap");
   // A tap on the unavailable button must not flip the stored switch.
   await mobile.evaluate(() => {
     const ps = JSON.parse(localStorage.getItem("tt:profiles") || "[]");
@@ -512,6 +513,16 @@ chk(lit.startsWith("abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz"), "K.
       chk(hw.tp > 0 && hw.ts && hw.hover, `O. ${c.name}: reports touch points and a hovering pointer, like Windows with a mouse`, JSON.stringify(hw));
     }
     chk((await d.getAttribute("#tt-autoadvance", "aria-disabled")) !== "true", `O. ${c.name}: Auto button is a live switch`);
+    // typing-shell.njk stamps <html data-touch> with a hand-copied
+    // version of isMobileLike(); the two must agree, or the surface
+    // tells a desktop to "Tap here to start typing" while the engine
+    // treats it as a desktop (verifier finding, 2026-09-16).
+    chk((await d.getAttribute("html", "data-touch")) !== "true", `O. ${c.name}: page is not stamped data-touch`);
+    await d.evaluate(() => document.activeElement && document.activeElement.blur());
+    await d.waitForTimeout(100);
+    const overlay = await d.$eval(".tt-stage", (el) => getComputedStyle(el, "::after").content);
+    chk(!/tap here/i.test(overlay), `O. ${c.name}: blurred surface does not say "Tap here"`, overlay);
+    await d.click(".tt-stage").catch(() => {});
     // Bug 1: on in Settings, but the header showed it disabled and off.
     await d.goto(`${B}/settings/`, { waitUntil: "networkidle" });
     await d.$eval("#pref-autoAdvance-words", (el) => el.closest("label").click());
