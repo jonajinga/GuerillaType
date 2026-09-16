@@ -75,7 +75,7 @@ Five hand-rolled SVG components, no chart library:
 
 - **Cloudflare Pages** — static asset hosting, free tier covers more bandwidth than this site will ever need.
 - **Cloudflare DNS** — already free.
-- **Cloudflare Pages Functions** — one small function, on the `/r/` share page. It rewrites the preview tags of a shared link from the numbers in the address. It never sees the part of the link after `#`, because browsers do not send that part. Everything else on the site is a static file.
+- **Cloudflare Pages Functions** run one small function, on the `/r/` share page. It rewrites the preview tags of a shared link from the numbers in the address. It never sees the part of the link after `#`, because browsers do not send that part. Everything else on the site is a static file.
 - **Umami** — what this site runs for page-view analytics. Cookieless, and the dashboard is public at [/analytics/](/analytics/).
 - **Cloudflare Web Analytics** — wired in, switched off.
 - **Bunny Fonts** — free CDN for my two web fonts. No Google Fonts.
