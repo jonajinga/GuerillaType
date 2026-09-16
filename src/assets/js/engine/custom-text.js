@@ -783,7 +783,11 @@ export async function migrateInlineToIdb() {
   const moved = new Set();
   for (const item of stale) {
     try {
-      await idbPut(item.id, item.segments);
+      // The chapters travel with the segments. A record written on the
+      // no-IndexedDB path can carry an inline chapter structure too,
+      // and leaving that behind would defeat the point of this
+      // function -- the localStorage quota is what it is reclaiming.
+      await idbPut(item.id, item.segments, Array.isArray(item.chapters) ? item.chapters : undefined);
       moved.add(item.id);
     } catch {
       // Leave this one inline; it still works, it just still costs quota.
@@ -795,8 +799,10 @@ export async function migrateInlineToIdb() {
   // have pinned or deleted something while the writes were in flight.
   const fresh = listSaved().map((x) => {
     if (!x || !moved.has(x.id)) return x;
-    const { segments, ...rest } = x;
-    return { ...rest, segCount: rest.segCount != null ? rest.segCount : segments.length };
+    const { segments, chapters, ...rest } = x;
+    const out = { ...rest, segCount: rest.segCount != null ? rest.segCount : segments.length };
+    if (Array.isArray(chapters) && chapters.length && out.chapCount == null) out.chapCount = chapters.length;
+    return out;
   });
   write(KEY_CUSTOM, fresh);
   return moved.size;
