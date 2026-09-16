@@ -2,9 +2,9 @@
 /* The share card must be a real raster image, and the share metadata
    must actually say so.
 
-   Background: until 2026-09-16 `site.ogImage` was
-   /assets/img/og-default.svg. X, Facebook, LinkedIn, Slack and iMessage
-   all refuse an SVG for og:image, so every link to guerillatype.com --
+   Background: until 2026-09-16 `site.ogImage` was an SVG. X, Facebook,
+   LinkedIn, Slack and iMessage all refuse an SVG for og:image, so every
+   link to guerillatype.com --
    home, every blog post, all 273 library pages -- previewed as a bare
    grey box. Nothing caught it because nothing looked. This is the thing
    that looks.

@@ -1,5 +1,22 @@
 export default [
   {
+    date: "2026-09-16",
+    title: "Sharing, auto-advance everywhere, custom books by chapter, and a page that stops jolting",
+    tag: "v0.8",
+    notes: [
+      "Share a result, or share any page. A Share button sits on the results card and on every quote, idiom, parable, poem and book page: the native share sheet where a browser has one, otherwise X, Bluesky, Mastodon, LinkedIn, Reddit, WhatsApp, Telegram, email, copy link, or download the card as a PNG.",
+      "What a share link carries, exactly: in the address, where a server can see it, numbers (wpm, raw wpm, accuracy, consistency, duration, character counts), the mode, the date, and a public content id saying which quote, book page, poem, idiom, parable, lesson, challenge or drill was typed. Never the text typed, never a custom text's title, never keystrokes. When the text is one of your own, the words ride after the '#' along with the keystroke replay -- browsers never send that part to any server, so it is decoded in the browser of whoever opens the link. Anyone holding the link can read all of it, so a shared link is public, and /privacy/ now says so in its own section.",
+      "Real link previews, at last. og:image was an SVG, and X, Facebook, LinkedIn, Slack and iMessage all refuse SVG, so every link to the site anywhere previewed as a blank grey box and nothing had ever looked. It is a PNG now, with the full set of Open Graph and Twitter tags on every page, and a gate that fails the build if the card stops being a 1200x630 PNG.",
+      "Preview cards are drawn per item, at build time: one for every quote, idiom, parable, poem, book, lesson, challenge and drill, plus a grid of result cards covering each whole number of wpm and an accuracy band. 3,639 files, about 140 MB added to each deploy, none of it in git and none of it drawn per visitor -- rendering on demand would mean paying for CPU on every request.",
+      "Quotes, idioms, parables and poems have their own pages now, one per item, each with the text, its attribution, a Type this button and a Share button. They were reachable only through a list before.",
+      "Auto-advance, opt-in per mode, and it always advances. A finished segment, page, lesson, drill, challenge or test flows straight into the next one with no results card and no countdown; a one-line summary of the last run sits above the text until you start typing. A failed lesson or a missed challenge advances too and says which it was -- the card used to interrupt exactly the runs worth retrying immediately. Esc and Stop always end at the card, results flagged as suspect never advance, and touch devices are unchanged. Found on the way: two challenges (alphabet-sprint, numbers-alphabet) declared a text the runner did not implement and silently typed a pangram instead; they type what they declare now.",
+      "The practice toolbar's action buttons are icon-only at every width, so the row stops reflowing between breakpoints.",
+      "No more upward jolt at a paragraph break. The character that separates two paragraphs is hidden, so it measures zero by zero, and the caret took that cached position literally: the page yanked toward the top of the document and snapped back on the next keystroke. A zero-size character now inherits the trailing edge of the character before it. Separately, the page used to sit still for about eight lines and then teleport 250 px to re-centre; it now follows the caret a line at a time with a short ease, respects a manual scroll, and goes instant under prefers-reduced-motion.",
+      "The Auto-scroll setting does something. It has been in Settings for a while and nothing read it; switching it off now stops the page following the caret at all.",
+      "A custom text can be read by chapter as well as by segment. Chapter titles come from the file's own headings (markdown headings, CHAPTER I, roman and numeric heads, all-caps lines), with a table of contents recognised so it does not become five one-line chapters; a text with no headings reads as one chapter. By chapter means six paragraphs to a page in the same reader the bundled library uses -- paging, the page counter, per-paragraph progress and auto-advance are that reader's existing code, with the chapters coming from IndexedDB instead of a file. Texts saved before this work their chapters out the first time you open them.",
+    ],
+  },
+  {
     date: "2026-09-02",
     title: "Scanned books come out clean: OCR noise, running heads, and a typeable corpus",
     tag: "v0.7",
