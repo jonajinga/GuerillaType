@@ -43,6 +43,52 @@ function asciify(s) {
     .replace(/…/g, "...");
 }
 
+/* The title a file gets when nothing inside it supplies one.
+
+   The old rule was "drop the extension", which is how an import landed
+   on /custom/ called "The-Odyssey-Homer-Full-text-pdf". Downloaded
+   files are named for URLs, not for people: the words are joined with
+   hyphens or underscores, and the format is very often repeated as the
+   last word before the real extension.
+
+   So: strip the extension. Then, ONLY if what is left has no spaces of
+   its own, read the separators as word breaks and drop a trailing word
+   that merely repeats the extension.
+
+   The "no spaces" condition is the whole safety of this. A name that
+   already contains a space was typed by a person, and a person's
+   "How to read a PDF.pdf" must keep its last word -- there the "PDF"
+   is the subject, not a leftover from a download. A name with no
+   spaces at all cannot be a sentence, so re-reading its separators
+   cannot destroy one.
+
+   Nothing is lowercased or title-cased: "The Odyssey" and "the odyssey"
+   are different titles and this function has no business choosing.
+   Rename on the card is how a title gets edited.
+
+   Every filename fallback in this file goes through here -- the .txt/.md
+   path, the EPUB with no <dc:title>, and every PDF (a PDF's text layer
+   carries no title we trust). One of them skipping it is exactly the
+   kind of miss that leaves the fix looking done. */
+export function cleanFilenameTitle(filename) {
+  const raw = String(filename || "");
+  const dot = raw.lastIndexOf(".");
+  const ext = dot > 0 ? raw.slice(dot + 1) : "";
+  let base = dot > 0 ? raw.slice(0, dot) : raw;
+  if (!/\s/.test(base)) {
+    base = base.replace(/[-_]+/g, " ").trim();
+    if (ext) {
+      // "My Book pdf" -> "My Book". Never down to nothing: a file
+      // honestly called "pdf.pdf" keeps the only word it has.
+      const stripped = base.replace(
+        new RegExp("\\s+" + ext.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$", "i"), ""
+      ).trim();
+      if (stripped) base = stripped;
+    }
+  }
+  return base.trim();
+}
+
 /* parseFile(file, onProgress): { title, text, chapters } — works for
    .txt, .md, .epub, .pdf. Throws on parse failure; caller renders the
    message.
@@ -68,7 +114,7 @@ export async function parseFile(file, onProgress) {
   let result;
   if (name.endsWith(".epub")) result = await parseEpub(file, onProgress);
   else if (name.endsWith(".pdf")) result = await parsePdf(file, onProgress);
-  else result = { title: file.name.replace(/\.[^.]+$/, ""), text: await file.text() };
+  else result = { title: cleanFilenameTitle(file.name), text: await file.text() };
   const text = asciify(result.text);
   const supplied = Array.isArray(result.chapters) ? result.chapters : [];
   const chapters = supplied.length >= 2
@@ -139,7 +185,7 @@ async function parseEpub(file, onProgress) {
 
   // Title from OPF metadata.
   const titleMatch = opf.match(/<dc:title[^>]*>([^<]+)<\/dc:title>/i);
-  const title = (titleMatch ? titleMatch[1] : file.name.replace(/\.[^.]+$/, "")).trim();
+  const title = (titleMatch ? titleMatch[1].trim() : cleanFilenameTitle(file.name));
 
   // Build manifest id → { href, props }. `properties` is how EPUB 3
   // marks the navigation document, which is apparatus, not a chapter.
@@ -580,7 +626,7 @@ async function parsePdf(file, onProgress) {
   if (!text) {
     throw new Error("This PDF has no extractable text — looks like a scanned image. Run OCR first, then upload the .txt.");
   }
-  return { title: file.name.replace(/\.[^.]+$/, ""), text };
+  return { title: cleanFilenameTitle(file.name), text };
 }
 
 function htmlToText(html) {
