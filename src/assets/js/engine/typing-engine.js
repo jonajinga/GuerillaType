@@ -50,7 +50,7 @@ export class TypingEngine {
     this.onCorrect = opts.onCorrect || (() => {});
     this.adaptive = opts.adaptive || null;  // { onChar(prev, ch, correct, ms), nextWords(n) }
 
-    this.renderer = new Renderer(this.textEl, opts.caret || "line");
+    this.renderer = new Renderer(this.textEl, opts.caret || "line", { autoScroll: opts.autoScroll !== false });
 
     this.target = "";       // chars (string)
     this.targetArr = [];
