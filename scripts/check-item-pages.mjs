@@ -23,6 +23,21 @@
  * completion where the list page reads it, and does "Save to my texts"
  * really save.
  *
+ * Two more, added after review:
+ *
+ *   - the Share button's FIVE data- attributes, on every item page and
+ *     every /library/<slug>/ page. Nothing reads them yet (the share
+ *     module is another branch's file), so a template that drops one
+ *     shows no symptom until a reader taps Share -- section K;
+ *   - a poem's indentation, which the HTML minifier was eating on 45
+ *     of the 122 poem pages while the practice surface kept it, so the
+ *     page and its own "Type this" disagreed about the shape of the
+ *     poem -- section L.
+ *
+ * Sections run A B C D K E F G H J L I. K and L were added to the end
+ * of the alphabet rather than renumbered in, so that the diff that
+ * added them touches only the lines it added.
+ *
  * ANTI-VACUITY. Every count is compared against the JSON that produced
  * it, never against a constant. Every browser assertion waits for
  * .tt-char first, so a page that failed to boot fails loudly instead
@@ -41,7 +56,7 @@
  */
 import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
-import { readFileSync, existsSync, statSync, openSync, readSync, closeSync } from "node:fs";
+import { readFileSync, readdirSync, existsSync, statSync, openSync, readSync, closeSync } from "node:fs";
 import { extname, join, normalize, resolve } from "node:path";
 import { chromium } from "playwright";
 
@@ -57,9 +72,22 @@ const chk = (ok, name, extra = "") => {
   console.log(`  ${ok ? "PASS" : "FAIL"}  ${name}${extra ? "  " + extra : ""}`);
   ok ? pass++ : fail++;
 };
+/* The counts are printed from ONE place, and an exit hook guarantees
+   they are printed at all. A rejected top-level await -- a Playwright
+   timeout, say -- does not reach process.on("unhandledRejection") in
+   Node: the runtime prints the stack and exits 1, and this gate used
+   to end there, with a TimeoutError and no idea how much had passed.
+   A reader then has to re-run it to learn anything. */
+let countsPrinted = false;
+const printCounts = () => {
+  if (countsPrinted) return;
+  countsPrinted = true;
+  console.log(`\n${pass} passed, ${fail} failed`);
+};
+process.on("exit", printCounts);
 const abort = (why) => {
   console.log(`\nRUN ABORTED — ${why}`);
-  console.log(`\n${pass} passed, ${fail} failed`);
+  printCounts();
   process.exit(1);
 };
 process.on("unhandledRejection", (err) => {
@@ -167,10 +195,78 @@ function isPng(file) {
 }
 
 const cardCache = new Map();
+
+/* ── the Share button's five data- attributes ───────────────────────
+   Nothing on these pages reads them yet: src/assets/js/share/share.js
+   belongs to another branch and binds every [data-share] on the site
+   from main.js. So a template that drops one of the five is invisible
+   until a reader taps Share -- and then gets a card with no image, a
+   link to nowhere, or no title. Checking one of the five (this gate
+   used to check only data-share-kind) proves nothing about the other
+   four: they are five separate template expressions.
+
+   Parsed, not grepped. The minifier sorts attributes, drops the quotes
+   where it safely can and decodes entities, so /data-share-image="/ is
+   a test of the minifier's mood rather than of the page. */
+const SHARE_KEYS = ["data-share-title", "data-share-text", "data-share-url", "data-share-image", "data-share-kind"];
+const BARE_SHARE = /\bdata-share(?![-\w=])/;
+const SITE_HOST = new URL(ORIGIN).host;
+
+function shareButton(html) {
+  for (const tag of html.match(/<[a-z][^>]*\bdata-share\b[^>]*>/gi) || []) {
+    if (!BARE_SHARE.test(tag)) continue; // data-share-title alone is not the hook
+    const attrs = {};
+    ATTR.lastIndex = 0;
+    let m;
+    while ((m = ATTR.exec(tag))) attrs[m[1].toLowerCase()] = m[2] ?? m[3] ?? m[4] ?? "";
+    return attrs;
+  }
+  return null;
+}
+
+/* Returns a list of everything wrong with this page's Share button.
+   Empty list = all five attributes present, non-empty, and pointing
+   where they claim to. */
+function shareProblems(html, { pageUrl, kind, wantImage }) {
+  const out = [];
+  const a = shareButton(html);
+  if (!a) return ["no [data-share] button"];
+  for (const k of SHARE_KEYS) {
+    if (!(k in a)) out.push(`${k} missing`);
+    else if (!String(a[k]).trim()) out.push(`${k} empty`);
+  }
+  if (out.length) return out; // the values below would be undefined
+
+  if (a["data-share-kind"] !== kind) out.push(`kind=${a["data-share-kind"]} wanted ${kind}`);
+
+  const url = a["data-share-url"];
+  let u = null;
+  try { u = new URL(url); } catch { /* not absolute */ }
+  if (!u || u.protocol !== "https:" || u.host !== SITE_HOST) out.push(`url is not an absolute https URL on ${SITE_HOST}: ${url}`);
+  else if (url !== `${ORIGIN}${pageUrl}`) out.push(`url=${url} wanted ${ORIGIN}${pageUrl}`);
+
+  const img = a["data-share-image"];
+  let i = null;
+  try { i = new URL(img); } catch { /* not absolute */ }
+  if (!i || i.protocol !== "https:" || i.host !== SITE_HOST) out.push(`image is not an absolute https URL on ${SITE_HOST}: ${img}`);
+  else if (!/^\/og\/.+\.png$/.test(i.pathname)) out.push(`image is not a /og/... .png: ${img}`);
+  else if (img !== wantImage) out.push(`image=${img} wanted ${wantImage}`);
+  else {
+    const card = resolve(ROOT, "." + i.pathname);
+    if (!existsSync(card)) out.push(`the card it points at is not in _site: ${i.pathname}`);
+    else {
+      if (!cardCache.has(card)) cardCache.set(card, isPng(card));
+      if (!cardCache.get(card)) out.push(`that card is not a PNG: ${i.pathname}`);
+    }
+  }
+  return out;
+}
+
 for (const c of CORPORA) {
   const data = items[c.kind];
   let badImg = [], missingCard = [], notPng = [], badHref = [], noHref = [], badCanon = [];
-  let sawShare = 0, sawSave = 0;
+  let sawSave = 0;
+  let shareOk = 0, shareEg = [];
   for (const it of data) {
     const file = join(ROOT, c.dir, it.id, "index.html");
     if (!existsSync(file)) continue;
@@ -197,7 +293,13 @@ for (const c of CORPORA) {
     if (m.get("og:url") !== `${ORIGIN}/${c.dir}/${it.id}/` && badCanon.length < 3) {
       badCanon.push(`${it.id} → ${m.get("og:url")}`);
     }
-    if (/data-share-kind=["']?/.test(html)) sawShare++;
+    const sp = shareProblems(html, {
+      pageUrl: `/${c.dir}/${it.id}/`,
+      kind: c.kind,
+      wantImage: `${ORIGIN}/og/${c.kind}/${it.id}.png`,
+    });
+    if (sp.length === 0) shareOk++;
+    else if (shareEg.length < 3) shareEg.push(`${it.id}: ${sp.join("; ")}`);
     if (/id=["']?corpus-save["'\s>]/.test(html)) sawSave++;
   }
   const n = data.length;
@@ -207,7 +309,8 @@ for (const c of CORPORA) {
   chk(noHref.length === 0, `${c.kind}: every page has a Type this link`, noHref.join(", "));
   chk(badHref.length === 0, `${c.kind}: every Type this link is the id-based deep link`, badHref.join(" | "));
   chk(badCanon.length === 0, `${c.kind}: og:url is the page's own absolute URL`, badCanon.join(" | "));
-  chk(sawShare === n, `${c.kind}: every page carries a Share button for the share module`, `${sawShare}/${n}`);
+  chk(shareOk === n, `${c.kind}: every page carries a Share button with all five data-share-* attributes`,
+    `${shareOk}/${n} complete${shareEg.length ? " — " + shareEg.join(" | ") : ""}`);
   chk(sawSave === n, `${c.kind}: every page carries Save to my texts`, `${sawSave}/${n}`);
 }
 
@@ -227,6 +330,77 @@ else {
       missing.length ? `${missing.length} missing, e.g. ${missing.slice(0, 3).map((x) => x.id).join(", ")}` : "");
   }
 }
+
+// ── K. the same five attributes on every /library/<slug>/ page ──────
+/* K and L are new; they carry on from the letters already in use
+   rather than renumbering the sections around them, which would make
+   every heading in the diff look changed. */
+console.log("\nK. the five share attributes on the book pages");
+
+/* The slug of every book, read from the file that produced the page
+   rather than from the directory listing -- a page built from a book
+   that no longer exists would otherwise check itself. The books are
+   188 MB of full text between them, so only the head of each file is
+   read; the slug is the first key. */
+const BOOKS_DIR = join(SRC, "data", "books");
+const bookFiles = existsSync(BOOKS_DIR) ? readdirSync(BOOKS_DIR).filter((f) => f.endsWith(".json")) : [];
+const bookSlugs = [];
+for (const f of bookFiles) {
+  const fd = openSync(join(BOOKS_DIR, f), "r");
+  const buf = Buffer.alloc(4096);
+  const n = readSync(fd, buf, 0, 4096, 0);
+  closeSync(fd);
+  const m = buf.slice(0, n).toString("utf8").match(/"slug"\s*:\s*"([^"]+)"/);
+  if (m) bookSlugs.push(m[1]);
+}
+chk(bookSlugs.length === bookFiles.length && bookSlugs.length > 0,
+  "every book JSON names a slug", `${bookSlugs.length}/${bookFiles.length}`);
+
+let bookPages = 0, bookShareOk = 0, bookShareEg = [], bookMissing = [];
+for (const slug of bookSlugs) {
+  const file = join(ROOT, "library", slug, "index.html");
+  if (!existsSync(file)) { if (bookMissing.length < 3) bookMissing.push(slug); continue; }
+  bookPages++;
+  const html = readFileSync(file, "utf8");
+  const sp = shareProblems(html, {
+    pageUrl: `/library/${slug}/`,
+    kind: "book",
+    wantImage: `${ORIGIN}/og/book/${slug}.png`,
+  });
+  if (sp.length === 0) bookShareOk++;
+  else if (bookShareEg.length < 3) bookShareEg.push(`${slug}: ${sp.join("; ")}`);
+}
+chk(bookMissing.length === 0, `/library/ has a page for every book`,
+  `${bookPages}/${bookSlugs.length}${bookMissing.length ? " — missing " + bookMissing.join(", ") : ""}`);
+chk(bookShareOk === bookSlugs.length,
+  "every book page carries a Share button with all five data-share-* attributes",
+  `${bookShareOk}/${bookSlugs.length} complete${bookShareEg.length ? " — " + bookShareEg.join(" | ") : ""}`);
+
+/* Anti-vacuity for the two checks above and their four siblings in
+   section C: shareProblems() must be able to SAY no. Feed it a button
+   with each attribute removed in turn and one with a card that was
+   never rendered, and confirm each is caught. Without this, a helper
+   that returned [] on everything would report 1,818 perfect pages. */
+const GOOD = `<button data-share data-share-title="T" data-share-text="X"`
+  + ` data-share-url="${ORIGIN}/library/s/" data-share-image="${ORIGIN}/og/book/${bookSlugs[0]}.png"`
+  + ` data-share-kind="book">Share</button>`;
+const ARGS = { pageUrl: "/library/s/", kind: "book", wantImage: `${ORIGIN}/og/book/${bookSlugs[0]}.png` };
+chk(shareProblems(GOOD, ARGS).length === 0, "the attribute reader passes a complete button",
+  shareProblems(GOOD, ARGS).join("; "));
+let caught = 0;
+for (const k of SHARE_KEYS) {
+  const mutated = GOOD.replace(new RegExp(`\\s${k}="[^"]*"`), "");
+  if (mutated !== GOOD && shareProblems(mutated, ARGS).length > 0) caught++;
+}
+chk(caught === SHARE_KEYS.length, "and fails a button with any ONE of the five removed",
+  `${caught}/${SHARE_KEYS.length} caught`);
+const noCard = GOOD.replace(/data-share-image="[^"]*"/, `data-share-image="${ORIGIN}/og/book/no-such-book-9x.png"`);
+chk(shareProblems(noCard, { ...ARGS, wantImage: `${ORIGIN}/og/book/no-such-book-9x.png` }).length > 0,
+  "and fails an image URL whose card is not in _site");
+const relative = GOOD.replace(/data-share-url="[^"]*"/, `data-share-url="/library/s/"`);
+chk(shareProblems(relative, ARGS).length > 0, "and fails a data-share-url that is not absolute");
+const httpUrl = GOOD.replace(/data-share-url="[^"]*"/, `data-share-url="http://${SITE_HOST}/library/s/"`);
+chk(shareProblems(httpUrl, ARGS).length > 0, "and fails a data-share-url that is not https");
 
 // ── the server ──────────────────────────────────────────────────────
 const TYPES = {
@@ -279,9 +453,20 @@ page.on("pageerror", (e) => pageErrors.push(String(e).slice(0, 200)));
 const done = async (code) => {
   await browser.close();
   server.close();
-  console.log(`\n${pass} passed, ${fail} failed`);
+  printCounts();
   process.exit(code);
 };
+
+/* Wait for a selector and answer yes or no instead of throwing. Every
+   wait below is something a broken change can make never appear, and
+   a throw here costs the whole report -- the counts, the sections that
+   had already passed, and the name of the thing that never showed up.
+   `state` is explicit because Playwright's default is "visible", which
+   is the right question for the completion tick (it is [hidden] and an
+   author display rule beats the UA's [hidden] rule) and the wrong one
+   for an element that is merely present. */
+const seen = (sel, { state = "visible", timeout = 20000 } = {}) =>
+  page.waitForSelector(sel, { state, timeout }).then(() => true).catch(() => false);
 
 const surfaceText = () => page.$$eval(".tt-char", (els) =>
   els.map((e) => (e.classList.contains("tt-char--space") ? " " : e.textContent)).join(""));
@@ -308,8 +493,9 @@ console.log("\nF. Type this opens that exact piece");
 async function openAndType(pathname) {
   await page.goto(B + pathname, { waitUntil: "domcontentloaded" });
   const link = await page.getAttribute("[data-type-this]", "href").catch(() => null);
-  await page.click("[data-type-this]");
-  await page.waitForSelector(".tt-char", { timeout: 20000 });
+  await page.click("[data-type-this]").catch(() => {});
+  const up = await seen(".tt-char");
+  if (!up) chk(false, `the typing surface never rendered after Type this on ${pathname}`);
   return link;
 }
 
@@ -320,7 +506,7 @@ async function openAndType(pathname) {
    second one is the one a reader sees. This assertion is what makes
    "the page shows its tick" below mean something. */
 await page.goto(B + `/poetry/${firstPoem.id}/`, { waitUntil: "domcontentloaded" });
-await page.waitForSelector(".corpus-page__title", { timeout: 20000 });
+chk(await seen(".corpus-page__title"), `the poem page /poetry/${firstPoem.id}/ renders its title`);
 const freshTick = await page.isVisible("#corpus-done");
 chk(freshTick === false, "a piece nobody has typed does not show a completion tick", `visible=${freshTick}`);
 
@@ -377,7 +563,7 @@ chk((await progressFor("idiom", shortestIdiom.id)) === null,
   "idiom: no completion record before the run — the check below cannot pass by accident");
 
 await page.goto(`${B}/practice/?mode=idiom&iid=${shortestIdiom.id}&from=idiom`, { waitUntil: "networkidle" });
-await page.waitForSelector(".tt-char", { timeout: 20000 });
+chk(await seen(".tt-char"), "the idiom deep link renders a typing surface");
 await page.click(".tt-stage").catch(() => {});
 const target = await surfaceText();
 chk(target === shortestIdiom.text, "idiom: about to type exactly the idiom", JSON.stringify(target));
@@ -393,7 +579,7 @@ chk(!!rec && typeof rec.wpm === "number" && rec.acc >= 80,
   "idiom: the record carries the run's numbers", JSON.stringify(rec));
 
 await page.goto(B + "/idioms/", { waitUntil: "domcontentloaded" });
-await page.waitForSelector(".corpus-table__row", { timeout: 20000 });
+chk(await seen(".corpus-table__row"), "/idioms/ renders its rows");
 const rowState = await page.evaluate((id) => {
   const row = document.querySelector(`.corpus-table__row[data-id="${id}"]`);
   if (!row) return { found: false };
@@ -412,10 +598,17 @@ chk(rowState.otherTick === false, "a row that was not typed has no tick — the 
 chk(rowState.open === `/idioms/${shortestIdiom.id}/`, "the row links to the item page", String(rowState.open));
 
 await page.goto(B + `/idioms/${shortestIdiom.id}/`, { waitUntil: "domcontentloaded" });
-await page.waitForSelector("#corpus-done", { timeout: 20000 });
-const tickHidden = await page.$eval("#corpus-done", (el) => el.hidden);
-const tickVisible = await page.isVisible("#corpus-done");
-const tickText = await page.textContent("#corpus-done");
+/* The tick is [hidden] in the markup and unhidden by the page's own
+   module once it reads the run out of the profile. If that module is
+   missing or broken it never appears -- which is a FAIL with the rest
+   of the report intact, not a TimeoutError that takes the run down
+   before it can print a single number. */
+const tickShowed = await seen("#corpus-done");
+chk(tickShowed, "the completion tick appeared on the item page within 20s",
+  tickShowed ? "" : "#corpus-done never became visible — the page never read the run");
+const tickHidden = await page.$eval("#corpus-done", (el) => el.hidden).catch(() => null);
+const tickVisible = await page.isVisible("#corpus-done").catch(() => false);
+const tickText = await page.textContent("#corpus-done").catch(() => null);
 chk(tickHidden === false, "the item page unhides its own completion tick");
 chk(tickVisible === true, "and the tick is actually on screen", `visible=${tickVisible}`);
 /* Visibility is part of this assertion on purpose: the element's
@@ -429,10 +622,10 @@ console.log("\nH. Save to my texts");
 
 const customTexts = () => page.evaluate(() => JSON.parse(localStorage.getItem("tt:custom-texts") || "[]"));
 await page.goto(B + `/parables/${moralParable.id}/`, { waitUntil: "domcontentloaded" });
-await page.waitForSelector("#corpus-save", { timeout: 20000 });
+chk(await seen("#corpus-save"), "the parable page offers Save to my texts");
 const before = await customTexts();
 chk(before.length === 0, "no saved texts before the click", `${before.length} record(s)`);
-await page.click("#corpus-save");
+await page.click("#corpus-save").catch(() => {});
 await page.waitForFunction(() => (JSON.parse(localStorage.getItem("tt:custom-texts") || "[]")).length > 0,
   null, { timeout: 10000 }).catch(() => {});
 const after = await customTexts();
@@ -466,7 +659,10 @@ const autoMap = () => page.evaluate(() => {
 
 async function advanceRun(kind, param, id, label) {
   await page.goto(`${B}/practice/?mode=${kind}&${param}=${id}&from=${kind}`, { waitUntil: "networkidle" });
-  await page.waitForSelector(".tt-char", { timeout: 20000 });
+  if (!(await seen(".tt-char"))) {
+    chk(false, `${label}: the deep link never rendered a typing surface`, `mode=${kind}&${param}=${id}`);
+    return null;
+  }
   const hasBtn = await page.isVisible("#tt-autoadvance");
   chk(hasBtn, `${label}: the toolbar offers an Auto button`);
   if (!hasBtn) return null;
@@ -516,6 +712,123 @@ if (idRun) {
     "idiom: the URL moved to a different idiom id", idRun.url.replace(B, ""));
   chk(idRun.after !== idRun.before, "idiom: a different idiom is on the surface", JSON.stringify(idRun.after));
   chk(!!(await progressFor("idiom", secondIdiom.id)), "idiom: completion recorded");
+}
+
+// ── L. every poem page shows the poem's own shape ───────────────────
+console.log("\nL. the poems keep their indentation");
+
+/* A poem's indentation is not decoration, it is the poem. 45 of the
+   122 in poetry.json indent at least one line, and the build was
+   throwing those spaces away: `.poem-line` is styled
+   `white-space: pre-wrap`, so the browser would have kept them, but
+   html-minifier runs first and collapses every run of whitespace in a
+   text node -- and trims the run that sits against the <p>. The page
+   and its own "Type this" surface then disagreed about the shape of
+   the poem, on 45 pages, silently.
+
+   src/_data/poems.js now writes the spaces the minifier would destroy
+   as non-breaking spaces. This section is the check that the fix is
+   still there: for EVERY poem, every rendered line, with U+00A0 mapped
+   back to an ordinary space, must equal the line in poetry.json --
+   character for character, no trimming at either end.
+
+   Read through the browser, not with a regex over the file: poem text
+   holds 200 apostrophes, 38 quote marks and 2 ampersands, and the
+   minifier decodes entities as it likes. Only a real HTML parser
+   settles what the text of a line actually is. The pages are fetched
+   and parsed rather than navigated to: 122 navigations would boot 122
+   copies of the page's modules to read text that is already in the
+   markup. One of them IS navigated to, below, to prove the two agree. */
+
+const NBSP = " ";
+const sameLine = (renderedText, jsonLine) => renderedText.replace(/ /g, " ") === jsonLine;
+
+// The comparison must be able to say no; these two fix that in place.
+chk(sameLine(`${NBSP}${NBSP}${NBSP}Life is but an empty dream!`, "   Life is but an empty dream!") === true,
+  "the line comparison accepts leading nbsp where the JSON has spaces");
+chk(sameLine("Life is but an empty dream!", "   Life is but an empty dream!") === false,
+  "and REJECTS the same line with its indentation stripped");
+
+const poemJsonLines = (p) => String(p.text).replace(/\r\n?/g, "\n").split("\n");
+const indentedPoems = items.poem.filter((p) => poemJsonLines(p).some((l) => /^ /.test(l)));
+const indentedLines = items.poem.reduce((n, p) => n + poemJsonLines(p).filter((l) => /^ /.test(l)).length, 0);
+chk(indentedPoems.length > 0 && indentedLines > 0,
+  "poetry.json still contains indented poems, so this section has something to check",
+  `${indentedPoems.length} of ${items.poem.length} poems, ${indentedLines} indented lines`);
+
+const poemUrls = items.poem.map((p) => `/poetry/${p.id}/`);
+const renderedLines = await page.evaluate(async (urls) => {
+  const out = {};
+  for (const u of urls) {
+    try {
+      const html = await (await fetch(u, { cache: "no-store" })).text();
+      const doc = new DOMParser().parseFromString(html, "text/html");
+      out[u] = [...doc.querySelectorAll(".poem-line")].map((el) => ({
+        text: el.textContent,
+        brk: el.classList.contains("poem-line--break"),
+      }));
+    } catch (e) {
+      out[u] = null;
+    }
+  }
+  return out;
+}, poemUrls);
+
+let poemBad = 0, poemEg = [], linesCompared = 0, poemsCompared = 0;
+for (const p of items.poem) {
+  const want = poemJsonLines(p);
+  const got = renderedLines[`/poetry/${p.id}/`];
+  let problem = null;
+  if (!Array.isArray(got)) problem = "the page did not load";
+  else if (got.length !== want.length) problem = `${got.length} rendered lines, ${want.length} in poetry.json`;
+  else {
+    poemsCompared++;
+    for (let i = 0; i < want.length; i++) {
+      const blank = want[i] === "";
+      /* A blank line is a stanza break and renders as the aria-hidden
+         spacer paragraph, whose content is one nbsp on purpose. Its
+         text is not compared -- that it IS the spacer, and that no
+         other line is, is what is compared. */
+      if (got[i].brk !== blank) {
+        problem = `line ${i + 1}: ${got[i].brk ? "a stanza break where the poem has text" : "text where the poem has a blank line"}`;
+        break;
+      }
+      if (blank) continue;
+      linesCompared++;
+      if (!sameLine(got[i].text, want[i])) {
+        problem = `line ${i + 1}: rendered ${JSON.stringify(got[i].text.replace(/ /g, "·"))} vs JSON ${JSON.stringify(want[i])}`;
+        break;
+      }
+    }
+  }
+  if (problem) { poemBad++; if (poemEg.length < 3) poemEg.push(`${p.id} — ${problem}`); }
+}
+chk(linesCompared > 0 && poemsCompared > 0, "lines were actually compared",
+  `${linesCompared} lines across ${poemsCompared} poems`);
+chk(poemBad === 0, "every poem page renders every line exactly as poetry.json stores it",
+  `${poemBad} of ${items.poem.length} pages disagree${poemEg.length ? " — " + poemEg.join(" | ") : ""}`);
+
+/* The fetched-and-parsed reading above is only worth anything if it
+   says the same thing as the page a reader opens. Navigate to the
+   most indented poem and read its lines out of the live DOM. */
+const deepest = [...indentedPoems].sort((a, b) =>
+  Math.max(...poemJsonLines(b).map((l) => (l.match(/^ +/) || [""])[0].length))
+  - Math.max(...poemJsonLines(a).map((l) => (l.match(/^ +/) || [""])[0].length)))[0];
+if (deepest) {
+  await page.goto(`${B}/poetry/${deepest.id}/`, { waitUntil: "domcontentloaded" });
+  const live = await page.$$eval(".poem-line", (els) => els.map((el) => ({
+    text: el.textContent, brk: el.classList.contains("poem-line--break"),
+  })));
+  const parsed = renderedLines[`/poetry/${deepest.id}/`] || [];
+  const agree = live.length === parsed.length
+    && live.every((l, i) => l.text === parsed[i].text && l.brk === parsed[i].brk);
+  chk(agree, `a navigated page reads the same as the parsed one (${deepest.id})`,
+    `${live.length} lines vs ${parsed.length}`);
+  const wantDeep = poemJsonLines(deepest);
+  const liveOk = live.length === wantDeep.length
+    && live.every((l, i) => (wantDeep[i] === "" ? l.brk : sameLine(l.text, wantDeep[i])));
+  chk(liveOk, `and the live page's lines are the JSON's lines (${deepest.id})`,
+    liveOk ? `${live.length} lines` : JSON.stringify(live.slice(0, 3).map((l) => l.text.replace(/ /g, "·"))));
 }
 
 console.log("\nI. the browser had nothing to complain about");
