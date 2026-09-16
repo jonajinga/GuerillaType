@@ -59,8 +59,11 @@
     "@11ty/eleventy": "^3.0.0",
     "@11ty/eleventy-img": "^6.0.4",
     "@11ty/eleventy-plugin-rss": "^2.0.2",
+    "@resvg/resvg-wasm": "^2.6.2",
     "@sardine/eleventy-plugin-tinyhtml": "^0.2.0",
-    "luxon": "^3.4.4"
+    "luxon": "^3.4.4",
+    "satori": "^0.33.4",
+    "yoga-wasm-web": "^0.3.3"
   },
   "devDependencies": {
     "esbuild": "^0.28.0",
