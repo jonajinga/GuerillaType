@@ -125,7 +125,7 @@ frozen at the Cloudflare edge, and in visitors' caches, for a year.
 
 ## The Open Graph renderer's fonts (`og/`)
 
-`og/` holds six Latin-subset TTFs. They exist for one consumer:
+`og/` holds seven Latin-subset TTFs. They exist for one consumer:
 `lib/og/card.js`, which builds share cards with
 [satori](https://github.com/vercel/satori) and rasterises them with
 `@resvg/resvg-wasm`. That runs in Node at build time
@@ -134,6 +134,7 @@ a Cloudflare Worker later. **Nothing here is ever loaded by a browser.**
 
 | File | Family / face | Bytes |
 |---|---|---|
+| `og/lora-400.ttf` | Lora Regular | 37 960 |
 | `og/lora-600.ttf` | Lora SemiBold | 39 988 |
 | `og/lora-500-italic.ttf` | Lora MediumItalic | 42 952 |
 | `og/inter-400.ttf` | Inter Regular | 32 384 |
@@ -141,7 +142,7 @@ a Cloudflare Worker later. **Nothing here is ever loaded by a browser.**
 | `og/jetbrains-mono-400.ttf` | JetBrains Mono Regular | 18 784 |
 | `og/jetbrains-mono-500.ttf` | JetBrains Mono Medium | 18 792 |
 
-186 KB in total. All three families are SIL Open Font License 1.1;
+224 KB in total. All three families are SIL Open Font License 1.1;
 `licenses/Lora-OFL.txt`, `licenses/Inter-OFL.txt` and
 `licenses/JetBrainsMono-OFL.txt` ship next to them for the same reason
 Iosevka's does.
@@ -160,6 +161,7 @@ Downloaded with `curl`, then subset locally. Upstream:
     # Lora — static instances, not the variable font (satori renders a
     # variable font at its default instance, which would be weight 400).
     curl -L -o lora.zip https://github.com/cyrealtype/Lora/archive/refs/heads/main.zip
+    #   Lora-Cyrillic-main/fonts/ttf/Lora-Regular.ttf       -> lora-400.ttf
     #   Lora-Cyrillic-main/fonts/ttf/Lora-SemiBold.ttf      -> lora-600.ttf
     #   Lora-Cyrillic-main/fonts/ttf/Lora-MediumItalic.ttf  -> lora-500-italic.ttf
 
@@ -184,7 +186,7 @@ not a project dependency, same as for Iosevka):
       --layout-features='kern' --no-hinting --desubroutinize \
       --drop-tables+=DSIG --name-IDs='*' --output-file=og/lora-600.ttf
 
-1.79 MB of raw TTF becomes 186 KB. The range is Latin-1 plus the
+2.0 MB of raw TTF becomes 224 KB. The range is Latin-1 plus the
 punctuation the corpus actually uses — curly quotes, en/em dash,
 ellipsis, bullet, the `·` separator the cards are built around. A
 character outside it renders as a blank box in the card, so widen the
