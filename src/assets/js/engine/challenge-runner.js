@@ -44,6 +44,11 @@ export async function buildSourceText(source, opts = {}) {
         uniformText(hard, 30),
       ].join(" ");
     }
+    case "literal": {
+      // A fixed passage declared on the challenge itself (alphabet
+      // sprints). Without this case they fell through to the pangram.
+      return String(source.text || "").trim() || "the quick brown fox jumps over the lazy dog";
+    }
     default: return "the quick brown fox jumps over the lazy dog";
   }
 }
