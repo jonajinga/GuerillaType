@@ -430,6 +430,72 @@ chk(saved.meta && saved.meta.kind === "parable" && saved.meta.sourceId === moral
   "its meta carries kind + sourceId, so completion still records against the corpus", JSON.stringify(saved.meta));
 chk(saved.meta && saved.meta.moral === moralParable.moral, "the moral travelled with it", JSON.stringify(saved.meta && saved.meta.moral));
 
+// ── J. a native corpus session finishes, and advances ───────────────
+console.log("\nJ. finishing a native parable / idiom session");
+
+/* This is the section that proves the engine change. "parable" had to
+   be added to typing-engine's end-of-target mode list: without it the
+   cursor runs past the last character and the session NEVER finishes,
+   so nothing is recorded and nothing advances -- and every assertion
+   in section F would still pass, because the text renders fine.
+
+   It also proves the auto-advance route for the native modes.
+   getAutoAdvanceAction used to send them down the "restart" path,
+   which re-runs buildText -- and buildText honours the pinned id, so a
+   session opened from an item page would have served the same piece
+   for ever. */
+const autoMap = () => page.evaluate(() => {
+  const ps = JSON.parse(localStorage.getItem("tt:profiles") || "[]");
+  const active = JSON.parse(localStorage.getItem("tt:active-profile") || "null");
+  const p = ps.find((x) => x.id === active) || ps[0];
+  return (p && p.preferences && p.preferences.autoAdvance) || {};
+});
+
+async function advanceRun(kind, param, id, label) {
+  await page.goto(`${B}/practice/?mode=${kind}&${param}=${id}&from=${kind}`, { waitUntil: "networkidle" });
+  await page.waitForSelector(".tt-char", { timeout: 20000 });
+  const hasBtn = await page.isVisible("#tt-autoadvance");
+  chk(hasBtn, `${label}: the toolbar offers an Auto button`);
+  if (!hasBtn) return null;
+  if ((await page.getAttribute("#tt-autoadvance", "aria-pressed")) !== "true") {
+    await page.click("#tt-autoadvance");
+  }
+  chk((await autoMap())[kind] === true, `${label}: the switch is keyed on "${kind}"`, JSON.stringify(await autoMap()));
+  await page.click(".tt-stage").catch(() => {});
+  const before = await surfaceText();
+  for (const ch of before) await page.keyboard.type(ch, { delay: 70 });
+  await page.waitForTimeout(1200);
+  return { before, url: page.url(), after: await surfaceText() };
+}
+
+const parRun = await advanceRun("parable", "pid", moralParable.id, "parable");
+if (parRun) {
+  chk(parRun.before === parWant, "parable: typed the whole piece, moral included", `${parRun.before.length} chars`);
+  const cardHidden = await page.$eval("#tt-results", (el) => el.hidden);
+  chk(cardHidden, "parable: the session FINISHED and advanced in place — no results card");
+  chk(!parRun.url.includes(`pid=${moralParable.id}`) && /pid=/.test(parRun.url),
+    "parable: the URL moved to a different parable id", parRun.url.replace(B, ""));
+  chk(parRun.after.length > 0 && parRun.after !== parRun.before,
+    "parable: a different parable is on the surface", JSON.stringify(parRun.after.slice(0, 50)));
+  const prec = await progressFor("parable", moralParable.id);
+  chk(!!prec, "parable: completion recorded against the corpus id, not a local one", JSON.stringify(prec));
+  const strip = (await page.textContent("#tt-last-run").catch(() => "")) || "";
+  chk(/parable done/i.test(strip), "parable: the last-run strip names it", JSON.stringify(strip.trim()));
+}
+
+const secondIdiom = items.idiom
+  .filter((i) => i.id !== shortestIdiom.id && /^[\x20-\x7e]+$/.test(i.text))
+  .sort((a, b) => a.text.length - b.text.length)[0];
+const idRun = await advanceRun("idiom", "iid", secondIdiom.id, "idiom");
+if (idRun) {
+  const cardHidden = await page.$eval("#tt-results", (el) => el.hidden);
+  chk(cardHidden, "idiom: advanced in place — no results card");
+  chk(!idRun.url.includes(`iid=${secondIdiom.id}`) && /iid=/.test(idRun.url),
+    "idiom: the URL moved to a different idiom id", idRun.url.replace(B, ""));
+  chk(idRun.after !== idRun.before, "idiom: a different idiom is on the surface", JSON.stringify(idRun.after));
+  chk(!!(await progressFor("idiom", secondIdiom.id)), "idiom: completion recorded");
+}
+
 console.log("\nI. the browser had nothing to complain about");
 chk(pageErrors.length === 0, "no uncaught page errors during the run", pageErrors.slice(0, 2).join(" | "));
 
