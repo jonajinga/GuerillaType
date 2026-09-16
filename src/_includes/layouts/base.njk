@@ -84,9 +84,20 @@ document.documentElement.setAttribute("data-theme", t);
    See partials/head/jsonld.njk for the @graph composition. #}
 {% include "partials/head/jsonld.njk" %}
 
-{# Analytics #}
+{# Analytics. A page can switch third-party analytics off entirely with
+   `noAnalytics: true`, and /r/ does.
+
+   Measured on 2026-09-16, not assumed: umami's tracker reports
+   `location.href` verbatim in every payload it sends, fragment
+   included. On /r/ the fragment is what somebody typed and the
+   keystroke record of how they typed it, so loading umami there would
+   POST both to gateway.umami.is on page load. The script does support
+   `data-exclude-hash`, but the fix for this page should not depend on
+   a third party keeping an attribute. #}
+{% if not noAnalytics %}
 {% include "partials/analytics/umami.njk" %}
 {% include "partials/analytics/cf-web-analytics.njk" %}
+{% endif %}
 </head>
 <body data-page="{{ pageSlug or page.fileSlug or 'page' }}">
 <script>
