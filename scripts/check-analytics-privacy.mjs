@@ -449,8 +449,13 @@ function callArgs(src, openIdx) {
   }
   return "";
 }
-/* Split an object literal's top level into "key: value" pieces. */
-function topLevelProps(args) {
+/* Split an object literal's top level into "key: value" pieces.
+   Comments come out first: a prose paragraph inside a props object
+   splits on its own commas and turns a readable failure message into
+   three words of a sentence. Stripping them also means a comment
+   mentioning isCustomBook cannot excuse a call that does not call it. */
+function topLevelProps(argsRaw) {
+  const args = argsRaw.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/\/\/[^\n]*/g, " ");
   const start = args.indexOf("{");
   if (start === -1) return [];
   let depth = 0, end = -1;
