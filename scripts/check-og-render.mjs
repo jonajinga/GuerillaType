@@ -140,6 +140,77 @@ if (resultPng) {
   chk(!faster.equals(resultPng), "changing wpm changes the card");
 }
 
+/* ── every part of a content card, for the kinds that are not quotes ─
+   Until verifier round 1 the only content fixture here was a quote,
+   and a quote is the one kind that draws NEITHER the excerpt panel nor
+   a meaning/moral line -- its text is the headline. So `if
+   (!headlineIsText)` could be turned into `if (false)`, deleting the
+   body of every poem, parable, book, lesson, challenge and drill card,
+   and this gate still said 89 passed.
+
+   Each fixture renders twice: once whole, once with one piece of the
+   MODEL removed. If the two images are identical, that piece never
+   reached the canvas. */
+const FIXTURES = [
+  {
+    name: "poem",
+    content: {
+      kind: "poem", title: "Hope is the thing with feathers",
+      author: "Emily Dickinson", year: 1891, source: "Poems by Emily Dickinson",
+      lines: ["Hope is the thing with feathers", "That perches in the soul,",
+        "And sings the tune without the words,", "And never stops at all,"],
+    },
+    parts: [
+      ["verse lines", (c) => ({ ...c, lines: [] })],
+      ["byline", (c) => ({ ...c, author: null, year: null, source: null })],
+    ],
+  },
+  {
+    name: "parable",
+    content: {
+      kind: "parable", title: "The Frogs and the Ox",
+      source: "Aesop's Fables (public domain)",
+      moral: "Do not attempt the impossible.",
+      text: "An ox came down to a reedy pool to drink. As he splashed heavily into the water, he crushed a young frog into the mud.",
+    },
+    parts: [
+      ["excerpt", (c) => ({ ...c, text: "" })],
+      ["moral", (c) => ({ ...c, moral: null })],
+      ["byline", (c) => ({ ...c, source: null })],
+    ],
+  },
+  {
+    name: "idiom",
+    content: { kind: "idiom", text: "kick the bucket", meaning: "die" },
+    parts: [["meaning", (c) => ({ ...c, meaning: null })]],
+  },
+  {
+    name: "lesson",
+    content: {
+      kind: "lesson", title: "i vs l", source: "Lesson 196",
+      text: "il li ill lil lily lily ill ill lily lily lily lily lily ill ill lily ill lily",
+    },
+    parts: [
+      ["text excerpt", (c) => ({ ...c, text: "" })],
+      ["byline", (c) => ({ ...c, source: null })],
+    ],
+  },
+];
+
+for (const fx of FIXTURES) {
+  const whole = Buffer.from(await renderer.renderPng({ layout: "content", content: fx.content }));
+  chk(whole.subarray(0, 8).equals(PNG_SIG) && whole.readUInt32BE(16) === CARD.width && whole.readUInt32BE(20) === CARD.height,
+    `${fx.name} card is a 1200x630 PNG`, `${(whole.length / 1024).toFixed(1)} KB`);
+  for (const [part, strip] of fx.parts) {
+    const without = Buffer.from(await renderer.renderPng({ layout: "content", content: strip(fx.content) }));
+    chk(!without.equals(whole), `${fx.name} card draws its ${part}`);
+  }
+}
+
+/* And every kind resolves-and-renders from the REAL data, so a card
+   path that only breaks on a field the fixtures do not have (a book's
+   chapter line, a drill's key list) still shows up here. */
+
 // ── C. validate(): the boundary between a URL and an image ──────────
 console.log("\nC. validate()");
 
@@ -260,6 +331,41 @@ for (const bad of ["q:no-such-quote", "bk:no-such-book", "ls:99999", "dr:nope", 
 /* resolveSrc must not depend on the Node glue: it takes its loader. */
 const viaLoader = await resolveSrc(`q:${quotes[0].id}`, loadData);
 chk(!!viaLoader && viaLoader.text === quotes[0].text, "resolveSrc works with any loader");
+
+/* One card per kind, resolved from the repo's own data and rendered.
+   Section B proves the PARTS are drawn; this proves the eight paths
+   from a src token to a PNG all still work end to end. */
+console.log("\n E2. every kind renders from real data");
+const KIND_SRCS = [
+  `q:${quotes[0].id}`, `id:${idioms[0].id}`, `po:${poems[0].id}`, `pa:${parables[0].id}`,
+  `bk:${slug}:0:0`, `ls:${lessons[0].id}`, `ch:${challenges[0].id}`, `dr:${drills[0].id}`,
+];
+for (const src of KIND_SRCS) {
+  const content = await resolveSrcNode(src);
+  if (!content) { chk(false, `renders: ${src}`, "did not resolve"); continue; }
+  let png = null;
+  try { png = Buffer.from(await renderer.renderPng({ layout: "content", content })); }
+  catch (err) { chk(false, `renders: ${src}`, err.message); continue; }
+  const kb = png.length / 1024;
+  chk(png.subarray(0, 8).equals(PNG_SIG) && png.readUInt32BE(16) === CARD.width
+    && png.readUInt32BE(20) === CARD.height && kb > 15 && kb < 400,
+    `renders: ${src}`, `${kb.toFixed(1)} KB`);
+}
+
+/* The lesson excerpt has its own line here because it was wrong:
+   resolve.js read `l.bestFor`, which lessons.js documents but no lesson
+   has, so 480 of 500 lesson cards had an empty panel and nothing
+   noticed. A lesson with a `text` must put that text on the card. */
+const withText = lessons.find((l) => l.text);
+const lsText = await resolveSrcNode(`ls:${withText.id}`);
+chk(!!lsText && lsText.text === withText.text,
+  "a lesson's excerpt is its own text, not an absent field", `lesson ${withText.id}`);
+const keysOnly = lessons.find((l) => !l.text && l.keys);
+const lsKeys = keysOnly ? await resolveSrcNode(`ls:${keysOnly.id}`) : null;
+chk(!keysOnly || (lsKeys && lsKeys.text === `Keys: ${keysOnly.keys}`),
+  "a lesson with no text falls back to its key set", keysOnly ? `lesson ${keysOnly.id}` : "none");
+const emptyish = lessons.filter((l) => !l.text && !l.keys).length;
+chk(emptyish <= 5, "at most a handful of lessons have neither text nor keys", `${emptyish} lessons`);
 
 // ── F. the generator is wired into the build ────────────────────────
 console.log("\nF. wiring");

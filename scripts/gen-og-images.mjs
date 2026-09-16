@@ -69,7 +69,7 @@ function newestIn(dir, filter = () => true) {
 
 const RENDERER_MTIME = Math.max(
   newestIn(join(ROOT, "lib", "og")),
-  mtime(join(__dirname, "lib", "og-node.mjs")),
+  newestIn(join(__dirname, "lib")),
   mtime(join(__dirname, "gen-og-images.mjs")),
   newestIn(join(ROOT, "src", "assets", "fonts", "og")),
 );
