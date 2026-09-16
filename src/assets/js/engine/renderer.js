@@ -5,9 +5,23 @@
 const SPACE = " "; // non-breaking display char for spaces (visual only)
 
 export class Renderer {
-  constructor(container, caretStyle = "line") {
+  constructor(container, caretStyle = "line", options = {}) {
     this.container = container;
     this.caretStyle = caretStyle;
+    /* Settings -> "Auto-scroll". When off, long passages never move the
+       page; the reader scrolls by hand. The 3-line modes keep sliding
+       lines inside their own box either way -- there is nothing else
+       to look at there. */
+    this.autoScroll = options.autoScroll !== false;
+    /* Page-follow state. _wantScrollY is where the page is HEADED; the
+       rAF loop in _startFollowAnim is the only thing that writes
+       window.scrollY, and every keystroke does its band arithmetic
+       against the target rather than the live value, so an in-flight
+       ease never stacks corrections on itself. */
+    this._wantScrollY = null;
+    this._followHandle = null;
+    this._followFrames = 0;
+    this._reducedMotion = null;
     this.inner = document.createElement("div");
     this.inner.className = "tt-text__inner";
     container.innerHTML = "";
@@ -105,42 +119,92 @@ export class Renderer {
      Scrolls only when the caret leaves a comfortable band, so an
      ordinary line of typing moves nothing. */
   _followCaretInPage(contY, lineH) {
+    if (!this.autoScroll) return;
     if (this._contDocTop == null) return;
     const vh = window.innerHeight || 0;
     if (!vh) return;
 
     const line = lineH || 28;
-    const scrollY = window.scrollY || window.pageYOffset || 0;
-    const top = this._contDocTop + contY - scrollY;
+    /* Resync the target from the live position only when nothing is
+       in flight, so a wheel scroll between keystrokes is respected but
+       a half-finished ease is not mistaken for where the page will
+       settle. */
+    if (this._followHandle == null || this._wantScrollY == null) {
+      this._wantScrollY = window.scrollY || window.pageYOffset || 0;
+    }
+    const want = this._wantScrollY;
+    const top = this._contDocTop + contY - want;
 
     /* Headroom above so you can see the line you just finished, and a
        deeper margin below so the NEXT line is already on screen rather
        than arriving flush with the bottom edge. */
     const min = Math.max(line * 2, vh * 0.15);
     const max = vh - Math.max(line * 4, vh * 0.28);
-    if (top >= min && top <= max) return;
 
-    const delta = Math.round(top - vh * 0.38);
-    if (Math.abs(delta) < 4) return;
+    /* Nudge by exactly the overshoot, never re-centre. Typing forward
+       moves the page one line at a time as the caret wraps. The old
+       version let the caret drift ~8 lines and then teleported ~250 px
+       to 38% of the viewport, which read as a lurch even when correct.
 
-    /* Instant, not smooth, and deliberately so.
+       Upward moves are reserved for a caret that has actually left the
+       top of the viewport (backspacing up several lines, or the reader
+       scrolled away and came back). Merely sitting inside the headroom
+       band is not a reason to move: the reader put the page there, and
+       an upward twitch on the first keystroke was the complaint. */
+    let delta = 0;
+    if (top > max) delta = top - max;
+    else if (top < 0) delta = top - min;
+    if (Math.abs(delta) < 1) return;
 
-       A smooth scroll is asynchronous: the following keystrokes read a
-       scrollY that has not caught up, so either they stack corrections
-       on top of an in-flight animation or -- if you suppress that with a
-       cooldown -- the caret keeps travelling during the cooldown and
-       leaves the screen anyway. Measured with a 320ms cooldown while
-       typing a 521-character poem: the caret left a 700px viewport three
-       times, ranging from 0 to 779px.
+    this._wantScrollY = Math.max(0, want + delta);
+    this._startFollowAnim();
+  }
 
-       Instant also matches the rest of the app. The default mode slides
-       lines with an immediate transform; a page that eases underneath
-       you while you type reads as drift, not polish. */
-    try {
-      window.scrollBy({ top: delta, behavior: "auto" });
-    } catch {
-      window.scrollBy(0, delta);
+  /* Ease window.scrollY toward _wantScrollY. Same shape as the tape
+     interpolator: a keystroke only moves the target, and the loop
+     retargets each frame, so fast typing never restarts an animation.
+     Reduced-motion users get the instant jump they asked for. */
+  _startFollowAnim() {
+    if (this._reducedMotion == null) {
+      try { this._reducedMotion = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches); }
+      catch { this._reducedMotion = false; }
     }
+    if (this._reducedMotion) {
+      window.scrollTo(0, this._wantScrollY);
+      this._wantScrollY = window.scrollY || window.pageYOffset || 0;
+      return;
+    }
+    if (this._followHandle) return;
+    this._followFrames = 0;
+    const step = () => {
+      const target = this._wantScrollY;
+      const cur = window.scrollY || window.pageYOffset || 0;
+      const d = target - cur;
+      const next = Math.abs(d) < 0.5 ? target : cur + d * 0.3;
+      window.scrollTo(0, next);
+      const after = window.scrollY || window.pageYOffset || 0;
+      this._followFrames++;
+      /* Done when we landed, or when the document refuses to scroll
+         any further (target beyond the page end), or as a backstop. */
+      const stuck = Math.abs(after - cur) < 0.01 && Math.abs(d) >= 0.5;
+      if (next === target || stuck || this._followFrames > 60) {
+        this._wantScrollY = after;
+        this._followHandle = null;
+        return;
+      }
+      this._followHandle = requestAnimationFrame(step);
+    };
+    this._followHandle = requestAnimationFrame(step);
+  }
+
+  /* Forget any page-follow in progress. Called when something else
+     takes over the scroll position (a restart scrolling the stage into
+     view), so the next keystroke starts from wherever the page really
+     is instead of a stale target. */
+  resetFollow() {
+    if (this._followHandle) cancelAnimationFrame(this._followHandle);
+    this._followHandle = null;
+    this._wantScrollY = null;
   }
 
   _measure(from = 0) {
@@ -165,6 +229,23 @@ export class Renderer {
     for (let k = from; k < n; k++) {
       const r = this.chars[k].el.getBoundingClientRect();
       const o = k * 4;
+      /* A display:none character -- the paragraph-break separator --
+         measures as a 0x0 rect at the viewport origin. Stored as-is,
+         that put the caret at the top-left of the DOCUMENT whenever the
+         cursor rested on a break, and _followCaretInPage then yanked
+         the page toward the top; the next real keystroke snapped it
+         back. Give the break the trailing edge of the character before
+         it instead: the caret sits at the end of the paragraph, where
+         the reader expects it. Width stays 0 so the zero-width guard
+         below and the proportional-surface logic keep working. */
+      if (r.width === 0 && r.height === 0 && k > 0) {
+        const q = o - 4;
+        pos[o]     = pos[q] + pos[q + 2];
+        pos[o + 1] = pos[q + 1];
+        pos[o + 2] = 0;
+        pos[o + 3] = pos[q + 3];
+        continue;
+      }
       pos[o]     = r.left - ir.left;
       pos[o + 1] = r.top - ir.top;
       pos[o + 2] = r.width;
@@ -537,6 +618,7 @@ export class Renderer {
   }
 
   destroy() {
+    this.resetFollow();
     // Mode switches build a fresh Renderer against the same container,
     // so an un-disconnected observer would keep firing against detached
     // nodes and slowly stack up across a session.

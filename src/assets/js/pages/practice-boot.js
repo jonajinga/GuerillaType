@@ -753,6 +753,8 @@ function startEngine(target) {
     caret: settings.caret || "line",
     spaceSkipsWords: state.spaceSkipsWords,
     forgiveErrors: state.forgiveErrors,
+    // Read fresh so the Settings switch applies on the next boot without a reload.
+    autoScroll: ((getActive() || {}).preferences || {}).autoScroll !== false,
     ignoreCapitalization: state.ignoreCapitalization,
     skipPunctuation: state.skipPunctuation,
     adaptive: adaptiveStream,
@@ -1441,6 +1443,9 @@ window.ttAdvance = async (kind) => {
 };
 
 function scrollStageIntoView() {
+  // The page is about to move under the engine; drop any follow target
+  // so the first keystroke measures from where the page actually is.
+  if (engine && engine.renderer && engine.renderer.resetFollow) engine.renderer.resetFollow();
   requestAnimationFrame(() => {
     const headerH = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--header-h")) || 58;
     const bar = document.querySelector(".practice-bar");

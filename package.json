@@ -53,7 +53,8 @@
     "running-heads": "node scripts/check-running-heads.mjs",
     "auto-advance": "node scripts/check-auto-advance.mjs",
     "og-default": "node scripts/gen-og-default.mjs",
-    "og-meta": "node scripts/check-og-meta.mjs"
+    "og-meta": "node scripts/check-og-meta.mjs",
+    "scroll-jolt": "node scripts/check-scroll-jolt.mjs"
   },
   "dependencies": {
     "@11ty/eleventy": "^3.0.0",
