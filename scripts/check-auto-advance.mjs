@@ -1,0 +1,244 @@
+/* Auto-advance: the opt-in switch that skips the results card and loads
+   the next run in place.
+
+   What must hold, in the order a user meets it:
+
+     A. The toolbar has an Auto button, off by default, hidden in zen.
+     B. Clicking it writes preferences.autoAdvance.<mode> = true on the
+        active profile, and the Settings page shows the same switch on.
+     C. With it on, finishing segment 0 of a custom text does NOT show the
+        results card: segment 1 is on the surface, the URL says seg=1, the
+        header says "Segment 2 of 4", the last-run strip names the run that
+        just ended, and the bookmark moved -- the stats were saved too.
+     D. A keystroke inside the 400 ms swap window is dropped, so the
+        trailing key from the old run is not the first error of the new.
+     E. Esc still ends the run with the card, even with the switch on.
+     F. The last segment still ends with the card ("Text finished").
+     G. With the switch off, the card shows as before (#tt-next-seg).
+     H. Words mode: the same switch restarts with fresh text in place.
+
+   Section D is the one a lazy implementation fails: a swap with no
+   guard would mark a wrong first character before the user even looks.
+
+   Usage:
+     npm run build          # not optional: this reads _site, not src
+     node scripts/check-auto-advance.mjs
+*/
+import { createServer } from "node:http";
+import { readFile, stat } from "node:fs/promises";
+import { extname, join, normalize, resolve } from "node:path";
+import { chromium } from "playwright";
+
+/* Port from the task id, not from habit. 8080 is never ours, and 8765
+   is the shared default every other gate in this repo uses. */
+const TASK = "auto-advance";
+const PORT = Number(process.env.PORT)
+  || 8100 + ([...TASK].reduce((a, c) => a + c.charCodeAt(0), 0) % 600);
+const ROOT = resolve("_site");
+
+let pass = 0, fail = 0;
+const chk = (ok, name, extra = "") => {
+  console.log(`  ${ok ? "PASS" : "FAIL"}  ${name}${extra ? "  " + extra : ""}`);
+  ok ? pass++ : fail++;
+};
+process.on("unhandledRejection", (err) => {
+  console.log(`  FAIL  unhandled rejection — ${err && err.message ? err.message : err}`);
+  console.log("\nRUN ABORTED — the counts below are partial.");
+  process.exit(1);
+});
+
+// ---------------------------------------------------------------- server
+const TYPES = {
+  ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8",
+  ".mjs": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8",
+  ".json": "application/json; charset=utf-8", ".svg": "image/svg+xml",
+  ".png": "image/png", ".jpg": "image/jpeg", ".webp": "image/webp",
+  ".woff2": "font/woff2", ".txt": "text/plain; charset=utf-8",
+  ".ico": "image/x-icon", ".xml": "application/xml; charset=utf-8",
+};
+try {
+  await stat(join(ROOT, "practice", "index.html"));
+} catch {
+  console.log("  FAIL  _site is not built — run `npm run build` first");
+  process.exit(1);
+}
+const server = createServer(async (req, res) => {
+  try {
+    const p = decodeURIComponent(new URL(req.url, "http://x").pathname);
+    let file = join(ROOT, normalize(p).replace(/^(\.\.[/\\])+/, ""));
+    try {
+      if ((await stat(file)).isDirectory()) file = join(file, "index.html");
+    } catch {
+      if (!extname(file)) file += ".html";
+    }
+    const body = await readFile(file);
+    res.writeHead(200, { "content-type": TYPES[extname(file)] || "application/octet-stream" });
+    res.end(body);
+  } catch {
+    res.writeHead(404, { "content-type": "text/plain" });
+    res.end("not found");
+  }
+});
+await new Promise((ok, no) => {
+  server.on("error", no);
+  server.listen(PORT, "127.0.0.1", ok);
+}).catch((e) => {
+  console.log(`  FAIL  could not bind 127.0.0.1:${PORT} — ${e.code || e.message}`);
+  console.log("\nRUN ABORTED — refusing to share a port with something else.");
+  process.exit(1);
+});
+const B = `http://127.0.0.1:${PORT}`;
+
+/* Prove what is answering before believing anything it says. */
+const probe = await fetch(B + "/practice/").then((r) => r.text()).catch(() => "");
+const isThisProject = /<title>[^<]*GuerillaType<\/title>/.test(probe)
+  && /id=["']?tt-stage["'\s>]/.test(probe);
+chk(isThisProject, `server on ${PORT} is this project's /practice/`);
+if (!isThisProject) {
+  console.log("\nRUN ABORTED — refusing to test something that is not this build.");
+  server.close();
+  process.exit(1);
+}
+
+// ---------------------------------------------------------------- browser
+const browser = await chromium.launch();
+/* Desktop viewport and no touch: auto-advance is deliberately off on
+   touch devices, so a coarse-pointer context would pass section G and
+   fail everything else for the wrong reason. Service workers blocked:
+   pwa.js reloads on controllerchange, mid-run. */
+const page = await browser.newPage({ viewport: { width: 1366, height: 900 }, serviceWorkers: "block", hasTouch: false });
+page.on("pageerror", (e) => console.log("  PAGEERROR:", String(e).slice(0, 160)));
+
+const SEGS = ["Alpha one text.", "Bravo two text.", "Charlie three text.", "Delta four text."];
+await page.goto(B + "/custom/", { waitUntil: "domcontentloaded" });
+await page.evaluate((segs) => {
+  localStorage.clear();
+  localStorage.setItem("tt:custom-texts", JSON.stringify([{
+    id: "c_auto", title: "Auto PDF", createdAt: new Date().toISOString(), bytes: 120, lastSeg: 0,
+    segments: segs, meta: null,
+  }]));
+}, SEGS);
+
+const surfaceText = () => page.$$eval(".tt-char", (els) =>
+  els.map((e) => (e.classList.contains("tt-char--space") ? " " : e.textContent)).join(""));
+const openSeg = async (seg) => {
+  await page.goto(`${B}/practice/?mode=custom&custom=c_auto&seg=${seg}`, { waitUntil: "networkidle" });
+  await page.waitForSelector(".tt-char", { timeout: 8000 });
+  await page.click(".tt-stage").catch(() => {});
+};
+/* Human pace on purpose. The engine flags anything over 250 wpm as
+   suspect, and auto-advance refuses a suspect result by design; a
+   4 ms-per-key robot is ~3000 wpm and would get the card every time. */
+const typeAll = async (delay = 70) => {
+  const target = await surfaceText();
+  for (const ch of target) await page.keyboard.type(ch, { delay });
+  return target;
+};
+const autoMap = () => page.evaluate(() => {
+  const ps = JSON.parse(localStorage.getItem("tt:profiles") || "[]");
+  const id = JSON.parse(localStorage.getItem("tt:active-profile") || "null");
+  const p = ps.find((x) => x.id === id) || ps[0];
+  return (p && p.preferences && p.preferences.autoAdvance) || {};
+});
+
+// A. Button present, off, and hidden in zen.
+await openSeg(0);
+const btnVisible = await page.isVisible("#tt-autoadvance");
+chk(btnVisible, "A. toolbar has an Auto button on a custom text");
+chk((await page.getAttribute("#tt-autoadvance", "aria-pressed")) === "false", "A. it starts off");
+await page.goto(`${B}/practice/?mode=zen`, { waitUntil: "networkidle" });
+await page.waitForSelector(".tt-char", { timeout: 8000 });
+chk(!(await page.isVisible("#tt-autoadvance")), "A. hidden in zen (nothing to advance to)");
+
+// B. Clicking it persists per mode; Settings agrees.
+await openSeg(0);
+await page.click("#tt-autoadvance");
+chk((await page.getAttribute("#tt-autoadvance", "aria-pressed")) === "true", "B. click turns it on");
+let map = await autoMap();
+chk(map.custom === true, "B. saved as preferences.autoAdvance.custom", JSON.stringify(map));
+chk(map.time !== true, "B. other modes untouched");
+await page.goto(B + "/settings/", { waitUntil: "networkidle" });
+chk(await page.isChecked("#pref-autoAdvance-custom"), "B. Settings row for custom text shows on");
+chk(!(await page.isChecked("#pref-autoAdvance-lesson")), "B. Settings row for lessons shows off");
+/* The input sits under its styled track, so click the label the way
+   a person does; settings-boot listens on the label too. */
+await page.$eval("#pref-autoAdvance-words", (el) => el.closest("label").click());
+await page.waitForTimeout(150);
+map = await autoMap();
+chk(map.words === true && map.custom === true, "B. Settings switch writes the same map", JSON.stringify(map));
+
+// C. Finish segment 0 -> segment 1 in place, no card.
+await openSeg(0);
+chk((await page.getAttribute("#tt-autoadvance", "aria-pressed")) === "true", "C. switch is remembered on reload");
+const t0 = await typeAll();
+chk(t0.startsWith("Alpha"), "C. segment 0 rendered", JSON.stringify(t0));
+// D. Trailing keystroke inside the swap window must be dropped.
+await page.keyboard.type("x");
+await page.waitForTimeout(900);
+chk(await page.$eval("#tt-results", (el) => el.hidden), "C. results card NOT shown");
+const t1 = await surfaceText();
+chk(t1.startsWith("Bravo"), "C. segment 1 is on the surface", JSON.stringify(t1));
+chk(/seg=1/.test(page.url()), "C. URL rewritten to seg=1", page.url());
+const seg = (await page.textContent(".tt-custom-seg").catch(() => "")) || "";
+chk(/Segment 2 of 4/i.test(seg), "C. header reads Segment 2 of 4", JSON.stringify(seg.trim()));
+const strip = (await page.textContent("#tt-last-run").catch(() => "")) || "";
+chk(await page.isVisible("#tt-last-run"), "C. last-run strip visible");
+chk(/Segment 1 of 4 done/i.test(strip) && /wpm/.test(strip) && /accuracy/.test(strip), "C. strip names the run and its numbers", JSON.stringify(strip.trim()));
+const saved = await page.evaluate(() => {
+  const ps = JSON.parse(localStorage.getItem("tt:profiles") || "[]");
+  const list = JSON.parse(localStorage.getItem("tt:custom-texts") || "[]");
+  return { sessions: (ps[0] && ps[0].sessions || []).length, lastSeg: list[0] && list[0].lastSeg };
+});
+chk(saved.sessions >= 1, "C. session was recorded even though no card showed", `sessions=${saved.sessions}`);
+chk(saved.lastSeg === 1, "C. bookmark advanced to 1", `lastSeg=${saved.lastSeg}`);
+const state1 = await page.getAttribute("#tt-stage", "data-state");
+const wrong1 = await page.$$eval(".tt-char--incorrect", (els) => els.length);
+chk(state1 === "ready", "D. new run is waiting, not started by the trailing key", `state=${state1}`);
+chk(wrong1 === 0, "D. trailing 'x' was dropped, no error on the new run", `incorrect=${wrong1}`);
+await page.keyboard.type("B");
+await page.waitForTimeout(100);
+chk(await page.$eval("#tt-last-run", (el) => el.hidden), "C. strip clears on the first real keystroke");
+chk((await page.getAttribute("#tt-stage", "data-state")) === "running", "D. a key after the window starts the run");
+
+// E. Esc with the switch on -> card.
+await page.keyboard.press("Escape");
+await page.waitForTimeout(500);
+chk(!(await page.$eval("#tt-results", (el) => el.hidden)), "E. Esc still shows the results card");
+chk(/seg=1/.test(page.url()), "E. and stays on the same segment", page.url());
+
+// F. Last segment -> card with Text finished.
+await openSeg(3);
+await typeAll();
+await page.waitForTimeout(900);
+chk(!(await page.$eval("#tt-results", (el) => el.hidden)), "F. final segment shows the card");
+const endText = (await page.textContent(".results__actions").catch(() => "")) || "";
+chk(/Text finished/i.test(endText), "F. final segment says the text is finished");
+
+// G. Switch off -> old behaviour.
+await openSeg(0);
+await page.click("#tt-autoadvance");
+chk((await page.getAttribute("#tt-autoadvance", "aria-pressed")) === "false", "G. click turns it off");
+await page.click(".tt-stage").catch(() => {});
+await typeAll();
+await page.waitForTimeout(900);
+chk(!(await page.$eval("#tt-results", (el) => el.hidden)), "G. results card shows with the switch off");
+const nextHref = await page.getAttribute("#tt-next-seg", "href").catch(() => null);
+chk(!!nextHref && /seg=1/.test(nextHref), "G. Next segment link is back", nextHref || "(missing)");
+
+// H. Words mode restarts in place with fresh text.
+await page.goto(`${B}/practice/?mode=words&words=10`, { waitUntil: "networkidle" });
+await page.waitForSelector(".tt-char", { timeout: 8000 });
+chk((await page.getAttribute("#tt-autoadvance", "aria-pressed")) === "true", "H. words switch (set on Settings) is on");
+await page.click(".tt-stage").catch(() => {});
+const w0 = await typeAll();
+await page.waitForTimeout(900);
+chk(await page.$eval("#tt-results", (el) => el.hidden), "H. no card after a words test");
+const w1 = await surfaceText();
+chk(w1.length > 0 && w1 !== w0 && (await page.getAttribute("#tt-stage", "data-state")) === "ready", "H. fresh text is waiting", JSON.stringify(w1.slice(0, 30)));
+const strip2 = (await page.textContent("#tt-last-run").catch(() => "")) || "";
+chk(/Last run/i.test(strip2), "H. strip reads Last run", JSON.stringify(strip2.trim()));
+
+await browser.close();
+server.close();
+console.log(`\n${pass} passed, ${fail} failed`);
+process.exit(fail ? 1 : 0);
