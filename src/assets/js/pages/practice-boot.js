@@ -1164,7 +1164,9 @@ function handleFinish(result) {
    no "next" (zen) and the toggle is hidden. */
 function autoAdvanceKey() {
   if (activeChallenge) return "challenge";
-  if (state.bookSlug) return "book";
+  // A single paragraph deep-linked from the library reader has no
+  // "next page"; the switch would light up and never fire.
+  if (state.bookSlug) return state.bookPage != null ? "book" : null;
   if (state.lessonId != null) return "lesson";
   if (state.drillId) return "drill";
   if (state.mode === "custom") {
@@ -2089,6 +2091,11 @@ window.ttFinish = () => {
   if (st !== "running" && st !== "ready") return false;
   if (e.startTs === 0) e.startTs = performance.now();
   if (e._pauseAt) e.resumeTimer();
+  // The user asked to stop: this run must end at the card, never
+  // auto-advance. The pointer listeners in wireStopButton set the
+  // same flag, but a bare click() (assistive tech, scripts) reaches
+  // only this handler.
+  e._stopped = true;
   e.finish();
   return true;
 };

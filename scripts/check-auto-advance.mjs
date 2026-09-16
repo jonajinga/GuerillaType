@@ -145,6 +145,15 @@ const autoMap = () => page.evaluate(() => {
 await openSeg(0);
 const btnVisible = await page.isVisible("#tt-autoadvance");
 chk(btnVisible, "A. toolbar has an Auto button on a custom text");
+if (!btnVisible) {
+  /* Nothing below can run without the button; report the counts
+     instead of dying on the first click with a Playwright stack. */
+  console.log("\nRUN ABORTED — no Auto button, the rest of the gate cannot run.");
+  await browser.close();
+  server.close();
+  console.log(`\n${pass} passed, ${fail} failed`);
+  process.exit(1);
+}
 chk((await page.getAttribute("#tt-autoadvance", "aria-pressed")) === "false", "A. it starts off");
 await page.goto(`${B}/practice/?mode=zen`, { waitUntil: "networkidle" });
 await page.waitForSelector(".tt-char", { timeout: 8000 });
@@ -237,6 +246,88 @@ const w1 = await surfaceText();
 chk(w1.length > 0 && w1 !== w0 && (await page.getAttribute("#tt-stage", "data-state")) === "ready", "H. fresh text is waiting", JSON.stringify(w1.slice(0, 30)));
 const strip2 = (await page.textContent("#tt-last-run").catch(() => "")) || "";
 chk(/Last run/i.test(strip2), "H. strip reads Last run", JSON.stringify(strip2.trim()));
+
+// I. The Stop button's own handler must end at the card. A bare
+//    click() reaches only window.ttFinish -- no pointerup/touchend
+//    first -- which is what assistive tech and scripts produce.
+await page.goto(`${B}/practice/?mode=words&words=10`, { waitUntil: "networkidle" });
+await page.waitForSelector(".tt-char", { timeout: 8000 });
+await page.click(".tt-stage").catch(() => {});
+await page.keyboard.type("a", { delay: 70 });
+await page.evaluate(() => document.getElementById("tt-stop").click());
+await page.waitForTimeout(700);
+chk(!(await page.$eval("#tt-results", (el) => el.hidden)), "I. a bare click on Stop shows the card, no auto-advance");
+chk(await page.$eval("#tt-last-run", (el) => el.hidden), "I. and no last-run strip");
+
+// J. Lessons advance only on a pass.
+const setAuto = (o) => page.evaluate((o) => {
+  const ps = JSON.parse(localStorage.getItem("tt:profiles") || "[]");
+  const id = JSON.parse(localStorage.getItem("tt:active-profile") || "null");
+  const p = ps.find((x) => x.id === id) || ps[0];
+  p.preferences = p.preferences || {};
+  p.preferences.autoAdvance = Object.assign({}, p.preferences.autoAdvance, o);
+  localStorage.setItem("tt:profiles", JSON.stringify(ps));
+}, o);
+const typeWithErrors = async (every) => {
+  const target = await surfaceText();
+  let i = 0;
+  for (const ch of target) {
+    i++;
+    const wrong = every && i % every === 0 && ch !== " ";
+    await page.keyboard.type(wrong ? (ch === "z" ? "q" : "z") : ch, { delay: 70 });
+  }
+  return target;
+};
+await setAuto({ lesson: true, challenge: true });
+await page.goto(`${B}/practice/?lesson=1`, { waitUntil: "networkidle" });
+await page.waitForSelector(".tt-char", { timeout: 8000 });
+await page.click(".tt-stage").catch(() => {});
+await typeWithErrors(0);
+await page.waitForTimeout(1200);
+chk(await page.$eval("#tt-results", (el) => el.hidden) && /lesson=2/.test(page.url()), "J. lesson passed -> lesson 2 in place", page.url());
+chk(/Lesson 1 passed/.test((await page.textContent("#tt-last-run").catch(() => "")) || ""), "J. strip says the lesson passed");
+await page.goto(`${B}/practice/?lesson=1`, { waitUntil: "networkidle" });
+await page.waitForSelector(".tt-char", { timeout: 8000 });
+await page.click(".tt-stage").catch(() => {});
+await typeWithErrors(3);
+await page.waitForTimeout(1200);
+chk(!(await page.$eval("#tt-results", (el) => el.hidden)) && /lesson=1/.test(page.url()), "J. lesson failed -> card, still lesson 1", page.url());
+
+// K. Challenges advance only on a clear (word-50: 65 wpm, 95 % acc).
+await page.goto(`${B}/practice/?mode=words&words=50&challenge=word-50`, { waitUntil: "networkidle" });
+await page.waitForSelector(".tt-char", { timeout: 8000 });
+await page.click(".tt-stage").catch(() => {});
+await typeWithErrors(0);
+await page.waitForTimeout(1500);
+chk(await page.$eval("#tt-results", (el) => el.hidden) && /challenge=word-200/.test(page.url()), "K. challenge cleared -> next challenge in place", page.url());
+await page.goto(`${B}/practice/?mode=words&words=50&challenge=word-50`, { waitUntil: "networkidle" });
+await page.waitForSelector(".tt-char", { timeout: 8000 });
+await page.click(".tt-stage").catch(() => {});
+await typeWithErrors(4);
+await page.waitForTimeout(1500);
+chk(!(await page.$eval("#tt-results", (el) => el.hidden)) && /challenge=word-50/.test(page.url()), "K. challenge missed -> card, same challenge", page.url());
+chk(await page.isVisible("#tt-next-challenge"), "K. card offers Next challenge");
+
+// L. Touch devices always get the card: the next run cannot take
+//    focus without a tap, so there is nothing smooth to swap to.
+{
+  const mobile = await browser.newPage({ viewport: { width: 375, height: 700 }, hasTouch: true, isMobile: true, serviceWorkers: "block" });
+  await mobile.goto(`${B}/practice/?mode=words&words=10`, { waitUntil: "networkidle" });
+  await mobile.evaluate((segs) => {
+    const ps = JSON.parse(localStorage.getItem("tt:profiles") || "[]");
+    ps[0].preferences.autoAdvance = { words: true };
+    localStorage.setItem("tt:profiles", JSON.stringify(ps));
+  });
+  await mobile.reload({ waitUntil: "networkidle" });
+  await mobile.waitForSelector(".tt-char", { timeout: 8000 });
+  await mobile.tap(".tt-stage").catch(() => {});
+  await mobile.focus("#tt-input").catch(() => {});
+  const mt = await mobile.$$eval(".tt-char", (els) => els.map((e) => (e.classList.contains("tt-char--space") ? " " : e.textContent)).join(""));
+  for (const ch of mt) await mobile.keyboard.type(ch, { delay: 60 });
+  await mobile.waitForTimeout(1500);
+  chk(!(await mobile.$eval("#tt-results", (el) => el.hidden)), "L. touch device still shows the card with the switch on");
+  await mobile.close();
+}
 
 await browser.close();
 server.close();
