@@ -148,6 +148,59 @@ description: "Tune the typing experience, manage profiles, export or import your
   </div>
 
   <div class="settings__group">
+    <h2>Auto-advance</h2>
+    <p class="muted" style="margin:0 0 var(--space-3)">Skip the results card and flow straight into the next run. Off by default. Your stats are saved either way; pressing <kbd>Esc</kbd> or Stop always shows the card. The <strong>Auto</strong> button in the practice toolbar flips the switch for whichever mode you are in. On phones the card still shows, since the next run needs a tap to start.</p>
+    <div class="settings__row">
+      <span>Time tests<span class="field__hint">Fresh text, same duration and language.</span></span>
+      <label class="toggle"><input type="checkbox" id="pref-autoAdvance-time"><span class="toggle__track"></span></label>
+    </div>
+    <div class="settings__row">
+      <span>Word tests<span class="field__hint">Fresh text, same word count and language.</span></span>
+      <label class="toggle"><input type="checkbox" id="pref-autoAdvance-words"><span class="toggle__track"></span></label>
+    </div>
+    <div class="settings__row">
+      <span>Quotes<span class="field__hint">Next quote in the collection, or a new random one of the same length.</span></span>
+      <label class="toggle"><input type="checkbox" id="pref-autoAdvance-quote"><span class="toggle__track"></span></label>
+    </div>
+    <div class="settings__row">
+      <span>Adaptive<span class="field__hint">A fresh weak-key set each run.</span></span>
+      <label class="toggle"><input type="checkbox" id="pref-autoAdvance-adaptive"><span class="toggle__track"></span></label>
+    </div>
+    <div class="settings__row">
+      <span>Custom text<span class="field__hint">Next segment of the text. The results card still shows on the last segment.</span></span>
+      <label class="toggle"><input type="checkbox" id="pref-autoAdvance-custom"><span class="toggle__track"></span></label>
+    </div>
+    <div class="settings__row">
+      <span>Library books<span class="field__hint">Next page, rolling into the next chapter.</span></span>
+      <label class="toggle"><input type="checkbox" id="pref-autoAdvance-book"><span class="toggle__track"></span></label>
+    </div>
+    <div class="settings__row">
+      <span>Lessons<span class="field__hint">Next lesson, but only when you pass this one.</span></span>
+      <label class="toggle"><input type="checkbox" id="pref-autoAdvance-lesson"><span class="toggle__track"></span></label>
+    </div>
+    <div class="settings__row">
+      <span>Drills<span class="field__hint">Next drill in the list.</span></span>
+      <label class="toggle"><input type="checkbox" id="pref-autoAdvance-drill"><span class="toggle__track"></span></label>
+    </div>
+    <div class="settings__row">
+      <span>Challenges<span class="field__hint">Next challenge, but only when you clear this one.</span></span>
+      <label class="toggle"><input type="checkbox" id="pref-autoAdvance-challenge"><span class="toggle__track"></span></label>
+    </div>
+    <div class="settings__row">
+      <span>Idioms<span class="field__hint">Next idiom you have not completed.</span></span>
+      <label class="toggle"><input type="checkbox" id="pref-autoAdvance-idiom"><span class="toggle__track"></span></label>
+    </div>
+    <div class="settings__row">
+      <span>Poems<span class="field__hint">Next poem you have not completed.</span></span>
+      <label class="toggle"><input type="checkbox" id="pref-autoAdvance-poem"><span class="toggle__track"></span></label>
+    </div>
+    <div class="settings__row">
+      <span>Parables<span class="field__hint">Next parable you have not completed.</span></span>
+      <label class="toggle"><input type="checkbox" id="pref-autoAdvance-parable"><span class="toggle__track"></span></label>
+    </div>
+  </div>
+
+  <div class="settings__group">
     <h2>Visual aids</h2>
     <p class="muted" style="margin:0 0 var(--space-3)">Optional overlays during practice. Default off.</p>
     <div class="settings__row">

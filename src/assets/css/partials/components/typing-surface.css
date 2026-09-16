@@ -6,6 +6,20 @@
 .tt-stage__hint{text-align:center;color:var(--fg-2);font-size:var(--fs-200);margin-bottom:var(--space-3);letter-spacing:.04em;text-transform:uppercase}
 
 .tt-stage__hint[data-state="ready"]{color:var(--accent)}
+/* Last-run strip: auto-advance's replacement for the results card.
+   Sits above the text, reads like the hint, fades in, and is hidden
+   by practice-boot on the first keystroke of the new run. */
+.tt-last-run{
+  text-align:center;margin:0 0 var(--space-3);
+  font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--accent);
+  animation:ttLastRunIn var(--t-med, 200ms) ease-out;
+}
+.tt-last-run[hidden]{display:none}
+.tt-last-run__stat{color:var(--fg-2)}
+.tt-last-run__stat b{color:var(--fg-0);font-weight:500}
+@keyframes ttLastRunIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.tt-last-run{animation:none}}
 
 /* Restart-armed indicator: when the user presses Tab on the typing
    surface, this banner appears prompting Enter to confirm. It auto-

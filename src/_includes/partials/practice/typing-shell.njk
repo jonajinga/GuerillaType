@@ -20,6 +20,10 @@
         <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="14" height="14" rx="1.5"/></svg>
         <span class="practice-bar__action-label">Stop</span>
       </button>
+      <button type="button" class="practice-bar__action practice-bar__action--auto" id="tt-autoadvance" onclick="window.ttToggleAutoAdvance && window.ttToggleAutoAdvance()" aria-pressed="false" aria-label="Auto-advance to the next segment, page, lesson, or test when this one ends" data-tip="<strong>Auto-advance</strong><br>When on, finishing a run loads the next one in place -- no results card. Your stats are still saved. Press <kbd>Esc</kbd> or Stop to end a run and see the card.">
+        <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4l10 8-10 8z"/><path d="M19 4v16"/></svg>
+        <span class="practice-bar__action-label">Auto</span>
+      </button>
       <button type="button" class="practice-bar__action practice-bar__action--ghost" onclick="window.openInfoModal && window.openInfoModal('practice')" aria-label="How the practice surface works" data-tip="<strong>How the practice surface works</strong><br>Modes, scoring, and what the live stats mean.">
         <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 4 2c-.7.5-1.5 1-1.5 2"/><circle cx="12" cy="17" r="0.6" fill="currentColor"/></svg>
         <span class="practice-bar__action-label">How it works</span>
@@ -77,6 +81,10 @@
            inputmode="text" enterkeyhint="done"
            aria-label="Typing input" aria-autocomplete="none"
            data-form-type="other" data-1p-ignore="" data-lpignore="true" data-bwignore="true">
+    {# One-line summary of the run that just ended, painted by
+       auto-advance in place of the results card. Hidden until the
+       first advance; cleared on the first keystroke of the new run. #}
+    <p id="tt-last-run" class="tt-last-run" aria-live="polite" hidden></p>
     <div id="tt-text" class="tt-text" aria-live="off"></div>
     <p id="tt-hint" class="tt-stage__hint" aria-live="polite">Loading&hellip;</p>
   </div>

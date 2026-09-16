@@ -28,6 +28,10 @@ const DEFAULT_PREFERENCES = {
   cursorStyle: "line",
   typingFont: "jetbrains-mono",
   customThemes: [],
+  // Per-mode auto-advance switches, keyed by the mode family the
+  // practice page derives (time, words, quote, custom, book, lesson,
+  // drill, challenge, adaptive, idiom, poem, parable). Missing = off.
+  autoAdvance: {},
 };
 
 export function newProfile(name = "Default") {

@@ -18,7 +18,7 @@ import { toast } from "../util/dom.js";
    so matchMedia alone misses them; touchstart support catches those.
    Inverted: this is also true for laptops with touchscreens, which is
    acceptable -- they have soft keyboards available too. */
-function isMobileLike() {
+export function isMobileLike() {
   if (typeof window === "undefined") return false;
   try {
     if (window.matchMedia) {
@@ -215,6 +215,12 @@ export class TypingEngine {
 
   onChar(ch, tsRaw) {
     const ts = performance.now();
+    // Auto-advance swaps the text in place the instant a run ends. A
+    // trailing keystroke from the previous run (the user's hand is
+    // still moving) would otherwise land as the first error of the
+    // new one. practice-boot sets _ignoreUntil for a few hundred ms
+    // after the swap; keystrokes inside that window are dropped.
+    if (this._ignoreUntil && ts < this._ignoreUntil) return;
     // Stamp the very last keystroke so any pause path (notably the
     // mobile soft-keyboard tap accidentally hitting the Pause button)
     // can short-circuit when the user was clearly mid-typing.
