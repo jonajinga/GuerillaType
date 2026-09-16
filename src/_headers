@@ -25,6 +25,13 @@
 /assets/img/*
   Cache-Control: public, max-age=31536000, immutable
 
+# Share cards. Built fresh on every deploy into _site/og/**, so they
+# cannot be immutable -- a card's URL never changes but its contents do
+# when the corpus or the card design does. A day is long enough for the
+# scrapers (X, Facebook, Slack) that fetch an image once per link.
+/og/*
+  Cache-Control: public, max-age=86400
+
 /data/*
   Cache-Control: public, max-age=86400
 

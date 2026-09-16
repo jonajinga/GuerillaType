@@ -93,6 +93,18 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // Open Graph cards: pass through, never cache. There are ~3,600 of
+  // them and a visitor never sees one -- they exist for scrapers
+  // (X, Facebook, Slack) fetching og:image server-side, which does not
+  // involve a service worker at all. The only way one reaches this
+  // handler is a share sheet previewing or downloading a card, and
+  // filling the runtime cache with 40 KB images nobody will look at
+  // twice is the opposite of what that cache is for. They carry their
+  // own 24-hour Cache-Control from src/_headers.
+  if (url.pathname.startsWith("/og/")) {
+    return;
+  }
+
   // Cache-first for everything else (fonts, images, CSS that carries
   // its own ?v=cssVersion cache-bust on the <link> href).
   event.respondWith((async () => {

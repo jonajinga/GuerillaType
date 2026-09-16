@@ -16,7 +16,7 @@
   "scripts": {
     "start": "eleventy --serve",
     "dev": "eleventy --serve",
-    "build": "eleventy && node scripts/version-js-imports.mjs",
+    "build": "eleventy && node scripts/gen-og-images.mjs && node scripts/version-js-imports.mjs",
     "clean": "npx rimraf _site",
     "audit": "node scripts/audit-viewports.mjs",
     "stats": "node scripts/fetch-umami-stats.mjs",
@@ -53,7 +53,10 @@
     "running-heads": "node scripts/check-running-heads.mjs",
     "auto-advance": "node scripts/check-auto-advance.mjs",
     "og-default": "node scripts/gen-og-default.mjs",
-    "og-meta": "node scripts/check-og-meta.mjs"
+    "og-meta": "node scripts/check-og-meta.mjs",
+    "og-images-gen": "node scripts/gen-og-images.mjs",
+    "og-render": "node scripts/check-og-render.mjs",
+    "og-images": "node scripts/check-og-images.mjs"
   },
   "dependencies": {
     "@11ty/eleventy": "^3.0.0",
