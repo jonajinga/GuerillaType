@@ -55,6 +55,27 @@ const FORMAT_WORDS = new Set([
   "pdf", "epub", "txt", "md", "doc", "docx", "rtf", "html", "htm", "mobi", "azw3",
 ]);
 
+/* Words that make the thing after them the SUBJECT of a sentence
+   rather than a leftover from a download.
+
+   Round two read the trailing word of a spaceless filename as a format
+   name and dropped it. That is right for "My-Book-pdf" and wrong for
+   "Read-the-doc", "How-to-read-a-pdf" and "Intro-to-html" -- which are
+   sentences someone typed, joined with hyphens instead of spaces, and
+   whose last word is what they are about. The round-two comment
+   already defended exactly that sentence in its SPACED form
+   ("How to read a PDF.pdf") and then regressed its hyphenated twin,
+   which is a fair description of how narrowly that fix was tested.
+
+   An article or a preposition immediately before the format word is
+   what tells the two apart. "Book pdf" is a filename; "the doc", "to
+   html", "a pdf" are English. No part of speech beyond this short
+   list is worth guessing at from a filename. */
+const SUBJECT_MARKERS = new Set([
+  "a", "an", "the", "to", "of", "on", "in", "about", "with", "from", "into",
+  "your", "my",
+]);
+
 /* The title a file gets when nothing inside it supplies one.
 
    The old rule was "drop the extension", which is how an import landed
@@ -84,6 +105,18 @@ const FORMAT_WORDS = new Set([
    spaces at all cannot be a sentence, so re-reading its separators
    cannot destroy one.
 
+   And only when the word BEFORE it is not a SUBJECT_MARKER. That is
+   round three: "Read-the-doc" is a sentence and keeps its "doc";
+   "My-Book-pdf" is a filename and loses its "pdf". The article or
+   preposition is the whole signal.
+
+   What this still gets wrong, knowingly: "Learning-html.txt" becomes
+   "Learning". There is no marker before "html" and nothing else in a
+   filename says whether that word is the subject or the format. A
+   list of verbs would be guessing at grammar from a download name,
+   which is a larger promise than this function should make. Rename on
+   the card is the fix for the case it gets wrong.
+
    One trailing word, not a run of them: "My-Book-pdf-txt" keeps its
    "pdf". Two stacked format words is not a shape real downloads
    produce, and stripping greedily would eat a title that ends in a
@@ -109,7 +142,11 @@ export function cleanFilenameTitle(filename) {
     const words = base.replace(/[-_]+/g, " ").trim().split(" ").filter(Boolean);
     // Never down to nothing: a file honestly called "pdf.pdf" keeps
     // the only word it has.
-    if (words.length > 1 && FORMAT_WORDS.has(words[words.length - 1].toLowerCase())) {
+    const last = words[words.length - 1];
+    const before = words.length > 1 ? words[words.length - 2] : "";
+    if (words.length > 1
+        && FORMAT_WORDS.has(last.toLowerCase())
+        && !SUBJECT_MARKERS.has(before.toLowerCase())) {
       words.pop();
     }
     base = words.join(" ");

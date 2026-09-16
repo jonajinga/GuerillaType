@@ -630,6 +630,24 @@ if (typeof cleanFilenameTitle === "function") {
     "F. nothing is lowercased or title-cased on the way through");
   eq(cleanFilenameTitle("Full-text.txt"), "Full text",
     "F. ‘text’ is not a document format — a word that merely looks like one survives");
+  /* An article or a preposition before the format word means the
+     filename is a SENTENCE and that word is what it is about. Round
+     two dropped it anyway, so the hyphenated twin of the very name
+     round two's own comment defended ("How to read a PDF.pdf")
+     regressed to "How to read a". */
+  eq(cleanFilenameTitle("Read-the-doc.txt"), "Read the doc",
+    "F. ‘the’ before the format word keeps it — a sentence, not a filename");
+  eq(cleanFilenameTitle("How-to-read-a-pdf.txt"), "How to read a pdf",
+    "F. …and so does ‘a’ — the hyphenated twin of ‘How to read a PDF.pdf’");
+  eq(cleanFilenameTitle("Intro-to-html.txt"), "Intro to html",
+    "F. …and ‘to’");
+  eq(cleanFilenameTitle("notes-of-a-doc.txt"), "notes of a doc",
+    "F. …and a marker that is two words back does not count, only the one before");
+  /* Written down because it is wrong and known to be wrong: nothing in
+     a filename says whether "html" after "Learning" is the subject or
+     the format, and a list of verbs would be guessing at grammar. */
+  eq(cleanFilenameTitle("Learning-html.txt"), "Learning",
+    "F. the accepted edge: no marker, so ‘Learning-html’ still loses its ‘html’");
   eq(cleanFilenameTitle("My-Book-pdf-txt.txt"), "My Book pdf",
     "F. exactly one trailing word goes, not a run of them");
 }
@@ -673,6 +691,12 @@ const IMPORTS = [
     "F. a real .txt import named for a PDF is stored as ‘My Book’"],
   ["The-Odyssey-Homer-Full-text-pdf.txt", "The Odyssey Homer Full text",
     "F. …and the book from the screenshot, OCR’d to .txt, as ‘The Odyssey Homer Full text’"],
+  ["Read-the-doc.txt", "Read the doc",
+    "F. a real import of a hyphenated SENTENCE keeps its last word"],
+  ["How-to-read-a-pdf.txt", "How to read a pdf",
+    "F. …and so does the hyphenated twin of ‘How to read a PDF.pdf’"],
+  ["Intro-to-html.txt", "Intro to html",
+    "F. …and one whose marker is ‘to’"],
   ["Already Titled.txt", "Already Titled",
     "F. and ‘Already Titled.txt’ keeps its title untouched"],
 ];
