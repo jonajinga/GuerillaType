@@ -9,7 +9,7 @@
 import {
   saveText, listSaved, deleteSaved, togglePinAsLesson,
   getSegments, segCountOf, migrateInlineToIdb, ocrNoiseReport,
-  getChapters, chapCountOf,
+  getChapters, chapCountOf, renameSaved,
 } from "../engine/custom-text.js";
 import { ensureSample } from "../engine/custom-sample.js";
 import { parseFile } from "../engine/import-parsers.js";
@@ -627,63 +627,120 @@ async function togglePicker(id, host, btn) {
   renderPicker(id);
 }
 
-function render() {
-  const saved = listSaved();
-  if (!saved.length) {
-    list.innerHTML = '<div class="stats-empty">No saved texts yet.</div>';
-    return;
-  }
-  list.innerHTML = saved.map((it) => {
-    const count = segCountOf(it);
-    const seg = Math.min(it.lastSeg | 0, Math.max(0, count - 1));
-    const resuming = (it.lastSeg | 0) > 0 && count > 1;
-    /* Where the chapter reader left off. Read straight from the
-       profile, so it survives a refresh and agrees with what the
-       practice page wrote. Null until the text has been read once by
-       chapter, which is why "Resume" only appears then. */
-    const bp = bookProgressFor(it.id, null);
-    const chCount = chapCountOf(it);
-    const resumeCh = bp ? (bp.lastChapter | 0) : 0;
-    const resumePage = bp ? (bp.lastPage | 0) : 0;
-    return `
+/* When a text was saved. Month names, not 16/09/2026 or 9/16/2026 --
+   those two strings are the same nine characters in a different order
+   and mean different days, and the card is read by whoever is holding
+   the phone, not by a parser. Still locale-aware: the order of day,
+   month and year stays the reader's. */
+const dateFmt = new Intl.DateTimeFormat(undefined, { day: "numeric", month: "short", year: "numeric" });
+function savedOn(iso) {
+  const d = new Date(iso);
+  return isNaN(d) ? "" : dateFmt.format(d);
+}
+
+/* One saved text, as HTML.
+
+   Three bands, in the order someone reads them:
+
+     1. WHO IT IS -- the title, on its own, wrapping like prose; then a
+        meta line carrying the size and any badges. The size used to
+        sit inside the <h3> as a flex sibling of the title, which at
+        phone width gave "826.8" one line and "KB" the next: a measured
+        value broken across lines by a layout that had no idea it was
+        one. It is now one nowrap span of its own.
+     2. HOW TO READ IT -- two rows, segments and chapters, that are the
+        same shape as each other: a small fixed-width label, then the
+        button that starts typing, then the rest. Both primaries are
+        btn--primary and both start at the same x, so the eye reads the
+        rows as a pair of equal choices rather than one offer and one
+        afterthought.
+     3. WHAT TO DO WITH IT -- pin, rename, delete. These act on the
+        whole text, not on either way of reading it, and they used to
+        be tacked onto the end of the segment row where they wrapped
+        under it and looked like more segment controls. */
+function savedItemHtml(it) {
+  const count = segCountOf(it);
+  const seg = Math.min(it.lastSeg | 0, Math.max(0, count - 1));
+  const resuming = (it.lastSeg | 0) > 0 && count > 1;
+  /* Where the chapter reader left off. Read straight from the
+     profile, so it survives a refresh and agrees with what the
+     practice page wrote. Null until the text has been read once by
+     chapter, which is why "Resume" only appears then. */
+  const bp = bookProgressFor(it.id, null);
+  const chCount = chapCountOf(it);
+  const resumeCh = bp ? (bp.lastChapter | 0) : 0;
+  const resumePage = bp ? (bp.lastPage | 0) : 0;
+  const title = htmlEscape(it.title);
+  const at = `chapter ${nf.format(resumeCh + 1)}, page ${nf.format(resumePage + 1)}`;
+  return `
     <article class="saved-item${it.forLesson ? " is-pinned" : ""}" id="text-${it.id}"${chCount ? ` data-chap-count="${chCount}"` : ""}>
-      <h3 class="saved-item__title">${htmlEscape(it.title)}<span class="muted">${(it.bytes / 1024).toFixed(1)} KB</span>${it.forLesson ? '<span class="saved-item__pin">★ pinned as lesson</span>' : ''}${it.sample ? '<span class="saved-item__sample">sample</span>' : ''}</h3>${
+      <div class="saved-item__head">
+        <h3 class="saved-item__title">${title}</h3>
+        <p class="saved-item__tags"><span class="saved-item__size">${(it.bytes / 1024).toFixed(1)} KB</span>${
+        it.forLesson ? '<span class="saved-item__pin">Pinned as lesson</span>' : ""
+      }${it.sample ? '<span class="saved-item__sample">Sample</span>' : ""}</p>
+      </div>
+      <div class="saved-item__rename" id="rename-${it.id}" hidden>
+        <label class="visually-hidden" for="rename-field-${it.id}">New title for ${title}</label>
+        <input class="saved-item__renamefield" id="rename-field-${it.id}" type="text" maxlength="80" value="${title}" data-id="${it.id}" data-action="rename-field">
+        <button class="btn btn--small btn--primary" type="button" data-id="${it.id}" data-action="rename-save">Save</button>
+        <button class="btn btn--small" type="button" data-id="${it.id}" data-action="rename-cancel">Cancel</button>
+      </div>${
         it.sample ? '\n      <p class="saved-item__note">A sample so you can try this out — read it by chapter or pick any segment. Delete it and it stays gone.</p>' : ""
       }
       <span class="saved-item__meta">${nf.format(count)} segment${count === 1 ? "" : "s"}${
         resuming ? ` · resuming at ${nf.format(Math.min((it.lastSeg | 0) + 1, count))} of ${nf.format(count)}` : ""
-      }<span class="saved-item__chapmeta">${chCount ? ` · ${nf.format(chCount)} chapter${chCount === 1 ? "" : "s"}` : ""}</span> · ${new Date(it.createdAt).toLocaleDateString()}</span>
-      <div class="saved-item__actions">
-        <span class="saved-item__how">By segment</span>
-        <a class="btn btn--small btn--primary" href="${practiceUrl(it.id, seg)}">${resuming ? "Resume" : "Type"}</a>${
-        resuming ? `\n        <a class="btn btn--small" href="${practiceUrl(it.id, 0)}">Start over</a>` : ""
+      }<span class="saved-item__chapmeta">${chCount ? ` · ${nf.format(chCount)} chapter${chCount === 1 ? "" : "s"}` : ""}</span>${
+        bp ? ` · reading ${at}` : ""
+      } · Saved ${savedOn(it.createdAt)}</span>
+      <div class="saved-item__actions saved-item__actions--segment">
+        <span class="saved-item__how">Segments</span>
+        <div class="saved-item__ways">
+          <a class="btn btn--small btn--primary" aria-label="${resuming ? "Resume" : "Type"} by segment" href="${practiceUrl(it.id, seg)}">${resuming ? "Resume" : "Type"}</a>${
+        resuming ? `\n          <a class="btn btn--small" aria-label="Start over by segment" href="${practiceUrl(it.id, 0)}">Start over</a>` : ""
       }${
-        count > 1 ? `\n        <button class="btn btn--small" data-id="${it.id}" data-action="segments">Choose segment</button>` : ""
+        count > 1 ? `\n          <button class="btn btn--small" data-id="${it.id}" data-action="segments">Choose segment</button>` : ""
       }
-        <button class="btn btn--small" data-id="${it.id}" data-action="pin">${it.forLesson ? "Unpin" : "Save as lesson"}</button>
-        <button class="btn btn--small" data-id="${it.id}" data-action="delete">Delete</button>
+        </div>
       </div>
       <div class="saved-item__actions saved-item__actions--chapter">
-        <span class="saved-item__how">By chapter</span>${
-        bp ? `\n        <a class="btn btn--small btn--primary" data-action="chapter-resume" href="${chapterUrl(it.id, resumeCh, resumePage)}">Resume chapter ${nf.format(resumeCh + 1)}, page ${nf.format(resumePage + 1)}</a>` : ""
+        <span class="saved-item__how">Chapters</span>
+        <div class="saved-item__ways">${
+        bp
+          ? `\n          <a class="btn btn--small btn--primary" data-action="chapter-resume" aria-label="Resume at ${at}" href="${chapterUrl(it.id, resumeCh, resumePage)}">Resume</a>` +
+            `\n          <a class="btn btn--small" data-action="chapter-start" aria-label="Start over by chapter" href="${chapterUrl(it.id, 0, 0)}">Start over</a>`
+          : `\n          <a class="btn btn--small btn--primary" data-action="chapter-start" aria-label="Type by chapter" href="${chapterUrl(it.id, 0, 0)}">Type</a>`
       }
-        <a class="btn btn--small${bp ? "" : " btn--primary"}" data-action="chapter-start" href="${chapterUrl(it.id, 0, 0)}">${bp ? "Start again at chapter 1" : "Read by chapter"}</a>
-        <button class="btn btn--small" data-id="${it.id}" data-action="chapters">Choose chapter</button>${
+          <button class="btn btn--small" data-id="${it.id}" data-action="chapters">Choose chapter</button>${
         /* This browser had no database to keep the chapter structure in
            and the text was too long to carry it in the index record, so
            what the picker shows is derived from the segments: one long
            chapter, not the document's own. Say it here rather than let
            the list quietly disagree with the file. */
         it.chaptersUnavailable
-          ? `\n        <span class="saved-item__hint" data-hint="chapters-unavailable">This browser has no database for the site, so a text this long could not keep its chapters — the chapter view reads it as one text.</span>`
+          ? `\n          <span class="saved-item__hint" data-hint="chapters-unavailable">This browser has no database for the site, so a text this long could not keep its chapters — the chapter view reads it as one text.</span>`
           : ""
       }
+        </div>
+      </div>
+      <div class="saved-item__manage">
+        <button class="btn btn--small" data-id="${it.id}" data-action="pin">${it.forLesson ? "Unpin" : "Save as lesson"}</button>
+        <button class="btn btn--small" data-id="${it.id}" data-action="rename">Rename</button>
+        <button class="btn btn--small" data-id="${it.id}" data-action="delete">Delete</button>
       </div>
       <div class="seg-picker" id="pick-${it.id}" hidden></div>
       <div class="seg-picker" id="chapters-${it.id}" hidden></div>
     </article>
   `;
-  }).join("");
+}
+
+function render() {
+  const saved = listSaved();
+  if (!saved.length) {
+    list.innerHTML = '<div class="stats-empty">No saved texts yet.</div>';
+    return;
+  }
+  list.innerHTML = saved.map(savedItemHtml).join("");
   list.querySelectorAll('[data-action="delete"]').forEach((b) => {
     b.addEventListener("click", async () => {
       const isSample = (listSaved().find((x) => x.id === b.dataset.id) || {}).sample;
@@ -718,6 +775,73 @@ function render() {
     b.addEventListener("click", () => {
       const id = b.dataset.id;
       toggleChapters(id, document.getElementById("chapters-" + id), b);
+    });
+  });
+
+  /* Rename, inline.
+
+     window.prompt() would have been three lines. It is also modal to
+     the whole browser, is blocked outright in some embedded contexts,
+     cannot be styled to match either theme, and gives a screen-reader
+     user a dialog with no relationship to the card it came from. An
+     input that lives in the card can be reached by Tab, is labelled by
+     the title it is about to replace, and takes Enter and Escape --
+     which is what someone renaming a file expects of any text field.
+
+     openRename() re-reads the stored title rather than scraping the
+     <h3>: the heading is escaped HTML and the record is the truth. */
+  function openRename(id) {
+    const box = document.getElementById("rename-" + id);
+    const field = box && box.querySelector('[data-action="rename-field"]');
+    if (!box || !field) return;
+    const rec = listSaved().find((x) => x.id === id);
+    field.value = rec ? rec.title : field.value;
+    box.hidden = false;
+    field.focus();
+    field.select();
+  }
+  function closeRename(id, focusBack) {
+    const box = document.getElementById("rename-" + id);
+    if (box) box.hidden = true;
+    if (focusBack) {
+      const btn = list.querySelector(`[data-action="rename"][data-id="${CSS.escape(id)}"]`);
+      if (btn) btn.focus();
+    }
+  }
+  function commitRename(id) {
+    const box = document.getElementById("rename-" + id);
+    const field = box && box.querySelector('[data-action="rename-field"]');
+    if (!field) return;
+    const before = (listSaved().find((x) => x.id === id) || {}).title;
+    const rec = renameSaved(id, field.value);
+    // Blank or whitespace-only: leave the title alone and say nothing
+    // was changed, rather than silently saving "" or "Untitled".
+    if (!rec) {
+      toast("A title cannot be empty", "bad");
+      field.focus();
+      return;
+    }
+    closeRename(id, false);
+    toast(rec.title === before ? "Title unchanged" : `Renamed to "${rec.title}"`);
+    /* A full re-render is right here even though it closes an open
+       picker: the title appears in the card heading, in the rename
+       field's own label and in the confirm dialog, and patching three
+       places by hand is how one of them goes stale. */
+    render();
+  }
+  list.querySelectorAll('[data-action="rename"]').forEach((b) => {
+    b.addEventListener("click", () => openRename(b.dataset.id));
+  });
+  list.querySelectorAll('[data-action="rename-save"]').forEach((b) => {
+    b.addEventListener("click", () => commitRename(b.dataset.id));
+  });
+  list.querySelectorAll('[data-action="rename-cancel"]').forEach((b) => {
+    b.addEventListener("click", () => closeRename(b.dataset.id, true));
+  });
+  list.querySelectorAll('[data-action="rename-field"]').forEach((f) => {
+    f.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); commitRename(f.dataset.id); }
+      else if (e.key === "Escape") { e.preventDefault(); closeRename(f.dataset.id, true); }
     });
   });
 }
