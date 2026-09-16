@@ -654,6 +654,31 @@ for (const id of shortOnly) {
 }
 await page.keyboard.press("Escape");
 
+/* The same log is filed in this browser, against the session id
+   session-recorder minted. That is what makes "share a run from
+   /stats/" possible later without the run having to be shared at the
+   moment it ended. It is stored here and nowhere else. */
+const stored = await page.evaluate(async () => {
+  const s = await import("/assets/js/engine/replay-store.js");
+  const rows = await s.list();
+  if (!rows.length) return { rows: 0 };
+  const one = await s.get(rows[0].id);
+  return {
+    rows: rows.length, id: rows[0].id,
+    keys: one ? (one.keylog || []).length : -1,
+    hasHash: !!(one && one.textHash),
+    hashIsNotTheText: !!(one && one.textHash && one.textHash.length < 30),
+    keep: s.KEEP,
+  };
+});
+chk(stored.rows >= 1 && /^s_/.test(stored.id || ""),
+  "F. the run's keystroke log is filed against its session id", JSON.stringify(stored));
+chk(stored.keys >= surfaceText.length,
+  "F. with one entry per key", `${stored.keys} entries for ${surfaceText.length} chars`);
+chk(stored.hasHash && stored.hashIsNotTheText,
+  "F. and a short hash of the target, not the target itself");
+chk(stored.keep === 50, "F. the store keeps the newest 50 runs", String(stored.keep));
+
 // ---------------------------------------------------------------- done
 await browser.close();
 server.close();
