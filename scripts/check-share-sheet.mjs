@@ -129,6 +129,22 @@ await context.addInitScript(() => {
 const page = await context.newPage();
 page.on("pageerror", (e) => console.log("  PAGEERROR:", String(e).slice(0, 200)));
 
+/* A missing piece must read as a FAIL with a count, not as a
+   Playwright stack trace. The verifier reverts src/ and re-runs this
+   file; what it should see then is a failure it can read. */
+async function bail(msg) {
+  chk(false, msg);
+  console.log("\nRUN ABORTED — the counts below are partial.");
+  await browser.close().catch(() => {});
+  server.close();
+  console.log(`\n${pass} passed, ${fail} failed`);
+  process.exit(1);
+}
+const waitOr = async (fn, msg, timeout = 8000) => {
+  try { await fn(timeout); return true; }
+  catch { await bail(msg); return false; }
+};
+
 const events = () => page.evaluate(() => window.__ttEvents.slice());
 const clearEvents = () => page.evaluate(() => { window.__ttEvents.length = 0; });
 const sheetOpen = () => page.evaluate(() => {
@@ -147,7 +163,8 @@ const grid = () => page.$$eval("#share-sheet [data-share-target]", (els) => els.
 // exactly what the per-item pages will emit.
 console.log("\nA-E. the contract: an injected data-share button");
 await page.goto(B + "/about/", { waitUntil: "domcontentloaded" });
-await page.waitForFunction(() => !!window.ttOpenShareSheet, null, { timeout: 8000 });
+await waitOr((t) => page.waitForFunction(() => !!window.ttOpenShareSheet, null, { timeout: t }),
+  "A. share/share.js is loaded by main.js on every page (window.ttOpenShareSheet)");
 
 const FULL = `${B}/library/pride-and-prejudice/#frag-SECRETZEBRA`;
 const SHORT = `${B}/library/pride-and-prejudice/`;
@@ -259,10 +276,10 @@ await page.keyboard.press("Escape");
 // ================================================================ F
 console.log("\nF. the blog post share row");
 await page.goto(B + "/blog/why-touch-type/", { waitUntil: "domcontentloaded" });
-await page.waitForFunction(() => {
+await waitOr((t) => page.waitForFunction(() => {
   const a = document.getElementById("share-x");
   return a && a.getAttribute("href");
-}, null, { timeout: 8000 });
+}, null, { timeout: t }), "F. the post's X icon gets an href from share.js");
 const canonical = await page.getAttribute(".post__share", "data-share-url");
 chk(/^https?:\/\/[^/]+\/blog\/why-touch-type\/$/.test(canonical || ""), "F. row carries the absolute canonical url", canonical || "(missing)");
 const xHref = await page.getAttribute("#share-x", "href");
@@ -283,6 +300,8 @@ await page.waitForTimeout(250);
 chk((await page.evaluate(() => navigator.clipboard.readText())) === canonical, "F. copy icon copies the canonical url");
 chk(!!(await events()).find((e) => e.name === "share_copied" && e.props.kind === "post"), "F. copy fires share_copied with kind=post");
 await clearEvents();
+await waitOr((t) => page.waitForSelector("#share-more", { timeout: t }),
+  "F. the row has a More button for the destinations that have no icon");
 await page.click("#share-more");
 await page.waitForTimeout(150);
 chk(await sheetOpen(), "F. More opens the full sheet");
@@ -325,8 +344,10 @@ for (const ch of wordsTarget) {
   else await page.keyboard.type(ch, { delay: 70 });
   i++;
 }
-await page.waitForSelector("#tt-results:not([hidden])", { timeout: 8000 });
-await page.waitForSelector("#tt-share", { timeout: 8000 });
+await waitOr((t) => page.waitForSelector("#tt-results:not([hidden])", { timeout: t }),
+  "G. the run finished and the results card is up");
+await waitOr((t) => page.waitForSelector("#tt-share", { timeout: t }),
+  "G. the results card carries a Share button");
 chk(true, "G. the results card carries a Share button");
 const shareData = await page.evaluate(() => {
   const b = document.getElementById("tt-share");
@@ -387,7 +408,8 @@ await page.click(".tt-stage").catch(() => {});
 const customTarget = await surfaceText();
 chk(customTarget.includes("velvetmoose"), "H. the sentinel text is what is on the surface", JSON.stringify(customTarget.slice(0, 40)));
 for (const ch of customTarget) await page.keyboard.type(ch, { delay: 70 });
-await page.waitForSelector("#tt-results:not([hidden])", { timeout: 8000 });
+await waitOr((t) => page.waitForSelector("#tt-results:not([hidden])", { timeout: t }),
+  "H. the custom-text run finished and the card is up");
 const customShare = await page.evaluate(() => Object.assign({}, document.getElementById("tt-share").dataset));
 chk(customShare.shareUrl === `${B}/practice/?mode=custom`,
   "H. a custom text links to the generic mode — no id, no title", customShare.shareUrl);
