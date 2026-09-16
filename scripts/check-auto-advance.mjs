@@ -327,6 +327,21 @@ chk(await page.isVisible("#tt-next-challenge"), "K. card offers Next challenge")
   await mobile.waitForTimeout(1500);
   chk(!(await mobile.$eval("#tt-results", (el) => el.hidden)), "L. touch device still shows the card with the switch on");
   chk((await mobile.getAttribute("#tt-autoadvance", "aria-disabled")) === "true", "L. and the Auto button reads as unavailable there");
+  // A tap on the unavailable button must not flip the stored switch.
+  await mobile.evaluate(() => {
+    const ps = JSON.parse(localStorage.getItem("tt:profiles") || "[]");
+    ps[0].preferences.autoAdvance = {};
+    localStorage.setItem("tt:profiles", JSON.stringify(ps));
+  });
+  await mobile.reload({ waitUntil: "networkidle" });
+  await mobile.waitForSelector("#tt-autoadvance", { timeout: 8000 });
+  // force: Playwright refuses to tap an aria-disabled element; a real
+  // finger does not, since aria-disabled is not the disabled property.
+  await mobile.tap("#tt-autoadvance", { force: true });
+  await mobile.waitForTimeout(300);
+  const tapped = await mobile.evaluate(() => JSON.parse(localStorage.getItem("tt:profiles"))[0].preferences.autoAdvance);
+  chk(!tapped || tapped.words !== true, "L. a tap on it writes nothing", JSON.stringify(tapped));
+  chk((await mobile.getAttribute("#tt-autoadvance", "aria-pressed")) === "false", "L. and does not light it");
   await mobile.close();
 }
 
