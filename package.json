@@ -52,6 +52,7 @@
     "ocr-cleanup": "node scripts/check-ocr-cleanup.mjs",
     "typeable-census": "node scripts/check-typeable-census.mjs",
     "custom-header": "node scripts/check-custom-header.mjs",
+    "custom-card": "node scripts/check-custom-card.mjs",
     "running-heads": "node scripts/check-running-heads.mjs",
     "auto-advance": "node scripts/check-auto-advance.mjs",
     "og-default": "node scripts/gen-og-default.mjs",

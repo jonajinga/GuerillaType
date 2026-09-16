@@ -52,6 +52,21 @@
    rendering at body size in caps, which is why it ate enough width to
    push the buttons onto a second line on a phone. */
 .saved-item{--saved-how:4.5rem}
+/* Every control in the card is the same height.
+
+   base.css sets the site's touch-target floor as
+   `button, a.btn, [role="button"], summary{min-height:44px}`. The
+   `a.btn` half of that selector is element+class and so outranks
+   .btn--small's `min-height:0`, while the bare `button` half does not.
+   The result was that a LINK styled as a small button came out 44 px
+   tall and a BUTTON styled the same way came out 37 px, side by side
+   in the same row -- "Type" (a link) next to "Choose segment" (a
+   button), their tops three pixels apart.
+
+   Raising the buttons to the floor rather than dropping the links to
+   37 px: 44 px is a deliberate touch target and this card is the
+   phone-first part of the page. */
+.saved-item .btn{min-height:44px}
 .saved-item__actions{display:grid;grid-template-columns:var(--saved-how) minmax(0,1fr);gap:.4rem .5rem;align-items:center;margin-top:.4rem}
 .saved-item__how{color:var(--fg-2);font-size:var(--fs-200);line-height:1.2;align-self:center}
 .saved-item__ways{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;min-width:0}
