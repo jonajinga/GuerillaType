@@ -27,6 +27,8 @@
     "custom-large": "node scripts/check-custom-large-import.mjs",
     "custom-branches": "node scripts/check-custom-storage-branches.mjs",
     "custom-sample": "node scripts/check-custom-sample.mjs",
+    "chapter-detect": "node scripts/check-chapter-detect.mjs",
+    "custom-chapters": "node scripts/check-custom-chapters.mjs",
     "prebuild": "node scripts/build-custom-sample.mjs",
     "custom-sample-data": "node scripts/build-custom-sample.mjs",
     "book-chapters": "node scripts/check-book-chapters.mjs",

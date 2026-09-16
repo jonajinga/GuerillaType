@@ -9,9 +9,13 @@
 import {
   saveText, listSaved, deleteSaved, togglePinAsLesson,
   getSegments, segCountOf, migrateInlineToIdb, ocrNoiseReport,
+  getChapters, chapCountOf,
 } from "../engine/custom-text.js";
 import { ensureSample } from "../engine/custom-sample.js";
 import { parseFile } from "../engine/import-parsers.js";
+import { PARAS_PER_PAGE } from "../engine/chapter-detect.js";
+import { bookStructureSig, customBookSlug } from "../engine/book-structure.js";
+import { getActive } from "../profiles.js";
 import { $, toast, htmlEscape } from "../util/dom.js";
 import { confirmModal } from "../util/modal.js";
 
@@ -27,6 +31,7 @@ const ocrSummary = $("#ocr-summary");
 const ocrChanges = $("#ocr-changes");
 const ocrClean = $("#ocr-clean");
 const ocrHint = $(".ocr-panel__hint");
+const chapterNotice = $("#chapter-notice");
 
 /* A textarea holding two million characters is a browser that stutters
    on every keypress. Show a readable head, keep the whole thing in
@@ -48,6 +53,16 @@ let pendingPreview = null;
    what someone is typing into. */
 let variants = null;
 let cleanChoice = true;
+/* The chapter divisions the parser found, held from the import until
+   the save. An EPUB knows its own chapters and they are better than
+   anything detection can recover from the joined text, so they travel
+   with the file rather than being re-derived.
+
+   Dropped the moment the text in the box is edited by hand: chapter
+   boundaries are offsets into the text that was parsed, and the text
+   that is about to be saved is no longer that text. saveText() then
+   detects from what is actually saved. */
+let pendingChapters = null;
 /* The last value this file put into the textarea. The input listener
    below treats any other value as a deliberate edit by the user, so
    every programmatic write has to update this.
@@ -132,6 +147,29 @@ function resetOcr() {
   cleanChoice = true;
   if (ocrClean) ocrClean.checked = true;
   hideOcrPanel();
+  pendingChapters = null;
+  setChapterNotice(null);
+}
+
+/* What the import found, in the user's words, before anything is
+   saved. Both outcomes are worth saying: "12 chapters" tells them the
+   chapter view is worth using, and finding none tells them why the
+   chapter view will look like one long text instead of leaving them to
+   guess. */
+function setChapterNotice(chapters) {
+  if (!chapterNotice) return;
+  const n = Array.isArray(chapters) ? chapters.length : 0;
+  if (!n) {
+    chapterNotice.textContent = "";
+    chapterNotice.hidden = true;
+    delete chapterNotice.dataset.chapters;
+    return;
+  }
+  chapterNotice.textContent = n > 1
+    ? `Found ${nf.format(n)} chapters. You can read this by chapter as well as by segment.`
+    : "No headings found: the chapter view will read the whole text six paragraphs at a time.";
+  chapterNotice.dataset.chapters = String(n);
+  chapterNotice.hidden = false;
 }
 
 /* What the cleanup did (a file: the box already holds the cleaned
@@ -256,6 +294,8 @@ textEl.addEventListener("input", () => {
   // below within PASTE_SCAN_MS, and hiding it on every keystroke would
   // make it strobe while someone types.
   if (variants) { variants = null; hideOcrPanel(); }
+  // The parsed chapters described the parsed text; this is no longer it.
+  if (pendingChapters) { pendingChapters = null; setChapterNotice(null); }
   schedulePasteScan();
 });
 
@@ -284,9 +324,11 @@ async function ingestFile(f) {
   if (isHeavy) toast(`Parsing ${ext.toUpperCase().slice(1)}…`);
   upload.dataset.busy = "true";
   try {
-    const { title, text } = await parseFile(f, (done, total, unit) => {
+    const { title, text, chapters } = await parseFile(f, (done, total, unit) => {
       toast(`Reading ${unit} ${nf.format(done)} of ${nf.format(total)}…`);
     });
+    pendingChapters = Array.isArray(chapters) && chapters.length ? chapters : null;
+    setChapterNotice(pendingChapters);
     titleEl.value = title || f.name.replace(/\.[^.]+$/, "");
     /* Scanned books arrive full of characters the book never had. Show
        what the cleanup would do before it is saved, and let the user
@@ -320,7 +362,12 @@ saveBtn.addEventListener("click", async () => {
        index record, and the practice page reads it back -- without
        that, cleanup on the display path would quietly undo the answer
        the user just gave here. */
-    const item = await saveText({ title: title || "Untitled", raw, clean: cleanChoice });
+    const item = await saveText({
+      title: title || "Untitled", raw, clean: cleanChoice,
+      // Only the parser's own divisions travel here. When they were
+      // dropped (a hand edit, a paste), saveText detects instead.
+      chapters: pendingChapters,
+    });
     // Truncation and eviction used to happen in silence. If someone's
     // 900 KB book became 512 KB, they need to hear it now rather than
     // discover it two hours of typing later.
@@ -456,6 +503,99 @@ function renderPicker(id) {
   next.addEventListener("click", () => { st.page = Math.min(pageCount - 1, st.page + 1); renderPicker(id); });
 }
 
+/* ── Chapter picker ─────────────────────────────────────────────
+   The same text, read the way the library's books are read: by
+   chapter, six paragraphs to a page. The reader itself is the
+   practice page's book mode -- /practice/?book=custom:<id>&ch=N&page=M
+   -- so this list only has to know the titles, how many pages each
+   chapter makes, and how much of each has been typed.
+
+   Progress comes from the profile's bookProgress under the same
+   "custom:<id>" key the reader writes, keyed "<chapter>:<paragraphId>"
+   exactly like a library book. Marks made against a DIFFERENT chapter
+   structure (the text was re-imported, or its chapters were derived
+   from segments and later recomputed) point at paragraphs that have
+   moved, so the structure fingerprint is checked first and stale marks
+   are shown as no progress rather than as wrong progress. */
+
+const chapterPickers = new Map(); // id -> host
+
+function chapterUrl(id, ch, page) {
+  return `/practice/?book=${encodeURIComponent(customBookSlug(id))}&ch=${ch}&page=${page}`;
+}
+
+function pagesIn(chapter) {
+  return Math.max(1, Math.ceil(((chapter && chapter.paragraphs) || []).length / PARAS_PER_PAGE));
+}
+
+/* The reader's saved position for one text, or null. Never trusted
+   across a structure change. */
+function bookProgressFor(id, chapters) {
+  const prof = getActive();
+  const bp = (prof && prof.bookProgress && prof.bookProgress[customBookSlug(id)]) || null;
+  if (!bp) return null;
+  if (chapters && bp.sig && bp.sig !== bookStructureSig(chapters)) return null;
+  return bp;
+}
+
+function renderChapterPicker(id, host, chapters) {
+  const bp = bookProgressFor(id, chapters) || { typed: {}, lastChapter: 0, lastPage: 0 };
+  const typed = bp.typed || {};
+  const totalPages = chapters.reduce((n, c) => n + pagesIn(c), 0);
+  const rows = chapters.map((c, i) => {
+    const paras = (c.paragraphs || []).length;
+    const done = Object.keys(typed).filter((k) => k.startsWith(`${i}:`)).length;
+    const pct = paras ? Math.round((Math.min(done, paras) / paras) * 100) : 0;
+    const pages = pagesIn(c);
+    const isCurrent = (bp.lastChapter | 0) === i;
+    return `
+    <li>
+      <a class="seg-picker__item${isCurrent ? " is-current" : ""}" href="${chapterUrl(id, i, 0)}" data-ch="${i}">
+        <span class="seg-picker__n">${nf.format(i + 1)}</span>
+        <span class="seg-picker__preview">${htmlEscape(c.title || `Chapter ${i + 1}`)}
+          <span class="seg-picker__meta">· ${nf.format(pages)} page${pages === 1 ? "" : "s"} · ${pct}% typed</span>
+        </span>
+      </a>
+    </li>`;
+  }).join("");
+  host.innerHTML = `
+    <p class="seg-picker__count">${nf.format(chapters.length)} chapter${chapters.length === 1 ? "" : "s"} · ${nf.format(totalPages)} page${totalPages === 1 ? "" : "s"} · six paragraphs a page</p>
+    <ol class="seg-picker__list">${rows}</ol>`;
+}
+
+async function toggleChapters(id, host, btn) {
+  const card = document.getElementById("text-" + id);
+  if (!host.hidden) {
+    host.hidden = true;
+    if (card) card.dataset.chapterPicking = "false";
+    chapterPickers.delete(id);
+    if (btn) btn.textContent = "Choose chapter";
+    return;
+  }
+  host.hidden = false;
+  if (card) card.dataset.chapterPicking = "true";
+  host.innerHTML = '<p class="seg-picker__count">Loading chapters…</p>';
+  if (btn) btn.textContent = "Hide chapters";
+  let chapters = [];
+  try { chapters = await getChapters(id); } catch { chapters = []; }
+  if (!chapters.length) {
+    host.innerHTML = '<p class="seg-picker__count">This text could not be read back from storage. Re-import it above.</p>';
+    return;
+  }
+  chapterPickers.set(id, host);
+  renderChapterPicker(id, host, chapters);
+  /* The count on the card is written when a text is imported, but a
+     text imported before chapters existed only learns it here, on the
+     first open (getChapters derives and stores one). Patch the label in
+     place -- calling render() would rebuild the list and close the
+     picker that was just opened. */
+  const label = card && card.querySelector(".saved-item__chapmeta");
+  if (label) {
+    label.textContent = ` · ${nf.format(chapters.length)} chapter${chapters.length === 1 ? "" : "s"}`;
+    card.dataset.chapCount = String(chapters.length);
+  }
+}
+
 async function togglePicker(id, host, btn) {
   const card = document.getElementById("text-" + id);
   if (!host.hidden) {
@@ -497,15 +637,24 @@ function render() {
     const count = segCountOf(it);
     const seg = Math.min(it.lastSeg | 0, Math.max(0, count - 1));
     const resuming = (it.lastSeg | 0) > 0 && count > 1;
+    /* Where the chapter reader left off. Read straight from the
+       profile, so it survives a refresh and agrees with what the
+       practice page wrote. Null until the text has been read once by
+       chapter, which is why "Resume" only appears then. */
+    const bp = bookProgressFor(it.id, null);
+    const chCount = chapCountOf(it);
+    const resumeCh = bp ? (bp.lastChapter | 0) : 0;
+    const resumePage = bp ? (bp.lastPage | 0) : 0;
     return `
-    <article class="saved-item${it.forLesson ? " is-pinned" : ""}" id="text-${it.id}">
+    <article class="saved-item${it.forLesson ? " is-pinned" : ""}" id="text-${it.id}"${chCount ? ` data-chap-count="${chCount}"` : ""}>
       <h3 class="saved-item__title">${htmlEscape(it.title)}<span class="muted">${(it.bytes / 1024).toFixed(1)} KB</span>${it.forLesson ? '<span class="saved-item__pin">★ pinned as lesson</span>' : ''}${it.sample ? '<span class="saved-item__sample">sample</span>' : ''}</h3>${
-        it.sample ? '\n      <p class="saved-item__note">A sample so you can try this out — pick any segment, or delete it and it stays gone.</p>' : ""
+        it.sample ? '\n      <p class="saved-item__note">A sample so you can try this out — read it by chapter or pick any segment. Delete it and it stays gone.</p>' : ""
       }
       <span class="saved-item__meta">${nf.format(count)} segment${count === 1 ? "" : "s"}${
         resuming ? ` · resuming at ${nf.format(Math.min((it.lastSeg | 0) + 1, count))} of ${nf.format(count)}` : ""
-      } · ${new Date(it.createdAt).toLocaleDateString()}</span>
+      }<span class="saved-item__chapmeta">${chCount ? ` · ${nf.format(chCount)} chapter${chCount === 1 ? "" : "s"}` : ""}</span> · ${new Date(it.createdAt).toLocaleDateString()}</span>
       <div class="saved-item__actions">
+        <span class="saved-item__how">By segment</span>
         <a class="btn btn--small btn--primary" href="${practiceUrl(it.id, seg)}">${resuming ? "Resume" : "Type"}</a>${
         resuming ? `\n        <a class="btn btn--small" href="${practiceUrl(it.id, 0)}">Start over</a>` : ""
       }${
@@ -514,7 +663,24 @@ function render() {
         <button class="btn btn--small" data-id="${it.id}" data-action="pin">${it.forLesson ? "Unpin" : "Save as lesson"}</button>
         <button class="btn btn--small" data-id="${it.id}" data-action="delete">Delete</button>
       </div>
+      <div class="saved-item__actions saved-item__actions--chapter">
+        <span class="saved-item__how">By chapter</span>${
+        bp ? `\n        <a class="btn btn--small btn--primary" data-action="chapter-resume" href="${chapterUrl(it.id, resumeCh, resumePage)}">Resume chapter ${nf.format(resumeCh + 1)}, page ${nf.format(resumePage + 1)}</a>` : ""
+      }
+        <a class="btn btn--small${bp ? "" : " btn--primary"}" data-action="chapter-start" href="${chapterUrl(it.id, 0, 0)}">${bp ? "Start again at chapter 1" : "Read by chapter"}</a>
+        <button class="btn btn--small" data-id="${it.id}" data-action="chapters">Choose chapter</button>${
+        /* This browser had no database to keep the chapter structure in
+           and the text was too long to carry it in the index record, so
+           what the picker shows is derived from the segments: one long
+           chapter, not the document's own. Say it here rather than let
+           the list quietly disagree with the file. */
+        it.chaptersUnavailable
+          ? `\n        <span class="saved-item__hint" data-hint="chapters-unavailable">This browser has no database for the site, so a text this long could not keep its chapters — the chapter view reads it as one text.</span>`
+          : ""
+      }
+      </div>
       <div class="seg-picker" id="pick-${it.id}" hidden></div>
+      <div class="seg-picker" id="chapters-${it.id}" hidden></div>
     </article>
   `;
   }).join("");
@@ -548,19 +714,31 @@ function render() {
       togglePicker(id, document.getElementById("pick-" + id), b);
     });
   });
+  list.querySelectorAll('[data-action="chapters"]').forEach((b) => {
+    b.addEventListener("click", () => {
+      const id = b.dataset.id;
+      toggleChapters(id, document.getElementById("chapters-" + id), b);
+    });
+  });
 }
 
 /* The results screen links back here as /custom/#pick-<id> so "choose a
-   segment" is one click from finishing one. */
+   segment" is one click from finishing one, and as /custom/#chapters-<id>
+   from the chapter reader's "Back to chapter list". */
 function openFromHash() {
-  const m = (location.hash || "").match(/^#pick-(.+)$/);
+  const hash = location.hash || "";
+  const seg = hash.match(/^#pick-(.+)$/);
+  const chap = hash.match(/^#chapters-(.+)$/);
+  const m = seg || chap;
   if (!m) return;
-  const id = m[1];
-  const host = document.getElementById("pick-" + id);
-  const btn = list.querySelector(`[data-action="segments"][data-id="${CSS.escape(id)}"]`);
+  const id = decodeURIComponent(m[1]);
+  const host = document.getElementById((seg ? "pick-" : "chapters-") + id);
+  const btn = list.querySelector(`[data-action="${seg ? "segments" : "chapters"}"][data-id="${CSS.escape(id)}"]`);
+  const card = document.getElementById("text-" + id);
   if (!host || !btn) return;
-  togglePicker(id, host, btn);
-  document.getElementById("text-" + id).scrollIntoView({ block: "start" });
+  if (seg) togglePicker(id, host, btn);
+  else toggleChapters(id, host, btn);
+  if (card) card.scrollIntoView({ block: "start" });
 }
 
 (async () => {

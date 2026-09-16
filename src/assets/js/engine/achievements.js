@@ -3,6 +3,8 @@
    are now unlocked but weren't before, so callers can fire celebration
    toasts. */
 
+import { isCustomBookSlug } from "./book-structure.js";
+
 const minutes = (p) => Math.floor((p.lifetime?.totalMs || 0) / 60_000);
 const sessions = (p) => p.lifetime?.sessions || 0;
 const chars = (p) => p.lifetime?.chars || 0;
@@ -18,6 +20,23 @@ const lessonClears = () => {
   try { for (let i = 1; i <= 24; i++) if (localStorage.getItem(`tt:lesson-best-${i}`)) n++; } catch {}
   return n;
 };
+
+/* Every Library badge counts books from the PUBLIC-DOMAIN LIBRARY.
+
+   profile.bookProgress is not only the library any more. A custom text
+   read by chapter runs through the same reader, records its paragraphs
+   the same way, and lands in the same map under "custom:<id>" -- so
+   before this filter, importing your own PDF and typing one page
+   unlocked "Type your first paragraph from a public-domain book", and
+   five imports unlocked "Bookworm". The badge was not earned and
+   nothing would ever have reported it.
+
+   Both accessors are used by nine tests below; add the tenth through
+   these, not through Object.values(p.bookProgress). */
+function libraryProgress(p) {
+  const bp = (p && p.bookProgress) || {};
+  return Object.keys(bp).filter((k) => !isCustomBookSlug(k)).map((k) => bp[k]);
+}
 
 export const ACHIEVEMENTS = [
   // ── First steps ─────────────────────────────────────────────
@@ -361,16 +380,13 @@ export const ACHIEVEMENTS = [
   // Library reading. All three require the current session to be a
   // book session so they don't fire during unrelated drills.
   { id: "library-first-paragraph", name: "First paragraph", desc: "Type your first paragraph from a public-domain book.", group: "Library",
-    test: (p) => {
-      const bp = p.bookProgress || {};
-      return Object.values(bp).some((b) => b.typed && Object.keys(b.typed).length > 0);
-    },
+    test: (p) => libraryProgress(p).some((b) => b.typed && Object.keys(b.typed).length > 0),
     requires: (s) => s.mode === "book" },
   { id: "library-first-chapter", name: "Chapter complete", desc: "Type at least 10 paragraphs in a single book.", group: "Library",
-    test: (p) => Object.values(p.bookProgress || {}).some((b) => b.typed && Object.keys(b.typed).length >= 10),
+    test: (p) => libraryProgress(p).some((b) => b.typed && Object.keys(b.typed).length >= 10),
     requires: (s) => s.mode === "book" },
   { id: "library-bookworm", name: "Bookworm", desc: "Have typed paragraphs across 5 different books.", group: "Library",
-    test: (p) => Object.values(p.bookProgress || {}).filter((b) => b.typed && Object.keys(b.typed).length > 0).length >= 5,
+    test: (p) => libraryProgress(p).filter((b) => b.typed && Object.keys(b.typed).length > 0).length >= 5,
     requires: (s) => s.mode === "book" },
 
   // Variety. The "Sampler" achievement naturally only triggers when
@@ -552,16 +568,16 @@ export const ACHIEVEMENTS = [
 
   // ── Library-content tiers
   { id: "library-chars-10k", name: "First chapter",  desc: "Type 10,000 characters from the public-domain library.", group: "Library",
-    test: (p) => Object.values(p.bookProgress || {}).reduce((sum, b) => sum + (b.chars || 0), 0) >= 10000,
+    test: (p) => libraryProgress(p).reduce((sum, b) => sum + (b.chars || 0), 0) >= 10000,
     requires: (s) => s.mode === "book" },
   { id: "library-chars-50k", name: "Bound volume",   desc: "Type 50,000 characters from the library.", group: "Library",
-    test: (p) => Object.values(p.bookProgress || {}).reduce((sum, b) => sum + (b.chars || 0), 0) >= 50000,
+    test: (p) => libraryProgress(p).reduce((sum, b) => sum + (b.chars || 0), 0) >= 50000,
     requires: (s) => s.mode === "book" },
   { id: "library-chars-200k", name: "Full novel",    desc: "Type 200,000 characters from the library.", group: "Library",
-    test: (p) => Object.values(p.bookProgress || {}).reduce((sum, b) => sum + (b.chars || 0), 0) >= 200000,
+    test: (p) => libraryProgress(p).reduce((sum, b) => sum + (b.chars || 0), 0) >= 200000,
     requires: (s) => s.mode === "book" },
   { id: "library-books-10",  name: "Ten authors",    desc: "Have typed paragraphs across 10 different books.", group: "Library",
-    test: (p) => Object.values(p.bookProgress || {}).filter((b) => b.typed && Object.keys(b.typed).length > 0).length >= 10,
+    test: (p) => libraryProgress(p).filter((b) => b.typed && Object.keys(b.typed).length > 0).length >= 10,
     requires: (s) => s.mode === "book" },
 
   // ── Easter eggs / specials (secret)
@@ -716,9 +732,9 @@ export const ACHIEVEMENTS = [
   { id: "poem-25", name: "Verse scholar", desc: "Complete twenty-five public-domain poems.", group: "Mastery",
     test: (p) => Object.keys((p.corpusProgress && p.corpusProgress.poem) || {}).length >= 25 },
   { id: "books-1", name: "First chapter", desc: "Start typing a book from the library.", group: "Mastery",
-    test: (p) => Object.keys((p.bookProgress || {})).length >= 1 },
+    test: (p) => libraryProgress(p).length >= 1 },
   { id: "books-5", name: "Five-book shelf", desc: "Begin five different books.", group: "Mastery",
-    test: (p) => Object.keys((p.bookProgress || {})).length >= 5 },
+    test: (p) => libraryProgress(p).length >= 5 },
 
   // ── Streak recovery + comebacks ────────────────────────────────
   { id: "comeback", name: "Comeback", desc: "Beat your previous best by 5+ wpm.", group: "Growth",
