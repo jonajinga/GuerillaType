@@ -251,6 +251,21 @@ const pageErrors = [];
 const page = await browser.newPage({ viewport: { width: 1366, height: 900 }, serviceWorkers: "block", hasTouch: false });
 page.on("pageerror", (e) => pageErrors.push(String(e).slice(0, 200)));
 
+/* A reverted build cannot do any of this, and a gate that dies on a
+   Playwright stack trace tells a verifier nothing about how far it
+   got. Every wait that the rest of the run depends on goes through
+   here: it records a FAIL, prints the counts so far, and stops. */
+async function need(selector, why, timeout = 30000) {
+  const el = await page.waitForSelector(selector, { timeout }).catch(() => null);
+  if (el) return el;
+  chk(false, why, `never saw ${selector}`);
+  console.log("\nRUN ABORTED — the counts below are partial.");
+  await browser.close().catch(() => {});
+  server.close();
+  console.log(`\n${pass} passed, ${fail} failed`);
+  process.exit(1);
+}
+
 async function freshCustomPage() {
   await page.goto(B + "/custom/", { waitUntil: "domcontentloaded" });
   await page.evaluate(async () => {
@@ -264,7 +279,7 @@ async function freshCustomPage() {
     });
   });
   await page.reload({ waitUntil: "domcontentloaded" });
-  await page.waitForSelector(".saved-item, .stats-empty", { timeout: 30000 });
+  await need(".saved-item, .stats-empty", "/custom/ finished booting");
 }
 
 /* Import through the real file input and the real save button. */
@@ -274,7 +289,7 @@ async function importFile(name, mimeType, buffer) {
   await page.waitForFunction(() => document.querySelector("#paste-text").value.length > 100, { timeout: 60000 });
   const notice = (await page.textContent("#chapter-notice").catch(() => "")) || "";
   await page.click("#paste-save");
-  await page.waitForSelector(".saved-item", { timeout: 30000 });
+  await need(".saved-item", "the import produced a saved text");
   const id = await page.evaluate(() => JSON.parse(localStorage.getItem("tt:custom-texts") || "[]")[0].id);
   return { id, notice: notice.replace(/\s+/g, " ").trim() };
 }
@@ -352,21 +367,28 @@ chk(!!idbChapters && Array.isArray(idbChapters.chapters) && idbChapters.chapters
   idbChapters ? `chapters=${(idbChapters.chapters || []).length} segments=${(idbChapters.segments || []).length}` : "no record");
 chk(!!idbChapters && Array.isArray(idbChapters.segments) && idbChapters.segments.length >= 2,
   "A. …and writing the chapters did not clobber the segments");
-eq(idbChapters && idbChapters.chapters[0].paragraphs.length, 7,
-  "A. chapter one kept all seven of its paragraphs");
-eq(idbChapters && idbChapters.chapters[0].paragraphs[0].id, "p0",
-  "A. paragraph ids are the library's shape");
-eq(idbChapters && idbChapters.chapters[0].paragraphs[0].text, CH1[0],
-  "A. and the text under them is the document's");
+const ch1rec = (idbChapters && Array.isArray(idbChapters.chapters) && idbChapters.chapters[0]) || null;
+const ch1paras = (ch1rec && ch1rec.paragraphs) || [];
+eq(ch1paras.length, 7, "A. chapter one kept all seven of its paragraphs");
+eq(ch1paras[0] && ch1paras[0].id, "p0", "A. paragraph ids are the library's shape");
+eq(ch1paras[0] && ch1paras[0].text, CH1[0], "A. and the text under them is the document's");
 
 // ═══════════════════════════════════════════ B. the chapter picker
 console.log("\n## B. The chapter picker on /custom/");
 const chapBtn = `.saved-item [data-action="chapters"][data-id="${id}"]`;
-chk(await page.isVisible(chapBtn), "B. every saved text offers ‘Choose chapter’");
+const hasChapBtn = await page.isVisible(chapBtn).catch(() => false);
+chk(hasChapBtn, "B. every saved text offers ‘Choose chapter’");
 chk(await page.isVisible(`.saved-item [data-action="segments"][data-id="${id}"]`),
   "B. …and still offers ‘Choose segment’ — both ways, always");
+if (!hasChapBtn) {
+  console.log("\nRUN ABORTED — without the ‘Choose chapter’ button nothing below can run.");
+  await browser.close().catch(() => {});
+  server.close();
+  console.log(`\n${pass} passed, ${fail} failed`);
+  process.exit(1);
+}
 await page.click(chapBtn);
-await page.waitForSelector(`#chapters-${id} .seg-picker__item`, { timeout: 15000 });
+await need(`#chapters-${id} .seg-picker__item`, "B. the chapter picker painted a list", 15000);
 const rows = await page.$$eval(`#chapters-${id} .seg-picker__item`, (els) =>
   els.map((e) => e.textContent.replace(/\s+/g, " ").trim()));
 eq(rows.length, 3, "B. three chapters listed");
@@ -385,7 +407,7 @@ eq(firstHref, `/practice/?book=custom%3A${id}&ch=0&page=0`,
 // ═════════════════════════════════════════════════ C. the reader
 console.log("\n## C. The reader — the library's, pointed at an imported text");
 await page.click(`#chapters-${id} .seg-picker__item[data-ch="0"]`);
-await page.waitForSelector("#tt-text .tt-char", { timeout: 30000 });
+await need("#tt-text .tt-char", "C. the reader rendered a typing surface for chapter one");
 const h0 = await readerHeader();
 chk(h0.exists, "C. the book reader header is on screen", h0.flat || "");
 eq(h0.eyebrow, "Custom text", "C. the eyebrow says where the text came from");
@@ -456,7 +478,7 @@ eq(prog2 && prog2.lastPage, 1, "E. lastPage too, which is what /custom/ resumes 
    Asserted here and again in section G after a run in a different
    chapter, so a hardcoded href cannot satisfy both. */
 await page.goto(`${B}/custom/`, { waitUntil: "domcontentloaded" });
-await page.waitForSelector(`.saved-item [data-action="chapter-resume"]`, { timeout: 20000 });
+await need(`.saved-item [data-action="chapter-resume"]`, "E. /custom/ offers a chapter resume after a chapter was read", 20000);
 eq(await page.getAttribute(`.saved-item [data-action="chapter-resume"]`, "href"),
   `/practice/?book=custom%3A${id}&ch=0&page=1`,
   "E. /custom/ offers to resume at chapter 1, page 2 — where the reader is");
@@ -464,17 +486,17 @@ eq(await page.getAttribute(`.saved-item [data-action="chapter-resume"]`, "href")
 // ═══════════════════════════ F. the card, and the way back
 console.log("\n## F. With the switch off, the card and its ‘Back to chapter list’");
 await page.goto(`${B}/practice/?book=custom:${id}&ch=1&page=0`, { waitUntil: "domcontentloaded" });
-await page.waitForSelector("#tt-autoadvance", { timeout: 20000 });
+await need("#tt-autoadvance", "F. the Auto switch is on the reader page", 20000);
 await page.click("#tt-autoadvance");
 eq(await page.getAttribute("#tt-autoadvance", "aria-pressed"), "false", "F. switched off again");
 await page.goto(`${B}/practice/?book=custom:${id}&ch=2&page=0`, { waitUntil: "domcontentloaded" });
-await page.waitForSelector("#tt-text .tt-char", { timeout: 30000 });
+await need("#tt-text .tt-char", "F. chapter three rendered a typing surface");
 const h3 = await readerHeader();
 eq(h3.chapter, "CHAPTER III. THE RETURN", "F. deep-linked straight into chapter three");
 eq(h3.pageLine, "Page 1 of 1", "F. which is one page long");
 eq(await surfaceText(), CH3.join(" "), "F. holding all three of its paragraphs");
 await typeAll();
-await page.waitForSelector("#tt-results:not([hidden])", { timeout: 15000 });
+await need("#tt-results:not([hidden])", "F. the results card appeared with the switch off", 15000);
 chk(!(await page.$eval("#tt-results", (el) => el.hidden)), "F. the results card shows when the switch is off");
 const cardHref = await page.getAttribute("#tt-results a:has-text('Back to chapter list')", "href");
 eq(cardHref, `/custom/#chapters-${id}`, "F. ‘Back to chapter list’ goes to this text's chapter list");
@@ -490,7 +512,7 @@ eq((prog3 && prog3.keys || []).length, 10,
 // ═══════════════════════════════ G. the hash opens the picker
 console.log("\n## G. /custom/#chapters-<id> opens that text's chapter list");
 await page.goto(`${B}/custom/#chapters-${id}`, { waitUntil: "domcontentloaded" });
-await page.waitForSelector(`#chapters-${id} .seg-picker__item`, { timeout: 20000 });
+await need(`#chapters-${id} .seg-picker__item`, "G. the hash opened the chapter picker", 20000);
 const rows2 = await page.$$eval(`#chapters-${id} .seg-picker__item`, (els) =>
   els.map((e) => e.textContent.replace(/\s+/g, " ").trim()));
 eq(rows2.length, 3, "G. the picker opened on its own");
@@ -508,7 +530,7 @@ eq(resumeHref, `/practice/?book=custom%3A${id}&ch=2&page=0`,
 // ═════════════════════════════ H. the segment path still works
 console.log("\n## H. The same text, still readable by segment");
 await page.goto(`${B}/practice/?mode=custom&custom=${id}&seg=0`, { waitUntil: "domcontentloaded" });
-await page.waitForSelector("#tt-text .tt-char", { timeout: 30000 });
+await need("#tt-text .tt-char", "H. the segment path still renders a typing surface");
 const segHeader = await page.evaluate(() => {
   const h = document.getElementById("tt-custom-header");
   const t = (sel) => { const n = h && h.querySelector(sel); return n ? n.textContent.trim() : null; };
@@ -533,7 +555,7 @@ chk(/^Found 2 chapters\b/.test(epub.notice),
 const erec = await page.evaluate(() => JSON.parse(localStorage.getItem("tt:custom-texts") || "[]")[0]);
 eq(erec.chapCount, 2, "I. chapCount agrees");
 await page.click(`.saved-item [data-action="chapters"][data-id="${epub.id}"]`);
-await page.waitForSelector(`#chapters-${epub.id} .seg-picker__item`, { timeout: 15000 });
+await need(`#chapters-${epub.id} .seg-picker__item`, "I. the EPUB's chapter picker painted a list", 15000);
 const erows = await page.$$eval(`#chapters-${epub.id} .seg-picker__item`, (els) =>
   els.map((e) => e.textContent.replace(/\s+/g, " ").trim()));
 eq(erows.length, 2, "I. two rows");
@@ -543,7 +565,7 @@ chk(erows[0].includes("The Long Walk Home") && erows[1].includes("What Came Afte
 chk(!erows.some((r) => /Table of Contents/i.test(r)),
   "I. the navigation document did not become a chapter", JSON.stringify(erows));
 await page.goto(`${B}/practice/?book=custom:${epub.id}&ch=1&page=0`, { waitUntil: "domcontentloaded" });
-await page.waitForSelector("#tt-text .tt-char", { timeout: 30000 });
+await need("#tt-text .tt-char", "I. the EPUB's second chapter rendered a typing surface");
 const eh = await readerHeader();
 eq(eh.chapter, "What Came After", "I. the reader opens the second chapter by its own name");
 eq(await surfaceText(), EPUB_CH2.join(" "),
