@@ -235,11 +235,19 @@ for (const [route, sentence] of MUST) {
   chk(t.includes(sentence), `${route} says "${sentence.slice(0, 58)}${sentence.length > 58 ? "…" : ""}"`);
 }
 
-/* The task asks specifically that the privacy page explain the
-   fragment, in words a non-technical reader meets twice. */
+/* The privacy page must explain the fragment, and it must do it in the
+   sharing section. Checking the whole page is not enough: the word
+   "fragments" is in the mega-menu on every page of this site (Punctuation
+   Storm), so a page-wide `includes("fragment")` passes on the OLD privacy
+   page, which said nothing about sharing at all. Measured, not guessed --
+   it passed on the reverted build. */
 const priv = pageText("/privacy/") || "";
-chk(priv.includes("after #") || priv.includes("fragment"), "privacy page explains the part after # / the fragment");
-chk(priv.includes("after #") && priv.includes("fragment"), "privacy page uses both 'after #' and 'fragment'");
+const secStart = priv.indexOf("Sharing a result or a page");
+const secEnd = priv.indexOf("Optional aggregate analytics", secStart + 1);
+const shareSection = secStart === -1 ? "" : priv.slice(secStart, secEnd === -1 ? priv.length : secEnd);
+chk(shareSection.length > 800, "the sharing section is a real section, not a heading with nothing under it", `${shareSection.length} chars`);
+chk(shareSection.includes("after #") || shareSection.includes("fragment"), "the sharing section explains the part after # / the fragment");
+chk(shareSection.includes("after #") && shareSection.includes("fragment"), "the sharing section uses both 'after #' and 'fragment'");
 
 /* about.md's stale analytics claim, checked on its own because it is the
    one the task names. */
@@ -291,7 +299,8 @@ const strays = [];
     else if (basename(p) === "og-default.svg") strays.push(p.slice(SITE.length));
   }
 })(SITE);
-chk(strays.length === 0, "og-default.svg is not in _site", strays.join(", ") + svgInSite.join(""));
+chk(strays.length === 0, "og-default.svg is not in _site",
+  strays.length ? strays.join(", ") + "  (Eleventy does not prune passthrough copies between builds — if you just reverted src/, run `npm run clean` and build again)" : "");
 chk(!existsSync(resolve(ROOT, "src/assets/img/og-default.svg")), "og-default.svg is not in src/assets/img either");
 chk(existsSync(resolve(ROOT, "src/assets/img/og-default.png")), "the PNG that replaced it IS still there (deleting both is not a pass)");
 
