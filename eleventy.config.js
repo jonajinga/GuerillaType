@@ -196,11 +196,33 @@ export default function (eleventyConfig) {
   // hook). The versioner runs as a separate process AFTER 11ty's
   // passthrough copies have settled -- in-eleventy `eleventy.after`
   // fires too early; the JS files aren't on disk yet.
-  eleventyConfig.on("eleventy.after", async () => {
+  eleventyConfig.on("eleventy.after", async (ev = {}) => {
     try {
       const { writeFile } = await import("node:fs/promises");
       await writeFile("_site/.build-version", BUILD_VERSION);
     } catch {}
+    /* Share-preview cards (scripts/gen-og-images.mjs) run HERE, inside
+       the build, for the same reason the import versioner below does:
+       Cloudflare Pages invokes Eleventy directly rather than `npm run
+       build`, so a package.json step never runs there and the first
+       deploy shipped a site whose /og/*.png links were all 404. Skipped
+       under --serve/--watch (3,600 cards on every keystroke is not a dev
+       loop) and with OG_SKIP=1. A generator failure is logged loudly but
+       does not fail the build: a deploy without preview cards beats no
+       deploy at all. */
+    if (ev.runMode === "build" || ev.runMode == null) {
+      if (process.env.OG_SKIP === "1") {
+        console.log("[11ty:og] OG_SKIP=1, no preview cards rendered");
+      } else {
+        try {
+          const { spawnSync } = await import("node:child_process");
+          const r = spawnSync(process.execPath, ["scripts/gen-og-images.mjs"], { stdio: "inherit", env: process.env });
+          if (r.status !== 0) console.warn(`[11ty:og] card generator exited ${r.status}; the site deploys without preview cards`);
+        } catch (e) {
+          console.warn("[11ty:og] card generator failed:", e && e.message);
+        }
+      }
+    }
     // Versioner runs INSIDE the eleventy.after hook so it executes
     // no matter how the build is invoked (npm run build, npx
     // @11ty/eleventy directly, or whatever Cloudflare Pages decides
