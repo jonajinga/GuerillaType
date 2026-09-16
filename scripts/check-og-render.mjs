@@ -343,6 +343,10 @@ const KIND_SRCS = [
 for (const src of KIND_SRCS) {
   const content = await resolveSrcNode(src);
   if (!content) { chk(false, `renders: ${src}`, "did not resolve"); continue; }
+  /* A 1200x630 PNG in the size band is also what an EMPTY card looks
+     like; the lesson defect hid behind exactly that. Every kind must
+     carry body text or verse lines out of resolve.js. */
+  chk(!!(content.text || (content.lines && content.lines.length)), `has body text: ${src}`);
   let png = null;
   try { png = Buffer.from(await renderer.renderPng({ layout: "content", content })); }
   catch (err) { chk(false, `renders: ${src}`, err.message); continue; }
