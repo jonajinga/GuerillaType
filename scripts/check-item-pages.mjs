@@ -313,6 +313,17 @@ async function openAndType(pathname) {
   return link;
 }
 
+/* Before anything is typed: the tick must not be showing. It is an
+   [hidden] element whose class sets `display`, and an author display
+   rule beats the UA's [hidden] rule -- so "hidden" in the DOM and
+   "invisible on screen" are two different questions here, and only the
+   second one is the one a reader sees. This assertion is what makes
+   "the page shows its tick" below mean something. */
+await page.goto(B + `/poetry/${firstPoem.id}/`, { waitUntil: "domcontentloaded" });
+await page.waitForSelector(".corpus-page__title", { timeout: 20000 });
+const freshTick = await page.isVisible("#corpus-done");
+chk(freshTick === false, "a piece nobody has typed does not show a completion tick", `visible=${freshTick}`);
+
 // poem
 const poemLink = await openAndType(`/poetry/${firstPoem.id}/`);
 chk(/pid=/.test(page.url()) && page.url().includes(firstPoem.id),
@@ -403,8 +414,10 @@ chk(rowState.open === `/idioms/${shortestIdiom.id}/`, "the row links to the item
 await page.goto(B + `/idioms/${shortestIdiom.id}/`, { waitUntil: "domcontentloaded" });
 await page.waitForSelector("#corpus-done", { timeout: 20000 });
 const tickHidden = await page.$eval("#corpus-done", (el) => el.hidden);
+const tickVisible = await page.isVisible("#corpus-done");
 const tickText = await page.textContent("#corpus-done");
-chk(tickHidden === false, "the item page shows its own completion tick");
+chk(tickHidden === false, "the item page unhides its own completion tick");
+chk(tickVisible === true, "and the tick is actually on screen", `visible=${tickVisible}`);
 /* Visibility is part of this assertion on purpose: the element's
    markup says "Typed" whether or not it is shown, so a text-only
    check passes on a page whose tick never appeared. */

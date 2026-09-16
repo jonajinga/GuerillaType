@@ -22,6 +22,13 @@
   font-family:var(--font-display);font-style:italic;color:var(--fg-2);
   margin:0;
 }
+/* `hidden` has to be said out loud here. The UA's [hidden] rule is
+   display:none, but the display declaration below is an author rule of
+   the same specificity and wins -- so without the second rule the tick
+   shows on every page whether or not the piece was ever typed. Every
+   other component in this stylesheet carries the same guard for the
+   same reason (nav.css, live-aids.css, practice-bar.css ...). */
+.corpus-page__done[hidden]{display:none}
 .corpus-page__done{
   display:inline-block;margin:var(--space-3) 0 0;
   font-family:var(--font-mono);font-size:.7rem;letter-spacing:.1em;
