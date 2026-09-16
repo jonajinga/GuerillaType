@@ -153,6 +153,16 @@ export const Analytics = {
   customTextLoaded: (props) => track("custom_text_loaded", props),
   customTextDeleted: (props) => track("custom_text_deleted", props),
 
+  // Sharing. Structural only -- surface is the page family the sheet
+  // was opened from, kind is the thing being shared, target is the
+  // destination, variant says whether it got the short (query-only)
+  // or full (fragment-carrying) URL. Never a title, never the text,
+  // never a URL, never a custom text's id.
+  shareOpened: (props) => track("share_opened", props),           // { surface, kind, mode }
+  shareTarget: (props) => track("share_target", props),           // { target, kind, mode, variant }
+  shareCopied: (props) => track("share_copied", props),           // { kind, mode }
+  shareImageSaved: (props) => track("share_image_saved", props),  // { kind, mode, method }
+
   // Contributions + feedback
   contributeFormOpened: (props) => track("contribute_form_opened", props),
   contributeFormSubmitted: (props) => track("contribute_form_submitted", props),
