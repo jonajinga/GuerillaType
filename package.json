@@ -59,7 +59,9 @@
     "scroll-jolt": "node scripts/check-scroll-jolt.mjs",
     "og-images-gen": "node scripts/gen-og-images.mjs",
     "og-render": "node scripts/check-og-render.mjs",
-    "og-images": "node scripts/check-og-images.mjs"
+    "og-images": "node scripts/check-og-images.mjs",
+    "share-sheet": "node scripts/check-share-sheet.mjs",
+    "item-pages": "node scripts/check-item-pages.mjs"
   },
   "dependencies": {
     "@11ty/eleventy": "^3.0.0",

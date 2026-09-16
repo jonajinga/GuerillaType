@@ -20,6 +20,11 @@ import { mountLiveKeyboard, showLiveKeyboard, highlightChar } from "../viz/live-
 import { mountLiveTicker, showLiveTicker, recordKeystroke, resetTicker, updateWpm as updateTickerWpm } from "../viz/live-ticker.js";
 import { mountVirtualKeyboard, unmountVirtualKeyboard, highlightNextKey as vkbdNext } from "../engine/virtual-keyboard.js";
 import { Analytics } from "../analytics.js";
+/* The result card's file name -- /og/result/<wpm>-<band>.png -- is a
+   contract with scripts/gen-og-images.mjs, and the accuracy band in it
+   had four copies. This is the browser-side one; it mirrors bandFor()
+   in lib/og/labels.js, which runs in Node where satori does. */
+import { resultImagePath } from "../share/share.js";
 
 /* Inlined bucket helpers. These also live in analytics.js as named
    exports, but importing them from there would tie practice-boot
@@ -430,11 +435,28 @@ async function buildText() {
     }
     return item;
   }
+  /* A deep link pins one item by its public id: /idioms/<id>/ and
+     /poetry/<id>/ and /parables/<id>/ all send the reader here with
+     ?iid= / ?pid=. An id that no longer exists in the corpus (a piece
+     was pulled, or somebody typed it by hand) falls back to a fresh
+     pick rather than to an empty typing surface. Pinning also records
+     the item as "last seen" so the next fresh pick excludes it. */
+  function pinOrFresh(all, kind, pinnedId) {
+    if (pinnedId && Array.isArray(all)) {
+      const hit = all.find((x) => x && x.id === pinnedId);
+      if (hit) {
+        state._lastCorpusId = state._lastCorpusId || {};
+        state._lastCorpusId[kind] = hit.id;
+        return hit;
+      }
+    }
+    return pickFresh(all, kind);
+  }
   if (state.mode === "idiom") {
     try {
       const res = await fetch("/data/idioms.json", { cache: "default" });
       const all = await res.json();
-      const item = pickFresh(all, "idiom");
+      const item = pinOrFresh(all, "idiom", params.get("iid"));
       if (item) {
         state._customMeta = {
           kind: "idiom",
@@ -454,7 +476,7 @@ async function buildText() {
     try {
       const res = await fetch("/data/poetry.json", { cache: "default" });
       const all = await res.json();
-      const item = pickFresh(all, "poem");
+      const item = pinOrFresh(all, "poem", params.get("pid"));
       if (item) {
         state._customMeta = {
           kind: "poem",
@@ -475,6 +497,39 @@ async function buildText() {
       }
     } catch {}
     return "Hope is the thing with feathers";
+  }
+  /* Parables became a real engine mode here. Until now a parable was
+     typed only by saving a throwaway copy of it into the user's own
+     custom texts -- which put a piece of public-domain text into their
+     storage every time they clicked Type, and made the URL a local id
+     that means nothing on another device. ?mode=parable&pid=<id> is
+     resolvable from repo data alone, so /parables/<id>/ can link
+     straight to it. */
+  if (state.mode === "parable") {
+    try {
+      const res = await fetch("/data/parables.json", { cache: "default" });
+      const all = await res.json();
+      const item = pinOrFresh(all, "parable", params.get("pid"));
+      if (item) {
+        state._customMeta = {
+          kind: "parable",
+          sourceId: item.id || null,
+          title: item.title || null,
+          source: item.source || null,
+          // The moral is rendered as its own centered paragraph by
+          // .tt-text[data-kind="parable"] .tt-paragraph:last-child.
+          moral: item.moral || null,
+        };
+        state._customTitle = item.title;
+        const body = String(item.text || "").trim();
+        // Two paragraphs when there is a moral -- the renderer turns
+        // an array into paragraph blocks and the engine joins them
+        // with one typed space, exactly as the custom-text route did.
+        // 198 of the 269 parables have no moral and stay one block.
+        return item.moral ? [body, String(item.moral).trim()] : body;
+      }
+    } catch {}
+    return "The hare, deeming her assertion to be impossible, agreed to the proposal.";
   }
   if (state.mode === "custom") {
     // The bodies live in IndexedDB now (custom-store.js) -- reading
@@ -716,6 +771,7 @@ function startEngine(target) {
     : (target || "").length;
   const isLongFormPre = state.mode === "custom" || state.mode === "book"
     || state.mode === "quote" || state.mode === "idiom" || state.mode === "poem"
+    || state.mode === "parable"
     || (state.mode === "lesson" && targetLen > 200);
   textEl.classList.toggle("tt-text--full", !!isLongFormPre);
   // Apply the "reader" book-page styling to every literary target:
@@ -725,6 +781,7 @@ function startEngine(target) {
     || state.mode === "quote"
     || state.mode === "idiom"
     || state.mode === "poem"
+    || state.mode === "parable"
     || (state.mode === "custom" && state._customMeta && ["quote","idiom","parable","poem"].indexOf(state._customMeta.kind) !== -1);
   textEl.classList.toggle("tt-text--reader", !!isLiterary);
   // Tape mode: single horizontal line that scrolls left as the
@@ -737,8 +794,13 @@ function startEngine(target) {
   // just the last .tt-paragraph block via CSS.
   if (state.mode === "custom" && state._customMeta && state._customMeta.kind) {
     textEl.dataset.kind = state._customMeta.kind;
-  } else if (state.mode === "quote") {
-    textEl.dataset.kind = "quote";
+  } else if (state.mode === "quote" || state.mode === "idiom"
+          || state.mode === "poem" || state.mode === "parable") {
+    // Native corpus modes name themselves. Parable is the one that
+    // needs it: without data-kind="parable" the moral renders as an
+    // ordinary last paragraph instead of a centered italic line, so
+    // the native route would look wrong next to the custom route.
+    textEl.dataset.kind = state.mode;
   } else if (state.mode === "book") {
     textEl.dataset.kind = "book";
   } else {
@@ -1326,6 +1388,15 @@ function getAutoAdvanceAction(result) {
   }
   if (state.lessonId != null) return { kind: "lesson", id: state.lessonId + 1 };
   if (state.drillId) return { kind: "drill" };
+  /* Native corpus modes. These used to fall through to "restart",
+     which re-runs buildText -- and buildText honours ?iid= / ?pid=,
+     so a session opened from /idioms/<id>/ would have served the SAME
+     idiom forever. Routing them through the corpus action instead
+     also keeps the behaviour the custom route had: advance to the
+     next piece you have not completed, not to a random one. */
+  if (state.mode === "idiom" || state.mode === "poem" || state.mode === "parable") {
+    return { kind: "corpus", corpus: state.mode };
+  }
   if (state.mode === "custom") {
     const kind = state._customMeta && state._customMeta.kind;
     if (kind === "idiom" || kind === "poem" || kind === "parable" || kind === "quote") return { kind: "corpus", corpus: kind };
@@ -1412,20 +1483,38 @@ async function applyAdvance(action) {
     }
     if (!next) next = items[(start + 1) % items.length];
     if (!next || next.id === curId) return false;
-    const title = next.title || (kind === "idiom" ? next.text : kind === "quote" && next.author ? next.author : (next.text || "").slice(0, 60));
-    const item = await saveCustomText({
-      title,
-      raw: next.text,
-      meta: {
-        kind, sourceId: next.id || null, title: next.title || null, author: next.author || null,
-        year: next.year || null, source: next.source || null, meaning: next.meaning || null, moral: next.moral || null,
-      },
-    });
-    if (!item || !item.id) return false;
-    state.customId = item.id;
-    state.customSeg = 0;
-    state.mode = "custom";
-    url = `/practice/?mode=custom&custom=${encodeURIComponent(item.id)}&seg=0&from=${encodeURIComponent(kind)}`;
+    /* Native modes (?mode=idiom&iid= / ?mode=poem&pid= /
+       ?mode=parable&pid=) advance by rewriting the public id in the
+       URL and letting buildText resolve it from /data/. Nothing is
+       written to the user's storage, and the resulting link is the
+       same one the item page publishes. The custom route below stays
+       for sessions that really did come from a saved text. */
+    if (kind === state.mode) {
+      const key = kind === "idiom" ? "iid" : "pid";
+      // buildText() reads the pinned id straight off `params`, so
+      // updating it here is what makes the next boot() serve the next
+      // piece. The URL rewrite at the end of this function keeps the
+      // address bar, a refresh and the back button agreeing with it.
+      params.set(key, next.id);
+      state._lastCorpusId = state._lastCorpusId || {};
+      state._lastCorpusId[kind] = next.id;
+      url = `/practice/?mode=${kind}&${key}=${encodeURIComponent(next.id)}${fromQ}`;
+    } else {
+      const title = next.title || (kind === "idiom" ? next.text : kind === "quote" && next.author ? next.author : (next.text || "").slice(0, 60));
+      const item = await saveCustomText({
+        title,
+        raw: next.text,
+        meta: {
+          kind, sourceId: next.id || null, title: next.title || null, author: next.author || null,
+          year: next.year || null, source: next.source || null, meaning: next.meaning || null, moral: next.moral || null,
+        },
+      });
+      if (!item || !item.id) return false;
+      state.customId = item.id;
+      state.customSeg = 0;
+      state.mode = "custom";
+      url = `/practice/?mode=custom&custom=${encodeURIComponent(item.id)}&seg=0&from=${encodeURIComponent(kind)}`;
+    }
   } else if (action.kind === "restart") {
     // A single quote deep-linked by id would come back identical;
     // drop the pin so the bucket picker draws a fresh one. Daily
@@ -1568,6 +1657,15 @@ function renderBackLink() {
   } else if (state.mode === "quote") {
     label = "← Back to quotes";
     href = "/quotes/";
+  } else if (state.mode === "idiom") {
+    label = "← Back to idioms";
+    href = "/idioms/";
+  } else if (state.mode === "poem") {
+    label = "← Back to poetry";
+    href = "/poetry/";
+  } else if (state.mode === "parable") {
+    label = "← Back to parables";
+    href = "/parables/";
   }
   if (!href) {
     el.hidden = true;
@@ -1902,18 +2000,96 @@ function renderResults(r) {
           book:    `<svg class="results__btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
           lesson:  `<svg class="results__btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
           feedback:`<svg class="results__btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z"/></svg>`,
+          share:   `<svg class="results__btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg>`,
           review:  `<svg class="results__btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15 9 22 9.5 16.5 14 18 21 12 17.5 6 21 7.5 14 2 9.5 9 9 12 2"/></svg>`,
         };
         const wrap = (icon, label, attrs, tip, primary) => `
           <${attrs.tag || "button"} class="btn results__btn ${primary ? "btn--primary" : ""}" ${attrs.attrs || ""} data-tip="${tip}" aria-label="${label}">
             ${icon}<span class="results__btn-label">${label}</span>
           </${attrs.tag || "button"}>`;
+        /* Share. Numbers and a public link -- never what was typed.
+           The image is the Free-plan result card the build pre-rendered
+           (scripts/gen-og-images.mjs), addressed by rounded wpm and an
+           accuracy band; the band thresholds below must stay identical
+           to bandFor() in lib/og/labels.js and share/share.js.
+
+           TODO(Phase D2): shortUrl and fullUrl both become the /r/
+           landing page -- shortUrl the query alone, fullUrl with the
+           keystroke replay in its fragment -- and the image becomes the
+           same card resolved server-side. Until that page exists a
+           result links to whatever public URL reproduces the same
+           content, and a run that has no such URL (random words, a
+           custom text) links to the mode itself. */
+        const shareAttrs = (() => {
+          const wpmN = Math.max(0, Math.round(r.wpm || 0));
+          const accN = Math.max(0, Math.round(r.accuracy || 0));
+          const img = location.origin + resultImagePath(wpmN, accN);
+          const p = (q) => `${location.origin}/practice/?${q}`;
+          const cm = state._customMeta || {};
+          const srcId = cm.sourceId || null;
+          const kindOf = cm.kind || state.mode;
+          let link;
+          /* A text of your own read by chapter is a book only to the
+             reader: its slug IS the private id (custom:<id>), so the
+             library branch below would put that id -- and with it the
+             text's identity -- into every intent url. It is checked
+             first for exactly that reason. */
+          if (isCustomBook(state.bookSlug)) {
+            link = p(`mode=custom`);
+          } else if (state.bookSlug) {
+            const ch = state.bookCh != null ? state.bookCh : 0;
+            const base = `book=${encodeURIComponent(state.bookSlug)}&ch=${ch}`;
+            link = state.bookPage != null
+              ? p(`${base}&page=${state.bookPage}`)
+              : state.bookParaId
+                ? p(`${base}&p=${encodeURIComponent(state.bookParaId)}`)
+                : p(base);
+          } else if (state.lessonId) {
+            link = p(`lesson=${state.lessonId}`);
+          } else if (state.drillId) {
+            link = p(`drill=${encodeURIComponent(state.drillId)}`);
+          } else if (activeChallenge && activeChallenge.id) {
+            link = p(`challenge=${encodeURIComponent(activeChallenge.id)}`);
+          } else if (kindOf === "quote" && srcId) {
+            link = p(`mode=quote&quote=id&qid=${encodeURIComponent(srcId)}`);
+          } else if (kindOf === "poem" && srcId) {
+            link = p(`mode=poem&pid=${encodeURIComponent(srcId)}`);
+          } else if (kindOf === "idiom" && srcId) {
+            link = p(`mode=idiom&iid=${encodeURIComponent(srcId)}`);
+          } else if (kindOf === "parable" && srcId) {
+            link = p(`mode=parable&pid=${encodeURIComponent(srcId)}`);
+          } else if (state.mode === "custom") {
+            /* A custom text is private: its id, its title and its body
+               all stay on this device. The numbers can still travel. */
+            link = p(`mode=custom`);
+          } else {
+            link = p(`mode=${encodeURIComponent(state.mode || "time")}`);
+          }
+          const ownText = isCustomBook(state.bookSlug) || state.mode === "custom";
+          const label = ownText ? "custom text"
+            : state.mode === "time" ? `${state.duration || 30}s test`
+            : state.mode === "words" ? `${state.words || 25}-word test`
+            : state.mode === "lesson" ? `lesson ${state.lessonId}`
+            : state.mode === "book" ? "book page"
+            : String(state.mode || "test").replace(/[^a-z0-9 -]/gi, "");
+          const text = `${wpmN} wpm · ${accN}% accuracy · ${label} · GuerillaType`;
+          const title = `${wpmN} wpm on GuerillaType`;
+          return `type="button" data-share data-share-kind="result" data-share-surface="result"`
+            + ` data-share-mode="${htmlEscape(ownText ? "custom" : (state.mode || ""))}"`
+            + ` data-share-title="${htmlEscape(title)}"`
+            + ` data-share-text="${htmlEscape(text)}"`
+            + ` data-share-url="${htmlEscape(link)}"`
+            + ` data-share-short-url="${htmlEscape(link)}"`
+            + ` data-share-image="${htmlEscape(img)}"`;
+        })();
+        const shareBtn = wrap(ICONS.share, "Share", { attrs: `id="tt-share" ${shareAttrs}` }, "Share this result -- your numbers and a link to the same text. Nothing you typed travels with it.");
         // Book mode: Next page / Type page again / back to chapter list.
         if (state.bookSlug) {
           const paraMode = state.bookPage == null;
           return wrap(ICONS.next, paraMode ? "Next paragraph →" : "Next page →", { tag: "a", attrs: `id="tt-next-page" href="${nextBookUrl()}"` }, paraMode ? "Move on to the next paragraph in this chapter." : "Move on to the next page in this book.", true)
             + wrap(ICONS.retry, paraMode ? "Type paragraph again" : "Type page again", { attrs: `type="button" onclick="window.ttRestart && window.ttRestart()"` }, "Retype this same passage from the start.")
-            + wrap(ICONS.book, "Back to chapter list", { tag: "a", attrs: `href="${isCustomBook(state.bookSlug) ? customChapterListUrl() : `/library/${encodeURIComponent(state.bookSlug)}/`}"` }, isCustomBook(state.bookSlug) ? "Return to this text's chapter list." : "Return to the book's chapter index.");
+            + wrap(ICONS.book, "Back to chapter list", { tag: "a", attrs: `href="${isCustomBook(state.bookSlug) ? customChapterListUrl() : `/library/${encodeURIComponent(state.bookSlug)}/`}"` }, isCustomBook(state.bookSlug) ? "Return to this text's chapter list." : "Return to the book's chapter index.")
+            + shareBtn;
         }
         // Custom text with more than one segment: offer the next one.
         // "Next test" alone just restarted the SAME segment, which is why
@@ -1932,7 +2108,8 @@ function renderResults(r) {
           return progress + first
             + wrap(ICONS.retry, "Type this segment again", { attrs: `type="button" onclick="window.ttRestart && window.ttRestart()"` }, "Retype this same segment from the start.")
             + wrap(ICONS.list, "Choose a segment", { tag: "a", attrs: `id="tt-pick-seg" href="${pickUrl}"` }, "Jump to any segment of this text.")
-            + wrap(ICONS.book, "All saved texts", { tag: "a", attrs: `href="/custom/"` }, "Back to your saved custom texts.");
+            + wrap(ICONS.book, "All saved texts", { tag: "a", attrs: `href="/custom/"` }, "Back to your saved custom texts.")
+            + shareBtn;
         }
         // Daily-quote mode: "Next test" -> fresh random quote.
         const isDaily = state.mode === "quote" && state.quote === "daily";
@@ -1956,7 +2133,8 @@ function renderResults(r) {
         // no testimonial-prompt aside (which only fires after 10
         // lifetime sessions).
         const feedbackBtns =
-          wrap(ICONS.feedback, "Send feedback", { attrs: `type="button" onclick="window.openFeedbackModal && window.openFeedbackModal()"` }, "Drop a quick note about anything -- bugs, ideas, things you wish worked differently.")
+          shareBtn
+          + wrap(ICONS.feedback, "Send feedback", { attrs: `type="button" onclick="window.openFeedbackModal && window.openFeedbackModal()"` }, "Drop a quick note about anything -- bugs, ideas, things you wish worked differently.")
           + wrap(ICONS.review, "Leave a review", { tag: "a", attrs: `href="/contribute/testimonial/"` }, "Submit a short testimonial. Helps the project and may appear on the reviews page if you opt in.");
         return nextBtn + tail + feedbackBtns;
       })()}
