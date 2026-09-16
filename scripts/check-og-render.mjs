@@ -375,7 +375,11 @@ chk(emptyish <= 5, "at most a handful of lessons have neither text nor keys", `$
 console.log("\nF. wiring");
 
 const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
-chk(/gen-og-images\.mjs/.test(pkg.scripts.build || ""), "npm run build renders the cards", pkg.scripts.build);
+/* The generator runs from eleventy.after, not from the build script:
+   Cloudflare Pages invokes Eleventy directly, so a package.json step
+   never ran there and the first deploy shipped 404s for every card. */
+const eleventyCfg = readFileSync(new URL("../eleventy.config.js", import.meta.url), "utf8");
+chk(/gen-og-images\.mjs/.test(eleventyCfg) && /eleventy\.after/.test(eleventyCfg), "the Eleventy build itself renders the cards (eleventy.after), so Pages gets them too");
 for (const dep of ["satori", "@resvg/resvg-wasm", "yoga-wasm-web"]) {
   chk(!!(pkg.dependencies || {})[dep], `${dep} is in dependencies (Cloudflare's build needs it)`,
     (pkg.dependencies || {})[dep] || "missing");
