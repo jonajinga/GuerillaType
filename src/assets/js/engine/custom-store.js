@@ -72,13 +72,50 @@ function tx(mode, fn) {
   }));
 }
 
-/* Store one text's segments. Rejects on quota, which the caller turns
-   into a message rather than a truncated book. */
-export function putSegments(id, segments) {
+/* Store one text's segments -- and, since 2026-09-16, its chapters.
+
+   ONE RECORD, TWO STRUCTURES. A custom text is read two ways now: as
+   ~500-character segments (the original) and as chapters of six
+   paragraphs a page (the library reader's shape). Both are derived from
+   the same document, so they live in the same record: { id, segments,
+   chapters }. No store and no version bump -- an IndexedDB upgrade
+   blocks every other tab on this origin, and there is nothing here that
+   needs one: a record saved before chapters existed simply has no
+   `chapters` field, and getChapters() computes it on first use.
+
+   READ BEFORE WRITE, always. store.put() REPLACES a record; it does not
+   merge. Writing { id, segments } over a record that already had
+   chapters would silently throw the chapters away, and the caller who
+   did it -- migrateInlineToIdb(), which knows only about segments --
+   would have no idea. So both writers below fetch the existing record
+   inside their own transaction and keep whatever half they were not
+   asked to change.
+
+   Rejects on quota, which the caller turns into a message rather than a
+   truncated book. */
+function putPart(id, part) {
   return tx("readwrite", (store) => {
-    store.put({ id: String(id), segments: segments || [] });
+    const key = String(id);
+    const req = store.get(key);
+    req.onsuccess = () => {
+      const prev = req.result && typeof req.result === "object" ? req.result : {};
+      store.put({ ...prev, id: key, ...part });
+    };
     return true;
   });
+}
+
+export function putSegments(id, segments, chapters) {
+  const part = { segments: segments || [] };
+  if (Array.isArray(chapters)) part.chapters = chapters;
+  return putPart(id, part);
+}
+
+/* Store the chapter structure for a text whose segments are already
+   there -- the lazy computation for a text imported before chapters
+   existed, and the only writer that must not disturb the segments. */
+export function putChapters(id, chapters) {
+  return putPart(id, { chapters: chapters || [] });
 }
 
 /* Returns the segment array, or null when this id has no body stored
@@ -87,6 +124,18 @@ export function getSegments(id) {
   return tx("readonly", (store) => {
     const req = store.get(String(id));
     return () => (req.result && Array.isArray(req.result.segments)) ? req.result.segments : null;
+  });
+}
+
+/* The chapter structure, or null when this text has none stored yet --
+   which is every text imported before this feature, and every text
+   whose body is still inline in localStorage. The caller (custom-text's
+   getChapters) computes and stores one on the first read. */
+export function getChapters(id) {
+  return tx("readonly", (store) => {
+    const req = store.get(String(id));
+    return () => (req.result && Array.isArray(req.result.chapters) && req.result.chapters.length)
+      ? req.result.chapters : null;
   });
 }
 

@@ -31,9 +31,12 @@ import {
   idbSupported,
   putSegments as idbPut,
   getSegments as idbGet,
+  putChapters as idbPutChapters,
+  getChapters as idbGetChapters,
   deleteSegments as idbDelete,
   clearAll as idbClearAll,
 } from "./custom-store.js";
+import { buildChapters } from "./chapter-detect.js";
 
 /* Limits, in CHARACTERS -- not file bytes. What gets stored is the
    extracted, sanitized text, so a 6 MB PDF full of fonts and images is
@@ -44,6 +47,10 @@ const MAX_TOTAL_CHARS = 60 * 1000 * 1000;  // everything saved, combined
 
 /* The old ceilings. Only reachable now when IndexedDB refuses us. */
 const FALLBACK_TEXT_CHARS = 512 * 1024;
+/* Chapters are inlined into the localStorage index record only up to
+   here, and only when there is no IndexedDB to put them in. See
+   saveText. */
+const FALLBACK_INLINE_CHAPTER_CHARS = 64 * 1024;
 const FALLBACK_TOTAL_CHARS = 1024 * 1024;
 
 /* Whitespace and invisible characters, reduced to what a keyboard can
@@ -536,7 +543,78 @@ export async function getSegments(id) {
   }
 }
 
-export async function saveText({ title, raw, meta, sample, sampleVersion, clean = true }) {
+/* How many chapters a saved text has. Zero means "not computed yet",
+   not "none" -- getChapters() always comes back with at least one. */
+export function chapCountOf(item) {
+  if (!item) return 0;
+  if (typeof item.chapCount === "number") return item.chapCount;
+  return Array.isArray(item.chapters) ? item.chapters.length : 0;
+}
+
+/* The chapter structure for one saved text, in the library's shape:
+   [{ title, paragraphs: [{ id, text }] }].
+
+   Three sources, in order:
+
+     1. inline on the index record -- the no-IndexedDB fallback path;
+     2. IndexedDB, where every text imported since 2026-09-16 has it;
+     3. computed here, from the segments, for everything imported
+        before that.
+
+   Case 3 is why this is async and why it writes. A text saved last
+   month has segments and nothing else; re-deriving its chapters on
+   every visit to /custom/ would walk a whole book's worth of text each
+   time, so the result is stored once and the index record's chapCount
+   is filled in to match.
+
+   What case 3 can and cannot do: segments are ~500-character sentence
+   chunks joined back with spaces, so most of the document's line
+   breaks are already gone by the time we see them. A heading that sat
+   on its own line usually no longer does, and the honest answer for
+   those texts is one "Full text" chapter read six paragraphs at a
+   time. Re-importing the file gets the real chapters. This is stated
+   in the /custom/ copy rather than hidden.
+
+   Returns [] only when the body itself could not be read back. */
+export async function getChapters(id) {
+  const item = getSaved(id);
+  if (item && Array.isArray(item.chapters) && item.chapters.length) return item.chapters;
+
+  const useIdb = idbSupported();
+  if (useIdb) {
+    try {
+      const stored = await idbGetChapters(id);
+      if (stored && stored.length) return stored;
+    } catch {
+      // Fall through and compute; a read failure is not a reason to
+      // tell the user their text has no chapters.
+    }
+  }
+
+  const segs = await getSegments(id);
+  if (!segs.length) return [];
+  const built = buildChapters(segs.join(" "));
+  if (!built.length) return [];
+
+  if (useIdb) {
+    try { await idbPutChapters(id, built); } catch {}
+  }
+  // Keep the list page's count honest whether or not the write landed.
+  setChapCount(id, built.length);
+  return built;
+}
+
+/* Record the chapter count on the index record, best-effort. Losing it
+   costs a label on /custom/, never the text. */
+function setChapCount(id, n) {
+  const list = listSaved();
+  const i = list.findIndex((x) => x.id === id);
+  if (i < 0 || list[i].chapCount === n) return;
+  list[i].chapCount = n;
+  write(KEY_CUSTOM, list);
+}
+
+export async function saveText({ title, raw, meta, sample, sampleVersion, clean = true, chapters = null }) {
   const content = sanitize(raw, { clean });
   if (!content) throw new Error("Empty after sanitization");
 
@@ -550,6 +628,39 @@ export async function saveText({ title, raw, meta, sample, sampleVersion, clean 
 
   const id = "c_" + Math.random().toString(36).slice(2, 8);
 
+  /* The chapter view, built alongside the segments and from the same
+     characters. Both structures describe ONE document, so they are
+     saved together in one record -- see custom-store.js.
+
+     A parser that already knows where the chapters are hands them over
+     (an EPUB's spine items ARE its chapters; detecting them again from
+     the joined text would be throwing away better information). Each
+     supplied body is put through the same sanitize() the joined text
+     went through, with the same `clean` answer, or the chapter view
+     would ask the user to type characters the segment view had already
+     removed.
+
+     A truncated import ignores the parser's list and detects on what
+     was actually KEPT: chapters covering text that was cut off would
+     send the reader to pages that are not there.
+
+     Never fatal. A text whose chapters cannot be built still saves and
+     still reads by segment. */
+  let structure = [];
+  try {
+    const supplied = (!truncatedFrom && Array.isArray(chapters) && chapters.length)
+      ? chapters
+          .map((c, i) => ({
+            title: String((c && c.title) || "").replace(/\s+/g, " ").trim().slice(0, 120) || `Section ${i + 1}`,
+            body: sanitize((c && c.body) || "", { clean }),
+          }))
+          .filter((c) => c.body)
+      : null;
+    structure = buildChapters(supplied && supplied.length ? supplied : body);
+  } catch {
+    structure = [];
+  }
+
   // Try IndexedDB first. A rejection here is a real event -- quota,
   // private mode, a corrupt database -- so fall back to the old inline
   // path at the old ceiling and let the caller say the text was cut.
@@ -557,7 +668,7 @@ export async function saveText({ title, raw, meta, sample, sampleVersion, clean 
   let fallbackReason = useIdb ? null : "unavailable";
   if (useIdb) {
     try {
-      await idbPut(id, segments);
+      await idbPut(id, segments, structure);
       storedInIdb = true;
     } catch {
       // The database exists and turned the write down -- almost always
@@ -570,6 +681,7 @@ export async function saveText({ title, raw, meta, sample, sampleVersion, clean 
     truncatedFrom = content.length;
     body = clipToSentence(body, FALLBACK_TEXT_CHARS);
     segments = chunk(body);
+    try { structure = buildChapters(body); } catch { structure = []; }
   }
 
   const item = {
@@ -603,6 +715,24 @@ export async function saveText({ title, raw, meta, sample, sampleVersion, clean 
   // Only the fallback path keeps bodies in the index record.
   if (!storedInIdb) item.segments = segments;
 
+  /* Where the chapter structure ended up, and therefore whether the
+     count on the index record can be trusted.
+
+     With IndexedDB it is in the record beside the segments. Without it,
+     the index record is localStorage and already holds the whole body
+     once; a second copy of the same words as paragraphs would roughly
+     double that against a 5 MB origin budget shared with the user's
+     entire practice history. So it is inlined only for a short text.
+
+     A long text on the fallback path is NOT left without chapters --
+     getChapters() derives them from the inline segments on demand. It
+     just cannot be counted here, so chapCount is left off rather than
+     guessed, and the first real read fills it in. */
+  const stored = storedInIdb
+    || (structure.length > 0 && body.length <= FALLBACK_INLINE_CHAPTER_CHARS);
+  if (!storedInIdb && stored) item.chapters = structure;
+  if (stored && structure.length) item.chapCount = structure.length;
+
   const previous = listSaved();
   const list = [item, ...previous];
 
@@ -632,7 +762,7 @@ export async function saveText({ title, raw, meta, sample, sampleVersion, clean 
   // The index is committed, so the evicted bodies are now unreachable.
   for (const dead of evictedIds) idbDelete(dead).catch(() => {});
 
-  return { ...item, truncatedFrom, evicted, storedInIdb, fallbackReason };
+  return { ...item, truncatedFrom, evicted, storedInIdb, fallbackReason, chapCount: item.chapCount != null ? item.chapCount : structure.length };
 }
 
 /* Move legacy records -- bodies inline in localStorage -- into

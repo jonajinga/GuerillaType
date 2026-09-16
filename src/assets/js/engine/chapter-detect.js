@@ -430,3 +430,15 @@ export function buildChapters(input) {
   if (out.length === 1 && !out[0].title) out[0].title = FULL_TEXT_TITLE;
   return out;
 }
+
+/* Six paragraphs to a page — the library reader's page size, and now
+   the custom reader's too.
+
+   It lived as a `const PARAS_PER_PAGE = 6` in practice-boot.js and
+   another in src/library-detail.njk. A third copy in custom-boot.js
+   would have been the one that drifts: the chapter picker's "4 pages"
+   and the reader's actual pagination have to be the same number or the
+   picker sends people to a page that is not there. practice-boot.js
+   and custom-boot.js both import this one. (The Nunjucks template
+   cannot import from here; its copy is still its own.) */
+export const PARAS_PER_PAGE = 6;
