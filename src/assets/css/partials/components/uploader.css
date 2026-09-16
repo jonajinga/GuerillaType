@@ -17,6 +17,9 @@
    second row looking like more buttons for the first. */
 .saved-item__how{flex:0 0 auto;min-width:5.5rem;color:var(--fg-2);font-size:var(--fs-100);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.04em}
 .saved-item__actions--chapter{margin-top:.2rem;padding-top:.4rem;border-top:1px dotted var(--rule)}
+/* Why a row cannot do what it offers -- a whole line of its own, since
+   it is a sentence and not a control. */
+.saved-item__hint{flex:1 1 100%;color:var(--fg-2);font-size:var(--fs-200)}
 
 /* Segment picker. A 600-page import is thousands of segments, so the
    open card takes the full grid width and pages through them rather

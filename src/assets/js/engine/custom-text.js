@@ -37,6 +37,8 @@ import {
   clearAll as idbClearAll,
 } from "./custom-store.js";
 import { buildChapters } from "./chapter-detect.js";
+import { customBookSlug } from "./book-structure.js";
+import { updateActive } from "../profiles.js";
 
 /* Limits, in CHARACTERS -- not file bytes. What gets stored is the
    extracted, sanitized text, so a 6 MB PDF full of fonts and images is
@@ -732,6 +734,13 @@ export async function saveText({ title, raw, meta, sample, sampleVersion, clean 
     || (structure.length > 0 && body.length <= FALLBACK_INLINE_CHAPTER_CHARS);
   if (!storedInIdb && stored) item.chapters = structure;
   if (stored && structure.length) item.chapCount = structure.length;
+  /* Say so when the structure could not be kept. getChapters() will
+     still produce something readable from the segments, but it will be
+     one "Full text" chapter rather than this text's real chapters, and
+     a chapter list that silently disagrees with the document is worse
+     than one that explains itself. /custom/ reads this flag and puts a
+     line on the card. */
+  if (!stored) item.chaptersUnavailable = true;
 
   const previous = listSaved();
   const list = [item, ...previous];
@@ -836,6 +845,20 @@ export function deleteSaved(id, { remember = true } = {}) {
   const list = listSaved().filter((x) => x.id !== id);
   write(KEY_CUSTOM, list);
   if (idbSupported()) idbDelete(id).catch(() => {});
+  /* The chapter reader's progress is not on the record. It lives on the
+     PROFILE, under bookProgress["custom:<id>"], because a custom text
+     read by chapter uses the library reader's storage exactly as a book
+     does. Deleting the text without it leaves a map entry nobody can
+     see, reach or clear -- and ids are six random characters, so a
+     future one could in principle collide with it and inherit progress
+     for paragraphs it never had. Best-effort: failing to tidy up must
+     never stop the delete itself. */
+  try {
+    updateActive((p) => {
+      if (p && p.bookProgress) delete p.bookProgress[customBookSlug(id)];
+      return p;
+    });
+  } catch {}
   // Deleting the bundled sample has to stick. Reseeding it on the next
   // visit would mean the Delete button did not work.
   //

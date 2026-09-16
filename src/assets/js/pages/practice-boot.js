@@ -10,7 +10,7 @@ import { setSegProgress, getSaved as getSavedCustom, listSaved as listSavedCusto
 import { PARAS_PER_PAGE } from "../engine/chapter-detect.js";
 import { byId as achievementById } from "../engine/achievements.js";
 import { fingerForKey } from "../engine/layouts.js";
-import { bookStructureSig } from "../engine/book-structure.js";
+import { bookStructureSig, isCustomBookSlug as isCustomBook, customBookId } from "../engine/book-structure.js";
 import { setSoundPrefs, playKey, playMistake, playFinish } from "../engine/sounds.js";
 import { getActive, updateActive } from "../profiles.js";
 import { loadQuotes, pickQuote, dailyQuote } from "../engine/quotes.js";
@@ -114,13 +114,15 @@ const bookPage = params.get("page") != null ? parseInt(params.get("page"), 10) :
 
 /* A custom text read by chapter IS a book, as far as this page is
    concerned: ?book=custom:<id>. The slug prefix is the only thing that
-   tells the two apart, and it decides three things -- where the
-   chapters come from (IndexedDB, not /data/books/), what the header
-   calls it, and where "back" goes. Everything between those three is
-   the library reader, unchanged. */
-const CUSTOM_BOOK_PREFIX = "custom:";
-const isCustomBook = (slug) => typeof slug === "string" && slug.startsWith(CUSTOM_BOOK_PREFIX);
-const customBookId = (slug) => String(slug || "").slice(CUSTOM_BOOK_PREFIX.length);
+   tells the two apart, and it decides four things -- where the chapters
+   come from (IndexedDB, not /data/books/), what the header calls it,
+   where "back" goes, and whether the run counts toward the library's
+   achievements (it must not; see achievements.js). Everything between
+   those is the library reader, unchanged.
+
+   isCustomBook / customBookId come from engine/book-structure.js so
+   that this file, custom-text.js and achievements.js cannot disagree
+   about what a custom slug looks like. */
 /* Where "back to the chapter list" goes for an imported text. There is
    no /library/<slug>/ page for one, so it is the card for this text on
    /custom/, opened straight onto its chapter picker. */
@@ -1647,17 +1649,37 @@ function renderBookReaderHeader() {
   // whatever paragraph was open.
   const pos = bookParaPos();
   const counter = pos ? `Paragraph ${pos.n} of ${pos.total}` : `Page ${pageNum} of ${totalPages}`;
-  /* The eyebrow names where the text came from. For a library book
-     that is the book's title; for an imported one the title is the
-     user's own file name and "Custom text" is the useful label, the
-     same one the segment reader's header carries. */
-  const eyebrow = isCustomBook(state.bookSlug)
-    ? "Custom text"
-    : (state._bookTitle || "");
-  const html = `
-    <p class="tt-book-eyebrow">${htmlEscape(eyebrow)}</p>
-    ${isCustomBook(state.bookSlug) && state._bookTitle ? `<p class="tt-book-author">${htmlEscape(state._bookTitle)}</p>` : ""}
-    ${state._bookAuthor ? `<p class="tt-book-author">${htmlEscape(state._bookAuthor)}</p>` : ""}
+  /* Two shapes, because the two readers have different things to name.
+
+     A LIBRARY BOOK: the book's title is the eyebrow, the author sits
+     under it in italics, and the chapter is the headline.
+
+     AN IMPORTED TEXT: the eyebrow is "Custom text" -- the file's name
+     is the user's own and means nothing as a label -- so the text's
+     title needs a line of its own. It gets the SAME elements the
+     segment reader's header uses, .tt-custom-title and
+     .tt-custom-author, rather than being squeezed into .tt-book-author:
+     the first version did that and the bundled Alice sample showed its
+     title and "Lewis Carroll" in identical italics, as though the book
+     were written by its own name. The chapter is still the headline;
+     CSS steps the text title down beneath it. */
+  const isCustom = isCustomBook(state.bookSlug);
+  const meta = state._customMeta || {};
+  const cite = isCustom
+    ? [meta.author || state._bookAuthor, meta.year].filter(Boolean).join(" · ")
+    : (state._bookAuthor || "");
+  const html = isCustom
+    ? `
+    <p class="tt-book-eyebrow">Custom text</p>
+    ${state._bookTitle ? `<p class="tt-custom-title">${htmlEscape(state._bookTitle)}</p>` : ""}
+    ${cite ? `<p class="tt-custom-author">${htmlEscape(cite)}</p>` : ""}
+    ${meta.source ? `<p class="tt-custom-source">from <em>${htmlEscape(meta.source)}</em></p>` : ""}
+    <h2 class="tt-book-chapter">${htmlEscape(state._chapterTitle || "")}</h2>
+    <p class="tt-book-page">${counter}</p>
+  `
+    : `
+    <p class="tt-book-eyebrow">${htmlEscape(state._bookTitle || "")}</p>
+    ${cite ? `<p class="tt-book-author">${htmlEscape(cite)}</p>` : ""}
     <h2 class="tt-book-chapter">${htmlEscape(state._chapterTitle || "")}</h2>
     <p class="tt-book-page">${counter}</p>
   `;

@@ -14,7 +14,7 @@ import {
 import { ensureSample } from "../engine/custom-sample.js";
 import { parseFile } from "../engine/import-parsers.js";
 import { PARAS_PER_PAGE } from "../engine/chapter-detect.js";
-import { bookStructureSig } from "../engine/book-structure.js";
+import { bookStructureSig, customBookSlug } from "../engine/book-structure.js";
 import { getActive } from "../profiles.js";
 import { $, toast, htmlEscape } from "../util/dom.js";
 import { confirmModal } from "../util/modal.js";
@@ -520,10 +520,6 @@ function renderPicker(id) {
 
 const chapterPickers = new Map(); // id -> host
 
-export function customBookSlug(id) {
-  return `custom:${id}`;
-}
-
 function chapterUrl(id, ch, page) {
   return `/practice/?book=${encodeURIComponent(customBookSlug(id))}&ch=${ch}&page=${page}`;
 }
@@ -672,7 +668,16 @@ function render() {
         bp ? `\n        <a class="btn btn--small btn--primary" data-action="chapter-resume" href="${chapterUrl(it.id, resumeCh, resumePage)}">Resume chapter ${nf.format(resumeCh + 1)}, page ${nf.format(resumePage + 1)}</a>` : ""
       }
         <a class="btn btn--small${bp ? "" : " btn--primary"}" data-action="chapter-start" href="${chapterUrl(it.id, 0, 0)}">${bp ? "Start again at chapter 1" : "Read by chapter"}</a>
-        <button class="btn btn--small" data-id="${it.id}" data-action="chapters">Choose chapter</button>
+        <button class="btn btn--small" data-id="${it.id}" data-action="chapters">Choose chapter</button>${
+        /* This browser had no database to keep the chapter structure in
+           and the text was too long to carry it in the index record, so
+           what the picker shows is derived from the segments: one long
+           chapter, not the document's own. Say it here rather than let
+           the list quietly disagree with the file. */
+        it.chaptersUnavailable
+          ? `\n        <span class="saved-item__hint" data-hint="chapters-unavailable">This browser has no database for the site, so a text this long could not keep its chapters — the chapter view reads it as one text.</span>`
+          : ""
+      }
       </div>
       <div class="seg-picker" id="pick-${it.id}" hidden></div>
       <div class="seg-picker" id="chapters-${it.id}" hidden></div>

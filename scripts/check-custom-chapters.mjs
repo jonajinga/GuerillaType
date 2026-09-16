@@ -330,6 +330,20 @@ const bookProgress = (id) => page.evaluate((tid) => {
   return bp ? { keys: Object.keys(bp.typed || {}).sort(), lastChapter: bp.lastChapter, lastPage: bp.lastPage, sig: bp.sig || null } : null;
 }, id);
 
+const achievementIds = () => page.evaluate(() => {
+  const ps = JSON.parse(localStorage.getItem("tt:profiles") || "[]");
+  const active = JSON.parse(localStorage.getItem("tt:active-profile") || "null");
+  const p = ps.find((x) => x.id === active) || ps[0];
+  return (p && p.achievements) || [];
+});
+
+const progressKeys = () => page.evaluate(() => {
+  const ps = JSON.parse(localStorage.getItem("tt:profiles") || "[]");
+  const active = JSON.parse(localStorage.getItem("tt:active-profile") || "null");
+  const p = ps.find((x) => x.id === active) || ps[0];
+  return Object.keys((p && p.bookProgress) || {});
+});
+
 const autoMap = () => page.evaluate(() => {
   const ps = JSON.parse(localStorage.getItem("tt:profiles") || "[]");
   const active = JSON.parse(localStorage.getItem("tt:active-profile") || "null");
@@ -512,6 +526,53 @@ eq((prog3 && prog3.keys || []).length, 10,
   "E. chapter three's three paragraphs took the total to ten",
   JSON.stringify(prog3 && prog3.keys));
 
+/* ═══════ K. A custom text is not the public-domain library ═══════
+
+   Everything above this point was a book as far as practice-boot is
+   concerned: state.mode === "book", progress in bookProgress. That is
+   the design, and it is also how an imported PDF came to unlock "Type
+   your first paragraph from a public-domain book" -- the Library
+   achievements count bookProgress entries, and there was nothing in
+   the map to tell a library slug from a custom one.
+
+   Three pages of a text of the profile's own have now been typed, on a
+   profile that started empty, so any Library badge present here was
+   not earned. */
+console.log("\n## K. Reading your own text does not unlock the library's badges");
+const LIBRARY_BADGES = [
+  "library-first-paragraph", "library-first-chapter", "library-bookworm",
+  "library-chars-10k", "library-chars-50k", "library-chars-200k",
+  "library-books-10", "books-1", "books-5",
+];
+const afterCustom = await achievementIds();
+const wrongly = LIBRARY_BADGES.filter((b) => afterCustom.includes(b));
+chk(wrongly.length === 0,
+  "K. no Library achievement unlocked by typing an imported text",
+  wrongly.length ? `wrongly unlocked: ${wrongly.join(", ")}` : `${afterCustom.length} achievement(s), none of them the library's`);
+chk((await progressKeys()).some((k) => k.startsWith("custom:")),
+  "K. …and this is not because nothing was recorded — the custom progress IS there",
+  JSON.stringify(await progressKeys()));
+chk(afterCustom.length > 0,
+  "K. …nor because achievements are not being evaluated at all",
+  JSON.stringify(afterCustom.slice(0, 6)));
+
+/* The control. Without it, deleting every Library achievement from the
+   catalog would pass the three checks above. A real library book, one
+   real paragraph, and the badge must appear. */
+await page.goto(`${B}/practice/?book=house-of-mirth&ch=0&p=p0`, { waitUntil: "domcontentloaded" });
+await need("#tt-text .tt-char", "K. a real library book still opens");
+const libTarget = await typeAll();
+chk(libTarget.startsWith("When Lily woke"),
+  "K. control: typed a real paragraph from the library", JSON.stringify(libTarget.slice(0, 30)));
+await page.waitForTimeout(1200);
+const afterLibrary = await achievementIds();
+chk(afterLibrary.includes("library-first-paragraph"),
+  "K. control: the library badge DOES unlock for a library book — the filter is on the slug, not on the badge",
+  JSON.stringify(afterLibrary.filter((a) => /^library|^books-/.test(a))));
+chk(afterLibrary.includes("books-1"),
+  "K. control: and so does ‘First chapter’, which counts bookProgress keys",
+  JSON.stringify(afterLibrary.filter((a) => /^books-/.test(a))));
+
 // ═══════════════════════════════ G. the hash opens the picker
 console.log("\n## G. /custom/#chapters-<id> opens that text's chapter list");
 await page.goto(`${B}/custom/#chapters-${id}`, { waitUntil: "domcontentloaded" });
@@ -548,6 +609,24 @@ const segText = await surfaceText();
 chk(segText.startsWith("CHAPTER I. THE ARRIVAL"),
   "H. the segment holds the text from the top, headings and all",
   JSON.stringify(segText.slice(0, 40)));
+
+// ══════════ L. deleting the text takes its chapter progress with it
+console.log("\n## L. Deleting a text clears the progress the reader saved for it");
+await page.goto(`${B}/custom/`, { waitUntil: "domcontentloaded" });
+await need(`.saved-item [data-action="delete"][data-id="${id}"]`, "L. the text is still in the list", 20000);
+const beforeDelete = await progressKeys();
+chk(beforeDelete.includes(`custom:${id}`), "L. its progress is in bookProgress before the delete",
+  JSON.stringify(beforeDelete));
+await page.click(`.saved-item [data-action="delete"][data-id="${id}"]`);
+await need("dialog[open] [data-ok]", "L. the delete confirmation opened", 15000);
+await page.click("dialog[open] [data-ok]");
+await page.waitForTimeout(800);
+const afterDelete = await progressKeys();
+chk(!afterDelete.includes(`custom:${id}`),
+  "L. and it is gone afterwards — a deleted text leaves no progress behind",
+  JSON.stringify(afterDelete));
+chk(afterDelete.includes("house-of-mirth"),
+  "L. …while the library book's progress is untouched", JSON.stringify(afterDelete));
 
 // ═════════════ J. a text saved before chapters existed gets one anyway
 console.log("\n## J. A text imported before this feature still opens by chapter");
@@ -617,6 +696,106 @@ const eh = await readerHeader();
 eq(eh.chapter, "What Came After", "I. the reader opens the second chapter by its own name");
 eq(await surfaceText(), EPUB_CH2.join(" "),
   "I. and it holds that chapter's paragraphs, not the whole book");
+
+/* ══ M. The header of a text that has an author ═════════════════════
+
+   The bundled Alice sample is such a text: meta.author "Lewis Carroll",
+   meta.year 1865. The first version of the chapter reader put the
+   TEXT'S TITLE into .tt-book-author, so the sample's header showed
+   "Alice's Adventures in Wonderland (sample)" and "Lewis Carroll" in
+   identical italics, as though the book were written by its own name.
+   Seeded with chapters inline on the index record, which is also the
+   no-database read path getChapters() has to handle. */
+console.log("\n## M. Title and author lines in the chapter reader");
+await freshCustomPage();
+await page.evaluate((body) => {
+  localStorage.setItem("tt:custom-texts", JSON.stringify([{
+    id: "c_meta", title: "A Book Of Mine", createdAt: new Date().toISOString(),
+    bytes: 400, segCount: 1, lastSeg: 0, segments: [body],
+    chapCount: 1, chapters: [{ title: "CHAPTER ONE", paragraphs: [{ id: "p0", text: body }] }],
+    meta: { kind: "sample", author: "Lewis Carroll", year: "1865", source: "Macmillan" },
+  }]));
+}, CH3[0]);
+await page.goto(`${B}/practice/?book=custom:c_meta&ch=0&page=0`, { waitUntil: "domcontentloaded" });
+await need("#tt-text .tt-char", "M. the reader opened a text whose chapters are inline on the record");
+const mh = await page.evaluate(() => {
+  const h = document.getElementById("tt-book-header");
+  const t = (sel) => { const n = h && h.querySelector(sel); return n ? n.textContent.trim() : null; };
+  return {
+    eyebrow: t(".tt-book-eyebrow"),
+    customTitle: t(".tt-custom-title"),
+    customAuthor: t(".tt-custom-author"),
+    bookAuthor: t(".tt-book-author"),
+    chapter: t(".tt-book-chapter"),
+    pageLine: t(".tt-book-page"),
+  };
+});
+eq(mh.eyebrow, "Custom text", "M. the eyebrow says what kind of text this is");
+eq(mh.customTitle, "A Book Of Mine", "M. the text's title is in .tt-custom-title, as in the segment reader");
+eq(mh.customAuthor, "Lewis Carroll · 1865", "M. the author line is in .tt-custom-author");
+chk(mh.bookAuthor === null,
+  "M. and NOT in .tt-book-author, which would render the title in the author's italics",
+  JSON.stringify(mh.bookAuthor));
+eq(mh.chapter, "CHAPTER ONE", "M. the chapter is still the headline");
+eq(mh.pageLine, "Page 1 of 1", "M. and the page counter is there");
+eq(await surfaceText(), CH3[0], "M. the inline chapter's paragraph is what gets typed");
+
+/* ══ N. No database, and too long to carry the chapters inline ═════ */
+console.log("\n## N. A browser with no database says so instead of pretending");
+{
+  const ctx = await browser.newContext({ viewport: { width: 1366, height: 900 }, serviceWorkers: "block" });
+  await ctx.addInitScript(() => {
+    Object.defineProperty(window, "indexedDB", { get() { return undefined; }, configurable: true });
+  });
+  const np = await ctx.newPage();
+  np.on("pageerror", (e) => pageErrors.push("no-idb: " + String(e).slice(0, 160)));
+  const seed = async () => {
+    await np.goto(B + "/custom/", { waitUntil: "domcontentloaded" });
+    await np.evaluate(() => {
+      localStorage.clear();
+      localStorage.setItem("tt:custom-sample", JSON.stringify("dismissed"));
+    });
+    await np.reload({ waitUntil: "domcontentloaded" });
+    await np.waitForSelector(".saved-item, .stats-empty", { timeout: 30000 }).catch(() => {});
+  };
+  const saveThrough = async (name, text) => {
+    await np.setInputFiles("#uploader-file", { name, mimeType: "text/plain", buffer: Buffer.from(text, "utf8") });
+    await np.waitForFunction(() => document.querySelector("#paste-text").value.length > 100, { timeout: 60000 });
+    await np.click("#paste-save");
+    await np.waitForSelector(".saved-item", { timeout: 60000 });
+    return np.evaluate(() => JSON.parse(localStorage.getItem("tt:custom-texts") || "[]")[0]);
+  };
+
+  // Over the 64 KB inline ceiling: the structure cannot be kept.
+  await seed();
+  const bigChapter = (mark) => Array.from({ length: 420 },
+    (_, i) => `${mark} paragraph ${i} carrying enough ordinary prose to make a real page of a real chapter.`).join("\n\n");
+  const bigText = ["CHAPTER I. THE ARRIVAL", "", bigChapter("Alpha"), "", "CHAPTER II. THE DEPARTURE", "", bigChapter("Bravo"), ""].join("\n");
+  chk(bigText.length > 64 * 1024, "N. the fixture really is over the 64 KB inline limit", `${bigText.length} chars`);
+  const bigRec = await saveThrough("big.txt", bigText);
+  chk(bigRec && bigRec.chaptersUnavailable === true,
+    "N. the record says its chapters could not be kept", JSON.stringify(bigRec && bigRec.chaptersUnavailable));
+  chk(bigRec && !bigRec.chapters,
+    "N. …and they were not crammed into localStorage beside the whole body anyway");
+  const hint = await np.textContent('[data-hint="chapters-unavailable"]').catch(() => null);
+  chk(!!hint && /no database/i.test(hint),
+    "N. and the card says so, on the By chapter row", JSON.stringify((hint || "").slice(0, 80)));
+  chk(await np.isVisible(`[data-action="chapters"][data-id="${bigRec.id}"]`).catch(() => false),
+    "N. the row still works — the chapter view is degraded, not removed");
+
+  // Under the ceiling: the chapters ARE kept, and there is no hint.
+  await seed();
+  const smallText = ["CHAPTER I. THE ARRIVAL", "", CH1.join("\n\n"), "", "CHAPTER II. THE DEPARTURE", "", CH2.join("\n\n"), ""].join("\n");
+  const smallRec = await saveThrough("small.txt", smallText);
+  chk(!smallRec.chaptersUnavailable,
+    "N. control: a short text on the same no-database path keeps its chapters");
+  eq(smallRec.chapCount, 2, "N. control: …two of them, inline on the index record");
+  chk(Array.isArray(smallRec.chapters) && smallRec.chapters.length === 2,
+    "N. control: …and they are really there");
+  chk(!(await np.isVisible('[data-hint="chapters-unavailable"]').catch(() => false)),
+    "N. control: no hint on a text that has its chapters");
+  await ctx.close();
+}
 
 chk(pageErrors.length === 0, "no uncaught page errors", pageErrors.slice(0, 3).join(" ; "));
 
