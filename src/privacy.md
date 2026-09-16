@@ -23,7 +23,7 @@ All of it:
 
 This is in your browser's `localStorage` under keys prefixed `tt:`. Open dev tools → Application → Local Storage to see it. Clearing browser storage clears it.
 
-## Sharing a result or a page
+<h2 id="sharing-a-result-or-a-page">Sharing a result or a page</h2>
 
 Pressing Share is the only way anything about your typing leaves this device. Nothing is shared until you press it, and what gets built is a link.
 
