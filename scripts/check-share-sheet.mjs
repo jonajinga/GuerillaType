@@ -421,17 +421,18 @@ const browserBands = await page.evaluate(async (accs) => {
   const m = await import("/assets/js/share/share.js");
   return {
     bands: accs.map((a) => m.bandFor(a)),
-    paths: [[0, 100], [61, 96], [200, 100], [201, 99], [999, 50]].map(([w, a]) => m.resultImagePath(w, a)),
+    paths: [[0, 100], [61, 95], [200, 100], [201, 98], [999, 79]].map(([w, a]) => m.resultImagePath(w, a)),
   };
 }, BOUNDARIES);
 const nodeBands = BOUNDARIES.map((a) => nodeBandFor(a));
 chk(JSON.stringify(browserBands.bands) === JSON.stringify(nodeBands),
   "G. share.js bandFor() agrees with lib/og/labels.js at every boundary",
   `${BOUNDARIES.map((a, i) => `${a}:${browserBands.bands[i]}`).join(" ")} vs ${nodeBands.join(",")}`);
-const wantPaths = [
-  "/og/result/0-100.png", "/og/result/61-95.png", "/og/result/200-100.png",
-  "/og/result/200p-98.png", "/og/result/200p-u80.png",
-];
+/* Expected names built from lib/og/labels.js, not typed out here: the
+   gate carrying its own idea of the boundaries is what this round of
+   review removed. Accuracies sit ON the boundaries on purpose. */
+const wantPaths = [[0, 100], [61, 95], [200, 100], [201, 98], [999, 79]]
+  .map(([w, a]) => `/og/result/${w > 200 ? "200p" : w}-${nodeBandFor(a)}.png`);
 chk(JSON.stringify(browserBands.paths) === JSON.stringify(wantPaths),
   "G. resultImagePath clamps at 200 and names the band", browserBands.paths.join(" "));
 
@@ -554,12 +555,18 @@ await clearEvents();
 await page.click("#tt-share");
 await page.waitForTimeout(200);
 const gChap = await grid();
-const chapHay = [JSON.stringify(gChap), JSON.stringify(finishedShare), JSON.stringify(chapShare),
+const chapRaw = [JSON.stringify(gChap), JSON.stringify(finishedShare), JSON.stringify(chapShare),
   await page.textContent("#share-sheet"), JSON.stringify(await events())].join(" ");
+/* Percent-encoded is still leaked: "custom%3Ac_tdwho2" in a tweet is
+   the same id. Search the decoded form too — the first version of this
+   check passed against a live leak for exactly that reason. */
+let chapHay = chapRaw;
+try { chapHay += " " + decodeURIComponent(chapRaw.replace(/%(?![0-9a-f]{2})/gi, "%25")); } catch {}
 for (const secret of ["custom:", sample.id, encodeURIComponent(sampleSlug), "Alice"]) {
   chk(!chapHay.includes(secret), `J. "${secret}" appears in no url, no dialog text and no event`);
 }
-chk(!/\bc_[a-z0-9]+/i.test(chapHay), "J. no custom-text id in any shape", (chapHay.match(/\bc_[a-z0-9]+/i) || [""])[0]);
+const idLike = chapHay.match(/c_[a-z0-9]{4,}/i);
+chk(!idLike, "J. no custom-text id in any shape", idLike ? idLike[0] : "");
 
 // ================================================================ K
 console.log("\nK. what analytics are allowed to see");
