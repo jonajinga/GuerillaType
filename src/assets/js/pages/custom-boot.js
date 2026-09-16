@@ -632,10 +632,10 @@ async function togglePicker(id, host, btn) {
    and mean different days, and the card is read by whoever is holding
    the phone, not by a parser. Still locale-aware: the order of day,
    month and year stays the reader's. */
-const dateFmt = new Intl.DateTimeFormat(undefined, { day: "numeric", month: "short", year: "numeric" });
+const SAVED_ON = { day: "numeric", month: "short", year: "numeric" };
 function savedOn(iso) {
   const d = new Date(iso);
-  return isNaN(d) ? "" : dateFmt.format(d);
+  return isNaN(d) ? "" : d.toLocaleDateString(undefined, SAVED_ON);
 }
 
 /* One saved text, as HTML.
