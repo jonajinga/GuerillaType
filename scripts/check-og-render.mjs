@@ -47,9 +47,13 @@ const FONT_DIR = join(ROOT, "src", "assets", "fonts", "og");
 if (!existsSync(FONT_DIR)) die(`${FONT_DIR} is missing — the renderer has nothing to draw with.`);
 
 let fontBytes = 0;
+const missingFonts = FONT_FILES.filter((f) => !existsSync(join(FONT_DIR, f.file)));
+for (const f of missingFonts) chk(false, `${f.file} exists`, "listed in theme.js FONT_FILES");
+/* Abort rather than limp on: every render below would throw ENOENT and
+   the run would end in a stack trace instead of a verdict. */
+if (missingFonts.length) die(`${missingFonts.length} font file(s) named in theme.js are not on disk.`);
 for (const f of FONT_FILES) {
   const p = join(FONT_DIR, f.file);
-  if (!existsSync(p)) { chk(false, `${f.file} exists`); continue; }
   const buf = readFileSync(p);
   fontBytes += buf.length;
   /* sfnt magic: 0x00010000 (TrueType outlines) or "true"/"OTTO". satori
