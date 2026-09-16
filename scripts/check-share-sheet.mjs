@@ -39,6 +39,12 @@ import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import { extname, join, normalize, resolve } from "node:path";
 import { chromium } from "playwright";
+/* The Node-side band table, imported rather than copied. lib/og/labels.js
+   is what scripts/gen-og-images.mjs used to NAME the files; if the
+   browser's copy in share/share.js disagrees with it, a result links to
+   a card that was never rendered. The gate must not carry a third
+   opinion about where the boundaries are. */
+import { bandFor as nodeBandFor } from "../lib/og/labels.js";
 
 /* Port from the task id, not from habit. 8080 is never ours. */
 const TASK = "share-sheet";
@@ -370,7 +376,7 @@ const shareData = await page.evaluate(() => {
     .find((m) => /accuracy/.test(m.textContent)).querySelector(".results__value").textContent, 10);
   return { d: Object.assign({}, b.dataset), wpm, acc };
 });
-const band = (a) => a >= 100 ? "100" : a >= 98 ? "98" : a >= 95 ? "95" : a >= 90 ? "90" : a >= 80 ? "80" : "u80";
+const band = nodeBandFor;   // lib/og/labels.js, the file the cards were named from
 const wantImg = `${B}/og/result/${shareData.wpm > 200 ? "200p" : shareData.wpm}-${band(shareData.acc)}.png`;
 chk(shareData.d.shareImage === wantImg,
   `G. image is the pre-rendered card for ${shareData.wpm} wpm / ${shareData.acc}% (band ${band(shareData.acc)})`,
@@ -404,6 +410,30 @@ const openedRes = (await events()).find((e) => e.name === "share_opened");
 chk(!!openedRes && openedRes.props.surface === "result" && openedRes.props.mode === "words",
   "G. share_opened carries surface=result and the mode", JSON.stringify(openedRes && openedRes.props));
 await page.keyboard.press("Escape");
+
+/* The band boundaries, all of them, not just the one this run landed
+   in. Four files used to carry this table; share.js is the browser's
+   copy and practice-boot now calls it rather than repeating it. The
+   comparison is against lib/og/labels.js, imported above — so moving a
+   boundary in either file is caught whatever the run scored. */
+const BOUNDARIES = [0, 79, 80, 89, 90, 94, 95, 97, 98, 99, 100];
+const browserBands = await page.evaluate(async (accs) => {
+  const m = await import("/assets/js/share/share.js");
+  return {
+    bands: accs.map((a) => m.bandFor(a)),
+    paths: [[0, 100], [61, 96], [200, 100], [201, 99], [999, 50]].map(([w, a]) => m.resultImagePath(w, a)),
+  };
+}, BOUNDARIES);
+const nodeBands = BOUNDARIES.map((a) => nodeBandFor(a));
+chk(JSON.stringify(browserBands.bands) === JSON.stringify(nodeBands),
+  "G. share.js bandFor() agrees with lib/og/labels.js at every boundary",
+  `${BOUNDARIES.map((a, i) => `${a}:${browserBands.bands[i]}`).join(" ")} vs ${nodeBands.join(",")}`);
+const wantPaths = [
+  "/og/result/0-100.png", "/og/result/61-95.png", "/og/result/200-100.png",
+  "/og/result/200p-98.png", "/og/result/200p-u80.png",
+];
+chk(JSON.stringify(browserBands.paths) === JSON.stringify(wantPaths),
+  "G. resultImagePath clamps at 200 and names the band", browserBands.paths.join(" "));
 
 // ================================================================ I
 console.log("\nI. the result links back to the text that produced it");
@@ -463,26 +493,133 @@ for (const secret of ["ZEBRAQUARTZ", "velvetmoose", "pumpernickel", "c_share"]) 
     && !hay.includes(encodeURIComponent(secret)),
     `H. "${secret}" appears nowhere — not in a url, the dialog, or an event`);
 }
-/* Analytics carry exactly the structural keys. An extra key is how a
-   title ends up in a dashboard nobody audits. */
+await page.keyboard.press("Escape");
+
+// ================================================================ J
+console.log("\nJ. the bundled sample, read by chapter: still your text");
+/* A custom text read by chapter arrives as ?book=custom:<id>, which
+   means state.bookSlug IS the private id. The library branch of the
+   link builder would put it in every intent url — that is the leak
+   this section exists for, and it was real. The sample is used rather
+   than a seeded record because the id has to be one the app minted. */
+await page.goto(B + "/custom/", { waitUntil: "domcontentloaded" });
+await page.evaluate(async () => {
+  localStorage.clear();
+  await new Promise((r) => {
+    const q = indexedDB.deleteDatabase("tt-custom");
+    q.onsuccess = q.onerror = q.onblocked = () => r();
+  });
+});
+await page.goto(B + "/custom/", { waitUntil: "domcontentloaded" });
+await waitOr((t) => page.waitForSelector(".saved-item", { timeout: Math.max(t, 20000) }),
+  "J. the bundled sample seeded itself into an empty list");
+const sample = await page.evaluate(() => {
+  const list = JSON.parse(localStorage.getItem("tt:custom-texts") || "[]");
+  const it = list.find((x) => x && x.sample) || list[0] || null;
+  return it ? { id: it.id, title: it.title, chapCount: it.chapCount || 0 } : null;
+});
+chk(!!sample && /^c_/.test(sample.id || ""), "J. it has an app-minted id", JSON.stringify(sample));
+chk(!!sample && sample.chapCount > 1, "J. and a chapter structure to read by", `chapCount=${sample && sample.chapCount}`);
+
+/* Two runs. The first is the URL the leak was reported against, ended
+   with Esc because chapter 1 page 1 of Alice is 2,372 characters and
+   70 ms/key is 166 seconds of gate. The second FINISHES a real page —
+   the shortest in the book, 184 characters — so the payload is also
+   asserted after a clean finish, not only after a stop. */
+const sampleSlug = `custom:${sample.id}`;
+const openChapter = async (ch, pg) => {
+  await page.goto(`${B}/practice/?book=${encodeURIComponent(sampleSlug)}&ch=${ch}&page=${pg}`, { waitUntil: "networkidle" });
+  await waitOr((t) => page.waitForSelector(".tt-char", { timeout: t }), `J. chapter ${ch} page ${pg} rendered`);
+  await page.click(".tt-stage").catch(() => {});
+  return surfaceText();
+};
+const firstPage = await openChapter(0, 0);
+chk(firstPage.length > 200, "J. chapter 1 page 1 is real book text", `${firstPage.length} chars`);
+await page.keyboard.type("Al", { delay: 70 });
+await page.keyboard.press("Escape");
+await waitOr((t) => page.waitForSelector("#tt-share", { timeout: t }), "J. the card came up for the chapter run");
+const chapShare = await page.evaluate(() => Object.assign({}, document.getElementById("tt-share").dataset));
+chk(chapShare.shareUrl === `${B}/practice/?mode=custom`,
+  "J. ?book=custom:<id> shares the generic custom link, not the slug", chapShare.shareUrl);
+
+const shortPage = await openChapter(8, 15);
+chk(shortPage.length > 0 && shortPage.length < 700, "J. a page short enough to finish at 70 ms/key", `${shortPage.length} chars`);
+for (const ch of shortPage) await page.keyboard.type(ch, { delay: 70 });
+await waitOr((t) => page.waitForSelector("#tt-results:not([hidden])", { timeout: t }),
+  "J. the page was finished and the card is up");
+const finishedShare = await page.evaluate(() => Object.assign({}, document.getElementById("tt-share").dataset));
+chk(finishedShare.shareUrl === `${B}/practice/?mode=custom`,
+  "J. and a FINISHED page shares the same generic link", finishedShare.shareUrl);
+await clearEvents();
+await page.click("#tt-share");
+await page.waitForTimeout(200);
+const gChap = await grid();
+const chapHay = [JSON.stringify(gChap), JSON.stringify(finishedShare), JSON.stringify(chapShare),
+  await page.textContent("#share-sheet"), JSON.stringify(await events())].join(" ");
+for (const secret of ["custom:", sample.id, encodeURIComponent(sampleSlug), "Alice"]) {
+  chk(!chapHay.includes(secret), `J. "${secret}" appears in no url, no dialog text and no event`);
+}
+chk(!/\bc_[a-z0-9]+/i.test(chapHay), "J. no custom-text id in any shape", (chapHay.match(/\bc_[a-z0-9]+/i) || [""])[0]);
+
+// ================================================================ K
+console.log("\nK. what analytics are allowed to see");
+/* The old version of this section ran its allowlist over whatever had
+   been recorded — which was one share_opened. One event passing for
+   four is exactly the kind of guard this project has shipped before,
+   so every event type is now PROVOKED here and the count is asserted
+   alongside the keys. */
+await clearEvents();
+/* Re-open, so the OPEN event is one of the four this section judges
+   rather than one left over from J. */
+await page.keyboard.press("Escape");
+await page.waitForTimeout(200);
+await page.click("#tt-share");
+await page.waitForTimeout(200);
+await page.evaluate(() => {
+  const a = document.querySelector('#share-sheet [data-share-target="telegram"]');
+  a.removeAttribute("href");   // do not navigate to t.me from a gate
+  a.click();
+});
+await page.click("#share-sheet [data-share-copy]");
+await page.waitForTimeout(250);
+const [dl2] = await Promise.all([
+  page.waitForEvent("download", { timeout: 10000 }),
+  page.click("#share-sheet [data-share-download]"),
+]);
+chk(/\.png$/.test(dl2.suggestedFilename()), "K. the result card downloads as a .png", dl2.suggestedFilename());
+await page.waitForTimeout(200);
 const ALLOWED = {
   share_opened: ["surface", "kind", "mode"],
   share_target: ["target", "kind", "mode", "variant"],
   share_copied: ["kind", "mode"],
   share_image_saved: ["kind", "mode", "method"],
 };
-const all = await events();
-const shareEvents = all.filter((e) => e.name.startsWith("share_"));
-chk(shareEvents.length > 0, "H. share events were recorded at all", `${shareEvents.length}`);
+const fired = (await events()).filter((e) => e.name.startsWith("share_"));
+const seen = {};
+fired.forEach((e) => { seen[e.name] = (seen[e.name] || 0) + 1; });
+/* share_opened came from the click that opened this sheet, in J. */
+const missing = Object.keys(ALLOWED).filter((n) => !seen[n]);
+chk(missing.length === 0, "K. all four share events fired", `seen ${JSON.stringify(seen)}`);
+chk(fired.length >= 4, "K. and the allowlist below runs over all of them, not one", `${fired.length} events`);
 let keysOk = true, offender = "";
-for (const e of shareEvents) {
+for (const e of fired) {
   const allowed = ALLOWED[e.name];
-  if (!allowed) { keysOk = false; offender = e.name; break; }
-  const keys = Object.keys(e.props).sort();
-  const extra = keys.filter((k) => allowed.indexOf(k) === -1);
+  if (!allowed) { keysOk = false; offender = `unknown event ${e.name}`; break; }
+  const extra = Object.keys(e.props).filter((k) => allowed.indexOf(k) === -1);
   if (extra.length) { keysOk = false; offender = `${e.name}: +${extra.join(",")}`; break; }
 }
-chk(keysOk, "H. every share event carries only its allowed props", offender);
+chk(keysOk, "K. every share event carries only its allowed props", offender);
+/* Keys are half of it: a value can leak just as well. No prop may hold
+   a url, a title, the sample's id, or anything that came off a page. */
+let valsOk = true, badVal = "";
+for (const e of fired) {
+  for (const [k, v] of Object.entries(e.props)) {
+    const str = String(v);
+    if (/https?:|:\/\/|\bc_[a-z0-9]|custom:|Alice|wpm/i.test(str)) { valsOk = false; badVal = `${e.name}.${k}=${str}`; break; }
+  }
+  if (!valsOk) break;
+}
+chk(valsOk, "K. and no prop VALUE is a url, an id or a sentence", badVal);
 
 await page.keyboard.press("Escape");
 await browser.close();

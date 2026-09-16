@@ -20,6 +20,11 @@ import { mountLiveKeyboard, showLiveKeyboard, highlightChar } from "../viz/live-
 import { mountLiveTicker, showLiveTicker, recordKeystroke, resetTicker, updateWpm as updateTickerWpm } from "../viz/live-ticker.js";
 import { mountVirtualKeyboard, unmountVirtualKeyboard, highlightNextKey as vkbdNext } from "../engine/virtual-keyboard.js";
 import { Analytics } from "../analytics.js";
+/* The result card's file name -- /og/result/<wpm>-<band>.png -- is a
+   contract with scripts/gen-og-images.mjs, and the accuracy band in it
+   had four copies. This is the browser-side one; it mirrors bandFor()
+   in lib/og/labels.js, which runs in Node where satori does. */
+import { resultImagePath } from "../share/share.js";
 
 /* Inlined bucket helpers. These also live in analytics.js as named
    exports, but importing them from there would tie practice-boot
@@ -1920,15 +1925,20 @@ function renderResults(r) {
         const shareAttrs = (() => {
           const wpmN = Math.max(0, Math.round(r.wpm || 0));
           const accN = Math.max(0, Math.round(r.accuracy || 0));
-          const band = accN >= 100 ? "100" : accN >= 98 ? "98" : accN >= 95 ? "95"
-            : accN >= 90 ? "90" : accN >= 80 ? "80" : "u80";
-          const img = `${location.origin}/og/result/${wpmN > 200 ? "200p" : wpmN}-${band}.png`;
+          const img = location.origin + resultImagePath(wpmN, accN);
           const p = (q) => `${location.origin}/practice/?${q}`;
           const cm = state._customMeta || {};
           const srcId = cm.sourceId || null;
           const kindOf = cm.kind || state.mode;
           let link;
-          if (state.bookSlug) {
+          /* A text of your own read by chapter is a book only to the
+             reader: its slug IS the private id (custom:<id>), so the
+             library branch below would put that id -- and with it the
+             text's identity -- into every intent url. It is checked
+             first for exactly that reason. */
+          if (isCustomBook(state.bookSlug)) {
+            link = p(`mode=custom`);
+          } else if (state.bookSlug) {
             const ch = state.bookCh != null ? state.bookCh : 0;
             const base = `book=${encodeURIComponent(state.bookSlug)}&ch=${ch}`;
             link = state.bookPage != null
@@ -1957,16 +1967,17 @@ function renderResults(r) {
           } else {
             link = p(`mode=${encodeURIComponent(state.mode || "time")}`);
           }
-          const label = state.mode === "time" ? `${state.duration || 30}s test`
+          const ownText = isCustomBook(state.bookSlug) || state.mode === "custom";
+          const label = ownText ? "custom text"
+            : state.mode === "time" ? `${state.duration || 30}s test`
             : state.mode === "words" ? `${state.words || 25}-word test`
             : state.mode === "lesson" ? `lesson ${state.lessonId}`
             : state.mode === "book" ? "book page"
-            : state.mode === "custom" ? "custom text"
             : String(state.mode || "test").replace(/[^a-z0-9 -]/gi, "");
           const text = `${wpmN} wpm · ${accN}% accuracy · ${label} · GuerillaType`;
           const title = `${wpmN} wpm on GuerillaType`;
           return `type="button" data-share data-share-kind="result" data-share-surface="result"`
-            + ` data-share-mode="${htmlEscape(state.mode || "")}"`
+            + ` data-share-mode="${htmlEscape(ownText ? "custom" : (state.mode || ""))}"`
             + ` data-share-title="${htmlEscape(title)}"`
             + ` data-share-text="${htmlEscape(text)}"`
             + ` data-share-url="${htmlEscape(link)}"`
