@@ -57,6 +57,7 @@ const CSS_ORDER = [
   "components/tabs.css",
   "components/badges.css",
   "components/dialog.css",
+  "components/share-sheet.css",
   "components/toast.css",
   "components/theme-toggle.css",
   "components/profile-switcher.css",

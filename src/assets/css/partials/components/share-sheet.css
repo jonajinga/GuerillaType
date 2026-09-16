@@ -1,0 +1,73 @@
+/* Share sheet — the dialog built by assets/js/share/share.js.
+   Tokens only: every theme (light, dark, and the presets in
+   tokens.css) has to look deliberate here, and a hard-coded colour
+   is how a dialog ends up unreadable on paper-white. */
+
+.share-sheet{
+  width:min(520px, 94vw);
+  background:var(--bg-1);color:var(--fg-0);
+  border:1px solid var(--rule);border-radius:var(--radius-lg);
+  padding:0;box-shadow:var(--shadow-2);
+}
+.share-sheet::backdrop{background:rgba(0,0,0,.6);backdrop-filter:blur(2px)}
+
+.share-sheet__head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--rule);
+}
+.share-sheet__title{margin:0;font-size:var(--fs-500)}
+.share-sheet__close{
+  width:32px;height:32px;font-size:1.3rem;line-height:1;
+  border-radius:var(--radius);color:var(--fg-0);
+  background:transparent;border:1px solid transparent;cursor:pointer;
+}
+.share-sheet__close:hover{color:var(--fg-0);background:var(--bg-2);border-color:var(--rule)}
+
+.share-sheet__body{padding:var(--space-4);display:flex;flex-direction:column;gap:var(--space-4)}
+
+.share-sheet__preview{
+  margin:0;padding:var(--space-3);
+  background:var(--bg-0);border:1px solid var(--rule);border-radius:var(--radius);
+  color:var(--fg-1);font-size:var(--fs-300);line-height:1.5;
+  overflow-wrap:anywhere;
+}
+
+.share-sheet__native{
+  display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
+  width:100%;
+}
+
+/* Ten destinations. Auto-fit keeps five across on a desktop dialog and
+   three on a narrow phone without a media query. */
+.share-sheet__grid{
+  display:grid;grid-template-columns:repeat(auto-fit, minmax(84px, 1fr));
+  gap:var(--space-2);
+}
+.share-sheet__target{
+  display:flex;flex-direction:column;align-items:center;gap:.35rem;
+  padding:var(--space-3) var(--space-2);
+  border:1px solid var(--rule);border-radius:var(--radius);
+  background:var(--bg-0);color:var(--fg-1);
+  text-decoration:none;font-size:var(--fs-200);
+  transition:color var(--t-fast), border-color var(--t-fast), background var(--t-fast);
+}
+.share-sheet__target:hover,
+.share-sheet__target:focus-visible{
+  color:var(--accent);border-color:var(--accent);background:var(--bg-2);
+}
+.share-sheet__target-icon{display:flex;align-items:center;justify-content:center;height:24px}
+.share-sheet__target-label{text-align:center;line-height:1.2}
+
+.share-sheet__row{display:flex;gap:var(--space-2);flex-wrap:wrap}
+.share-sheet__action{
+  display:inline-flex;align-items:center;justify-content:center;gap:.45rem;
+  flex:1 1 40%;
+}
+
+.share-sheet__note{
+  margin:0;color:var(--fg-2);font-size:var(--fs-200);line-height:1.45;
+}
+
+@media (prefers-reduced-motion: reduce){
+  .share-sheet__target{transition:none}
+}
