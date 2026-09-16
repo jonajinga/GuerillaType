@@ -471,8 +471,15 @@ async function advanceRun(kind, param, id, label) {
 const parRun = await advanceRun("parable", "pid", moralParable.id, "parable");
 if (parRun) {
   chk(parRun.before === parWant, "parable: typed the whole piece, moral included", `${parRun.before.length} chars`);
+  /* Both halves in one assertion on purpose. "The card is hidden" is
+     also true of a session that never ended at all -- which is exactly
+     what happens when the engine does not know the mode. The last-run
+     strip only appears after an advance actually ran. */
   const cardHidden = await page.$eval("#tt-results", (el) => el.hidden);
-  chk(cardHidden, "parable: the session FINISHED and advanced in place — no results card");
+  const stripUp = await page.isVisible("#tt-last-run");
+  chk(cardHidden && stripUp,
+    "parable: the session FINISHED and advanced in place — card stayed hidden, last-run strip appeared",
+    `card hidden ${cardHidden}, strip visible ${stripUp}`);
   chk(!parRun.url.includes(`pid=${moralParable.id}`) && /pid=/.test(parRun.url),
     "parable: the URL moved to a different parable id", parRun.url.replace(B, ""));
   chk(parRun.after.length > 0 && parRun.after !== parRun.before,
@@ -489,7 +496,9 @@ const secondIdiom = items.idiom
 const idRun = await advanceRun("idiom", "iid", secondIdiom.id, "idiom");
 if (idRun) {
   const cardHidden = await page.$eval("#tt-results", (el) => el.hidden);
-  chk(cardHidden, "idiom: advanced in place — no results card");
+  const stripUp = await page.isVisible("#tt-last-run");
+  chk(cardHidden && stripUp, "idiom: advanced in place — card stayed hidden, last-run strip appeared",
+    `card hidden ${cardHidden}, strip visible ${stripUp}`);
   chk(!idRun.url.includes(`iid=${secondIdiom.id}`) && /iid=/.test(idRun.url),
     "idiom: the URL moved to a different idiom id", idRun.url.replace(B, ""));
   chk(idRun.after !== idRun.before, "idiom: a different idiom is on the surface", JSON.stringify(idRun.after));
