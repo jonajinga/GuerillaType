@@ -326,6 +326,7 @@ chk(await page.isVisible("#tt-next-challenge"), "K. card offers Next challenge")
   for (const ch of mt) await mobile.keyboard.type(ch, { delay: 60 });
   await mobile.waitForTimeout(1500);
   chk(!(await mobile.$eval("#tt-results", (el) => el.hidden)), "L. touch device still shows the card with the switch on");
+  chk((await mobile.getAttribute("#tt-autoadvance", "aria-disabled")) === "true", "L. and the Auto button reads as unavailable there");
   await mobile.close();
 }
 

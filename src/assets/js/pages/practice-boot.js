@@ -1210,6 +1210,18 @@ function syncAutoAdvanceButton() {
   const key = autoAdvanceKey();
   btn.hidden = !key;
   if (!key) return;
+  // Touch devices never auto-advance (the next run cannot take focus
+  // without a tap), so the button stays visible with the rest of the
+  // row but reads as unavailable instead of as a switch that does
+  // nothing.
+  if (isMobileLike()) {
+    btn.setAttribute("aria-disabled", "true");
+    btn.setAttribute("aria-pressed", "false");
+    btn.classList.remove("is-active");
+    btn.dataset.tip = "<strong>Auto-advance</strong><br>Needs a physical keyboard: on a phone the next run waits for a tap, so the results card shows instead. Switch it on for your desktop in Settings.";
+    return;
+  }
+  btn.removeAttribute("aria-disabled");
   const on = autoAdvanceOn();
   btn.setAttribute("aria-pressed", on ? "true" : "false");
   btn.classList.toggle("is-active", on);
@@ -1217,6 +1229,10 @@ function syncAutoAdvanceButton() {
 window.ttToggleAutoAdvance = () => {
   const key = autoAdvanceKey();
   if (!key) return;
+  if (isMobileLike()) {
+    toast("Auto-advance needs a keyboard. On a phone the results card shows after each run.");
+    return;
+  }
   const next = !autoAdvanceOn();
   setAutoAdvance(next);
   syncAutoAdvanceButton();
