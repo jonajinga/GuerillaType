@@ -307,12 +307,14 @@ const book = await loadData(`books/${slug}`);
 const wantParas = book.chapters[0].paragraphs.slice(0, PARAS_PER_PAGE).map((p) => p.text).join(" ");
 chk(!!bk && bk.text === wantParas, `a book page is ${PARAS_PER_PAGE} paragraphs, same as the practice page`);
 
-/* PARAS_PER_PAGE is duplicated in practice-boot.js. If the two ever
-   disagree, a share card shows text the reader never typed. */
-const boot = readFileSync(join(ROOT, "src", "assets", "js", "pages", "practice-boot.js"), "utf8");
-const bootParas = /const PARAS_PER_PAGE\s*=\s*(\d+)/.exec(boot);
+/* PARAS_PER_PAGE is duplicated: the practice page imports it from
+   engine/chapter-detect.js (it used to be a local const). If the two
+   ever drift, book cards would show a different page than the reader. */
+const detect = readFileSync(join(ROOT, "src", "assets", "js", "engine", "chapter-detect.js"), "utf8");
+const bootParas = /export const PARAS_PER_PAGE\s*=\s*(\d+)/.exec(detect)
+  || /const PARAS_PER_PAGE\s*=\s*(\d+)/.exec(readFileSync(join(ROOT, "src", "assets", "js", "pages", "practice-boot.js"), "utf8"));
 chk(!!bootParas && Number(bootParas[1]) === PARAS_PER_PAGE,
-  "PARAS_PER_PAGE matches practice-boot.js", bootParas ? bootParas[1] : "not found");
+  "PARAS_PER_PAGE matches the practice page's constant", bootParas ? bootParas[1] : "not found");
 
 const lessons = await loadData("lessons");
 const ls = await resolveSrcNode(`ls:${lessons[0].id}`);
