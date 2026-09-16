@@ -615,8 +615,20 @@ const chapRaw = [JSON.stringify(gChap), JSON.stringify(finishedShare), JSON.stri
 /* Percent-encoded is still leaked: "custom%3Ac_tdwho2" in a tweet is
    the same id. Search the decoded form too — the first version of this
    check passed against a live leak for exactly that reason. */
-let chapHay = chapRaw;
-try { chapHay += " " + decodeURIComponent(chapRaw.replace(/%(?![0-9a-f]{2})/gi, "%25")); } catch {}
+/* The compressed keystroke replay is opaque bytes in base64url, and
+   base64url's alphabet includes "_". So a replay blob can contain
+   "c_" followed by four alphanumerics purely by chance, and the
+   id-shape regex below would then accuse a perfectly clean share.
+   (Seen: "c_wm6sJxTY" inside an `r=` value.) The blob cannot
+   meaningfully contain an id, so it is removed before the search
+   rather than the search being weakened.
+   Do not reach for \b here: inside a percent-encoded url the
+   parameter reads "%26r%3D...", and there is no word boundary between
+   "6" and "r". The separator is matched explicitly instead. */
+const stripReplay = (s) => String(s)
+  .replace(/([?&#]|%26|%23|%3F)ru?(=|%3D)[A-Za-z0-9_-]{16,}/gi, "$1r$2<replay>");
+let chapHay = stripReplay(chapRaw);
+try { chapHay += " " + stripReplay(decodeURIComponent(chapRaw.replace(/%(?![0-9a-f]{2})/gi, "%25"))); } catch {}
 for (const secret of ["custom:", sample.id, encodeURIComponent(sampleSlug)]) {
   chk(!chapHay.includes(secret), `J. "${secret}" appears in no url, no dialog text and no event`);
 }

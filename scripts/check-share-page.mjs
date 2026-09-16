@@ -401,9 +401,19 @@ for (const [name, link] of Object.entries(built)) {
   const link = built.customBook;
   const q = qOf(link), f = fragOf(link);
   const hay = decodeURIComponent(link.fullUrl) + " " + link.fullUrl + " " + link.title + " " + link.text;
+  /* Squashed: lowercase, with every character that is not a letter or
+     a digit removed. "custom%3Ac_zq7788", "custom-c-zq7788" and
+     "custom:c_zq7788" all collapse to the same string, so a link that
+     "sanitised" the slug into something id-shaped still fails here.
+     The share sheet's own gate learned this the hard way: its first
+     version searched for "custom:" and passed against a live leak that
+     was percent-encoded. */
+  const squash = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "");
+  const squashed = squash(hay);
   chk(!q.has("src"), "B. custom book: a text of your own has no public source", q.get("src") || "(none)");
-  chk(!/c_[a-z0-9]{4,}/i.test(hay), "B. custom book: the private id appears nowhere in the link");
-  chk(!hay.includes("custom:") && !hay.includes("custom%3A"), "B. custom book: not even the custom: prefix");
+  chk(!squashed.includes(squash(CUSTOM_ID)) && !squashed.includes("zq7788"),
+    "B. custom book: the private id appears nowhere in the link, in any shape");
+  chk(!squashed.includes("customc") && !hay.includes("custom:"), "B. custom book: not even the custom: prefix");
   chk(!hay.includes("ZEBRAQUARTZ"), "B. custom book: the title never leaves the device");
   chk(f.get("t") === CUSTOM_BODY, "B. custom book: the body rides in the fragment", (f.get("t") || "").slice(0, 40));
   chk(!link.shortUrl.includes("velvetmoose") && !link.shortUrl.includes(encodeURIComponent("velvetmoose")),
