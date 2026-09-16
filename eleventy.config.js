@@ -145,6 +145,20 @@ export default function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy({ "src/_redirects": "_redirects" });
   eleventyConfig.addPassthroughCopy({ "src/_headers": "_headers" });
   eleventyConfig.addPassthroughCopy({ "src/humans.txt": "humans.txt" });
+  /* Which paths Cloudflare Pages may invoke a Function for. Everything
+     not listed here is served straight from the static bucket, which
+     is what keeps the Free plan's request budget for the one page that
+     needs a server: /r/. */
+  eleventyConfig.addPassthroughCopy({ "src/_routes.json": "_routes.json" });
+  /* lib/og is plain ESM with no Node built-ins, and three of its files
+     -- labels.js, validate.js, resolve.js -- are needed in the browser
+     too: the /r/ landing page validates its own query before drawing
+     anything and resolves a public `src` from /data/. Copying the
+     directory rather than duplicating the files is the point. The
+     label maps and the query schema must have ONE definition, or a
+     link the browser builds stops being a link the card renderer
+     accepts, and the failure is a blank preview nobody notices. */
+  eleventyConfig.addPassthroughCopy({ "lib/og": "assets/js/og" });
 
   // Plugins
   eleventyConfig.addPlugin(pluginRss);

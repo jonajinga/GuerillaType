@@ -20,11 +20,11 @@ import { mountLiveKeyboard, showLiveKeyboard, highlightChar } from "../viz/live-
 import { mountLiveTicker, showLiveTicker, recordKeystroke, resetTicker, updateWpm as updateTickerWpm } from "../viz/live-ticker.js";
 import { mountVirtualKeyboard, unmountVirtualKeyboard, highlightNextKey as vkbdNext } from "../engine/virtual-keyboard.js";
 import { Analytics } from "../analytics.js";
-/* The result card's file name -- /og/result/<wpm>-<band>.png -- is a
-   contract with scripts/gen-og-images.mjs, and the accuracy band in it
-   had four copies. This is the browser-side one; it mirrors bandFor()
-   in lib/og/labels.js, which runs in Node where satori does. */
-import { resultImagePath } from "../share/share.js";
+/* Everything the results-card Share button needs: the /r/ query, the
+   public `src` id, the accuracy band that names the pre-rendered card,
+   and the fragment that carries the text and the keystroke replay.
+   One call, from renderResults, and no share knowledge in this file. */
+import { wireResultShare } from "../share/result-link.js";
 
 /* Inlined bucket helpers. These also live in analytics.js as named
    exports, but importing them from there would tie practice-boot
@@ -1909,82 +1909,16 @@ function renderResults(r) {
           <${attrs.tag || "button"} class="btn results__btn ${primary ? "btn--primary" : ""}" ${attrs.attrs || ""} data-tip="${tip}" aria-label="${label}">
             ${icon}<span class="results__btn-label">${label}</span>
           </${attrs.tag || "button"}>`;
-        /* Share. Numbers and a public link -- never what was typed.
-           The image is the Free-plan result card the build pre-rendered
-           (scripts/gen-og-images.mjs), addressed by rounded wpm and an
-           accuracy band; the band thresholds below must stay identical
-           to bandFor() in lib/og/labels.js and share/share.js.
-
-           TODO(Phase D2): shortUrl and fullUrl both become the /r/
-           landing page -- shortUrl the query alone, fullUrl with the
-           keystroke replay in its fragment -- and the image becomes the
-           same card resolved server-side. Until that page exists a
-           result links to whatever public URL reproduces the same
-           content, and a run that has no such URL (random words, a
-           custom text) links to the mode itself. */
-        const shareAttrs = (() => {
-          const wpmN = Math.max(0, Math.round(r.wpm || 0));
-          const accN = Math.max(0, Math.round(r.accuracy || 0));
-          const img = location.origin + resultImagePath(wpmN, accN);
-          const p = (q) => `${location.origin}/practice/?${q}`;
-          const cm = state._customMeta || {};
-          const srcId = cm.sourceId || null;
-          const kindOf = cm.kind || state.mode;
-          let link;
-          /* A text of your own read by chapter is a book only to the
-             reader: its slug IS the private id (custom:<id>), so the
-             library branch below would put that id -- and with it the
-             text's identity -- into every intent url. It is checked
-             first for exactly that reason. */
-          if (isCustomBook(state.bookSlug)) {
-            link = p(`mode=custom`);
-          } else if (state.bookSlug) {
-            const ch = state.bookCh != null ? state.bookCh : 0;
-            const base = `book=${encodeURIComponent(state.bookSlug)}&ch=${ch}`;
-            link = state.bookPage != null
-              ? p(`${base}&page=${state.bookPage}`)
-              : state.bookParaId
-                ? p(`${base}&p=${encodeURIComponent(state.bookParaId)}`)
-                : p(base);
-          } else if (state.lessonId) {
-            link = p(`lesson=${state.lessonId}`);
-          } else if (state.drillId) {
-            link = p(`drill=${encodeURIComponent(state.drillId)}`);
-          } else if (activeChallenge && activeChallenge.id) {
-            link = p(`challenge=${encodeURIComponent(activeChallenge.id)}`);
-          } else if (kindOf === "quote" && srcId) {
-            link = p(`mode=quote&quote=id&qid=${encodeURIComponent(srcId)}`);
-          } else if (kindOf === "poem" && srcId) {
-            link = p(`mode=poem&pid=${encodeURIComponent(srcId)}`);
-          } else if (kindOf === "idiom" && srcId) {
-            link = p(`mode=idiom&iid=${encodeURIComponent(srcId)}`);
-          } else if (kindOf === "parable" && srcId) {
-            link = p(`mode=parable&pid=${encodeURIComponent(srcId)}`);
-          } else if (state.mode === "custom") {
-            /* A custom text is private: its id, its title and its body
-               all stay on this device. The numbers can still travel. */
-            link = p(`mode=custom`);
-          } else {
-            link = p(`mode=${encodeURIComponent(state.mode || "time")}`);
-          }
-          const ownText = isCustomBook(state.bookSlug) || state.mode === "custom";
-          const label = ownText ? "custom text"
-            : state.mode === "time" ? `${state.duration || 30}s test`
-            : state.mode === "words" ? `${state.words || 25}-word test`
-            : state.mode === "lesson" ? `lesson ${state.lessonId}`
-            : state.mode === "book" ? "book page"
-            : String(state.mode || "test").replace(/[^a-z0-9 -]/gi, "");
-          const text = `${wpmN} wpm · ${accN}% accuracy · ${label} · GuerillaType`;
-          const title = `${wpmN} wpm on GuerillaType`;
-          return `type="button" data-share data-share-kind="result" data-share-surface="result"`
-            + ` data-share-mode="${htmlEscape(ownText ? "custom" : (state.mode || ""))}"`
-            + ` data-share-title="${htmlEscape(title)}"`
-            + ` data-share-text="${htmlEscape(text)}"`
-            + ` data-share-url="${htmlEscape(link)}"`
-            + ` data-share-short-url="${htmlEscape(link)}"`
-            + ` data-share-image="${htmlEscape(img)}"`;
-        })();
-        const shareBtn = wrap(ICONS.share, "Share", { attrs: `id="tt-share" ${shareAttrs}` }, "Share this result -- your numbers and a link to the same text. Nothing you typed travels with it.");
+        /* Share. The button is emitted bare; every data-share-*
+           attribute on it is written by wireResultShare() in
+           share/result-link.js after this card is in the DOM. That is
+           one call, below, and it is deliberately the only thing this
+           file knows about share links: the query schema, the public
+           `src` ids, the accuracy band and the fragment that carries
+           the text and the replay all live in that module, next to the
+           validator that has to accept them. */
+        const shareAttrs = `type="button" data-share data-share-kind="result" data-share-surface="result"`;
+        const shareBtn = wrap(ICONS.share, "Share", { attrs: `id="tt-share" ${shareAttrs}` }, "Share this result -- your numbers and a link to the same text. What you typed rides after the # and never reaches a server.");
         // Book mode: Next page / Type page again / back to chapter list.
         if (state.bookSlug) {
           const paraMode = state.bookPage == null;
@@ -2043,6 +1977,10 @@ function renderResults(r) {
     </div>
     ${testimonialPrompt}
   `;
+  /* The results-card Share button gets its three URLs from one call.
+     Fire and forget: the short link is written synchronously inside,
+     the fragment-bearing one a promise later. */
+  wireResultShare(document.getElementById("tt-share"), { result: r, state, profile });
   // Wire the testimonial-prompt dismiss button if rendered.
   const dismissBtn = document.getElementById("tt-testimonial-dismiss");
   if (dismissBtn) {

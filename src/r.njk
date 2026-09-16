@@ -1,0 +1,91 @@
+---
+layout: layouts/base.njk
+title: "A shared result"
+description: "Someone shared a typing run. The numbers are in the link; the text they typed, if it travelled at all, never reached a server."
+permalink: /r/
+pageSlug: share-result
+noindex: true
+eleventyExcludeFromCollections: true
+hideBreadcrumbs: true
+hidePageHeader: true
+---
+
+{#
+  The landing page for a shared run.
+
+  Everything on this page is painted by share-boot.js from the URL:
+  the numbers from the query, which browsers do send, and the text and
+  the keystroke replay from the fragment, which they never do. The
+  markup below is the empty frame -- and it has to exist as markup,
+  because functions/r/index.js rewrites the <head> of THIS file with
+  HTMLRewriter to give a scraper the right preview card. A page that
+  built its own <head> in JavaScript would show every share as the
+  default card.
+
+  Every block starts hidden. Nothing here says anything until the query
+  has been through validate.js.
+#}
+
+<div class="share-landing" style="max-width:880px;margin:var(--space-6) auto var(--space-7);padding:0 var(--space-4)">
+
+  {# Invalid or absent query. Plain, no stack trace, no empty card. #}
+  <div id="tt-invalid" class="share-landing__invalid" hidden
+       style="text-align:center;padding:var(--space-7) var(--space-4)">
+    <p class="eyebrow">Shared result</p>
+    <h1 style="margin-top:var(--space-2)">This link is not a result we can show</h1>
+    <p class="article-lede">The numbers in it are missing or out of range, which usually means the link was cut short somewhere between there and here.</p>
+    <p style="margin-top:var(--space-5)">
+      <a class="btn btn--primary" href="/practice/">Type something yourself</a>
+    </p>
+  </div>
+
+  {# The card. Same classes as the results card on /practice/, so it is
+     the same object, not a lookalike that drifts. #}
+  <article id="tt-shared" class="results" hidden aria-labelledby="tt-shared-heading">
+    <header class="results__intro">
+      <p class="results__eyebrow">— Shared run</p>
+      <h1 class="results__heading" id="tt-shared-heading">Someone typed this</h1>
+      <p class="results__sub" id="tt-shared-sub"></p>
+    </header>
+    <div class="results__head">
+      <p class="results__title"><span class="results__title-num" data-r="wpm">0</span> <small class="results__title-unit">wpm</small></p>
+      <div class="results__meta-wrap">
+        <span class="results__pr" data-r="pb" hidden></span>
+        <span class="results__meta" data-r="meta"></span>
+      </div>
+    </div>
+    <div class="results__grid">
+      <div class="results__metric results__metric--big"><span class="results__value" data-r="wpm2">0</span><span class="results__label">wpm</span></div>
+      <div class="results__metric"><span class="results__value" data-r="raw">0</span><span class="results__label">raw</span></div>
+      <div class="results__metric"><span class="results__value" data-r="acc">0%</span><span class="results__label">accuracy</span></div>
+      <div class="results__metric"><span class="results__value" data-r="con">0%</span><span class="results__label">consistency</span></div>
+    </div>
+    <p class="results__challenge results__challenge--pass" data-r="ok" hidden></p>
+
+    {# What was typed. From the fragment when it travelled, or fetched
+       from /data/ when the link named something public. #}
+    <p class="results__progress" data-r="text-label" hidden></p>
+    <div id="tt-shared-text" class="tt-text tt-text--reader tt-text--full" data-r="text" hidden></div>
+
+    {# Phase D3 fills this. The container and the button exist now so
+       the player has somewhere to land and the gate has something to
+       assert about; both stay hidden until there is a replay to play. #}
+    <div id="tt-replay-root" class="share-landing__replay" hidden>
+      <button type="button" id="tt-replay-play" class="btn" hidden>Play this run</button>
+    </div>
+
+    <div class="results__actions">
+      <a class="btn results__btn btn--primary" id="tt-try" href="/practice/">
+        <span class="results__btn-label">Try this yourself</span>
+      </a>
+      <button type="button" class="btn results__btn" id="tt-reshare">
+        <span class="results__btn-label">Share this</span>
+      </button>
+      <a class="btn results__btn" href="/stats/"><span class="results__btn-label">Your own stats</span></a>
+    </div>
+
+    <p class="muted" style="margin-top:var(--space-5);font-size:var(--fs-200)">
+      The numbers and the public id travel in the address. The text you typed and the replay, if any, sit after the # and never reach a server.
+    </p>
+  </article>
+</div>

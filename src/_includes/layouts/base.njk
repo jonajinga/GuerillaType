@@ -7,6 +7,13 @@
 <meta name="color-scheme" content="dark light">
 <title>{{ title }}{% if title %} | {% endif %}{{ site.shortTitle }}</title>
 <meta name="description" content="{{ description or site.description }}">
+{%- if noindex %}
+{# `noindex: true` in a page's front matter already keeps it out of
+   sitemap.xml. This makes it mean the whole thing: crawlers are told
+   as well. Used by /r/, a shared result -- one person's run, not a
+   page of this site. #}
+<meta name="robots" content="noindex, nofollow">
+{%- endif %}
 {% if canonicalUrl %}<link rel="canonical" href="{{ canonicalUrl }}">{% else %}<link rel="canonical" href="{{ site.url }}{{ page.url }}">{% endif %}
 
 {# Open Graph / Twitter. og:image MUST be a raster format: X, Facebook,
