@@ -336,6 +336,12 @@ chk(await pageB.isVisible("[data-replay-surface]"), "B. and the surface it paint
     "B. the focused control draws a visible ring", `${ring.w} ${ring.style}`);
 }
 
+/* Where playback begins in the request log. Everything before this
+   line is the page loading -- webfonts from bunny.net, tippy from
+   esm.sh, the site's normal furniture. Section F asks a narrower and
+   more useful question: once the replay is running, does the player
+   itself talk to anyone? */
+const playbackMark = seen.length;
 const playedAt = await pageB.evaluate(() => {
   window.__ttReplay.seek(0);
   window.__ttReplay.play(16);
@@ -550,11 +556,13 @@ console.log("\nF. playback sends nothing anywhere");
 {
   const origin = new URL(B).origin;
   const rValue = FRAG.get("r") || FRAG.get("ru") || "";
-  const offOrigin = seen.filter((r) => !r.url.startsWith(origin)
+  const during = seen.slice(playbackMark);
+  const offOrigin = during.filter((r) => !r.url.startsWith(origin)
     && !r.url.startsWith("data:") && !r.url.startsWith("blob:") && !r.url.startsWith("about:"));
   chk(seen.length > 3, "F. the page really did make requests to inspect", `${seen.length} requests`);
-  chk(offOrigin.length === 0, "F. not one of them left the origin",
-    offOrigin.map((r) => r.url.slice(0, 70)).join(" | "));
+  chk(offOrigin.length === 0, "F. not one request made during playback left the origin",
+    offOrigin.length ? offOrigin.map((r) => r.url.slice(0, 70)).join(" | ")
+      : `${during.length} requests once playback started`);
   const carriers = seen.filter((r) => {
     const hay = `${r.url} ${r.body} ${JSON.stringify(r.headers)}`;
     const dec = (() => { try { return decodeURIComponent(hay); } catch { return hay; } })();
