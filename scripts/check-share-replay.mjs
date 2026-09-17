@@ -493,8 +493,13 @@ chk(mid.domIncorrect === paperMid.incorrect,
 chk(mid.cursor === paperMid.cursor, "C. and the caret is at the same character",
   `player ${mid.cursor} vs recount ${paperMid.cursor}`);
 chk(mid.scrub === MID, "C. the slider reads the position it seeked to", String(mid.scrub));
-chk(mid.finished === false && mid.verdict === null,
-  "C. and a mid-run seek is not a finished run", `finished=${mid.finished} verdict=${mid.verdict}`);
+/* Seeking away from a finished run has to clear the finish state, all
+   of it. playedAll is in here because it was the one field seek()
+   forgot, which left the player reporting "I played every event" about
+   a run that was no longer over. */
+chk(mid.finished === false && mid.verdict === null && mid.playedAll === false,
+  "C. and a mid-run seek is not a finished run, in any of the fields that say so",
+  `finished=${mid.finished} verdict=${mid.verdict} playedAll=${mid.playedAll}`);
 
 /* Seeking backwards has to rebuild, not rewind: a backspace is not
    invertible, so the only state that is certainly right is the one
