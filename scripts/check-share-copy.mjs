@@ -363,6 +363,31 @@ const misfiled = targets.filter((t) => (t.variant === "full"
 chk(misfiled.length === 0, "every share destination is named on the right side of that split",
   misfiled.map((t) => `${t.label} is "${t.variant}" in share.js`).join(", "));
 
+/* Two destinations are NOT in INTENTS, so the loop above never sees
+   them: Copy link is a call site (`const url = (c && c.fullUrl) ||
+   location.href`) and the native sheet builds its own payload
+   (`url: ctx.fullUrl`). Flip both to shortUrl and every check above
+   stays green while /privacy/ still promises they carry the whole
+   link -- the "helper wired into one of four call sites" failure, in
+   miniature. The side is derived from share.js, not assumed, and an
+   unrecognised call site fails rather than passing quietly. */
+const CALL_SITES = [
+  { what: "Copy link", label: "Copy link",
+    full: /const url = \(c && c\.fullUrl\)/, short: /const url = \(c && c\.shortUrl\)/ },
+  { what: "the native share sheet", label: "share sheet",
+    full: /url: ctx\.fullUrl/, short: /url: ctx\.shortUrl/ },
+];
+for (const cs of CALL_SITES) {
+  const isFull = cs.full.test(shareSrc), isShort = cs.short.test(shareSrc);
+  const side = isFull && !isShort ? "full" : (isShort && !isFull ? "short" : "unknown");
+  const onFull = named(carriesFragment, cs.label), onShort = named(carriesNothing, cs.label);
+  const ok = side === "full" ? (onFull && !onShort) : side === "short" ? (onShort && !onFull) : false;
+  chk(ok, `${cs.what} carries the link share.js gives it, and /privacy/ files it on that side`,
+    side === "unknown"
+      ? "neither the fullUrl nor the shortUrl form of that call site is in share.js -- refusing to guess"
+      : `share.js: ${side}; /privacy/: ${onFull ? "with the whole link" : onShort ? "with the short link" : "not named at all"}`);
+}
+
 /* about.md's stale analytics claim, checked on its own because it is the
    one the task names. */
 const about = pageText("/about/") || "";
