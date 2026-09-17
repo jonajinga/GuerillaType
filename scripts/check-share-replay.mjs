@@ -240,6 +240,13 @@ chk(!!LOG && LOG.entries.length === TARGET.length + 2,
   "A. and a keystroke log of every key pressed, the backspace included",
   LOG ? `${LOG.entries.length} entries for ${TARGET.length} chars + 1 retype + 1 backspace` : "did not decode");
 if (!LOG) await bail("A. the log has to decode or nothing below means anything");
+/* A short log is not a small problem: it means the engine stopped
+   recording, and every count below would be measuring an empty replay
+   against a real run. Stop here, with a number, rather than 40 lines
+   down with a stack trace. */
+if (LOG.entries.length < TARGET.length) {
+  await bail(`A. the log is far too short to be this run — ${LOG.entries.length} entries for ${TARGET.length} typed characters`);
+}
 chk(Number(QUERY.get("wpm")) === live.wpm && Number(QUERY.get("acc")) === live.acc,
   "A. the query carries the numbers the card showed", `${QUERY.get("wpm")} wpm, ${QUERY.get("acc")}%`);
 
@@ -253,7 +260,8 @@ chk(Number(QUERY.get("wpm")) === live.wpm && Number(QUERY.get("acc")) === live.a
 function recount(entries, target, k) {
   const marks = new Array(target.length).fill(0); // 0 untyped, 1 correct, 2 wrong
   let cursor = 0, keys = 0, done = false;
-  for (let i = 0; i < k; i++) {
+  const upto = Math.min(k, entries.length);
+  for (let i = 0; i < upto; i++) {
     const ch = entries[i][0];
     const cp = ch.codePointAt(0);
     if (cp === 0x03 || cp === 0x04) continue;          // pause, ended
