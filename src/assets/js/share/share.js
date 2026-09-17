@@ -426,7 +426,7 @@ async function onDownload() {
       emit("shareImageSaved", { kind: ctx.kind || "page", mode: ctx.mode || "", method: "local" });
       return;
     } catch {
-      toast("Saved the plain card — the picture will not include your text.", "bad");
+      toast("Saved the plain card. The picture will not include your text.", "bad");
     }
   }
   try {
