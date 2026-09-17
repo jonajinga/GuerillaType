@@ -4,6 +4,7 @@
 import { migrate } from "./storage.js";
 import { getActive } from "./profiles.js";
 import { Analytics } from "./analytics.js";
+import { wireShareButtons } from "./share/share.js";
 import "./megamenu.js";
 import "./shortcuts.js";
 import "./prefetch.js";
@@ -14,6 +15,13 @@ import "./debug-overlay.js";
 
 migrate();
 const _profile = getActive(); // ensure default profile exists
+
+/* Share buttons, every page. The listener is delegated from the
+   document, so a button rendered later (the results card is built when
+   a run finishes) is wired without anyone remembering to call this
+   again. Contract: any <button type="button" data-share ...> opens the
+   sheet. See assets/js/share/share.js. */
+wireShareButtons();
 
 /* Site-wide analytics. Umami auto-records pageviews; these add
    GuerillaType layer events (LCP buckets, uncaught errors,

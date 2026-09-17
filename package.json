@@ -27,6 +27,8 @@
     "custom-large": "node scripts/check-custom-large-import.mjs",
     "custom-branches": "node scripts/check-custom-storage-branches.mjs",
     "custom-sample": "node scripts/check-custom-sample.mjs",
+    "chapter-detect": "node scripts/check-chapter-detect.mjs",
+    "custom-chapters": "node scripts/check-custom-chapters.mjs",
     "prebuild": "node scripts/build-custom-sample.mjs",
     "custom-sample-data": "node scripts/build-custom-sample.mjs",
     "book-chapters": "node scripts/check-book-chapters.mjs",
@@ -58,7 +60,9 @@
     "og-images-gen": "node scripts/gen-og-images.mjs",
     "og-render": "node scripts/check-og-render.mjs",
     "og-images": "node scripts/check-og-images.mjs",
-    "share-copy": "node scripts/check-share-copy.mjs"
+    "share-copy": "node scripts/check-share-copy.mjs",
+    "share-sheet": "node scripts/check-share-sheet.mjs",
+    "item-pages": "node scripts/check-item-pages.mjs"
   },
   "dependencies": {
     "@11ty/eleventy": "^3.0.0",

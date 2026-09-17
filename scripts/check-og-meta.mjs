@@ -198,19 +198,77 @@ console.log("\nG. the whole site");
 const files = htmlFiles(SITE);
 chk(files.length > 200, "html pages scanned", `${files.length} files`);
 
+/* Sections B-F prove the tags are right on FOUR pages. Everything
+   below runs the same assertions on EVERY page, because "the home page
+   is fine" is how 1,547 new pages shipped last time without anyone
+   checking whether the per-page override they all rely on actually
+   produced anything. A single page holding the whole site to account
+   is exactly the shape of gate this project keeps having to rewrite. */
 let svgOffenders = [], missingImg = new Set(), noImage = [], noSiteName = [], noTwitter = [];
+let noWidth = [], noHeight = [], noAlt = [], relImg = [], relTwitter = [], twMismatch = [];
+let doubleEscaped = [];
 const seen = new Map();
+
+/* ── the double-escape detector ──────────────────────────────────
+   library-detail.njk built its og:title in eleventyComputed, where
+   Nunjucks autoescaping is ON. base.njk then escaped the result a
+   second time, so 11 books shipped
+
+       <meta property="og:title" content="Alice&amp;#39;s Adventures …">
+
+   and every scraper showed a literal "Alice&#39;s Adventures".
+
+   Detecting that has to survive both build shapes. In a production
+   build the minifier decodes entities inside a quoted attribute, so a
+   CORRECT page reads `Alice's` and a broken one reads `Alice&#39;s`.
+   With NODE_ENV=development there is no minifier, so a correct page
+   reads `Alice&#39;s` -- which a naive grep would call a failure.
+
+   So: decode exactly once, the way a scraper does, and then look for
+   an entity that is still there. One escape decodes to a bare
+   character; two decode to a visible entity. */
+const ENT = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: "\u00a0" };
+function decodeOnce(str) {
+  return String(str).replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (m, body) => {
+    if (body[0] === "#") {
+      const code = body[1] === "x" || body[1] === "X"
+        ? parseInt(body.slice(2), 16)
+        : parseInt(body.slice(1), 10);
+      return Number.isFinite(code) ? String.fromCodePoint(code) : m;
+    }
+    const hit = ENT[body.toLowerCase()];
+    return hit === undefined ? m : hit;
+  });
+}
+const LEFTOVER_ENTITY = /&(?:#x?[0-9a-f]+|amp|quot|apos|lt|gt);/i;
+const isDoubleEscaped = (v) => LEFTOVER_ENTITY.test(decodeOnce(v || ""));
+
 for (const f of files) {
   const m = metaMap(readFileSync(f, "utf8"));
   const rel = f.slice(SITE.length);
   const img = m.get("og:image");
   const tw = m.get("twitter:image");
+  const title = m.get("og:title") || "";
+  const desc = m.get("og:description") || "";
+  if (isDoubleEscaped(title) || isDoubleEscaped(desc)) {
+    doubleEscaped.push(`${rel} → ${isDoubleEscaped(title) ? title : desc}`.slice(0, 120));
+  }
   if (!img) { noImage.push(rel); continue; }
   if (/\.svg(\?|#|$)/i.test(img) || /\.svg(\?|#|$)/i.test(tw || "")) svgOffenders.push(rel + " → " + img);
   const lp = localPath(img);
   if (!lp || !existsSync(lp)) missingImg.add(img);
   if (!m.get("og:site_name")) noSiteName.push(rel);
   if (!tw) noTwitter.push(rel);
+  // Per-page, not per-sample: the dimensions and the alt text are what
+  // decide whether a platform renders a large card or a thumbnail.
+  if (m.get("og:image:width") !== "1200") noWidth.push(`${rel} → ${m.get("og:image:width")}`);
+  if (m.get("og:image:height") !== "630") noHeight.push(`${rel} → ${m.get("og:image:height")}`);
+  if ((m.get("og:image:alt") || "").length < 8) noAlt.push(`${rel} → ${m.get("og:image:alt")}`);
+  // Scrapers do not resolve a relative image URL. This is the check
+  // that catches a per-page ogImage override that forgot site.url.
+  if (!img.startsWith("https://")) relImg.push(`${rel} → ${img}`);
+  if (tw && !tw.startsWith("https://")) relTwitter.push(`${rel} → ${tw}`);
+  if (tw && tw !== img) twMismatch.push(`${rel} → ${tw} vs ${img}`);
   seen.set(img, (seen.get(img) || 0) + 1);
 }
 chk(noImage.length === 0, "every page has an og:image", noImage.slice(0, 3).join(", "));
@@ -218,7 +276,25 @@ chk(svgOffenders.length === 0, "no page offers an SVG as og:image or twitter:ima
 chk(missingImg.size === 0, "every og:image resolves to a file in _site", [...missingImg].slice(0, 3).join(", "));
 chk(noSiteName.length === 0, "every page has og:site_name", noSiteName.slice(0, 3).join(", "));
 chk(noTwitter.length === 0, "every page has twitter:image", noTwitter.slice(0, 3).join(", "));
+chk(noWidth.length === 0, "every page declares og:image:width 1200", `${noWidth.length} page(s): ` + noWidth.slice(0, 3).join(", "));
+chk(noHeight.length === 0, "every page declares og:image:height 630", `${noHeight.length} page(s): ` + noHeight.slice(0, 3).join(", "));
+chk(noAlt.length === 0, "every page has a real og:image:alt", `${noAlt.length} page(s): ` + noAlt.slice(0, 3).join(", "));
+chk(relImg.length === 0, "every og:image is an absolute https URL", `${relImg.length} page(s): ` + relImg.slice(0, 3).join(", "));
+chk(relTwitter.length === 0, "every twitter:image is an absolute https URL", `${relTwitter.length} page(s): ` + relTwitter.slice(0, 3).join(", "));
+chk(twMismatch.length === 0, "twitter:image matches og:image on every page", `${twMismatch.length} page(s): ` + twMismatch.slice(0, 3).join(", "));
+chk(doubleEscaped.length === 0,
+  "no og:title or og:description is escaped twice (a visible &#39; in the share preview)",
+  `${doubleEscaped.length} page(s): ` + doubleEscaped.slice(0, 3).join(" | "));
 console.log(`  (distinct og:image values: ${seen.size} — ${[...seen.keys()].slice(0, 3).join(", ")})`);
+
+/* Anti-vacuity: the double-escape detector must fire on the string it
+   exists to catch, and must NOT fire on a correctly escaped one. A
+   regex that matches nothing passes the loop above silently. */
+chk(isDoubleEscaped("Alice&amp;#39;s Adventures"), "detector fires on a minified double escape");
+chk(isDoubleEscaped("Alice&amp;amp;#39;s Adventures"), "detector fires on an un-minified double escape");
+chk(!isDoubleEscaped("Alice's Adventures in Wonderland"), "detector stays quiet on a minified correct title");
+chk(!isDoubleEscaped("Alice&#39;s Adventures in Wonderland"), "detector stays quiet on an un-minified correct title");
+chk(!isDoubleEscaped("Tom &amp; Jerry — a typing test"), "detector stays quiet on a single-escaped ampersand");
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

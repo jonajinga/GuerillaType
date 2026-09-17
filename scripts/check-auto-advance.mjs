@@ -16,6 +16,11 @@
      F. The last segment still ends with the card ("Text finished").
      G. With the switch off, the card shows as before (#tt-next-seg).
      H. Words mode: the same switch restarts with fresh text in place.
+     ...
+     L. Phones get the card and an unavailable button.
+     O. Desktops that used to be mistaken for phones (a window under
+        768 px, a touch monitor with a mouse) get the live switch, the
+        header agrees with Settings, and the next run takes focus.
 
    Section D is the one a lazy implementation fails: a swap with no
    guard would mark a wrong first character before the user even looks.
@@ -444,6 +449,7 @@ chk(lit.startsWith("abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz"), "K.
   await mobile.waitForTimeout(1500);
   chk(!(await mobile.$eval("#tt-results", (el) => el.hidden)), "L. touch device still shows the card with the switch on");
   chk((await mobile.getAttribute("#tt-autoadvance", "aria-disabled")) === "true", "L. and the Auto button reads as unavailable there");
+  chk((await mobile.getAttribute("html", "data-touch")) === "true", "L. the page is stamped data-touch, so the surface says tap");
   // A tap on the unavailable button must not flip the stored switch.
   await mobile.evaluate(() => {
     const ps = JSON.parse(localStorage.getItem("tt:profiles") || "[]");
@@ -460,6 +466,100 @@ chk(lit.startsWith("abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz"), "K.
   chk(!tapped || tapped.words !== true, "L. a tap on it writes nothing", JSON.stringify(tapped));
   chk((await mobile.getAttribute("#tt-autoadvance", "aria-pressed")) === "false", "L. and does not light it");
   await mobile.close();
+}
+
+// O. Desktops that used to be mistaken for phones. The old rule called
+//    any window under 768 px, and any machine reporting a touch point,
+//    a touch device: a zoomed-in desktop browser and a Windows desktop
+//    with a touch monitor then showed a disabled Auto button, ignored
+//    the Settings switch, and toasted "needs a keyboard" (a user
+//    report, 2026-09-16). Both have keyboards. Playwright's hasTouch
+//    also flips the hover/pointer media queries, so the touch monitor
+//    is faked through navigator alone, exactly what Windows reports
+//    when a mouse is present.
+{
+  const cases = [
+    { name: "narrow desktop window", viewport: { width: 700, height: 900 }, touchHw: false },
+    /* A Windows user agent on purpose: Macs have no touch screens, so
+       "Macintosh" plus touch points is an iPad in desktop mode, which
+       must keep the card. Touch monitors live on Windows machines. */
+    { name: "desktop with a touch monitor", viewport: { width: 1366, height: 900 }, touchHw: true,
+      userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36" },
+  ];
+  for (const c of cases) {
+    const ctx = await browser.newContext({ viewport: c.viewport, hasTouch: false, serviceWorkers: "block", ...(c.userAgent ? { userAgent: c.userAgent } : {}) });
+    if (c.touchHw) {
+      await ctx.addInitScript(() => {
+        Object.defineProperty(navigator, "maxTouchPoints", { get: () => 10, configurable: true });
+        window.ontouchstart = null;
+      });
+    }
+    const d = await ctx.newPage();
+    d.on("pageerror", (e) => console.log("  PAGEERROR:", String(e).slice(0, 160)));
+    const dText = () => d.$$eval(".tt-char", (els) =>
+      els.map((e) => (e.classList.contains("tt-char--space") ? " " : e.textContent)).join(""));
+    const dMap = () => d.evaluate(() => {
+      const ps = JSON.parse(localStorage.getItem("tt:profiles") || "[]");
+      const id = JSON.parse(localStorage.getItem("tt:active-profile") || "null");
+      const q = ps.find((x) => x.id === id) || ps[0];
+      return (q && q.preferences && q.preferences.autoAdvance) || {};
+    });
+    // The practice page first, so the profile exists before Settings
+    // writes to it (a fresh context has no profile yet).
+    await d.goto(`${B}/practice/?mode=words&words=10`, { waitUntil: "networkidle" });
+    await d.waitForSelector(".tt-char", { timeout: 8000 });
+    if (c.touchHw) {
+      const hw = await d.evaluate(() => ({ tp: navigator.maxTouchPoints, ts: "ontouchstart" in window, hover: matchMedia("(hover: hover)").matches }));
+      chk(hw.tp > 0 && hw.ts && hw.hover, `O. ${c.name}: reports touch points and a hovering pointer, like Windows with a mouse`, JSON.stringify(hw));
+    }
+    chk((await d.getAttribute("#tt-autoadvance", "aria-disabled")) !== "true", `O. ${c.name}: Auto button is a live switch`);
+    // typing-shell.njk stamps <html data-touch> with a hand-copied
+    // version of isMobileLike(); the two must agree, or the surface
+    // tells a desktop to "Tap here to start typing" while the engine
+    // treats it as a desktop (verifier finding, 2026-09-16).
+    chk((await d.getAttribute("html", "data-touch")) !== "true", `O. ${c.name}: page is not stamped data-touch`);
+    await d.evaluate(() => document.activeElement && document.activeElement.blur());
+    await d.waitForTimeout(100);
+    const overlay = await d.$eval(".tt-stage", (el) => getComputedStyle(el, "::after").content);
+    chk(!/tap here/i.test(overlay), `O. ${c.name}: blurred surface does not say "Tap here"`, overlay);
+    await d.click(".tt-stage").catch(() => {});
+    // Bug 1: on in Settings, but the header showed it disabled and off.
+    await d.goto(`${B}/settings/`, { waitUntil: "networkidle" });
+    await d.$eval("#pref-autoAdvance-words", (el) => el.closest("label").click());
+    await d.waitForTimeout(150);
+    chk((await dMap()).words === true, `O. ${c.name}: Settings switch written`);
+    await d.goto(`${B}/practice/?mode=words&words=10`, { waitUntil: "networkidle" });
+    await d.waitForSelector(".tt-char", { timeout: 8000 });
+    chk((await d.getAttribute("#tt-autoadvance", "aria-pressed")) === "true", `O. ${c.name}: header shows the Settings switch on`);
+    chk(await d.evaluate(() => document.activeElement && document.activeElement.id === "tt-input"), `O. ${c.name}: the surface took focus by itself`);
+    // Bug 2: a click on the header button toasted "needs a keyboard".
+    // force: an aria-disabled button would stall Playwright's click for
+    // 30 s and crash the run; a forced click lets the toast check speak.
+    await d.click("#tt-autoadvance", { force: true, timeout: 5000 });
+    await d.waitForTimeout(200);
+    const said = (await d.textContent("#toast").catch(() => "")) || "";
+    chk(!/needs a keyboard/i.test(said), `O. ${c.name}: no "needs a keyboard" refusal`, JSON.stringify(said.trim()));
+    chk((await d.getAttribute("#tt-autoadvance", "aria-pressed")) === "false" && (await dMap()).words !== true, `O. ${c.name}: header click turns it off`);
+    await d.click("#tt-autoadvance", { force: true, timeout: 5000 });
+    await d.waitForTimeout(200);
+    chk((await d.getAttribute("#tt-autoadvance", "aria-pressed")) === "true" && (await dMap()).words === true, `O. ${c.name}: and back on`);
+    // The run must flow into the next one, which must be typable at once.
+    await d.click(".tt-stage").catch(() => {});
+    const before = await dText();
+    for (const ch of before) await d.keyboard.type(ch, { delay: 70 });
+    await d.waitForTimeout(1500);
+    chk(await d.$eval("#tt-results", (el) => el.hidden), `O. ${c.name}: no card after the run`);
+    chk(await d.isVisible("#tt-last-run"), `O. ${c.name}: last-run strip shows`);
+    const after = await dText();
+    chk(after.length > 0 && after !== before, `O. ${c.name}: fresh words on the surface`);
+    chk(await d.evaluate(() => document.activeElement && document.activeElement.id === "tt-input"), `O. ${c.name}: the next run already has focus`);
+    await d.keyboard.type(after[0], { delay: 70 });
+    await d.waitForTimeout(150);
+    const started = await d.getAttribute("#tt-stage", "data-state");
+    const wrong = await d.$$eval(".tt-char--incorrect", (els) => els.length);
+    chk(started === "running" && wrong === 0, `O. ${c.name}: first key starts the next run cleanly`, `state=${started} incorrect=${wrong}`);
+    await ctx.close();
+  }
 }
 
 await browser.close();

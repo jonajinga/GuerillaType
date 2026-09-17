@@ -134,6 +134,7 @@ if (root) {
           ${it.example ? `<p class="corpus-book__example"><em>Example.</em> ${htmlEscape(it.example)}</p>` : ""}
           <div class="corpus-book__actions">
             <button type="button" class="btn btn--small btn--primary" data-action="type" data-id="${htmlEscape(id)}">${done ? "Type again" : "Type"}</button>
+            ${itemPageHref(it) ? `<a class="corpus-book__open" href="${itemPageHref(it)}">Open</a>` : ""}
             <button type="button" class="btn btn--small" data-action="save" data-id="${htmlEscape(id)}">Save</button>
             ${done ? `<button type="button" class="btn btn--small btn--ghost" data-action="reset" data-id="${htmlEscape(id)}" data-tip="Clear completion record">Reset</button>` : ""}
           </div>
@@ -150,6 +151,7 @@ if (root) {
           ${cite ? `<p class="corpus-book__cite">-- ${cite}</p>` : ""}
           <div class="corpus-book__actions">
             <button type="button" class="btn btn--small btn--primary" data-action="type" data-id="${htmlEscape(id)}">${done ? "Type again" : "Type this quote"}</button>
+            ${itemPageHref(it) ? `<a class="corpus-book__open" href="${itemPageHref(it)}">Open</a>` : ""}
             <button type="button" class="btn btn--small" data-action="save" data-id="${htmlEscape(id)}">Save</button>
             ${done ? `<button type="button" class="btn btn--small btn--ghost" data-action="reset" data-id="${htmlEscape(id)}" data-tip="Clear completion record">Reset</button>` : ""}
           </div>
@@ -167,6 +169,7 @@ if (root) {
         ${it.meaning ? `<p class="corpus-book__moral"><em>Moral.</em> ${htmlEscape(it.meaning)}</p>` : ""}
         <div class="corpus-book__actions">
           <button type="button" class="btn btn--small btn--primary" data-action="type" data-id="${htmlEscape(id)}">${done ? "Type again" : "Type this"}</button>
+          ${itemPageHref(it) ? `<a class="corpus-book__open" href="${itemPageHref(it)}">Open</a>` : ""}
           <button type="button" class="btn btn--small" data-action="save" data-id="${htmlEscape(id)}">Save</button>
           ${done ? `<button type="button" class="btn btn--small btn--ghost" data-action="reset" data-id="${htmlEscape(id)}" data-tip="Clear completion record">Reset</button>` : ""}
         </div>
@@ -230,6 +233,7 @@ if (root) {
         <td class="num corpus-table__len">${len}</td>
         <td class="corpus-table__actcol">
           <button type="button" class="btn btn--small btn--primary" data-action="type" data-id="${htmlEscape(id)}">${done ? "Type again" : "Type"}</button>
+          ${itemPageHref(it) ? `<a class="corpus-table__open" href="${itemPageHref(it)}">Open</a>` : ""}
           <button type="button" class="btn btn--small" data-action="save" data-id="${htmlEscape(id)}">Save</button>
           ${done ? `<button type="button" class="btn btn--small btn--ghost" data-action="reset" data-id="${htmlEscape(id)}" data-tip="Clear completion record">Reset</button>` : ""}
         </td>
@@ -266,6 +270,7 @@ if (root) {
           ${meaning ? `<div class="quote-card__extra">${meaning}</div>` : ""}
           <div class="quote-card__actions">
             <button type="button" class="btn btn--small btn--primary" data-action="type" data-id="${it.id}">${done ? "Type again" : "Type this"}</button>
+            ${itemPageHref(it) ? `<a class="corpus-table__open" href="${itemPageHref(it)}">Open</a>` : ""}
             <button type="button" class="btn btn--small" data-action="save" data-id="${it.id}">Save</button>
             ${done ? `<button type="button" class="btn btn--small btn--ghost" data-action="reset" data-id="${it.id}" data-tip="Clear completion record">Reset</button>` : ""}
           </div>
@@ -274,7 +279,37 @@ if (root) {
     list.querySelectorAll("[data-action]").forEach((btn) => btn.addEventListener("click", () => onAction(btn)));
   }
 
+  /* ── Where a corpus item lives ─────────────────────────────────
+     Two public URLs per item, both resolvable from repo data alone:
+     the item's own page, and the practice deep link that types it.
+     Neither involves the user's storage. */
+  const LIST_PATH = { idiom: "idioms", parable: "parables", poem: "poetry", quote: "quotes" };
+  function itemPageHref(it) {
+    const dir = LIST_PATH[kind];
+    return (dir && it && it.id) ? `/${dir}/${encodeURIComponent(it.id)}/` : null;
+  }
+  function practiceHref(it) {
+    if (!it || !it.id) return null;
+    const id = encodeURIComponent(it.id);
+    if (kind === "quote") return `/practice/?mode=quote&quote=id&qid=${id}&from=quote`;
+    if (kind === "idiom") return `/practice/?mode=idiom&iid=${id}&from=idiom`;
+    if (kind === "poem") return `/practice/?mode=poem&pid=${id}&from=poem`;
+    if (kind === "parable") return `/practice/?mode=parable&pid=${id}&from=parable`;
+    return null;
+  }
+
   async function typeItem(it) {
+    /* Typing a corpus piece used to SAVE A COPY of it into the
+       reader's own custom texts and then open that copy -- a new
+       record in their storage on every click, and a /practice/ URL
+       built out of a local id that means nothing anywhere else. All
+       four kinds now have a native mode keyed by the public id, so
+       the link is shareable and nothing is written. The explicit
+       Save button still exists for people who want the copy. */
+    const href = practiceHref(it);
+    if (href) { window.location.href = href; return; }
+    // No id (or an unknown kind): fall back to the old route, which
+    // carries the text itself rather than a reference to it.
     const title = rowTitle(it);
     // Carry source metadata so the practice page can render an
     // attribution header (author, year, work, meaning) AND so the

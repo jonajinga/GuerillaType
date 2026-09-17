@@ -10,9 +10,17 @@ The [/custom/](/custom/) page lets you paste text and type it. The text stays on
 
 ## What it does
 
-Paste up to 200 KB of text. The site chunks it into typable segments at sentence and paragraph boundaries -- never mid-word. Each segment becomes one practice session. You move through them at your own pace, and your progress is saved locally.
+Paste text, or drop a `.txt`, `.md`, `.epub` or `.pdf` file in. Whole books are fine -- the bodies go to IndexedDB, so nothing is trimmed at the old 512 KB ceiling.
 
-Drag a .txt file in, and it does the same thing.
+Every saved text can then be read **two ways, and both are always available**:
+
+**By segment.** The site chunks the text into typable segments at sentence and paragraph boundaries -- never mid-word. Each segment is about 500 characters and becomes one practice session. Good for chipping away at anything.
+
+**By chapter.** The same text, divided at its own headings and read six paragraphs to a page -- the same reader the [library](/library/) uses for its public-domain books, with the same page counter, the same per-paragraph progress, and the same "next page" flow. An EPUB brings its own chapter list. A plain file is split on `CHAPTER I`, `Part 2`, roman numerals, all-caps headings and `#` markdown headings. If a text has no headings at all, the chapter view is simply the whole thing, six paragraphs at a time -- which is still a nicer way to read a long document than a segment counter.
+
+Chapter progress is per paragraph, and it survives re-importing the same book: if the chapters come out differently the old marks are dropped rather than pointed at the wrong paragraphs.
+
+One caveat worth knowing: a text you saved before this existed has only its segments stored, and segments are sentence chunks with the line breaks already taken out. The chapter view will find no headings in one of those and give you the whole text. Re-import the file and the real chapters come back.
 
 ## Why it is useful
 
@@ -32,7 +40,9 @@ After saving, you can pin a custom text. It then appears at the bottom of the [/
 
 ## Tips
 
-**Strip page numbers and headers** before pasting from a PDF, or the typing surface will treat them as content.
+**Strip page numbers and headers** before pasting from a PDF, or the typing surface will treat them as content. (A PDF dropped in as a file gets running heads and folios removed automatically; a copy-paste does not.)
+
+**Keep the headings** if you want the chapter view. Deleting `CHAPTER I` lines from a pasted book leaves nothing to split on, and the import preview will tell you so before you save: it says how many chapters it found, or that it found none.
 
 **Keep paragraphs together** -- the segmenter respects paragraph breaks, so a clean source produces clean segments. Run-on text gets chopped at sentence boundaries, which is fine but makes the breaks less natural.
 

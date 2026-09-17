@@ -283,6 +283,14 @@
   font-weight:500;color:var(--fg-0);margin:0;letter-spacing:-.005em;
   line-height:1.25;max-width:30ch;text-wrap:balance;
 }
+/* An imported text read by chapter carries TWO display lines: the
+   text's own title and the chapter's. The title steps down here so the
+   chapter -- the thing about to be typed -- stays the largest thing on
+   the page. Scoped to the book header, so the segment reader's header
+   (.tt-custom-header), where the title IS the headline, is untouched. */
+.tt-book-header .tt-custom-title{
+  font-size:clamp(1.05rem, .9rem + .7vw, 1.3rem);color:var(--fg-1);
+}
 .tt-book-page,
 .tt-custom-seg{
   font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;

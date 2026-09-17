@@ -1,0 +1,50 @@
+---
+pagination:
+  data: idioms
+  size: 1
+  alias: idiom
+  addAllPagesToCollections: true
+permalink: "/idioms/{{ idiom.id }}/"
+layout: layouts/base.njk
+pageSlug: "idiom-detail"
+eleventyComputed:
+  # See quote-detail.njk: `| safe` stops the double escape that put a
+  # literal &#39; in og:title.
+  title: "{{ idiom.text | safe }} — meaning and typing practice"
+  description: "{{ idiom.text | safe }}: {{ idiom.meaning | safe }}. Type the phrase on GuerillaType."
+  ogImage: "/og/idiom/{{ idiom.id }}.png"
+  ogImageAlt: "The idiom {{ idiom.text | safe }}, on a GuerillaType card"
+---
+{% set ITEM = {
+  kind: "idiom",
+  id: idiom.id,
+  title: idiom.text,
+  saveTitle: idiom.text,
+  text: idiom.text,
+  meaning: idiom.meaning
+} %}
+{% set typeHref = "/practice/?mode=idiom&iid=" + idiom.id + "&from=idiom" %}
+{% set shareTitle = idiom.text %}
+{% set shareText = idiom.text + " — " + idiom.meaning %}
+
+<article class="corpus-page corpus-page--idiom" data-corpus-kind="idiom" data-corpus-id="{{ idiom.id }}">
+  <header class="corpus-page__head">
+    <p class="eyebrow">Idiom</p>
+    <h1 class="corpus-page__title">{{ idiom.text }}</h1>
+    <p class="corpus-page__byline">English idiom{% if idiom.tags | length %} · {{ idiom.tags | join(" · ") }}{% endif %}</p>
+    <p class="corpus-page__done" id="corpus-done" hidden>✓ Typed</p>
+  </header>
+
+  <blockquote class="corpus-page__text corpus-page__text--idiom">{{ idiom.text }}</blockquote>
+  {% if idiom.meaning %}<p class="corpus-page__meaning"><strong>Meaning.</strong> {{ idiom.meaning }}</p>{% endif %}
+
+  {% include "partials/corpus/detail-actions.njk" %}
+
+  <nav class="corpus-page__nav" aria-label="Idiom navigation">
+    <a class="corpus-page__back" href="/idioms/">← All idioms</a>
+    <span class="corpus-page__seq">
+      {% if pagination.href.previous %}<a href="{{ pagination.href.previous }}" rel="prev">← Previous</a>{% endif %}
+      {% if pagination.href.next %}<a href="{{ pagination.href.next }}" rel="next">Next →</a>{% endif %}
+    </span>
+  </nav>
+</article>

@@ -307,12 +307,14 @@ const book = await loadData(`books/${slug}`);
 const wantParas = book.chapters[0].paragraphs.slice(0, PARAS_PER_PAGE).map((p) => p.text).join(" ");
 chk(!!bk && bk.text === wantParas, `a book page is ${PARAS_PER_PAGE} paragraphs, same as the practice page`);
 
-/* PARAS_PER_PAGE is duplicated in practice-boot.js. If the two ever
-   disagree, a share card shows text the reader never typed. */
-const boot = readFileSync(join(ROOT, "src", "assets", "js", "pages", "practice-boot.js"), "utf8");
-const bootParas = /const PARAS_PER_PAGE\s*=\s*(\d+)/.exec(boot);
+/* PARAS_PER_PAGE is duplicated: the practice page imports it from
+   engine/chapter-detect.js (it used to be a local const). If the two
+   ever drift, book cards would show a different page than the reader. */
+const detect = readFileSync(join(ROOT, "src", "assets", "js", "engine", "chapter-detect.js"), "utf8");
+const bootParas = /export const PARAS_PER_PAGE\s*=\s*(\d+)/.exec(detect)
+  || /const PARAS_PER_PAGE\s*=\s*(\d+)/.exec(readFileSync(join(ROOT, "src", "assets", "js", "pages", "practice-boot.js"), "utf8"));
 chk(!!bootParas && Number(bootParas[1]) === PARAS_PER_PAGE,
-  "PARAS_PER_PAGE matches practice-boot.js", bootParas ? bootParas[1] : "not found");
+  "PARAS_PER_PAGE matches the practice page's constant", bootParas ? bootParas[1] : "not found");
 
 const lessons = await loadData("lessons");
 const ls = await resolveSrcNode(`ls:${lessons[0].id}`);
@@ -375,7 +377,11 @@ chk(emptyish <= 5, "at most a handful of lessons have neither text nor keys", `$
 console.log("\nF. wiring");
 
 const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
-chk(/gen-og-images\.mjs/.test(pkg.scripts.build || ""), "npm run build renders the cards", pkg.scripts.build);
+/* The generator runs from eleventy.after, not from the build script:
+   Cloudflare Pages invokes Eleventy directly, so a package.json step
+   never ran there and the first deploy shipped 404s for every card. */
+const eleventyCfg = readFileSync(new URL("../eleventy.config.js", import.meta.url), "utf8");
+chk(/gen-og-images\.mjs/.test(eleventyCfg) && /eleventy\.after/.test(eleventyCfg), "the Eleventy build itself renders the cards (eleventy.after), so Pages gets them too");
 for (const dep of ["satori", "@resvg/resvg-wasm", "yoga-wasm-web"]) {
   chk(!!(pkg.dependencies || {})[dep], `${dep} is in dependencies (Cloudflare's build needs it)`,
     (pkg.dependencies || {})[dep] || "missing");

@@ -1,0 +1,59 @@
+---
+pagination:
+  data: poems
+  size: 1
+  alias: poem
+  addAllPagesToCollections: true
+permalink: "/poetry/{{ poem.id }}/"
+layout: layouts/base.njk
+pageSlug: "poem-detail"
+eleventyComputed:
+  # See quote-detail.njk for why every one of these carries `| safe`.
+  title: "{{ poem.title | safe }} — {{ poem.author | safe }}"
+  description: "{{ poem.text | truncate(160) | safe }}"
+  ogImage: "/og/poem/{{ poem.id }}.png"
+  ogImageAlt: "The poem {{ poem.title | safe }} by {{ poem.author | safe }}, on a GuerillaType card"
+---
+{% set ITEM = {
+  kind: "poem",
+  id: poem.id,
+  title: poem.title,
+  saveTitle: poem.title,
+  text: poem.text,
+  author: poem.author,
+  year: poem.year,
+  source: poem.source
+} %}
+{% set typeHref = "/practice/?mode=poem&pid=" + poem.id + "&from=poem" %}
+{% set shareTitle = poem.title + " — " + poem.author %}
+{# The share text is a one-line blurb: a poem's newlines would sit raw inside an HTML attribute. #}
+{% set shareText = poem.text | replace("\n", " ") | truncate(160) %}
+
+<article class="corpus-page corpus-page--poem" data-corpus-kind="poem" data-corpus-id="{{ poem.id }}">
+  <header class="corpus-page__head">
+    <p class="eyebrow">Poem</p>
+    <h1 class="corpus-page__title">{{ poem.title }}</h1>
+    <p class="corpus-page__byline">{{ poem.author }}{% if poem.year %} · {{ poem.year }}{% endif %}{% if poem.source %} · {{ poem.source }}{% endif %}</p>
+    <p class="corpus-page__done" id="corpus-done" hidden>✓ Typed</p>
+  </header>
+
+  {# One <p> per source line, blank lines kept as stanza breaks. The
+     poem's shape is the poem; reflowing it into prose would lose it. #}
+  <div class="corpus-page__text corpus-page__text--poem">
+    {%- for line in poem.lines %}
+    {%- if line %}<p class="poem-line">{{ line }}</p>
+    {%- else %}<p class="poem-line poem-line--break" aria-hidden="true">&nbsp;</p>
+    {%- endif %}
+    {%- endfor %}
+  </div>
+
+  {% include "partials/corpus/detail-actions.njk" %}
+
+  <nav class="corpus-page__nav" aria-label="Poem navigation">
+    <a class="corpus-page__back" href="/poetry/">← All poetry</a>
+    <span class="corpus-page__seq">
+      {% if pagination.href.previous %}<a href="{{ pagination.href.previous }}" rel="prev">← Previous</a>{% endif %}
+      {% if pagination.href.next %}<a href="{{ pagination.href.next }}" rel="next">Next →</a>{% endif %}
+    </span>
+  </nav>
+</article>
