@@ -591,9 +591,16 @@ chk(JSON.stringify(browserSide.model) === JSON.stringify(nodeModel),
   "F. the browser's model is the object lib/og/validate.js builds",
   JSON.stringify(browserSide.model).slice(0, 150));
 const nodeSvg = await createNodeRenderer().renderSvg(nodeModel);
-chk(browserSide.svg.length === nodeSvg.length && browserSide.svg === nodeSvg,
+let firstDiff = -1;
+for (let i = 0; i < Math.max(browserSide.svg.length, nodeSvg.length); i++) {
+  if (browserSide.svg[i] !== nodeSvg[i]) { firstDiff = i; break; }
+}
+chk(firstDiff === -1,
   "F. and the SVG it renders is the build's, byte for byte",
-  `browser ${browserSide.svg.length} chars, node ${nodeSvg.length}`);
+  firstDiff === -1
+    ? `${nodeSvg.length} chars identical`
+    : `browser ${browserSide.svg.length} / node ${nodeSvg.length} chars, first difference at ${firstDiff}: `
+      + `${JSON.stringify(browserSide.svg.slice(firstDiff, firstDiff + 30))} vs ${JSON.stringify(nodeSvg.slice(firstDiff, firstDiff + 30))}`);
 /* A length match alone would survive two different renderers producing
    coincidentally equal output; name a glyph path from the middle so a
    reader can see what was compared. */
