@@ -61,7 +61,8 @@
     "og-render": "node scripts/check-og-render.mjs",
     "og-images": "node scripts/check-og-images.mjs",
     "share-sheet": "node scripts/check-share-sheet.mjs",
-    "share-page": "node scripts/check-share-page.mjs"
+    "share-page": "node scripts/check-share-page.mjs",
+    "share-replay": "node scripts/check-share-replay.mjs"
   },
   "dependencies": {
     "@11ty/eleventy": "^3.0.0",
