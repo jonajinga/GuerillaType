@@ -430,7 +430,14 @@ chk(h0.exists, "C. the book reader header is on screen", h0.flat || "");
 eq(h0.eyebrow, "Custom text", "C. the eyebrow says where the text came from");
 eq(h0.chapter, "CHAPTER I. THE ARRIVAL", "C. the chapter title is the document's");
 eq(h0.pageLine, "Page 1 of 2", "C. the page counter is real — 7 paragraphs make 2 pages");
-chk((h0.flat || "").includes("three-chapters"),
+/* "three chapters", not "three-chapters": a file that supplies no
+   title of its own is now named by engine/import-parsers.js's
+   cleanFilenameTitle(), which reads the hyphens in a spaceless
+   download name as word breaks. The point of the assertion is
+   unchanged -- the reader header still carries the text's OWN title
+   next to the chapter's -- only the string the fixture produces has
+   moved. See scripts/check-custom-card.mjs section F. */
+chk((h0.flat || "").includes("three chapters"),
   "C. the text's own title is still shown", JSON.stringify(h0.flat));
 /* THE assertion of this file: the six paragraphs on the surface are
    the six paragraphs of page one, character for character. */

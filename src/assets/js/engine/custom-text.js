@@ -879,6 +879,34 @@ export function getSaved(id) {
   return listSaved().find((x) => x.id === id) || null;
 }
 
+/* Change a saved text's title.
+
+   The title lives in exactly one place: the index record in
+   localStorage. The bodies in IndexedDB (custom-store.js) carry
+   segments and chapters and no title, and the practice page reads the
+   title back through getSaved() on every load -- the segment reader at
+   practice-boot's custom branch and the chapter reader's
+   state._book.title both -- so writing here is the whole rename. If a
+   second copy of the title is ever introduced, this function is where
+   it has to be kept in step.
+
+   Trims, ignores an empty result, and holds to the same 80-character
+   ceiling saveText() applies, so a renamed record cannot be shaped
+   differently from a freshly imported one.
+
+   Returns the updated record, or null when the id is unknown or the
+   new title was blank. */
+export function renameSaved(id, title) {
+  const next = String(title == null ? "" : title).replace(/\s+/g, " ").trim().slice(0, 80);
+  if (!next) return null;
+  const list = listSaved();
+  const i = list.findIndex((x) => x.id === id);
+  if (i < 0) return null;
+  list[i].title = next;
+  write(KEY_CUSTOM, list);
+  return list[i];
+}
+
 /* Pin a saved custom text as a personal lesson — appears on the
    /lessons/ page in a "Your custom lessons" section. */
 export function togglePinAsLesson(id) {

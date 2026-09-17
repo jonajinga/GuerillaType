@@ -7,19 +7,100 @@
 .saved-list{display:grid;gap:var(--space-3);grid-template-columns:1fr;margin-top:var(--space-5)}
 @media (min-width:640px){.saved-list{grid-template-columns:repeat(2,1fr)}}
 .saved-item{display:flex;flex-direction:column;gap:.4rem;padding:var(--space-3);background:var(--bg-1);border:1px solid var(--rule)}
-.saved-item__title{font-weight:600;display:flex;justify-content:space-between;align-items:baseline}
-.saved-item__meta{color:var(--fg-2);font-size:var(--fs-200);font-family:var(--font-mono)}
-.saved-item__actions{display:flex;gap:.4rem;margin-top:.4rem;flex-wrap:wrap;align-items:center}
 
-/* Two ways to read the same text, one row each: segments (~500
+/* Band 1: what the text is.
+
+   The size used to be a flex sibling of the title inside the <h3>,
+   pushed to the far edge with justify-content:space-between. At phone
+   width that gave the heading two children competing for one line and
+   the loser broke: "826.8" above "KB". A measured value is one token
+   and must never be hyphenated by a layout that cannot tell.
+
+   So the title now owns its line and wraps like the prose it is, and
+   the size sits below it with the badges, nowrap, in a muted line that
+   is allowed to wrap BETWEEN its items and never inside one.
+
+   overflow-wrap:anywhere on the title because an imported filename can
+   be one unbroken 40-character token with no spaces and no hyphens
+   ("The_Odyssey_Homer_Full_text"), and a word that cannot break is a
+   card that overflows its own border. */
+.saved-item__head{display:flex;flex-direction:column;gap:.15rem;min-width:0}
+.saved-item__title{font-weight:600;font-size:var(--fs-400);line-height:1.3;margin:0;min-width:0;overflow-wrap:anywhere}
+.saved-item__tags{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;margin:0;color:var(--fg-2);font-size:var(--fs-200)}
+.saved-item__size{white-space:nowrap;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.saved-item__meta{color:var(--fg-2);font-size:var(--fs-200);font-family:var(--font-mono)}
+/* The date is one token. At 375 px the meta line was breaking after
+   "Sep 16," and leaving "2026" alone on a line of its own -- the same
+   fault as the size, one measurement torn in half by a line break that
+   could not tell. The line may still wrap BEFORE the date. */
+.saved-item__when{white-space:nowrap}
+
+/* Band 2: the two ways to read the same text -- segments (~500
    characters at a time) and chapters (six paragraphs a page, the way
-   the library's books read). The label on the left is what stops the
-   second row looking like more buttons for the first. */
-.saved-item__how{flex:0 0 auto;min-width:5.5rem;color:var(--fg-2);font-size:var(--fs-100);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.04em}
+   the library's books read).
+
+   A grid, not a flex row, and that is the whole point. Flex gave the
+   label a min-width and then let wrapped buttons start back at x=0
+   underneath it, so the second line of a wrapping row sat under the
+   label and the two rows' first buttons did not line up with each
+   other. With a fixed first column both rows begin their buttons at
+   the same x at every width, and a button that wraps wraps INSIDE the
+   second column, staying clear of the label.
+
+   --saved-how is shared by both rows on purpose: one value, so the
+   columns cannot drift apart.
+
+   The label is small and sentence-case now. It used to be uppercase
+   monospace at font-size:var(--fs-100) -- a token that is not defined
+   anywhere in this stylesheet, so the declaration was invalid and the
+   size was simply inherited from the card. "BY SEGMENT" was therefore
+   rendering at body size in caps, which is why it ate enough width to
+   push the buttons onto a second line on a phone. */
+.saved-item{--saved-how:4.5rem}
+/* Every control in the card is the same height.
+
+   base.css sets the site's touch-target floor as
+   `button, a.btn, [role="button"], summary{min-height:44px}`. The
+   `a.btn` half of that selector is element+class and so outranks
+   .btn--small's `min-height:0`, while the bare `button` half does not.
+   The result was that a LINK styled as a small button came out 44 px
+   tall and a BUTTON styled the same way came out 37 px, side by side
+   in the same row -- "Type" (a link) next to "Choose segment" (a
+   button), their tops three pixels apart.
+
+   Raising the buttons to the floor rather than dropping the links to
+   37 px: 44 px is a deliberate touch target and this card is the
+   phone-first part of the page. */
+.saved-item .btn{min-height:44px}
+.saved-item__actions{display:grid;grid-template-columns:var(--saved-how) minmax(0,1fr);gap:.4rem .5rem;align-items:center;margin-top:.4rem}
+.saved-item__how{color:var(--fg-2);font-size:var(--fs-200);line-height:1.2;align-self:center}
+.saved-item__ways{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;min-width:0}
 .saved-item__actions--chapter{margin-top:.2rem;padding-top:.4rem;border-top:1px dotted var(--rule)}
 /* Why a row cannot do what it offers -- a whole line of its own, since
    it is a sentence and not a control. */
 .saved-item__hint{flex:1 1 100%;color:var(--fg-2);font-size:var(--fs-200)}
+
+/* Band 3: what to do with the text itself.
+
+   Pin, rename and delete act on the whole saved text, not on either
+   way of reading it. They used to be the tail of the segment row,
+   where on a phone they wrapped underneath "Type / Choose segment" and
+   read as two more segment controls. Quiet -- borderless until hovered
+   or focused -- because none of them is the thing you came to the card
+   to do. */
+.saved-item__manage{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin-top:.2rem;padding-top:.4rem;border-top:1px dotted var(--rule)}
+.saved-item__manage .btn{border-color:transparent;color:var(--fg-2);padding-inline:.5rem}
+.saved-item__manage .btn:hover,.saved-item__manage .btn:focus-visible{border-color:var(--accent);color:var(--accent)}
+
+/* Rename, in place. The global input rule sets width:100%, which in a
+   flex row would push both buttons out of the card, so the field is
+   told to be a flex item instead. */
+.saved-item__rename{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
+.saved-item__rename[hidden]{display:none}
+.saved-item__renamefield{flex:1 1 9rem;width:auto;min-width:0;min-height:0;padding:.35rem .5rem;font-size:var(--fs-300)}
+
+.saved-item__pin,.saved-item__sample{padding:.05rem .4rem;font-size:var(--fs-200);font-weight:500;font-family:var(--font-mono);white-space:nowrap;color:var(--bg-0);background:var(--fg-2)}
+.saved-item__pin{background:var(--accent);color:#fff}
 
 /* Segment picker. A 600-page import is thousands of segments, so the
    open card takes the full grid width and pages through them rather
@@ -43,5 +124,4 @@
 .seg-picker__meta{color:var(--fg-2);font-family:var(--font-mono)}
 .seg-picker__pager{display:flex;gap:var(--space-2);align-items:center;justify-content:space-between;flex-wrap:wrap}
 .seg-picker__page{color:var(--fg-2);font-size:var(--fs-200);font-family:var(--font-mono)}
-.saved-item__sample{margin-left:.5rem;padding:.05rem .4rem;font-size:var(--fs-100);font-weight:500;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.04em;color:var(--bg-0);background:var(--fg-2)}
 .saved-item__note{margin:0;color:var(--fg-2);font-size:var(--fs-200)}
