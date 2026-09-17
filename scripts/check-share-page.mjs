@@ -116,6 +116,40 @@ for (const [name, log] of [["ASCII", ASCII_LOG], ["non-ASCII", UNICODE_LOG], ["b
     `A. ${name}: the encoding is base64url (no +, /, = or %)`, packed.value.slice(0, 24));
 }
 
+/* Every quantum, not only 1 ms.
+   A verifier mutated `entries.push([ch, q * quantum])` to
+   `entries.push([ch, q])` in decodeLog and the whole gate still passed
+   137/0, because every round trip above runs at quantum 1 where the
+   multiply is invisible. Deltas here are chosen so the quantisation
+   bites: the expected value is the original ROUNDED to the quantum,
+   computed here rather than read back from the decoder. */
+{
+  const TIMED = [
+    ["a", 0], ["b", 61], ["c", 74], ["d", 130], ["e", 7], ["f", 3],
+    [M.MARK_BACKSPACE, 255], ["g", 1001], [M.MARK_PAUSE, 4203],
+    ["h", 999], ["é", 66], [M.MARK_END, 45],
+  ];
+  for (const q of M.QUANTA) {
+    const want = TIMED.map(([ch, d]) => [ch, Math.round(d / q) * q]);
+    const back = M.decodeLog(M.encodeLog(TIMED, { quantum: q }));
+    chk(back.quantum === q, `A. quantum ${q}: the header says so`, String(back.quantum));
+    chk(JSON.stringify(back.entries) === JSON.stringify(want),
+      `A. quantum ${q}: deltas come back rounded to the quantum, not divided by it`,
+      `${JSON.stringify(back.entries.slice(1, 4))} want ${JSON.stringify(want.slice(1, 4))}`);
+    const packed = await M.packLog(TIMED, { quantum: q });
+    const un = await M.unpackLog({ [packed.key]: packed.value });
+    chk(!!un && JSON.stringify(un.entries) === JSON.stringify(want),
+      `A. quantum ${q}: and survive the compressor too`, `${packed.key}=${packed.bytes} chars`);
+  }
+  /* A quantum the format does not define must be refused outright
+     rather than quietly read as something else. */
+  const bad = M.encodeLog(TIMED, { quantum: 1 });
+  bad[1] = 3;
+  let threw = false;
+  try { M.decodeLog(bad); } catch { threw = true; }
+  chk(threw, "A. a quantum byte that is not 1, 2, 4 or 8 is refused");
+}
+
 /* The uncompressed fallback has to decode too -- it is what Safari
    before 16.4 produces, and nobody has one of those to hand. */
 {
@@ -215,6 +249,131 @@ console.log("\nE. lib/og/r-meta.js: what a scraper is told");
   const dyn = rMeta("v=1&wpm=62&acc=96", { origin: "https://x.test", dynamic: true });
   chk(dyn.image.startsWith("https://x.test/og/result.png?v=1&wpm=62"),
     "E. with OG_DYNAMIC the card is the on-demand renderer", dyn.image);
+}
+
+// =============================================================== G
+/* The Functions bundle. This section is here because a verifier ran
+   `wrangler pages dev _site` and found that the WHOLE Functions build
+   failed -- /r/ included -- with `Could not resolve "fs"` from
+   harfbuzzjs under satori. The cause was an `import("satori")` in
+   functions/og/[[path]].js, behind a flag check that never runs.
+   esbuild resolves a dynamic import statically; the guard bought
+   nothing.
+ 
+   Reading the file does not show this. Neither does node --check. So
+   the rule is mechanical and so is the check: walk every file under
+   functions/ and everything it reaches, and refuse anything outside a
+   three-file allowlist. Cheap, offline, and it fires long before
+   anybody gets as far as a preview deploy. */
+console.log("\nG. nothing under functions/ may reach a bundler it cannot survive");
+{
+  const { readdir, readFile: rf } = await import("node:fs/promises");
+  const { dirname, join: j, relative, resolve: r } = await import("node:path");
+  const REPO = r(".");
+  const ALLOW = [
+    "lib/og/validate.js",
+    "lib/og/labels.js",
+    "lib/og/r-meta.js",
+  ].map((p) => r(REPO, p));
+
+  const walk = async (dir) => {
+    let out = [];
+    let entries = [];
+    try { entries = await readdir(dir, { withFileTypes: true }); } catch { return out; }
+    for (const e of entries) {
+      const full = j(dir, e.name);
+      if (e.isDirectory()) out = out.concat(await walk(full));
+      else if (/\.(js|mjs)$/.test(e.name)) out.push(full);
+    }
+    return out;
+  };
+  const roots = await walk(r(REPO, "functions"));
+  chk(roots.length > 0, "G. there are Functions to check", roots.map((f) => relative(REPO, f)).join(", "));
+
+  /* Comments first. The first version of this check read them, and
+     `import("satori")` written inside a comment EXPLAINING why satori
+     must never be imported failed the gate. esbuild does not read
+     comments and neither should this. Quotes and template literals are
+     tracked so that a "//" inside a string survives. */
+  const stripComments = (src) => {
+    let out = "", i = 0, q = null;
+    while (i < src.length) {
+      const c = src[i], n = src[i + 1];
+      if (q) {
+        if (c === "\\") { out += c + (n || ""); i += 2; continue; }
+        if (c === q) q = null;
+        out += c; i++; continue;
+      }
+      if (c === '"' || c === "'" || c === "`") { q = c; out += c; i++; continue; }
+      if (c === "/" && n === "*") {
+        const end = src.indexOf("*/", i + 2);
+        i = end === -1 ? src.length : end + 2;
+        out += " ";
+        continue;
+      }
+      if (c === "/" && n === "/") {
+        const end = src.indexOf("\n", i);
+        i = end === -1 ? src.length : end;
+        out += " ";
+        continue;
+      }
+      out += c; i++;
+    }
+    return out;
+  };
+
+  /* Static imports, re-exports, dynamic imports and require(), because
+     any of the four is a specifier esbuild will try to resolve. */
+  const SPECS = [
+    /\bimport\s+[^;]*?\bfrom\s*["']([^"']+)["']/g,
+    /\bexport\s+[^;]*?\bfrom\s*["']([^"']+)["']/g,
+    /\bimport\s*\(\s*["']([^"']+)["']\s*\)/g,
+    /\brequire\s*\(\s*["']([^"']+)["']\s*\)/g,
+    /\bimport\s+["']([^"']+)["']/g,
+  ];
+  const seen = new Set();
+  const bad = [];
+  const queue = roots.slice();
+  while (queue.length) {
+    const file = queue.shift();
+    if (seen.has(file)) continue;
+    seen.add(file);
+    let src = "";
+    try { src = stripComments(await rf(file, "utf8")); } catch { continue; }
+    for (const re of SPECS) {
+      re.lastIndex = 0;
+      let m;
+      while ((m = re.exec(src))) {
+        const spec = m[1];
+        const where = relative(REPO, file);
+        if (spec.startsWith("node:")) { bad.push(`${where} -> ${spec} (node builtin)`); continue; }
+        if (!spec.startsWith(".") && !spec.startsWith("/")) {
+          bad.push(`${where} -> ${spec} (bare specifier: esbuild will resolve it)`);
+          continue;
+        }
+        const target = r(dirname(file), spec);
+        if (!ALLOW.includes(target)) {
+          bad.push(`${where} -> ${spec} (not on the allowlist)`);
+          continue;
+        }
+        queue.push(target);
+      }
+    }
+  }
+  chk(bad.length === 0,
+    "G. every import under functions/ is lib/og/{validate,labels,r-meta}.js and nothing else",
+    bad.length ? bad.join(" | ") : `${seen.size} files walked, all clean`);
+
+  /* Named rather than counted: satori and resvg are the two that
+     actually broke the build, and a future reader should see them
+     spelled out. */
+  const bundled = [...seen].map((f) => relative(REPO, f)).join(" ");
+  let joined = "";
+  for (const f of seen) { try { joined += stripComments(await rf(f, "utf8")); } catch {} }
+  chk(!/["']satori["']|@resvg|yoga-wasm|harfbuzz/.test(joined),
+    "G. satori, resvg, yoga and harfbuzz appear nowhere in the bundle", bundled);
+  chk(/lib\/og\/dynamic-card\.js/.test(await rf(r(REPO, "functions/og/[[path]].js"), "utf8")),
+    "G. and the renderer that used to live there says where it went");
 }
 
 // ---------------------------------------------------------------- server
