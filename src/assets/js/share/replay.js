@@ -92,6 +92,11 @@ const CSS = `
 .replay__verdict--match{color:var(--good,var(--accent))}
 .replay__verdict--differ{color:var(--fg-2)}
 .replay__hint{margin:var(--space-2) 0 0;font-size:var(--fs-200);color:var(--fg-3,var(--fg-2))}
+/* The only thing in this panel that moves without being asked: the
+   caret blink, which comes from the typing surface's own stylesheet.
+   Somebody who has asked for less motion gets a still caret, and the
+   rule is a media query rather than a JS class so it holds even if the
+   player's own detection is wrong. */
 @media (prefers-reduced-motion:reduce){.replay .tt-caret{animation:none}}
 `;
 
@@ -137,7 +142,6 @@ export class ReplayPlayer {
     this.verdictText = "";
     this.stoppedEarly = false;
     this.reducedMotion = prefersReducedMotion();
-    this.autoplayed = false;
 
     this._raf = null;
     this._lastFrame = 0;
@@ -157,16 +161,13 @@ export class ReplayPlayer {
     this._buildEngine();
     this.seek(0, { silent: true });
 
-    /* Reduced motion means: nothing moves until you ask it to. Every
-       other visitor gets the run playing, because a shared result that
-       needs a click before it shows you anything mostly does not get
-       the click. */
-    if (!this.reducedMotion && this.events.length) {
-      this.autoplayed = true;
-      this.play(1);
-    } else {
-      this._paint();
-    }
+    /* Nothing starts by itself, for anybody. You land on somebody's
+       result, the text is sitting there at rest with a Play button
+       under it, and the run begins when you press it. A page that
+       starts animating at a visitor who did not ask is a worse page
+       even for the visitor who would have pressed Play, and under
+       prefers-reduced-motion it is the wrong thing outright. */
+    this._paint();
   }
 
   // ---------------------------------------------------------- markup
@@ -557,7 +558,10 @@ export class ReplayPlayer {
   restart() {
     const wasPlaying = this.playing;
     this.seek(0);
-    if (wasPlaying && !this.reducedMotion) this.play();
+    /* Somebody who was watching it play and pressed Restart wants it
+       to keep playing. Nothing here starts on its own, so this is a
+       request, not an autoplay. */
+    if (wasPlaying) this.play();
     return true;
   }
 
@@ -598,7 +602,6 @@ export class ReplayPlayer {
       verdict: this.verdict,
       verdictText: this.verdictText,
       reducedMotion: this.reducedMotion,
-      autoplayed: this.autoplayed,
       correct,
       incorrect,
       cursor: this.engine ? this.engine.cursor : 0,

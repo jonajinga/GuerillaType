@@ -24,7 +24,9 @@
         number the player handed over.
      D. A link with no replay in it: no Play button, no replay root,
         and the rest of the page exactly as D2 left it.
-     E. prefers-reduced-motion: nothing moves until Play is pressed.
+     E. Nothing plays until Play is pressed -- for a normal viewer as
+        much as for one who asked for reduced motion, who additionally
+        gets a caret that does not blink.
      F. Not one request during playback leaves the origin, and not one
         carries any part of the fragment.
      G. The player is not an input. Keys pressed at it change nothing:
@@ -523,45 +525,53 @@ console.log("\nD. a link with no replay in it");
 }
 
 // =============================================================== E
-console.log("\nE. prefers-reduced-motion: nothing moves until you ask");
-{
+console.log("\nE. nothing plays until Play is pressed");
+/* Both kinds of visitor, because "it does not start by itself" is the
+   decision for everybody, not a concession to one media query. Reduced
+   motion gets one extra thing on top: the caret stops blinking. */
+for (const viewer of ["a normal viewer", "prefers-reduced-motion"]) {
+  const reduce = viewer !== "a normal viewer";
   const ctxE = await mkContext();
-  await ctxE.grantPermissions([], { origin: B });
   const pageE = await ctxE.newPage();
-  await pageE.emulateMedia({ reducedMotion: "reduce" });
+  const eErrors = [];
+  pageE.on("pageerror", (e) => eErrors.push(String(e).slice(0, 200)));
+  if (reduce) await pageE.emulateMedia({ reducedMotion: "reduce" });
   await pageE.goto(FULL_URL, { waitUntil: "networkidle" });
   await pageE.waitForFunction(() => window.__ttReplay && window.__ttReplay.ready, null, { timeout: 15000 });
+
   const atLoad = await pageE.evaluate(() => window.__ttReplay.state());
+  chk(atLoad.playing === false && atLoad.index === 0,
+    `E. ${viewer}: the player mounts at rest`, `playing=${atLoad.playing} index=${atLoad.index}`);
+  /* Long enough that a run which HAD started would be most of the way
+     through it: this fixture is about five seconds at 1x. */
   await pageE.waitForTimeout(1200);
   const later = await pageE.evaluate(() => ({
     s: window.__ttReplay.state(),
     glyphs: document.querySelectorAll("[data-replay-surface] .tt-char--correct, [data-replay-surface] .tt-char--incorrect").length,
+    label: (document.getElementById("tt-replay-play").textContent || "").trim(),
+    caretAnim: (() => {
+      const c = document.querySelector("[data-replay-surface] .tt-caret");
+      return c ? getComputedStyle(c).animationName : "(no caret)";
+    })(),
   }));
-  chk(atLoad.reducedMotion === true, "E. the player knows motion is unwelcome", String(atLoad.reducedMotion));
-  chk(atLoad.autoplayed === false && atLoad.playing === false, "E. it did not start itself", JSON.stringify({ autoplayed: atLoad.autoplayed, playing: atLoad.playing }));
-  chk(later.s.playing === false && later.s.index === 0 && later.glyphs === 0,
-    "E. and a second later nothing has moved",
-    `index ${later.s.index}, ${later.glyphs} painted glyphs`);
-  chk(await pageE.isVisible("#tt-replay-play"), "E. the Play button is there, waiting to be pressed");
+  chk(later.s.playing === false && later.s.index === 0,
+    `E. ${viewer}: and a second later it still has not started`,
+    `playing=${later.s.playing} index=${later.s.index}`);
+  chk(later.glyphs === 0,
+    `E. ${viewer}: not one character has been painted`, `${later.glyphs} glyphs`);
+  chk(await pageE.isVisible("#tt-replay-play") && /play/i.test(later.label),
+    `E. ${viewer}: the Play button is there, waiting`, later.label || "(no label)");
+  chk(atLoad.reducedMotion === reduce,
+    `E. ${viewer}: the player reads the motion preference correctly`, String(atLoad.reducedMotion));
+  chk(reduce ? later.caretAnim === "none" : later.caretAnim === "tt-blink",
+    `E. ${viewer}: the caret ${reduce ? "does not blink" : "blinks"}`, later.caretAnim);
+
   await pageE.click("#tt-replay-play");
-  await pageE.waitForTimeout(300);
+  await pageE.waitForTimeout(400);
   const after = await pageE.evaluate(() => window.__ttReplay.state());
-  chk(after.index > 0, "E. pressing it plays the run", `index ${after.index}`);
+  chk(after.index > 0, `E. ${viewer}: pressing it plays the run`, `index ${after.index}`);
+  chk(eErrors.length === 0, `E. ${viewer}: and nothing threw`, eErrors.join(" | "));
   await ctxE.close();
-}
-/* The other half of the same claim: without that preference the run
-   does start on its own, so E above is testing the preference and not
-   a player that never autoplays under any circumstances. */
-{
-  const ctxA = await mkContext();
-  const pageA = await ctxA.newPage();
-  await pageA.goto(FULL_URL, { waitUntil: "networkidle" });
-  await pageA.waitForFunction(() => window.__ttReplay && window.__ttReplay.ready, null, { timeout: 15000 });
-  await pageA.waitForTimeout(600);
-  const s = await pageA.evaluate(() => window.__ttReplay.state());
-  chk(s.autoplayed === true && s.index > 0,
-    "E. without that preference the run plays on its own", `autoplayed=${s.autoplayed} index=${s.index}`);
-  await ctxA.close();
 }
 
 // =============================================================== F
