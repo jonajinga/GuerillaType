@@ -299,6 +299,7 @@ const bErrors = [];
 pageB.on("pageerror", (e) => bErrors.push(String(e).slice(0, 200)));
 /* Every request from the moment this document starts loading, for F. */
 const seen = [];
+const seenD = [];
 pageB.on("request", (req) => {
   let body = "";
   try { body = req.postData() || ""; } catch { body = ""; }
@@ -486,6 +487,10 @@ console.log("\nD. a link with no replay in it");
   const pageD = await ctxD.newPage();
   const dErrors = [];
   pageD.on("pageerror", (e) => dErrors.push(String(e).slice(0, 200)));
+  /* This page is also the baseline for F: the same /r/ with no player
+     on it, so whatever off-origin hosts it talks to are the site's own
+     furniture (webfonts, tippy, instant.page) and not the replay's. */
+  pageD.on("request", (req) => seenD.push({ url: req.url() }));
   await pageD.goto(noReplay, { waitUntil: "networkidle" });
   await pageD.waitForSelector("#tt-shared:not([hidden])", { timeout: 9000 });
   await pageD.waitForTimeout(250);
@@ -563,6 +568,22 @@ console.log("\nF. playback sends nothing anywhere");
   chk(offOrigin.length === 0, "F. not one request made during playback left the origin",
     offOrigin.length ? offOrigin.map((r) => r.url.slice(0, 70)).join(" | ")
       : `${during.length} requests once playback started`);
+  /* And over the whole load, measured against the same page without a
+     replay on it: the player may not introduce a single host the page
+     did not already talk to. A beacon fired the moment the run starts
+     autoplaying would be inside the load window and invisible to the
+     check above -- this is the one that sees it. */
+  const hostsOf = (list) => new Set(list
+    .map((r) => { try { return new URL(r.url).host; } catch { return ""; } })
+    .filter((h) => h && h !== new URL(B).host));
+  const baseline = hostsOf(seenD);
+  const newHosts = [...hostsOf(seen)].filter((h) => !baseline.has(h));
+  chk(seenD.length > 3 && baseline.size > 0,
+    "F. the no-replay page gave a baseline of hosts to compare against",
+    [...baseline].join(", ") || "(none)");
+  chk(newHosts.length === 0,
+    "F. and the player introduced no host the page did not already use",
+    newHosts.join(", ") || `${baseline.size} hosts, all of them the page's own`);
   const carriers = seen.filter((r) => {
     const hay = `${r.url} ${r.body} ${JSON.stringify(r.headers)}`;
     const dec = (() => { try { return decodeURIComponent(hay); } catch { return hay; } })();
