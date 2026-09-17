@@ -20,11 +20,28 @@ import { mountLiveKeyboard, showLiveKeyboard, highlightChar } from "../viz/live-
 import { mountLiveTicker, showLiveTicker, recordKeystroke, resetTicker, updateWpm as updateTickerWpm } from "../viz/live-ticker.js";
 import { mountVirtualKeyboard, unmountVirtualKeyboard, highlightNextKey as vkbdNext } from "../engine/virtual-keyboard.js";
 import { Analytics } from "../analytics.js";
-/* The result card's file name -- /og/result/<wpm>-<band>.png -- is a
-   contract with scripts/gen-og-images.mjs, and the accuracy band in it
-   had four copies. This is the browser-side one; it mirrors bandFor()
-   in lib/og/labels.js, which runs in Node where satori does. */
-import { resultImagePath } from "../share/share.js";
+/* Everything the results-card Share button needs: the /r/ query, the
+   public `src` id, the accuracy band that names the pre-rendered card,
+   and the fragment that carries the text and the keystroke replay.
+   One call, from renderResults, and no share knowledge in this file. */
+import { wireResultShare, isOwnText as isOwnTextOf } from "../share/result-link.js";
+/* The keystroke log of a finished run, kept in this browser so /stats/
+   can offer to share or replay a past session later. Never uploaded,
+   never in a query string. */
+import { save as saveReplayRecord, textHash } from "../engine/replay-store.js";
+import { prefsMask } from "../share/codec.js";
+
+function saveReplay(sessionId, result, preferences) {
+  try {
+    if (!sessionId || !Array.isArray(result.keylog) || !result.keylog.length) return;
+    saveReplayRecord({
+      id: sessionId,
+      keylog: result.keylog,
+      textHash: textHash(result.target),
+      prefs: prefsMask(preferences),
+    }).catch(() => {});
+  } catch {}
+}
 
 /* Inlined bucket helpers. These also live in analytics.js as named
    exports, but importing them from there would tie practice-boot
@@ -134,13 +151,35 @@ const bookPage = params.get("page") != null ? parseInt(params.get("page"), 10) :
    /custom/, opened straight onto its chapter picker. */
 const customChapterListUrl = () =>
   `/custom/#chapters-${encodeURIComponent(customBookId(state.bookSlug))}`;
+/* Anything that arrived in the query string is a string a visitor
+   chose, and session_start puts four of them on the wire: mode, lang,
+   quote and drill. A real one is a slug -- "time", "en-1k", "medium",
+   "home-row", "alice-in-wonderland". Anything else is free text: a
+   pasted title, a search phrase, a sentence. ?quote=SECRET%20ZEBRA
+   reached Umami verbatim, and it did not have to be a word anyone would
+   want there.
+
+   A shape test rather than an allowlist, so a new wordlist or drill does
+   not have to be added here to be counted -- and it is applied where the
+   value ENTERS the page rather than at the analytics call, because
+   state.mode alone is echoed by a dozen later events and patching one
+   call site would have left the other eleven. Every id the site itself
+   ships passes it: 23 wordlists, 71 drills, every mode, every book slug.
+   An unknown value behaves exactly as it did before -- "other" resolves
+   to no wordlist and no drill, same as the garbage did. */
+const PUBLIC_PARAM = /^[a-z0-9-]{1,80}$/;
+const publicParam = (v, fallback = "other") => {
+  if (v == null || v === "") return null;
+  const s = String(v);
+  return PUBLIC_PARAM.test(s) ? s : fallback;
+};
 const state = {
-  mode: params.get("mode") || "time",
+  mode: publicParam(params.get("mode")) || "time",
   duration: parseInt(params.get("duration") || "30", 10),
   words: parseInt(params.get("words") || "25", 10),
-  quote: params.get("quote") || "medium",
+  quote: publicParam(params.get("quote")) || "medium",
   quoteTag: params.get("tag") || "",
-  language: params.get("lang") || settings.language || "en-1k",
+  language: publicParam(params.get("lang")) || settings.language || "en-1k",
   layout: settings.layout || "qwerty",
   // stopOnError preference overrides freedom: when on, freedom is false
   // (cursor refuses to advance until you hit the right key).
@@ -153,7 +192,7 @@ const state = {
   customSeg: parseInt(params.get("seg") || "0", 10),
   bookSlug, bookCh, bookParaId, bookPage,
   lessonId: params.get("lesson") ? parseInt(params.get("lesson"), 10) : null,
-  drillId: params.get("drill") || null,
+  drillId: publicParam(params.get("drill")),
 };
 // If a lesson was requested, override mode to "lesson" so the runner knows.
 if (state.lessonId) state.mode = "lesson";
@@ -235,6 +274,31 @@ const model = new AdaptiveModel(profile, { layout: state.layout });
    three recording sites use this. */
 const lessonKeyOf = () =>
   (state.lessonId != null ? state.lessonId : (state._customLessonId || null));
+
+/* Is the text on the surface one the reader imported themselves?
+
+   Two URL shapes reach the same private import: ?mode=custom&custom=<id>
+   reads it a segment at a time, ?book=custom:<id>&ch=N&page=M reads it
+   by chapter -- and the second sets state.mode = "book", so neither
+   test alone covers both. Analytics must answer this question before
+   sending anything that came OUT of the text: its slug, its id, its
+   title, or a character or word lifted from its body.
+
+   Corpus items (quote / idiom / poem / parable) run through the same
+   "custom" pipeline and are public, so this predicate is occasionally
+   more careful than it strictly needs to be. That is deliberate: the
+   share payload draws the line in exactly this place already
+   (see the results-card ownText), and one predicate that is sometimes
+   too cautious beats two that can disagree about what is private.
+
+   And so there IS only one: the body of it lives in
+   share/result-link.js, which needs the same answer to decide whether
+   a run may name a public `src`. This wrapper exists because every
+   call site in this file already reads the module-level `state`. Two
+   copies of a privacy predicate is how they end up disagreeing. */
+function isOwnText() {
+  return isOwnTextOf(state);
+}
 
 let engine = null;
 
@@ -1056,7 +1120,7 @@ function handleFinish(result) {
          file on one person's device, which tells the analytics nothing
          and is not ours to send. Report the kind instead. */
       emit("bookCompletion", {
-        book: isCustomBook(state.bookSlug) ? "custom" : state.bookSlug,
+        book: isCustomBook(state.bookSlug) ? "custom" : publicParam(state.bookSlug),
         event: completed ? "finished" : "started",
       });
     }
@@ -1079,7 +1143,13 @@ function handleFinish(result) {
       for (const k of Object.keys(charMiss)) {
         if (charMiss[k] > worstChCount) { worstCh = k; worstChCount = charMiss[k]; }
       }
-      if (worstCh) emit("worstChar", { char: worstCh, missCount: worstChCount });
+      /* char and word below are literally cut out of the target. For a
+         library book or a wordlist that is public text; for someone's
+         own import it is a piece of their document, so it does not go.
+         finger_acc / worst_finger stay either way -- a finger name comes
+         from the keyboard layout, not from the text. */
+      const ownText = isOwnText();
+      if (worstCh && !ownText) emit("worstChar", { char: worstCh, missCount: worstChCount });
 
       // Per-finger totals + misses.
       const layout = state.layout || "qwerty";
@@ -1130,7 +1200,7 @@ function handleFinish(result) {
       for (const k of Object.keys(wordMiss)) {
         if (wordMiss[k] > worstWordCount) { worstWord = k; worstWordCount = wordMiss[k]; }
       }
-      if (worstWord) emit("worstWord", { word: worstWord, missCount: worstWordCount });
+      if (worstWord && !ownText) emit("worstWord", { word: worstWord, missCount: worstWordCount });
     }
   } catch {}
   // 100 % accuracy + non-trivial length is a celebration event.
@@ -1237,8 +1307,13 @@ function handleFinish(result) {
       return p;
     });
   }
-  const { meta } = recordSession(result, model.serialize());
+  const { meta, id: sessionId } = recordSession(result, model.serialize());
   result._meta = meta || {};
+  /* File the keystroke log against this session, on this device only.
+     Fire and forget, and every failure inside is swallowed: a browser
+     with no IndexedDB, or a full one, must cost somebody a replay and
+     never the session that earned it. */
+  saveReplay(sessionId, result, prefs);
   // Challenge: evaluate goal and update bests.
   if (activeChallenge) {
     const evalRes = evaluateGoal(activeChallenge.goal, result);
@@ -2007,82 +2082,16 @@ function renderResults(r) {
           <${attrs.tag || "button"} class="btn results__btn ${primary ? "btn--primary" : ""}" ${attrs.attrs || ""} data-tip="${tip}" aria-label="${label}">
             ${icon}<span class="results__btn-label">${label}</span>
           </${attrs.tag || "button"}>`;
-        /* Share. Numbers and a public link -- never what was typed.
-           The image is the Free-plan result card the build pre-rendered
-           (scripts/gen-og-images.mjs), addressed by rounded wpm and an
-           accuracy band; the band thresholds below must stay identical
-           to bandFor() in lib/og/labels.js and share/share.js.
-
-           TODO(Phase D2): shortUrl and fullUrl both become the /r/
-           landing page -- shortUrl the query alone, fullUrl with the
-           keystroke replay in its fragment -- and the image becomes the
-           same card resolved server-side. Until that page exists a
-           result links to whatever public URL reproduces the same
-           content, and a run that has no such URL (random words, a
-           custom text) links to the mode itself. */
-        const shareAttrs = (() => {
-          const wpmN = Math.max(0, Math.round(r.wpm || 0));
-          const accN = Math.max(0, Math.round(r.accuracy || 0));
-          const img = location.origin + resultImagePath(wpmN, accN);
-          const p = (q) => `${location.origin}/practice/?${q}`;
-          const cm = state._customMeta || {};
-          const srcId = cm.sourceId || null;
-          const kindOf = cm.kind || state.mode;
-          let link;
-          /* A text of your own read by chapter is a book only to the
-             reader: its slug IS the private id (custom:<id>), so the
-             library branch below would put that id -- and with it the
-             text's identity -- into every intent url. It is checked
-             first for exactly that reason. */
-          if (isCustomBook(state.bookSlug)) {
-            link = p(`mode=custom`);
-          } else if (state.bookSlug) {
-            const ch = state.bookCh != null ? state.bookCh : 0;
-            const base = `book=${encodeURIComponent(state.bookSlug)}&ch=${ch}`;
-            link = state.bookPage != null
-              ? p(`${base}&page=${state.bookPage}`)
-              : state.bookParaId
-                ? p(`${base}&p=${encodeURIComponent(state.bookParaId)}`)
-                : p(base);
-          } else if (state.lessonId) {
-            link = p(`lesson=${state.lessonId}`);
-          } else if (state.drillId) {
-            link = p(`drill=${encodeURIComponent(state.drillId)}`);
-          } else if (activeChallenge && activeChallenge.id) {
-            link = p(`challenge=${encodeURIComponent(activeChallenge.id)}`);
-          } else if (kindOf === "quote" && srcId) {
-            link = p(`mode=quote&quote=id&qid=${encodeURIComponent(srcId)}`);
-          } else if (kindOf === "poem" && srcId) {
-            link = p(`mode=poem&pid=${encodeURIComponent(srcId)}`);
-          } else if (kindOf === "idiom" && srcId) {
-            link = p(`mode=idiom&iid=${encodeURIComponent(srcId)}`);
-          } else if (kindOf === "parable" && srcId) {
-            link = p(`mode=parable&pid=${encodeURIComponent(srcId)}`);
-          } else if (state.mode === "custom") {
-            /* A custom text is private: its id, its title and its body
-               all stay on this device. The numbers can still travel. */
-            link = p(`mode=custom`);
-          } else {
-            link = p(`mode=${encodeURIComponent(state.mode || "time")}`);
-          }
-          const ownText = isCustomBook(state.bookSlug) || state.mode === "custom";
-          const label = ownText ? "custom text"
-            : state.mode === "time" ? `${state.duration || 30}s test`
-            : state.mode === "words" ? `${state.words || 25}-word test`
-            : state.mode === "lesson" ? `lesson ${state.lessonId}`
-            : state.mode === "book" ? "book page"
-            : String(state.mode || "test").replace(/[^a-z0-9 -]/gi, "");
-          const text = `${wpmN} wpm · ${accN}% accuracy · ${label} · GuerillaType`;
-          const title = `${wpmN} wpm on GuerillaType`;
-          return `type="button" data-share data-share-kind="result" data-share-surface="result"`
-            + ` data-share-mode="${htmlEscape(ownText ? "custom" : (state.mode || ""))}"`
-            + ` data-share-title="${htmlEscape(title)}"`
-            + ` data-share-text="${htmlEscape(text)}"`
-            + ` data-share-url="${htmlEscape(link)}"`
-            + ` data-share-short-url="${htmlEscape(link)}"`
-            + ` data-share-image="${htmlEscape(img)}"`;
-        })();
-        const shareBtn = wrap(ICONS.share, "Share", { attrs: `id="tt-share" ${shareAttrs}` }, "Share this result -- your numbers and a link to the same text. Nothing you typed travels with it.");
+        /* Share. The button is emitted bare; every data-share-*
+           attribute on it is written by wireResultShare() in
+           share/result-link.js after this card is in the DOM. That is
+           one call, below, and it is deliberately the only thing this
+           file knows about share links: the query schema, the public
+           `src` ids, the accuracy band and the fragment that carries
+           the text and the replay all live in that module, next to the
+           validator that has to accept them. */
+        const shareAttrs = `type="button" data-share data-share-kind="result" data-share-surface="result"`;
+        const shareBtn = wrap(ICONS.share, "Share", { attrs: `id="tt-share" ${shareAttrs}` }, "Share this result. The numbers travel in the link. What you typed sits after the # and never reaches this site; it travels only where you choose to send the link.");
         // Book mode: Next page / Type page again / back to chapter list.
         if (state.bookSlug) {
           const paraMode = state.bookPage == null;
@@ -2141,6 +2150,10 @@ function renderResults(r) {
     </div>
     ${testimonialPrompt}
   `;
+  /* The results-card Share button gets its three URLs from one call.
+     Fire and forget: the short link is written synchronously inside,
+     the fragment-bearing one a promise later. */
+  wireResultShare(document.getElementById("tt-share"), { result: r, state, profile });
   // Wire the testimonial-prompt dismiss button if rendered.
   const dismissBtn = document.getElementById("tt-testimonial-dismiss");
   if (dismissBtn) {
@@ -2360,7 +2373,14 @@ async function boot() {
       lessonId: state.lessonId || null,
       drillId: state.drillId || null,
       challenge: (activeChallenge && activeChallenge.id) || null,
-      bookSlug: state.bookSlug || null,
+      /* A library slug is a public book id: "moby-dick" means something
+         in aggregate and is ours to send. A custom slug is
+         "custom:c_9f3a1b" -- the id of a file on one person's device.
+         It means nothing in aggregate, and the server is only ever
+         supposed to see allowlisted public ids. Report the kind, the
+         same substitution book_completion makes at the end of this very
+         run (see handleFinish). */
+      bookSlug: state.bookSlug ? (isCustomBook(state.bookSlug) ? "custom" : publicParam(state.bookSlug)) : null,
     });
   } catch (err) {
     console.error(err);

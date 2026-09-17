@@ -172,7 +172,11 @@ export function recordSession(result, modelSerialized) {
     return p;
   });
 
-  return { profile, meta };
+  /* `id` is returned as well as stored on the entry: the caller needs
+     it to file the keystroke log against this session in
+     engine/replay-store.js, and digging it back out of p.sessions[0]
+     would be guessing. */
+  return { profile, meta, id };
 }
 
 function bestKey(result) {

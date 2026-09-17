@@ -11,6 +11,12 @@ import { attachInput } from "./input-capture.js";
 import { Renderer } from "./renderer.js";
 import { netWpm, rawWpm, accuracy, consistency } from "./metrics.js";
 import { toast } from "../util/dom.js";
+/* The four non-character markers a keystroke log can carry. They live
+   in share/codec.js because that file is the one that has to turn them
+   into bytes, and a second table would be a second opinion. codec.js
+   is pure -- no DOM, no imports of its own -- so this costs the
+   practice page nothing but the fetch. */
+import { MARK_BACKSPACE, MARK_WORD_BACKSPACE, MARK_PAUSE, MARK_END } from "../share/codec.js";
 
 /* Touch-only detection: does this device type with a soft keyboard?
    True for phones and tablets, false for desktops and laptops, and
@@ -61,6 +67,25 @@ export class TypingEngine {
     this.onCorrect = opts.onCorrect || (() => {});
     this.adaptive = opts.adaptive || null;  // { onChar(prev, ch, correct, ms), nextWords(n) }
 
+    /* The clock, injectable. Everything that asks the time asks this,
+       so the replay player (share/replay.js, Phase D3) can drive a
+       recorded session through the real engine on a virtual clock and
+       get the same numbers out. Default is performance.now, so every
+       existing caller behaves exactly as before. */
+    this.now = typeof opts.now === "function" ? opts.now : () => performance.now();
+    /* capture:false builds an engine with no keyboard: no input
+       binding, no focus or blur handling, nothing that would steal the
+       caret from the page it is embedded in. The replay player feeds
+       onChar/onBackspace itself. Absent or true -> the normal engine. */
+    this.capturing = opts.capture !== false;
+
+    /* Append-only keystroke log: [char-or-marker, ms since the previous
+       entry]. typed[] cannot do this job -- backspace truncates it, so
+       by the end of a session it holds what survived rather than what
+       happened. Reset in start(); see _klog(). */
+    this.keylog = [];
+    this._keylogTs = 0;
+
     this.renderer = new Renderer(this.textEl, opts.caret || "line", { autoScroll: opts.autoScroll !== false });
 
     this.target = "";       // chars (string)
@@ -104,7 +129,7 @@ export class TypingEngine {
     this.host.dataset.state = "idle";
     if (opts.hint) this.setHint(opts.hint);
 
-    this.capture = attachInput(this.inputEl, this.host, {
+    this.capture = !this.capturing ? null : attachInput(this.inputEl, this.host, {
       onChar: (k, ts) => this.onChar(k, ts),
       onBackspace: (word) => this.onBackspace(word),
       onRestart: () => this.restart(),
@@ -143,13 +168,26 @@ export class TypingEngine {
     // media query or a phone/tablet user agent, and nothing weaker,
     // because a desktop that lands here by mistake has to click the
     // surface before every run and can never auto-advance.
-    if (isMobileLike()) {
+    if (!this.capturing) {
+      /* No keyboard, so no focus story to tell. */
+    } else if (isMobileLike()) {
       this.host.dataset.mobileWaiting = "true";
       this.host.dataset.focused = "false";
       this.setHint("");
     } else {
       this.capture.focus();
     }
+  }
+
+  /* Append one entry to the keystroke log. `op` is a single character:
+     the character typed, or one of the MARK_* values. The delta is
+     milliseconds since the previous entry -- for the first entry,
+     since the session started. One push and one subtraction per key:
+     no layout is read, which is what keeps check-typing-perf honest. */
+  _klog(op, ts) {
+    const prev = this._keylogTs || this.startTs || ts;
+    this._keylogTs = ts;
+    this.keylog.push([op, Math.max(0, Math.round(ts - prev))]);
   }
 
   setHint(text) {
@@ -179,6 +217,8 @@ export class TypingEngine {
     this.targetArr = Array.from(this.target);
     this.typed = [];
     this.cursor = 0;
+    this.keylog = [];
+    this._keylogTs = 0;
     this.startTs = 0;
     this.lastKeyTs = 0;
     this.errors = 0;
@@ -205,7 +245,9 @@ export class TypingEngine {
     // The surface stays blurred until they tap. We re-arm the waiting
     // flag on every start() (not just the constructor) so restart and
     // post-completion flows behave the same way.
-    if (isMobileLike()) {
+    if (!this.capturing) {
+      /* capture:false -- nothing to focus and nobody to ask for a key. */
+    } else if (isMobileLike()) {
       this.host.dataset.mobileWaiting = "true";
       this.host.dataset.focused = "false";
       try {
@@ -224,7 +266,7 @@ export class TypingEngine {
   }
 
   onChar(ch, tsRaw) {
-    const ts = performance.now();
+    const ts = this.now();
     // Auto-advance swaps the text in place the instant a run ends. A
     // trailing keystroke from the previous run (the user's hand is
     // still moving) would otherwise land as the first error of the
@@ -237,6 +279,11 @@ export class TypingEngine {
     this._lastTypedAt = ts;
     if (!this.running && !this.finished) this.beginRunning(ts);
     if (this.finished) return;
+    /* Logged here, next to totalKeystrokes++, so the log and the
+       keystroke count stay one-to-one: every key that counts is in the
+       log, and a key dropped by the _ignoreUntil guard above is in
+       neither. */
+    this._klog(ch, ts);
     this.totalKeystrokes++;
 
     const expected = this.targetArr[this.cursor];
@@ -393,7 +440,9 @@ export class TypingEngine {
   onBackspace(wholeWord = false) {
     if (this.finished) return;
     if (this.cursor === 0) return;
-    this.lastKeyTs = performance.now();
+    const ts = this.now();
+    this.lastKeyTs = ts;
+    this._klog(wholeWord ? MARK_WORD_BACKSPACE : MARK_BACKSPACE, ts);
     let steps = 1;
     if (wholeWord) {
       // Walk back until we hit a space.
@@ -426,7 +475,7 @@ export class TypingEngine {
       if (!this.running) return;
       this.tickLive();
       // Don't tick the deadline while paused.
-      if (!this._pauseAt && (this.mode === "time" || this.mode === "tape") && performance.now() - this.startTs >= this.duration) {
+      if (!this._pauseAt && (this.mode === "time" || this.mode === "tape") && this.now() - this.startTs >= this.duration) {
         this.finish();
         return;
       }
@@ -442,7 +491,7 @@ export class TypingEngine {
     // The Pause-button onclick (window.ttPause in practice-boot)
     // passes the magic token "user-pause"; nothing else does.
     if (reason !== "user-pause") return;
-    const now = performance.now();
+    const now = this.now();
     // Belt + suspenders: even with the token, reject if the user
     // typed within the last 450 ms. Catches accidental physical-
     // button presses during fast typing too.
@@ -451,7 +500,17 @@ export class TypingEngine {
   }
   resumeTimer() {
     if (this._pauseAt) {
-      const delta = performance.now() - this._pauseAt;
+      const now = this.now();
+      const delta = now - this._pauseAt;
+      /* The pause marker is stamped at the moment the pause BEGAN and
+         the log clock then restarts at the moment it ended, so the
+         time somebody spent away from the keyboard is not charged to
+         the next keystroke. A replay reads the marker and knows to
+         skip rather than sit there for four minutes. */
+      if (this.running) {
+        this._klog(MARK_PAUSE, this._pauseAt);
+        this._keylogTs = now;
+      }
       this.startTs += delta;
       this._pauseAt = 0;
     }
@@ -461,7 +520,7 @@ export class TypingEngine {
     if (!this.running) return;
     // While paused, freeze the displayed time at the pause moment so the
     // live wpm/timer doesn't keep ticking when the user steps away.
-    const now = this._pauseAt || performance.now();
+    const now = this._pauseAt || this.now();
     const ms = now - this.startTs;
     const w = netWpm(this.correctChars, ms);
     const acc = accuracy(this.correctChars, this.totalKeystrokes);
@@ -509,7 +568,12 @@ export class TypingEngine {
 
   finish() {
     if (this.finished) return;
-    const ms = performance.now() - this.startTs;
+    const ms = this.now() - this.startTs;
+    /* _stopped is set by the page (Esc, the Stop button) immediately
+       before finish(). Recording it means a replay can tell "they ran
+       out of text" from "they stopped here", which are different
+       endings and look different on screen. */
+    if (this._stopped) this._klog(MARK_END, this.now());
     const w = netWpm(this.correctChars, ms);
     const r = rawWpm(this.totalKeystrokes, ms);
     const acc = accuracy(this.correctChars, this.totalKeystrokes);
@@ -532,6 +596,11 @@ export class TypingEngine {
       duration: Math.round(this.duration / 1000),
       target: this.target, typed: this.typed.map((t) => t ? t.ch : ""),
       perWordWpm: this.perWordWpm.slice(),
+      /* The append-only record of the session. Never persisted by
+         session-recorder.js and never sent anywhere: the results card
+         hands it to share/codec.js, which puts it in a URL fragment,
+         and engine/replay-store.js keeps it in this browser. */
+      keylog: this.keylog.slice(),
       // Missed-word capture. _erroredCursorSet survives backspace+retype
       // so even fixed errors get credited at the word level. The
       // recorder turns this into actual word strings.

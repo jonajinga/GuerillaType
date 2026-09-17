@@ -52,6 +52,7 @@
     "ocr-cleanup": "node scripts/check-ocr-cleanup.mjs",
     "typeable-census": "node scripts/check-typeable-census.mjs",
     "custom-header": "node scripts/check-custom-header.mjs",
+    "custom-card": "node scripts/check-custom-card.mjs",
     "running-heads": "node scripts/check-running-heads.mjs",
     "auto-advance": "node scripts/check-auto-advance.mjs",
     "og-default": "node scripts/gen-og-default.mjs",
@@ -62,7 +63,9 @@
     "og-images": "node scripts/check-og-images.mjs",
     "share-copy": "node scripts/check-share-copy.mjs",
     "share-sheet": "node scripts/check-share-sheet.mjs",
-    "item-pages": "node scripts/check-item-pages.mjs"
+    "item-pages": "node scripts/check-item-pages.mjs",
+    "analytics-privacy": "node scripts/check-analytics-privacy.mjs",
+    "share-page": "node scripts/check-share-page.mjs"
   },
   "dependencies": {
     "@11ty/eleventy": "^3.0.0",

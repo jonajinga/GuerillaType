@@ -43,6 +43,117 @@ function asciify(s) {
     .replace(/…/g, "...");
 }
 
+/* Document formats whose name turns up as the last word of a download
+   filename. Matched case-insensitively, and NEVER against a name that
+   already contains a space -- see below.
+
+   Deliberately not "any three or four letters". "The-Odyssey-Full-text"
+   must keep its "text"; "My-Book-pdf" must lose its "pdf". The only
+   way to tell those apart is a list of the things a file format is
+   actually called, so this is that list and nothing more. */
+const FORMAT_WORDS = new Set([
+  "pdf", "epub", "txt", "md", "doc", "docx", "rtf", "html", "htm", "mobi", "azw3",
+]);
+
+/* Words that make the thing after them the SUBJECT of a sentence
+   rather than a leftover from a download.
+
+   Round two read the trailing word of a spaceless filename as a format
+   name and dropped it. That is right for "My-Book-pdf" and wrong for
+   "Read-the-doc", "How-to-read-a-pdf" and "Intro-to-html" -- which are
+   sentences someone typed, joined with hyphens instead of spaces, and
+   whose last word is what they are about. The round-two comment
+   already defended exactly that sentence in its SPACED form
+   ("How to read a PDF.pdf") and then regressed its hyphenated twin,
+   which is a fair description of how narrowly that fix was tested.
+
+   An article or a preposition immediately before the format word is
+   what tells the two apart. "Book pdf" is a filename; "the doc", "to
+   html", "a pdf" are English. No part of speech beyond this short
+   list is worth guessing at from a filename. */
+const SUBJECT_MARKERS = new Set([
+  "a", "an", "the", "to", "of", "on", "in", "about", "with", "from", "into",
+  "your", "my",
+]);
+
+/* The title a file gets when nothing inside it supplies one.
+
+   The old rule was "drop the extension", which is how an import landed
+   on /custom/ called "The-Odyssey-Homer-Full-text-pdf". Downloaded
+   files are named for URLs, not for people: the words are joined with
+   hyphens or underscores, and the format is very often repeated as the
+   last word before the real extension.
+
+   So: strip the real extension. Then, ONLY if what is left has no
+   spaces of its own, read runs of - and _ as word breaks and drop a
+   trailing word that names a document format.
+
+   Against the FORMAT_WORDS list, not against the file's own extension.
+   That distinction is the whole of round two of this fix: the first
+   version only dropped a trailing word that matched the REAL
+   extension, so "My-Book-pdf.pdf" came out right and
+   "My-Book-pdf.txt" came out "My Book pdf". The second is the common
+   case, not the rare one -- this importer's own error message tells
+   people with a scanned PDF to "run OCR first, then upload the .txt",
+   so a .txt whose name still says pdf is the path the product asks
+   for.
+
+   The "no spaces" condition is the whole safety of this. A name that
+   already contains a space was typed by a person, and a person's
+   "How to read a PDF.pdf" must keep its last word -- there the "PDF"
+   is the subject, not a leftover from a download. A name with no
+   spaces at all cannot be a sentence, so re-reading its separators
+   cannot destroy one.
+
+   And only when the word BEFORE it is not a SUBJECT_MARKER. That is
+   round three: "Read-the-doc" is a sentence and keeps its "doc";
+   "My-Book-pdf" is a filename and loses its "pdf". The article or
+   preposition is the whole signal.
+
+   What this still gets wrong, knowingly: "Learning-html.txt" becomes
+   "Learning". There is no marker before "html" and nothing else in a
+   filename says whether that word is the subject or the format. A
+   list of verbs would be guessing at grammar from a download name,
+   which is a larger promise than this function should make. Rename on
+   the card is the fix for the case it gets wrong.
+
+   One trailing word, not a run of them: "My-Book-pdf-txt" keeps its
+   "pdf". Two stacked format words is not a shape real downloads
+   produce, and stripping greedily would eat a title that ends in a
+   word this list happens to contain.
+
+   Nothing is lowercased or title-cased: "The Odyssey" and "the odyssey"
+   are different titles and this function has no business choosing.
+   Rename on the card is how a title gets edited.
+
+   EVERY filename fallback goes through here. There are four, and the
+   fourth is not in this file: pages/custom-boot.js writes the parser's
+   title into #paste-title and has its own fallback for when the parser
+   supplies none. Round one wired the three in this file and swept only
+   this file for stragglers, so the sweep reported "none left" while
+   one was left. parseFile() below now guarantees a non-blank title so
+   that fallback is belt to this braces, and the gate sweeps both
+   files. */
+export function cleanFilenameTitle(filename) {
+  const raw = String(filename || "");
+  const dot = raw.lastIndexOf(".");
+  let base = dot > 0 ? raw.slice(0, dot) : raw;
+  if (!/\s/.test(base)) {
+    const words = base.replace(/[-_]+/g, " ").trim().split(" ").filter(Boolean);
+    // Never down to nothing: a file honestly called "pdf.pdf" keeps
+    // the only word it has.
+    const last = words[words.length - 1];
+    const before = words.length > 1 ? words[words.length - 2] : "";
+    if (words.length > 1
+        && FORMAT_WORDS.has(last.toLowerCase())
+        && !SUBJECT_MARKERS.has(before.toLowerCase())) {
+      words.pop();
+    }
+    base = words.join(" ");
+  }
+  return base.trim();
+}
+
 /* parseFile(file, onProgress): { title, text, chapters } — works for
    .txt, .md, .epub, .pdf. Throws on parse failure; caller renders the
    message.
@@ -68,13 +179,20 @@ export async function parseFile(file, onProgress) {
   let result;
   if (name.endsWith(".epub")) result = await parseEpub(file, onProgress);
   else if (name.endsWith(".pdf")) result = await parsePdf(file, onProgress);
-  else result = { title: file.name.replace(/\.[^.]+$/, ""), text: await file.text() };
+  else result = { title: cleanFilenameTitle(file.name), text: await file.text() };
   const text = asciify(result.text);
   const supplied = Array.isArray(result.chapters) ? result.chapters : [];
   const chapters = supplied.length >= 2
     ? supplied.map((c) => ({ title: asciify(c.title), body: asciify(c.body) }))
     : detectChapters(text);
-  return { title: asciify(result.title), text, chapters };
+  /* Whatever the format handed back, a blank is not a title. An EPUB
+     can carry `<dc:title>   </dc:title>` and a PDF carries none at
+     all, and a caller that gets "" has to invent one -- which is how
+     pages/custom-boot.js came to hold a fourth copy of the
+     strip-the-extension rule. Answer it here instead, once, so no
+     caller ever needs its own. */
+  const ownTitle = asciify(result.title).trim();
+  return { title: ownTitle || cleanFilenameTitle(file.name), text, chapters };
 }
 
 /* An EPUB chapter's own name. The <head><title> is the one the
@@ -139,7 +257,9 @@ async function parseEpub(file, onProgress) {
 
   // Title from OPF metadata.
   const titleMatch = opf.match(/<dc:title[^>]*>([^<]+)<\/dc:title>/i);
-  const title = (titleMatch ? titleMatch[1] : file.name.replace(/\.[^.]+$/, "")).trim();
+  // `(titleMatch ? ... : ...)` is not enough: a package can carry
+  // `<dc:title>   </dc:title>`, which matches and trims to nothing.
+  const title = (titleMatch && titleMatch[1].trim()) || cleanFilenameTitle(file.name);
 
   // Build manifest id → { href, props }. `properties` is how EPUB 3
   // marks the navigation document, which is apparatus, not a chapter.
@@ -580,7 +700,7 @@ async function parsePdf(file, onProgress) {
   if (!text) {
     throw new Error("This PDF has no extractable text — looks like a scanned image. Run OCR first, then upload the .txt.");
   }
-  return { title: file.name.replace(/\.[^.]+$/, ""), text };
+  return { title: cleanFilenameTitle(file.name), text };
 }
 
 function htmlToText(html) {
