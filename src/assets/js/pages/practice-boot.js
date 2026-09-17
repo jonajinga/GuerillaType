@@ -2091,7 +2091,7 @@ function renderResults(r) {
            the text and the replay all live in that module, next to the
            validator that has to accept them. */
         const shareAttrs = `type="button" data-share data-share-kind="result" data-share-surface="result"`;
-        const shareBtn = wrap(ICONS.share, "Share", { attrs: `id="tt-share" ${shareAttrs}` }, "Share this result. The numbers travel in the link; what you typed sits after the # and reaches no server, only whoever you send the link to.");
+        const shareBtn = wrap(ICONS.share, "Share", { attrs: `id="tt-share" ${shareAttrs}` }, "Share this result. The numbers travel in the link. What you typed sits after the # and never reaches this site; it travels only where you choose to send the link.");
         // Book mode: Next page / Type page again / back to chapter list.
         if (state.bookSlug) {
           const paraMode = state.bookPage == null;

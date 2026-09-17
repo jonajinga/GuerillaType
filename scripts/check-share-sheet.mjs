@@ -645,7 +645,20 @@ const chapVisible = [
   await page.textContent("#share-sheet"), JSON.stringify(await events()),
 ].join(" ");
 chk(!chapVisible.includes("Alice"), "J. \"Alice\" reaches no server — not in a query, no dialog text, no event");
-const idLike = chapHay.match(/c_[a-z0-9]{4,}/i);
+/* Anchored, because unanchored this matched things that are not ids:
+   "acc_bucket" contains "c_bucket" and would have been reported as a
+   leaked custom-text id the first time an analytics event with that
+   name landed in the haystack.
+
+   A word boundary is the wrong anchor here -- \b does not fire between
+   the "A" of "%3A" and the "c" after it, which is how the percent-
+   encoded "custom%3Ac_svmt1p" got past an earlier version of this
+   check. So: a negative lookbehind for a letter or digit, plus an
+   explicit pattern for the percent-encoded shape that the lookbehind
+   would otherwise skip. The decoded copy of the haystack also covers
+   that shape, but only when decodeURIComponent did not throw. */
+const ID_SHAPES = [/(?<![a-z0-9])c_[a-z0-9]{4,}/i, /%3ac_[a-z0-9]{4,}/i];
+const idLike = ID_SHAPES.map((re) => chapHay.match(re)).find(Boolean);
 chk(!idLike, "J. no custom-text id in any shape", idLike ? idLike[0] : "");
 
 // ================================================================ K

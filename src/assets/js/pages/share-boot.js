@@ -90,9 +90,12 @@ function paintNumbers(model) {
   const wpm = String(Math.round(model.wpm));
   setText("wpm", wpm);
   setText("wpm2", wpm);
-  setText("raw", model.raw == null ? "—" : String(Math.round(model.raw)));
-  setText("acc", model.acc == null ? "—" : `${Math.round(model.acc)}%`);
-  setText("con", model.con == null ? "—" : `${Math.round(model.con)}%`);
+  /* "n/a" rather than a dash. A link is allowed to carry the wpm and
+     nothing else (validate.js requires only that), and an empty metric
+     cell under a label reads as a number that failed to load. */
+  setText("raw", model.raw == null ? "n/a" : String(Math.round(model.raw)));
+  setText("acc", model.acc == null ? "n/a" : `${Math.round(model.acc)}%`);
+  setText("con", model.con == null ? "n/a" : `${Math.round(model.con)}%`);
 
   const meta = [];
   if (model.modeLabel) meta.push(model.modeLabel);
@@ -160,7 +163,7 @@ async function paintText(model, fragText) {
   box.hidden = false;
   if (label) {
     label.textContent = KIND_EYEBROW[piece.kind]
-      ? `What they typed — ${KIND_EYEBROW[piece.kind].toLowerCase()}`
+      ? `What they typed: ${KIND_EYEBROW[piece.kind].toLowerCase()}`
       : "What they typed";
     label.hidden = false;
   }
