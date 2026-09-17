@@ -23,9 +23,14 @@
      D. A public run is untouched: a words-mode result still downloads
         the pre-rendered card, byte for byte, with method=server and no
         mention of a local picture.
-     E. When the renderer cannot run -- here, hb.wasm blocked at the
-        network -- the grid card downloads instead and the user is told,
-        in those exact words, that the picture will not have their text.
+     E. When the renderer cannot run -- the wasm, the satori bundle, a
+        font or a vendored lib/og module blocked, and a wasm served as
+        an HTML error page with a 200 -- the grid card downloads byte
+        for byte, the user is told in those exact words that the picture
+        will not have their text, and NOTHING reaches window.onerror or
+        window.onunhandledrejection. main.js reports both to analytics
+        as js_error, so a failure we have already handled must not also
+        be filed as a bug by the user's browser.
      F. The browser draws the SAME card the build does. Every file
         /assets/vendor/ serves is byte-identical to its source, every
         import in the shipped module resolves to a file that exists, and
@@ -269,11 +274,15 @@ async function runCustomToTheEnd(page) {
   return target;
 }
 
-const resultNumbers = (page) => page.evaluate(() => ({
-  wpm: parseInt(document.querySelector(".results__title-num").textContent, 10),
-  acc: parseInt(Array.from(document.querySelectorAll(".results__metric"))
-    .find((m) => /accuracy/.test(m.textContent)).querySelector(".results__value").textContent, 10),
-}));
+const resultNumbers = (page) => page.evaluate(() => {
+  const w = document.querySelector(".results__title-num");
+  const a = Array.from(document.querySelectorAll(".results__metric"))
+    .find((m) => /accuracy/.test(m.textContent));
+  return {
+    wpm: w ? parseInt(w.textContent, 10) : NaN,
+    acc: a ? parseInt(a.querySelector(".results__value").textContent, 10) : NaN,
+  };
+});
 
 const gridPathFor = (wpm, acc) => `/og/result/${wpm > 200 ? "200p" : wpm}-${nodeBandFor(acc)}.png`;
 
@@ -288,7 +297,7 @@ const wB = watch(page);
 const target = await runCustomToTheEnd(page);
 chk(target.includes("quillfeather"), "B. the sentinel text is what was typed", JSON.stringify(target.slice(0, 44)));
 const nums = await resultNumbers(page);
-const share = await page.evaluate(() => Object.assign({}, document.getElementById("tt-share").dataset));
+const share = await page.evaluate(() => Object.assign({}, (document.getElementById("tt-share") || {}).dataset || {}));
 chk(share.sharePrivate === "1", "B. the results card marks this run as one the server cannot draw",
   `data-share-private=${JSON.stringify(share.sharePrivate)}`);
 chk(share.shareImage === B + gridPathFor(nums.wpm, nums.acc),
@@ -461,12 +470,18 @@ await typeAll(pageD, wordsTarget, [3, 9]);
 await pageD.waitForSelector("#tt-results:not([hidden])", { timeout: 20000 });
 const numsD = await resultNumbers(pageD);
 chk(numsD.acc < 100, "D. the words run landed below 100 %, so the band is not a constant", `${numsD.acc}%`);
-const shareD = await pageD.evaluate(() => Object.assign({}, document.getElementById("tt-share").dataset));
+const shareD = await pageD.evaluate(() => Object.assign({}, (document.getElementById("tt-share") || {}).dataset || {}));
 chk(shareD.sharePrivate === undefined, "D. a words run is not marked private",
   JSON.stringify(shareD.sharePrivate));
 await pageD.click("#tt-share");
 await pageD.waitForTimeout(200);
-chk(await pageD.evaluate(() => document.querySelector("[data-share-local-note]").hidden),
+chk(await inPage(() => pageD.evaluate(() => {
+  const el = document.querySelector("[data-share-local-note]");
+  /* null when share.js is the version from main: the caption does not
+     exist there at all, which must read as a FAIL with a count and not
+     as a TypeError inside page.evaluate. */
+  return el ? el.hidden : "the caption is not in this build";
+}), "D. the sheet's caption element can be read", "could not read it") === true,
   "D. the sheet does not claim a local picture");
 await pageD.evaluate(() => { window.__ttEvents.length = 0; });
 wD.on = true;
@@ -498,39 +513,72 @@ await ctxD.close();
 
 // ================================================================ E
 console.log("\nE. when the renderer cannot run");
-/* hb.wasm blocked at the network. satori 0.33 shapes every run of text
-   with HarfBuzz, so this is the failure a corporate proxy, a strict CSP
-   or an old browser produces: the module loads and the render dies. */
-const ctxE = await freshContext();
-await ctxE.route("**/hb.wasm*", (route) => route.abort());
-const pageE = await ctxE.newPage();
-const targetE = await runCustomToTheEnd(pageE);
-chk(targetE.includes("quillfeather"), "E. the same custom run, typed again");
-const numsE = await resultNumbers(pageE);
-await pageE.click("#tt-share");
-await pageE.waitForTimeout(200);
-await pageE.evaluate(() => { window.__ttEvents.length = 0; });
-const [dlE] = await Promise.all([
-  pageE.waitForEvent("download", { timeout: 30000 }).catch(() => null),
-  pageE.click("#share-sheet [data-share-download]"),
-]);
-if (!dlE) await bail("E. blocking the wasm still leaves a download");
-const gotE = await readFile(await dlE.path());
-const wantE = await readFile(join(ROOT, gridPathFor(numsE.wpm, numsE.acc))).catch(() => null);
-if (!wantE) await bail(`E. the grid card ${gridPathFor(numsE.wpm, numsE.acc)} is in the build`);
-chk(gotE.equals(wantE), "E. the grid card downloads instead, byte for byte",
-  `${gotE.length} bytes of ${gridPathFor(numsE.wpm, numsE.acc)}`);
-const toastE = await pageE.evaluate(() => {
-  const t = document.getElementById("toast");
-  return t ? { text: t.textContent, hidden: t.hidden, bad: t.classList.contains("toast--bad") } : null;
-});
-chk(!!toastE && toastE.text === "Saved the plain card. The picture will not include your text.",
-  "E. and the user is told, in those words", JSON.stringify(toastE && toastE.text));
-chk(!!toastE && toastE.hidden === false, "E. the toast is actually on screen");
-const savedE = await pageE.evaluate(() => (window.__ttEvents || []).find((e) => e.name === "share_image_saved") || null);
-chk(!!savedE && savedE.props.method === "server",
-  "E. and analytics record the fallback as method=server", JSON.stringify(savedE && savedE.props));
-await ctxE.close();
+/* Four ways the renderer can fail to arrive, and one way it can arrive
+   broken. satori 0.33 shapes every run of text with HarfBuzz, so a
+   blocked hb.wasm is what a corporate proxy or a wasm-hostile CSP
+   produces; the other three are a bad deploy or a partial cache.
+
+   Each case must do three things: download the pre-rendered card BYTE
+   FOR BYTE, say so in those exact words, and be SILENT. The third is
+   not cosmetic. main.js registers window.onerror and
+   window.onunhandledrejection and both report js_error to analytics, so
+   anything that escapes here is a user's browser telling us about a
+   failure we already handled -- and emscripten's abort() does exactly
+   that: it rejects its ready promise and then throws the same error
+   again from a continuation nobody awaits. That was real, on all three
+   engines, and it is why the shim now fetches the wasm itself. */
+const BLOCKED = [
+  ["the wasm", "**/hb.wasm*", null],
+  ["the satori bundle", "**/satori.browser.js*", null],
+  ["a font", "**/assets/fonts/og/lora-600.ttf*", null],
+  ["a vendored lib/og module", "**/assets/vendor/og/card.js*", null],
+  /* Not blocked: served, with a 200, carrying something that is not
+     wasm. A captive portal or a rewritten 404 does this, and it reaches
+     further into emscripten than a refused request does. */
+  ["a wasm that is really an error page", "**/hb.wasm*",
+    { status: 200, contentType: "application/wasm", body: "<html>not wasm</html>" }],
+];
+for (const [what, pattern, fulfill] of BLOCKED) {
+  const ctxE = await freshContext();
+  await ctxE.route(pattern, (route) => (fulfill ? route.fulfill(fulfill) : route.abort()));
+  const pageE = await ctxE.newPage();
+  const errsE = [];
+  pageE.on("pageerror", (e) => errsE.push(String(e).slice(0, 140)));
+  const targetE = await runCustomToTheEnd(pageE);
+  chk(targetE.includes("quillfeather"), `E. [${what}] the same custom run, typed again`);
+  const numsE = await resultNumbers(pageE);
+  await pageE.click("#tt-share");
+  await pageE.waitForTimeout(200);
+  await pageE.evaluate(() => { window.__ttEvents.length = 0; });
+  const [dlE] = await Promise.all([
+    pageE.waitForEvent("download", { timeout: 40000 }).catch(() => null),
+    pageE.click("#share-sheet [data-share-download]"),
+  ]);
+  if (!dlE) await bail(`E. [${what}] there is still a download`);
+  const gotE = await readFile(await dlE.path());
+  const wantE = await readFile(join(ROOT, gridPathFor(numsE.wpm, numsE.acc))).catch(() => null);
+  if (!wantE) await bail(`E. the grid card ${gridPathFor(numsE.wpm, numsE.acc)} is in the build`);
+  chk(gotE.equals(wantE), `E. [${what}] the grid card downloads instead, byte for byte`,
+    `${gotE.length} bytes of ${gridPathFor(numsE.wpm, numsE.acc)}`);
+  const toastE = await pageE.evaluate(() => {
+    const t = document.getElementById("toast");
+    return t ? { text: t.textContent, hidden: t.hidden, bad: t.classList.contains("toast--bad") } : null;
+  });
+  chk(!!toastE && toastE.text === "Saved the plain card. The picture will not include your text."
+    && toastE.hidden === false && toastE.bad === true,
+    `E. [${what}] and the user is told, in those words`, JSON.stringify(toastE && toastE.text));
+  const savedE = await pageE.evaluate(() => (window.__ttEvents || []).find((e) => e.name === "share_image_saved") || null);
+  chk(!!savedE && savedE.props.method === "server",
+    `E. [${what}] analytics record the fallback as method=server`, JSON.stringify(savedE && savedE.props));
+  /* Give anything that escaped the chain a turn of the event loop to
+     reach window.onunhandledrejection before looking. */
+  await pageE.waitForTimeout(800);
+  chk(errsE.length === 0, `E. [${what}] nothing escaped to window.onerror`, errsE.join(" | "));
+  const reported = await pageE.evaluate(() => (window.__ttEvents || []).filter((e) => e.name === "js_error"));
+  chk(reported.length === 0, `E. [${what}] and nothing was reported to analytics as js_error`,
+    reported.map((e) => JSON.stringify(e.props)).join(" | ") || "0 js_error events");
+  await ctxE.close();
+}
 
 // ================================================================ F
 console.log("\nF. the browser draws the build's card, not a copy of it");
@@ -665,7 +713,7 @@ const pageText = await surfaceText(pageG);
 chk(pageText.length > 0 && pageText.length < 700, "G. a page short enough to finish at 70 ms/key", `${pageText.length} chars`);
 await typeAll(pageG, pageText);
 await pageG.waitForSelector("#tt-results:not([hidden])", { timeout: 40000 });
-const shareG = await pageG.evaluate(() => Object.assign({}, document.getElementById("tt-share").dataset));
+const shareG = await pageG.evaluate(() => Object.assign({}, (document.getElementById("tt-share") || {}).dataset || {}));
 chk(shareG.sharePrivate === "1",
   "G. a chapter of your own text is private too", `data-share-private=${JSON.stringify(shareG.sharePrivate)}`);
 const numsG = await resultNumbers(pageG);
