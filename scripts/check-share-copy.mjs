@@ -170,6 +170,32 @@ for (const phrase of BANNED) {
   chk(hits.length === 0, `no page says "${phrase}"`, hits.slice(0, 4).join(", "));
 }
 
+/* Round 4. "browsers never send it to a server" is an overreach, and
+   it was on nine pages. What is true: the fragment is never in an HTTP
+   request to THIS site, which is a fact about how browsers work. What
+   is not true: that no server anywhere ever holds your words. Pick
+   Telegram or email in the share sheet and the whole link, fragment and
+   all, IS the message -- the service carrying it has the text, because
+   the recipient has to be able to read it. So a page may say "to this
+   site", and it may say where the words travel, but it may not promise
+   "anywhere", "anyone" or "a server". */
+const OVERREACH = [
+  /browsers?\s+(?:never\s+sends?|do(?:es)?\s+not\s+send)[^.]{0,40}\b(?:any\s+server|a\s+server|anyone|anywhere)\b/i,
+  /never\s+reaches?\s+a\s+server/i,
+  /a\s+server\s+never\s+sees/i,
+];
+const overreaching = [];
+for (const f of files) {
+  const t = visibleText(readFileSync(f, "utf8"));
+  for (const re of OVERREACH) {
+    const m = t.match(re);
+    if (m) overreaching.push(`${f.slice(SITE.length)}: "${m[0]}"`);
+  }
+}
+chk(overreaching.length === 0,
+  "no page promises the part after # reaches no server at all (it reaches whoever you send the link to)",
+  overreaching.slice(0, 4).join(" | "));
+
 // ── C. phrases that are true only with the Share exception ──────────
 console.log("\nC. every 'nothing leaves' claim carries the Share exception");
 
@@ -209,7 +235,8 @@ const MUST = [
   ["/privacy/", "That is everything the site puts before the #."],
   ["/privacy/", "It never carries the text you typed, the title of a custom text, or your keystrokes."],
   ["/privacy/", "every whole number of wpm up to 200, one card for anything faster"],
-  ["/privacy/", "Browsers never send that part to any server"],
+  ["/privacy/", "Browsers never send that part to this site"],
+  ["/privacy/", "It travels with the link itself, though, so it reaches whoever you send the link to, and whatever service carries it on the way."],
   ["/privacy/", "A share link is public."],
   ["/privacy/", "Nothing is drawn per visitor"],
   ["/privacy/", "Cloudflare's standard edge logs record the request for a share link"],
@@ -221,10 +248,10 @@ const MUST = [
   ["/about/", "Nothing leaves your device unless you press Share."],
   ["/about/", "Cloudflare Web Analytics is wired in and switched off."],
   ["/about/", "The site runs Umami for cookieless page-view analytics"],
-  ["/about/", "ride after the #, which browsers never send to anyone"],
+  ["/about/", "ride after the #, which browsers never send to this site. They travel with the link, so they go where you send it."],
   ["/faq/", "What is in a share link?"],
   ["/faq/", "Can I share a custom text?"],
-  ["/faq/", "So a server never sees your words, and anyone you send the link to sees everything in it."],
+  ["/faq/", "So this site never sees your words. Where you send the link is your choice, and whoever opens it sees everything in it."],
   ["/faq/", "Nothing goes anywhere unless you press Share"],
   ["/faq/", "the mode, the word list, the keyboard layout, whether it was a personal best, whether a challenge was cleared, the date"],
   ["/faq/", "The page that opens a share link loads no analytics at all, so nothing about the run is counted or reported."],
@@ -302,6 +329,39 @@ const missingFromCopy = [...new Set(accepted.map((k) => VALIDATOR_KEYS[k]).filte
   .filter((phrase) => !shareSection.toLowerCase().includes(phrase.toLowerCase()));
 chk(missingFromCopy.length === 0,
   "the sharing section names every field validate.js lets into a link", missingFromCopy.join(", "));
+
+/* Which destinations get the fragment is a privacy claim, so read it out
+   of the share sheet instead of trusting the copy. share.js marks every
+   target `variant: "full"` (the whole link, fragment included, because
+   it goes to a person) or `variant: "short"` (query only, no words). A
+   target flipped from short to full would quietly start carrying the
+   reader's own text to that service while this page still said it did
+   not -- the same failure the validate.js cross-check above exists for. */
+const shareSrc = readFileSync(resolve(ROOT, "src/assets/js/share/share.js"), "utf8");
+const targets = [...shareSrc.matchAll(/id:\s*"([a-z]+)",\s*label:\s*"([^"]+)",[^\n]*?variant:\s*"(short|full)"/g)]
+  .map((m) => ({ label: m[2], variant: m[3] }));
+chk(targets.length >= 10, "read the share sheet's destinations out of src/assets/js/share/share.js",
+  targets.map((t) => `${t.label}:${t.variant}`).join(" "));
+
+const btnStart = priv.indexOf("Which buttons carry your words");
+const btnEnd = priv.indexOf("The preview image", btnStart + 1);
+const btnPara = btnStart === -1 || btnEnd === -1 ? "" : priv.slice(btnStart, btnEnd);
+/* Split by sentence, not at a phrase: the names sit BEFORE "get a link
+   with nothing after the #", so slicing at that phrase files every one
+   of them on the wrong side. That is what the first version did, and
+   the check caught it. */
+const btnSentences = btnPara.split(/(?<=\.)\s+/);
+const carriesFragment = btnSentences.filter((x) => /whole link/i.test(x)).join(" ");
+const carriesNothing = btnSentences.filter((x) => /nothing after the #/i.test(x)).join(" ");
+chk(carriesFragment.length > 80 && carriesNothing.length > 40,
+  "the privacy page splits the destinations into the ones that carry the fragment and the ones that do not",
+  `${carriesFragment.length} / ${carriesNothing.length} chars`);
+const named = (hay, label) => new RegExp(`\\b${label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(hay);
+const misfiled = targets.filter((t) => (t.variant === "full"
+  ? !named(carriesFragment, t.label) || named(carriesNothing, t.label)
+  : !named(carriesNothing, t.label) || named(carriesFragment, t.label)));
+chk(misfiled.length === 0, "every share destination is named on the right side of that split",
+  misfiled.map((t) => `${t.label} is "${t.variant}" in share.js`).join(", "));
 
 /* about.md's stale analytics claim, checked on its own because it is the
    one the task names. */

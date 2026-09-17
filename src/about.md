@@ -42,7 +42,7 @@ Nothing leaves your device unless you press Share. Profiles, sessions, daily act
 
 The site runs Umami for cookieless page-view analytics, and the dashboard is public, no login. Cloudflare Web Analytics is wired in and switched off.
 
-A share link carries numbers and a public content id where a server can see them. A custom text's words, and a keystroke replay when a run has one, ride after the `#`, which browsers never send to anyone. [Privacy](/privacy/) has the full account.
+A share link carries numbers and a public content id where a server can see them. A custom text's words, and a keystroke replay when a run has one, ride after the `#`, which browsers never send to this site. They travel with the link, so they go where you send it. [Privacy](/privacy/) has the full account.
 
 See [Analytics](/analytics/) for what the dashboard shows.
 

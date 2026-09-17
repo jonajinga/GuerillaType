@@ -6,7 +6,7 @@ tags: [features]
 eyebrow: "Features"
 ---
 
-The [/custom/](/custom/) page lets you paste text and type it. The text stays on your device unless you share a run of it, and then it travels only in the part of the link after the `#`, which browsers never send to a server. [What a share link carries](/privacy/#sharing-a-result-or-a-page). It is the most flexible mode in the site, and the most underused.
+The [/custom/](/custom/) page lets you paste text and type it. The text stays on your device unless you share a run of it, and then it travels only in the part of the link after the `#`, which browsers never send to this site, and then only where you send the link. [What a share link carries](/privacy/#sharing-a-result-or-a-page). It is the most flexible mode in the site, and the most underused.
 
 ## What it does
 
@@ -50,7 +50,7 @@ After saving, you can pin a custom text. It then appears at the bottom of the [/
 
 ## What it does not do
 
-**It does not phone home.** The custom-text feature uses local storage, full stop. There is no upload, no sync, no telemetry. The one way the words travel is a share link you build yourself, and then they ride after the `#` -- the part of a link a browser never sends to a server, decoded in the browser of whoever opens it. Anyone with that link can read the text, so share one only if you would publish it.
+**It does not phone home.** The custom-text feature uses local storage, full stop. There is no upload, no sync, no telemetry. The one way the words travel is a share link you build yourself, and then they ride after the `#` -- the part of a link a browser never sends to this site, decoded in the browser of whoever opens it. It rides along with the link, so it goes wherever you send it, and anyone with that link can read the text. Share one only if you would publish it.
 
 **It does not OCR images.** PDFs need to have a text layer. If a PDF was scanned but never OCR'd, you will get garbage. Run it through a tool that adds the text layer first.
 

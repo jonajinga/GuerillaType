@@ -45,7 +45,7 @@ Use it when you want to type without performing.
 
 ## Custom
 
-You paste in your own text. The site chunks it into typable segments and tracks your progress through them. The text stays on your device; the site never uploads it. If you share a run of your own text, the words ride in the part of the link after the `#`, which browsers never send to a server.
+You paste in your own text. The site chunks it into typable segments and tracks your progress through them. The text stays on your device; the site never uploads it. If you share a run of your own text, the words ride in the part of the link after the `#`, which browsers never send to this site. The link carries them wherever you send it.
 
 The most common Custom inputs:
 
