@@ -431,6 +431,7 @@ await ctxB.close();
 console.log("\nD. a public run is untouched");
 const ctxD = await freshContext();
 const pageD = await ctxD.newPage();
+const wD = watch(pageD);
 await pageD.goto(`${B}/practice/?mode=words&words=10`, { waitUntil: "domcontentloaded" });
 await pageD.waitForSelector(".tt-char", { timeout: 15000 });
 await pageD.click(".tt-stage").catch(() => {});
@@ -449,10 +450,12 @@ await pageD.waitForTimeout(200);
 chk(await pageD.evaluate(() => document.querySelector("[data-share-local-note]").hidden),
   "D. the sheet does not claim a local picture");
 await pageD.evaluate(() => { window.__ttEvents.length = 0; });
+wD.on = true;
 const [dlD] = await Promise.all([
   pageD.waitForEvent("download", { timeout: 30000 }).catch(() => null),
   pageD.click("#share-sheet [data-share-download]"),
 ]);
+wD.on = false;
 if (!dlD) await bail("D. Download PNG produced a download for the words run");
 const gotD = await readFile(await dlD.path());
 const wantD = await readFile(join(ROOT, gridPathFor(numsD.wpm, numsD.acc))).catch(() => null);
@@ -462,6 +465,16 @@ chk(gotD.equals(wantD), "D. it downloads the pre-rendered card BYTE FOR BYTE",
 const savedD = await pageD.evaluate(() => (window.__ttEvents || []).find((e) => e.name === "share_image_saved") || null);
 chk(!!savedD && savedD.props.method === "server",
   "D. share_image_saved still says method=server", JSON.stringify(savedD && savedD.props));
+/* Byte-for-byte equality is not enough on its own: a build that TRIED
+   the local renderer for every run and fell back would download the
+   same bytes, having pulled 915 KB and flashed a toast on the way. The
+   renderer must not be reached at all. */
+const reachedRenderer = wD.requests.filter((r) => /\/assets\/vendor\/|local-card\.js/.test(r.url));
+chk(reachedRenderer.length === 0,
+  "D. and the browser renderer is never even loaded for a public run",
+  reachedRenderer.map((r) => r.url.replace(B, "")).join(" ") || `${wD.requests.length} requests, none of them the renderer`);
+const toastD = await pageD.evaluate(() => (document.getElementById("toast") || {}).textContent || "");
+chk(toastD === "", "D. and nothing is apologised for", JSON.stringify(toastD));
 await ctxD.close();
 
 // ================================================================ E
