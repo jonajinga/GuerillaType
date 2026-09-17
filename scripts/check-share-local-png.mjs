@@ -222,10 +222,9 @@ function pngInfo(buf) {
 /* Everything a page asked for, whether it was allowed to happen or not,
    plus what it was allowed to download. */
 function watch(page) {
-  const w = { on: false, requests: [], bytes: 0 };
+  const w = { on: false, requests: [], before: [], bytes: 0 };
   page.on("request", (r) => {
-    if (!w.on) return;
-    w.requests.push({ url: r.url(), method: r.method(), post: r.postData() || "" });
+    (w.on ? w.requests : w.before).push({ url: r.url(), method: r.method(), post: r.postData() || "" });
   });
   page.on("response", async (r) => {
     if (!w.on) return;
@@ -306,6 +305,11 @@ chk(!!note && note.text === "The picture includes your text and is made on your 
   "B. and it says exactly that", JSON.stringify(note && note.text));
 
 await page.evaluate(() => { window.__ttEvents.length = 0; });
+/* Snapshotted HERE, not read at the end: section B's own differential
+   render imports the module directly a few lines below, and a list read
+   afterwards would contain that import and accuse the page of eager
+   loading. It did, the first time this assertion was written. */
+const beforeClick = wB.before.slice();
 wB.on = true;
 const started = Date.now();
 const [dl] = await Promise.all([
@@ -408,6 +412,15 @@ chk(!!saved && saved.props.method === "local",
 chk(!!saved && Object.keys(saved.props).join(",") === "kind,mode,method",
   "B. and carries nothing else", JSON.stringify(saved && Object.keys(saved.props)));
 
+/* "Lazy" is a claim about page load, not about the click. Everything the
+   page asked for between opening /custom/ and pressing Download PNG --
+   two navigations, a whole typing session and the share sheet -- is in
+   w.before, and none of it may be the renderer. check-typing-perf.mjs
+   would notice the cost; this names the file. */
+const early = beforeClick.filter((r) => /\/assets\/vendor\/|local-card\.js/.test(r.url));
+chk(early.length === 0,
+  "B. none of it was loaded before the click",
+  early.map((r) => r.url.replace(B, "")).join(" ") || `${beforeClick.length} requests up to the click, none of them the renderer`);
 console.log(`     [first click: ${wB.bytes} bytes from this origin, ${(wB.bytes / 1024 / 1024).toFixed(2)} MB, ${renderMs} ms to the download]`);
 chk(wB.bytes > 0 && wB.bytes < 3 * 1024 * 1024,
   "B. the first click stays inside the 3 MB budget",
