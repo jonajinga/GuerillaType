@@ -134,13 +134,35 @@ const bookPage = params.get("page") != null ? parseInt(params.get("page"), 10) :
    /custom/, opened straight onto its chapter picker. */
 const customChapterListUrl = () =>
   `/custom/#chapters-${encodeURIComponent(customBookId(state.bookSlug))}`;
+/* Anything that arrived in the query string is a string a visitor
+   chose, and session_start puts four of them on the wire: mode, lang,
+   quote and drill. A real one is a slug -- "time", "en-1k", "medium",
+   "home-row", "alice-in-wonderland". Anything else is free text: a
+   pasted title, a search phrase, a sentence. ?quote=SECRET%20ZEBRA
+   reached Umami verbatim, and it did not have to be a word anyone would
+   want there.
+
+   A shape test rather than an allowlist, so a new wordlist or drill does
+   not have to be added here to be counted -- and it is applied where the
+   value ENTERS the page rather than at the analytics call, because
+   state.mode alone is echoed by a dozen later events and patching one
+   call site would have left the other eleven. Every id the site itself
+   ships passes it: 23 wordlists, 71 drills, every mode, every book slug.
+   An unknown value behaves exactly as it did before -- "other" resolves
+   to no wordlist and no drill, same as the garbage did. */
+const PUBLIC_PARAM = /^[a-z0-9-]{1,80}$/;
+const publicParam = (v, fallback = "other") => {
+  if (v == null || v === "") return null;
+  const s = String(v);
+  return PUBLIC_PARAM.test(s) ? s : fallback;
+};
 const state = {
-  mode: params.get("mode") || "time",
+  mode: publicParam(params.get("mode")) || "time",
   duration: parseInt(params.get("duration") || "30", 10),
   words: parseInt(params.get("words") || "25", 10),
-  quote: params.get("quote") || "medium",
+  quote: publicParam(params.get("quote")) || "medium",
   quoteTag: params.get("tag") || "",
-  language: params.get("lang") || settings.language || "en-1k",
+  language: publicParam(params.get("lang")) || settings.language || "en-1k",
   layout: settings.layout || "qwerty",
   // stopOnError preference overrides freedom: when on, freedom is false
   // (cursor refuses to advance until you hit the right key).
@@ -153,7 +175,7 @@ const state = {
   customSeg: parseInt(params.get("seg") || "0", 10),
   bookSlug, bookCh, bookParaId, bookPage,
   lessonId: params.get("lesson") ? parseInt(params.get("lesson"), 10) : null,
-  drillId: params.get("drill") || null,
+  drillId: publicParam(params.get("drill")),
 };
 // If a lesson was requested, override mode to "lesson" so the runner knows.
 if (state.lessonId) state.mode = "lesson";
@@ -235,6 +257,25 @@ const model = new AdaptiveModel(profile, { layout: state.layout });
    three recording sites use this. */
 const lessonKeyOf = () =>
   (state.lessonId != null ? state.lessonId : (state._customLessonId || null));
+
+/* Is the text on the surface one the reader imported themselves?
+
+   Two URL shapes reach the same private import: ?mode=custom&custom=<id>
+   reads it a segment at a time, ?book=custom:<id>&ch=N&page=M reads it
+   by chapter -- and the second sets state.mode = "book", so neither
+   test alone covers both. Analytics must answer this question before
+   sending anything that came OUT of the text: its slug, its id, its
+   title, or a character or word lifted from its body.
+
+   Corpus items (quote / idiom / poem / parable) run through the same
+   "custom" pipeline and are public, so this predicate is occasionally
+   more careful than it strictly needs to be. That is deliberate: the
+   share payload draws the line in exactly this place already
+   (see the results-card ownText), and one predicate that is sometimes
+   too cautious beats two that can disagree about what is private. */
+function isOwnText() {
+  return isCustomBook(state.bookSlug) || state.mode === "custom";
+}
 
 let engine = null;
 
@@ -1056,7 +1097,7 @@ function handleFinish(result) {
          file on one person's device, which tells the analytics nothing
          and is not ours to send. Report the kind instead. */
       emit("bookCompletion", {
-        book: isCustomBook(state.bookSlug) ? "custom" : state.bookSlug,
+        book: isCustomBook(state.bookSlug) ? "custom" : publicParam(state.bookSlug),
         event: completed ? "finished" : "started",
       });
     }
@@ -1079,7 +1120,13 @@ function handleFinish(result) {
       for (const k of Object.keys(charMiss)) {
         if (charMiss[k] > worstChCount) { worstCh = k; worstChCount = charMiss[k]; }
       }
-      if (worstCh) emit("worstChar", { char: worstCh, missCount: worstChCount });
+      /* char and word below are literally cut out of the target. For a
+         library book or a wordlist that is public text; for someone's
+         own import it is a piece of their document, so it does not go.
+         finger_acc / worst_finger stay either way -- a finger name comes
+         from the keyboard layout, not from the text. */
+      const ownText = isOwnText();
+      if (worstCh && !ownText) emit("worstChar", { char: worstCh, missCount: worstChCount });
 
       // Per-finger totals + misses.
       const layout = state.layout || "qwerty";
@@ -1130,7 +1177,7 @@ function handleFinish(result) {
       for (const k of Object.keys(wordMiss)) {
         if (wordMiss[k] > worstWordCount) { worstWord = k; worstWordCount = wordMiss[k]; }
       }
-      if (worstWord) emit("worstWord", { word: worstWord, missCount: worstWordCount });
+      if (worstWord && !ownText) emit("worstWord", { word: worstWord, missCount: worstWordCount });
     }
   } catch {}
   // 100 % accuracy + non-trivial length is a celebration event.
@@ -2065,7 +2112,7 @@ function renderResults(r) {
           } else {
             link = p(`mode=${encodeURIComponent(state.mode || "time")}`);
           }
-          const ownText = isCustomBook(state.bookSlug) || state.mode === "custom";
+          const ownText = isOwnText();
           const label = ownText ? "custom text"
             : state.mode === "time" ? `${state.duration || 30}s test`
             : state.mode === "words" ? `${state.words || 25}-word test`
@@ -2360,7 +2407,14 @@ async function boot() {
       lessonId: state.lessonId || null,
       drillId: state.drillId || null,
       challenge: (activeChallenge && activeChallenge.id) || null,
-      bookSlug: state.bookSlug || null,
+      /* A library slug is a public book id: "moby-dick" means something
+         in aggregate and is ours to send. A custom slug is
+         "custom:c_9f3a1b" -- the id of a file on one person's device.
+         It means nothing in aggregate, and the server is only ever
+         supposed to see allowlisted public ids. Report the kind, the
+         same substitution book_completion makes at the end of this very
+         run (see handleFinish). */
+      bookSlug: state.bookSlug ? (isCustomBook(state.bookSlug) ? "custom" : publicParam(state.bookSlug)) : null,
     });
   } catch (err) {
     console.error(err);
