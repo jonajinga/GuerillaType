@@ -78,6 +78,16 @@ function prefersReducedMotion() {
 const CSS = `
 .replay{margin:var(--space-5) 0 0;padding:var(--space-4);border:1px solid var(--bd-1,var(--bd,#3a3a3a));border-radius:var(--radius);background:var(--bg-1)}
 .replay__head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--space-3)}
+/* The live-stats row is built for the practice toolbar, where it has
+   the whole window. Inside a panel on a 375 px phone it overflowed the
+   border by about 14 px and cut the end off "words typed". It is
+   allowed to wrap and to shrink here; nothing else uses .replay__live. */
+.replay__live{flex:1 1 auto;flex-wrap:wrap;justify-content:flex-end;min-width:0;gap:var(--space-4);row-gap:var(--space-2)}
+.replay__live .live-stats__metric{padding-inline:var(--space-1,.25rem)}
+@media (max-width:480px){
+  .replay__head{justify-content:flex-start}
+  .replay__live{justify-content:flex-start;gap:var(--space-3)}
+}
 .replay__eyebrow{margin:0;font-family:var(--font-mono);font-size:var(--fs-200);letter-spacing:.08em;text-transform:uppercase;color:var(--fg-2)}
 .replay__stage{margin:var(--space-3) auto;padding:var(--space-3) 0;min-height:4em}
 .replay__controls{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-3);margin-top:var(--space-3)}
@@ -85,7 +95,10 @@ const CSS = `
 .replay__speed{min-width:3rem;padding:.3rem .5rem;font-family:var(--font-mono);font-size:var(--fs-200);background:var(--bg-2);color:var(--fg-1);border:1px solid var(--bd-1,#3a3a3a);border-radius:var(--radius);cursor:pointer}
 .replay__speed[aria-pressed="true"]{background:var(--accent);color:var(--bg-0);border-color:var(--accent)}
 .replay__scrub{flex:1 1 12rem;display:flex;align-items:center;gap:var(--space-2);min-width:8rem}
-.replay__scrub input{flex:1 1 auto;width:100%}
+/* 44 px of vertical hit area, which is the smallest target worth
+   shipping for a finger, without touching the track's look: a range
+   input draws its track centred in whatever box it is given. */
+.replay__scrub input{flex:1 1 auto;width:100%;height:44px;margin:0;cursor:pointer}
 .replay__count{font-family:var(--font-mono);font-size:var(--fs-200);color:var(--fg-2);white-space:nowrap}
 .replay__badge{font-family:var(--font-mono);font-size:var(--fs-200);color:var(--accent);letter-spacing:.06em;text-transform:uppercase}
 .replay__verdict{margin:var(--space-3) 0 0;font-size:var(--fs-200)}
@@ -138,9 +151,11 @@ export class ReplayPlayer {
     this.playing = false;
     this.speed = 1;
     this.finishedRun = false;
+    this.playedAll = false;
     this.verdict = null;
     this.verdictText = "";
     this.stoppedEarly = false;
+    this.playedAll = false;
     this.reducedMotion = prefersReducedMotion();
 
     this._raf = null;
@@ -238,7 +253,16 @@ export class ReplayPlayer {
        while the thing is playing is being lied to. */
     this.button = btn;
     btn.hidden = false;
-    btn.addEventListener("click", () => this.toggle());
+    /* The button outlives the player: r.njk ships it, and every
+       construction reuses it rather than minting a second one. So the
+       listener has to be removable, and destroy() has to remove it --
+       otherwise seven mounts leave seven listeners, each one holding a
+       dead player, its engine and its renderer alive. The count on the
+       element is what the gate reads; bind and unbind are the only two
+       places that touch it. */
+    this._onToggleClick = () => this.toggle();
+    btn.addEventListener("click", this._onToggleClick);
+    btn.__ttToggleBound = (btn.__ttToggleBound || 0) + 1;
     const controls = wrap.querySelector(".replay__controls");
     controls.insertBefore(btn, controls.firstChild);
 
@@ -315,13 +339,29 @@ export class ReplayPlayer {
   _buildEngine() {
     const mode = this.model.mode || "custom";
     const words = this.text ? this.text.split(/\s+/).filter(Boolean).length : 0;
+    /* The deadline, and why it is not simply the shared duration.
+       `dur` in the query is round(ms / 1000) -- result-link.js writes
+       whole seconds -- and the engine ENDS a timed run the moment the
+       clock passes its deadline (typing-engine.js, the beginRunning
+       loop). A run whose real length rounded DOWN would therefore stop
+       a few hundred milliseconds early and swallow the last handful of
+       keystrokes, while the verdict happily read "matches" because the
+       numbers of a truncated run are close to the numbers of the whole
+       one. So the deadline is never allowed to fall before the last
+       thing in the log: the log decides when the run is over, and for a
+       timed run _finishRun then pushes the clock out to the shared
+       duration if it is further. The countdown still reads the shared
+       duration in every ordinary case, because a timed run's last
+       keystroke lands before its buzzer. */
+    const lastTs = this.duration;
+    const deadlineMs = Math.max((this.model.dur || 0) * 1000, lastTs + 1);
     this.engine = new TypingEngine({
       host: this.stage,
       inputEl: null,
       textEl: this.surface,
       liveEl: this.liveEl,
       mode,
-      durationSec: this.model.dur || 0,
+      durationSec: deadlineMs / 1000,
       words: words || 1,
       /* The five booleans that change what a keystroke MEANS. Without
          them the same keys against the same text paint a different
@@ -394,7 +434,6 @@ export class ReplayPlayer {
       }
       this.clock = this._segTo;
       this._deliver(this.idx);
-      this.idx++;
       if (this.engine.finished) break;
       this._prepare();
       if (left <= 0 && this._segWaitLeft > 0) { this._paint(); return; }
@@ -407,6 +446,13 @@ export class ReplayPlayer {
      a pause is a beat with the clock held, an end marker means they
      pressed Esc or Stop rather than running out of text. */
   _deliver(k) {
+    /* Counted before the event is handed over, not after: the engine
+       can call finish() from inside onChar (the cursor reaching the end
+       of the text), and the verdict asks whether every event was
+       played. Incrementing afterwards would have made the last
+       keystroke of every completed run look like an event that never
+       happened. */
+    this.idx = k + 1;
     const ch = this.events[k][0];
     if (ch === MARK_PAUSE) {
       this._holdLeft = this._capMs();
@@ -452,7 +498,14 @@ export class ReplayPlayer {
       || Math.abs(Math.round(res.wpm) - Math.round(sharedWpm)) <= WPM_TOLERANCE;
     const accOk = sharedAcc == null
       || Math.abs(Math.round(res.accuracy) - Math.round(sharedAcc)) <= ACC_TOLERANCE;
-    const ok = wpmOk && accOk;
+    /* Numbers close to the shared ones are not enough. A run that
+       stopped early has close numbers almost by construction -- it is
+       the same typing, just less of it -- so a replay that did not play
+       every recorded event has no business claiming it is the same run.
+       this.idx counts events delivered, and _deliver counts one before
+       it hands it over. */
+    this.playedAll = this.idx >= this.events.length;
+    const ok = wpmOk && accOk && this.playedAll;
 
     this.verdict = ok ? "match" : "differ";
     this.verdictText = ok ? MATCH_TEXT : DIFFER_TEXT;
@@ -534,8 +587,7 @@ export class ReplayPlayer {
     for (let i = 0; i < target; i++) {
       this.clock = this.times[i];
       this._deliver(i);
-      if (this.engine.finished) { this.idx = i + 1; break; }
-      this.idx = i + 1;
+      if (this.engine.finished) break;
     }
     if (!target) this.idx = 0;
     /* A hold started by the last delivered marker would otherwise make
@@ -599,6 +651,7 @@ export class ReplayPlayer {
       total: this.events.length,
       clockMs: Math.round(this.clock),
       finished: this.finishedRun,
+      playedAll: this.playedAll,
       verdict: this.verdict,
       verdictText: this.verdictText,
       reducedMotion: this.reducedMotion,
@@ -620,11 +673,21 @@ export class ReplayPlayer {
     this.destroyed = true;
     this.playing = false;
     if (this._raf) { cancelAnimationFrame(this._raf); this._raf = null; }
+    if (this.button && this._onToggleClick) {
+      this.button.removeEventListener("click", this._onToggleClick);
+      this.button.__ttToggleBound = Math.max(0, (this.button.__ttToggleBound || 1) - 1);
+      this._onToggleClick = null;
+    }
     if (this.engine) {
       this.engine.running = false;
       if (this.engine.tickHandle) cancelAnimationFrame(this.engine.tickHandle);
       const r = this.engine.renderer;
       if (r && r._ro && r._ro.disconnect) { try { r._ro.disconnect(); } catch {} }
+      /* Released, not just stopped. A destroyed player that still
+         points at an engine keeps a renderer, a Float32Array of every
+         character position and a detached DOM tree alive for as long as
+         anything holds the player. */
+      this.engine = null;
     }
   }
 }

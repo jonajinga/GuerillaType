@@ -395,27 +395,60 @@ chk(/^✓/.test(endState.verdictShown), "B. with a tick in front of it", endStat
 chk(!/—|–/.test(endState.verdictShown), "B. and no em-dash in it", endState.verdictShown);
 chk(bErrors.length === 0, "B. the page threw nothing while playing", bErrors.join(" | "));
 
+/* Speed has to mean something. Every wait in the scheduler is divided
+   by it, so the same run at 4x must take appreciably less wall time
+   than at 1x -- and a player that had quietly stopped dividing would
+   still pass every count, every glyph and every verdict above. Measured
+   in the page, end to end, with generous slack: the expected ratio is
+   0.25 and the assertion only asks for under a half. */
+{
+  const timeAt = (speed) => pageB.evaluate((sp) => new Promise((resolve) => {
+    window.__ttReplay.pause();
+    window.__ttReplay.seek(0);
+    const t0 = performance.now();
+    window.__ttReplay.play(sp);
+    const tick = () => {
+      if (window.__ttReplay.state().finished) return resolve(Math.round(performance.now() - t0));
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }), speed);
+  const at1 = await timeAt(1);
+  const at4 = await timeAt(4);
+  chk(at1 > 1500, "B. the fixture is long enough for speed to be measurable", `${at1} ms at 1x`);
+  chk(at4 < at1 / 2, "B. the same run at 4x takes less than half the wall time",
+    `${at1} ms at 1x, ${at4} ms at 4x, ratio ${(at4 / at1).toFixed(2)}`);
+}
+
 /* A replay of a DIFFERENT run must not say it matches. Same page, same
    player, numbers from somebody else's link: the verdict has to flip,
-   or it is decoration. */
+   or it is decoration. Two fixtures, because one that is 25 wpm out
+   holds the tolerance to nothing -- widening it from 1 to 10 would
+   still pass. The second is 2 wpm out: one more than is allowed. */
 {
-  const ctxX = await mkContext();
-  const pageX = await ctxX.newPage();
-  const other = new URL(FULL_URL);
-  const q = new URLSearchParams(other.search);
-  q.set("wpm", String(Number(QUERY.get("wpm")) + 25));
-  const bogus = `${other.origin}${other.pathname}?${q.toString()}#${FULL_URL.split("#")[1]}`;
-  await pageX.goto(bogus, { waitUntil: "networkidle" });
-  await pageX.waitForFunction(() => window.__ttReplay && window.__ttReplay.ready, null, { timeout: 15000 });
-  await pageX.evaluate(() => { window.__ttReplay.seek(0); window.__ttReplay.play(16); });
-  await pageX.waitForFunction(() => window.__ttReplay.state().finished, null, { timeout: 15000 });
-  const v = await pageX.evaluate(() => ({
-    verdict: window.__ttReplay.state().verdict,
-    text: (document.querySelector("[data-replay-verdict]").textContent || "").trim(),
-  }));
-  chk(v.verdict === "differ" && /Replay differs from the shared numbers/.test(v.text),
-    "B. a link whose numbers are 25 wpm out says the replay differs", v.text || "(nothing shown)");
-  await ctxX.close();
+  for (const [gap, why] of [[25, "25 wpm out"], [2, "2 wpm out, just past the tolerance"]]) {
+    const ctxX = await mkContext();
+    const pageX = await ctxX.newPage();
+    const other = new URL(FULL_URL);
+    const q = new URLSearchParams(other.search);
+    q.set("wpm", String(Number(QUERY.get("wpm")) + gap));
+    const bogus = `${other.origin}${other.pathname}?${q.toString()}#${FULL_URL.split("#")[1]}`;
+    await pageX.goto(bogus, { waitUntil: "networkidle" });
+    await pageX.waitForFunction(() => window.__ttReplay && window.__ttReplay.ready, null, { timeout: 15000 });
+    await pageX.evaluate(() => { window.__ttReplay.seek(0); window.__ttReplay.play(16); });
+    await pageX.waitForFunction(() => window.__ttReplay.state().finished, null, { timeout: 15000 });
+    const v = await pageX.evaluate(() => ({
+      s: window.__ttReplay.state(),
+      text: (document.querySelector("[data-replay-verdict]").textContent || "").trim(),
+    }));
+    chk(v.s.verdict === "differ" && /Replay differs from the shared numbers/.test(v.text),
+      `B. a link ${why} says the replay differs`,
+      `replay ${v.s.wpm} vs shared ${v.s.shared.wpm}: ${v.text || "(nothing shown)"}`);
+    chk(Math.abs(v.s.wpm - v.s.shared.wpm) === gap,
+      `B. ...and it really is ${gap} out, so the tolerance is what rejected it`,
+      `${v.s.wpm} vs ${v.s.shared.wpm}`);
+    await ctxX.close();
+  }
 }
 
 // =============================================================== C
@@ -657,27 +690,252 @@ console.log("\nG. the player is not an input");
     `${end2.domCorrect}/${end2.domIncorrect} vs ${live.correct}/${live.incorrect}`);
 }
 
-/* Built twice, deliberately: a re-share, a resize or a second boot must
-   not leave two players fighting over one surface. */
+/* Built again and again, deliberately: a re-share, a resize or a second
+   boot must not leave two players fighting over one surface -- and,
+   less visibly, must not leave the old ones alive. The Play button is
+   the page's, not the player's, so every construction that binds a
+   listener to it and never unbinds leaves a dead player, its engine,
+   its renderer and a detached DOM tree reachable forever. */
 {
-  const twice = await pageB.evaluate(async () => {
+  const teardown = await pageB.evaluate(async () => {
     const m = await import("/assets/js/share/replay.js");
     const r = window.__ttReplay;
-    const p2 = m.mountReplay({
-      root: r.root, entries: r.entries, text: r.target, prefs: r.prefs, model: r.model,
-    });
-    p2.seek(5);
+    const made = [];
+    for (let i = 0; i < 4; i++) {
+      made.push(m.mountReplay({
+        root: r.root, entries: r.entries, text: r.target, prefs: r.prefs, model: r.model,
+      }));
+    }
+    const live = made[made.length - 1];
+    const stale = made.slice(0, -1);
+    live.seek(0);
+    live.play(1);
+    const before = stale.map((p) => p.idx);
+    await new Promise((res) => setTimeout(res, 700));
+    const after = stale.map((p) => p.idx);
+    live.pause();
+    live.seek(5);
     return {
+      mounts: made.length,
+      bound: document.getElementById("tt-replay-play").__ttToggleBound,
       surfaces: document.querySelectorAll("[data-replay-surface]").length,
-      buttons: document.querySelectorAll("#tt-replay-root button[aria-pressed]").length,
-      index: p2.state().index,
       playButtons: document.querySelectorAll("#tt-replay-play").length,
+      /* By the attribute the speed buttons actually own. aria-pressed
+         alone counts the Play button too, which carries it to say
+         whether it is playing. */
+      speedButtons: document.querySelectorAll("#tt-replay-root [data-replay-speed]").length,
+      staleDestroyed: stale.filter((p) => p.destroyed === true).length,
+      staleReleased: stale.filter((p) => p.engine === null).length,
+      staleCount: stale.length,
+      staleFrozen: JSON.stringify(before) === JSON.stringify(after),
+      before, after,
+      liveIndex: live.state().index,
     };
   });
-  chk(twice.surfaces === 1 && twice.playButtons === 1,
-    "G. mounting the player a second time leaves one surface and one Play button",
-    JSON.stringify(twice));
-  chk(twice.index === 5, "G. and the second player works", String(twice.index));
+  chk(teardown.surfaces === 1 && teardown.playButtons === 1 && teardown.speedButtons === 4,
+    "G. four more mounts leave one surface, one Play button and four speed buttons",
+    JSON.stringify({ surfaces: teardown.surfaces, play: teardown.playButtons, speeds: teardown.speedButtons }));
+  chk(teardown.bound === 1,
+    "G. and exactly one click listener on the button the page ships",
+    `${teardown.bound} bound after ${teardown.mounts + 1} constructions`);
+  chk(teardown.staleDestroyed === teardown.staleCount && teardown.staleReleased === teardown.staleCount,
+    "G. every superseded player is destroyed and has let go of its engine",
+    `${teardown.staleDestroyed}/${teardown.staleCount} destroyed, ${teardown.staleReleased}/${teardown.staleCount} released`);
+  chk(teardown.staleFrozen,
+    "G. and none of them is still running a scheduler against the surface",
+    `${JSON.stringify(teardown.before)} -> ${JSON.stringify(teardown.after)}`);
+  chk(teardown.liveIndex === 5, "G. the newest player is the one that works", String(teardown.liveIndex));
+}
+
+// =============================================================== H
+console.log("\nH. a run is played to its last keystroke, or it does not claim to match");
+/* The defect this section exists for: `dur` in the query is whole
+   seconds, and the engine ENDS a timed run when the clock passes its
+   deadline. A run whose real length rounded down therefore lost its
+   last keystrokes, and the verdict still read "matches", because a
+   truncated run's numbers are close to the whole run's numbers almost
+   by construction. A real timed test, then the same link with `dur`
+   forced a second short -- which is exactly what the rounding does. */
+{
+  await page.goto(`${B}/practice/?mode=time&duration=5`, { waitUntil: "networkidle" });
+  await waitOr((t) => page.waitForSelector(".tt-char", { timeout: t }), "H. the timed surface painted");
+  await page.click(".tt-stage").catch(() => {});
+  const stream = await page.$$eval("#tt-text .tt-char", (els) =>
+    els.map((e) => (e.classList.contains("tt-char--space") ? " " : e.textContent)).join(""));
+  for (let i = 0; i < stream.length; i++) {
+    if (i % 10 === 0 && await page.isVisible("#tt-results")) break;
+    await page.keyboard.type(stream[i], { delay: 70 });
+  }
+  await waitOr((t) => page.waitForSelector("#tt-results:not([hidden])", { timeout: t }),
+    "H. the timed run ended on its own deadline");
+  await waitOr((t) => page.waitForFunction(() => {
+    const b = document.getElementById("tt-share");
+    return b && (b.getAttribute("data-share-url") || "").includes("#");
+  }, null, { timeout: t }), "H. and produced a share url");
+  const timedUrl = await page.evaluate(() => document.getElementById("tt-share").getAttribute("data-share-url"));
+  const timedQ = new URLSearchParams(new URL(timedUrl.split("#")[0]).search);
+  const timedFrag = new URLSearchParams(timedUrl.split("#")[1] || "");
+  const timedLog = await codec.unpackLog({ r: timedFrag.get("r"), ru: timedFrag.get("ru") });
+  chk(timedQ.get("mode") === "time" && Number(timedQ.get("dur")) >= 4,
+    "H. it really was a timed run", `mode=${timedQ.get("mode")} dur=${timedQ.get("dur")}`);
+  if (!timedLog) await bail("H. the timed run's log has to decode");
+
+  /* dur one second short: the rounding that happens for real whenever
+     a run's length lands just above a whole second. */
+  const shortQ = new URLSearchParams(timedQ);
+  shortQ.set("dur", String(Math.max(0, Number(timedQ.get("dur")) - 1)));
+  for (const [name, url] of [
+    ["as shared", timedUrl],
+    ["with dur a second short", `${B}/r/?${shortQ.toString()}#${timedUrl.split("#")[1]}`],
+  ]) {
+    const ctxH = await mkContext();
+    const pageH = await ctxH.newPage();
+    await pageH.goto(url, { waitUntil: "networkidle" });
+    await pageH.waitForFunction(() => window.__ttReplay && window.__ttReplay.ready, null, { timeout: 15000 });
+    await pageH.evaluate(() => { window.__ttReplay.seek(0); window.__ttReplay.play(16); });
+    await pageH.waitForFunction(() => window.__ttReplay.state().finished, null, { timeout: 20000 });
+    const st = await pageH.evaluate(() => window.__ttReplay.state());
+    chk(st.index === st.total && st.total === timedLog.entries.length,
+      `H. ${name}: every one of the logged events was played`,
+      `${st.index} of ${st.total}`);
+    chk(st.playedAll === true, `H. ${name}: and the player knows it played all of it`);
+    chk(!(st.verdict === "match" && st.index < st.total),
+      `H. ${name}: it never says "matches" about a run it cut short`,
+      `${st.verdict} at ${st.index}/${st.total}`);
+    await ctxH.close();
+  }
+
+  /* The other direction: a link whose text is one character shorter
+     than the log. The engine reaches the end of the text and finishes
+     with events still in hand, and the numbers come out within a
+     whisker of the shared ones (one fewer character over one fewer
+     keystroke's worth of time). Only "did I play all of it" can tell
+     these apart, which is why the verdict asks. */
+  const shortText = TARGET.slice(0, -1);
+  const shortUrl = `${FULL_URL.split("#")[0]}#v=1&t=${encodeURIComponent(shortText)}`
+    + `&${FRAG.get("r") ? "r" : "ru"}=${FRAG.get("r") || FRAG.get("ru")}`;
+  const ctxS = await mkContext();
+  const pageS = await ctxS.newPage();
+  await pageS.goto(shortUrl, { waitUntil: "networkidle" });
+  await pageS.waitForFunction(() => window.__ttReplay && window.__ttReplay.ready, null, { timeout: 15000 });
+  await pageS.evaluate(() => { window.__ttReplay.seek(0); window.__ttReplay.play(16); });
+  await pageS.waitForFunction(() => window.__ttReplay.state().finished, null, { timeout: 20000 });
+  const sh = await pageS.evaluate(() => ({
+    s: window.__ttReplay.state(),
+    text: (document.querySelector("[data-replay-verdict]").textContent || "").trim(),
+  }));
+  chk(sh.s.playedAll === false && sh.s.index < sh.s.total,
+    "H. a text one character short leaves events unplayed", `${sh.s.index} of ${sh.s.total}`);
+  chk(Math.abs(sh.s.wpm - sh.s.shared.wpm) <= 1,
+    "H. and its numbers are close enough that the numbers alone would have said yes",
+    `${sh.s.wpm} vs shared ${sh.s.shared.wpm}`);
+  chk(sh.s.verdict === "differ" && /Replay differs/.test(sh.text),
+    "H. so the verdict refuses it on the strength of the unplayed events", sh.text || "(nothing shown)");
+  await ctxS.close();
+}
+
+// =============================================================== I
+console.log("\nI. a pause in the log holds the clock, and says so");
+/* Spliced into the real log from section A with a delta of zero, so the
+   recorded timing is untouched: the pause marker adds no time to the
+   run, because the engine already subtracted it. That makes this two
+   assertions in one -- the player must hold, and the numbers must come
+   out exactly as they did without it. */
+{
+  const withPause = LOG.entries.slice();
+  const PAUSE_AT = Math.min(20, withPause.length - 2);
+  withPause.splice(PAUSE_AT, 0, [codec.MARK_PAUSE, 0]);
+  const packed = await codec.packLog(withPause, { quantum: 1 });
+  const url = `${FULL_URL.split("#")[0]}#v=1&t=${encodeURIComponent(TARGET)}&${packed.key}=${packed.value}`;
+  const ctxP = await mkContext();
+  const pageP = await ctxP.newPage();
+  await pageP.goto(url, { waitUntil: "networkidle" });
+  await pageP.waitForFunction(() => window.__ttReplay && window.__ttReplay.ready, null, { timeout: 15000 });
+  chk((await pageP.evaluate(() => window.__ttReplay.state().total)) === withPause.length,
+    "I. the spliced log decoded with the pause in it", `${withPause.length} events`);
+
+  await pageP.evaluate((k) => { window.__ttReplay.seek(k); window.__ttReplay.play(1); }, PAUSE_AT);
+  await pageP.waitForTimeout(250);
+  const a = await pageP.evaluate(() => ({
+    s: window.__ttReplay.state(),
+    badge: !document.querySelector("[data-replay-badge]").hidden,
+  }));
+  await pageP.waitForTimeout(500);
+  const b = await pageP.evaluate(() => ({
+    s: window.__ttReplay.state(),
+    badge: !document.querySelector("[data-replay-badge]").hidden,
+  }));
+  chk(a.badge && b.badge, "I. the panel says they paused here, and keeps saying it while it holds",
+    `badge ${a.badge} then ${b.badge}`);
+  chk(a.s.index === PAUSE_AT + 1 && b.s.index === PAUSE_AT + 1,
+    "I. the marker is delivered and nothing else is, for the length of the hold",
+    `index ${a.s.index} then ${b.s.index}`);
+  chk(a.s.clockMs === b.s.clockMs,
+    "I. and the clock is HELD, not merely slowed -- a pause costs the run no time",
+    `${a.s.clockMs} ms then ${b.s.clockMs} ms`);
+  chk(a.s.playing === true && b.s.playing === true,
+    "I. while the player is still playing, not stopped");
+
+  await pageP.evaluate(() => window.__ttReplay.play(16));
+  await pageP.waitForFunction(() => window.__ttReplay.state().finished, null, { timeout: 20000 });
+  const done = await pageP.evaluate(() => ({
+    s: window.__ttReplay.state(),
+    correct: document.querySelectorAll("[data-replay-surface] .tt-char--correct").length,
+    incorrect: document.querySelectorAll("[data-replay-surface] .tt-char--incorrect").length,
+  }));
+  chk(done.s.index === withPause.length && done.s.playedAll,
+    "I. the hold ends and the rest of the log plays", `${done.s.index} of ${withPause.length}`);
+  chk(done.correct === live.correct && done.incorrect === live.incorrect,
+    "I. the screen is the same screen", `${done.correct}/${done.incorrect} vs ${live.correct}/${live.incorrect}`);
+  chk(done.s.verdict === "match",
+    "I. and the numbers are unchanged by the pause, because a pause is not time",
+    `${done.s.wpm} vs shared ${done.s.shared.wpm}`);
+  await ctxP.close();
+}
+
+// =============================================================== J
+console.log("\nJ. 375 px: the panel fits, and the slider is big enough to hit");
+{
+  const ctxJ = await browser.newContext({ viewport: { width: 375, height: 800 }, serviceWorkers: "block" });
+  const pageJ = await ctxJ.newPage();
+  await pageJ.goto(FULL_URL, { waitUntil: "networkidle" });
+  await pageJ.waitForFunction(() => window.__ttReplay && window.__ttReplay.ready, null, { timeout: 15000 });
+  await pageJ.waitForTimeout(300);
+  const m = await pageJ.evaluate(() => {
+    const panel = document.querySelector(".replay");
+    const live = document.querySelector("[data-replay-live]");
+    const scrub = document.querySelector("[data-replay-scrub]");
+    const pr = panel.getBoundingClientRect();
+    const lr = live.getBoundingClientRect();
+    const sr = scrub.getBoundingClientRect();
+    return {
+      panelLeft: pr.left, panelRight: pr.right,
+      liveLeft: lr.left, liveRight: lr.right,
+      overflow: Math.round(lr.right - pr.right),
+      scrubH: Math.round(sr.height),
+      scrubW: Math.round(sr.width),
+      labels: Array.from(live.querySelectorAll(".live-stats__label")).map((el) => ({
+        t: el.textContent.trim(),
+        right: el.getBoundingClientRect().right,
+        clipped: el.scrollWidth > el.clientWidth + 1,
+      })),
+      buttons: Array.from(document.querySelectorAll("#tt-replay-root button")).map((el) => {
+        const r = el.getBoundingClientRect();
+        return { w: Math.round(r.width), h: Math.round(r.height), right: r.right };
+      }),
+    };
+  });
+  chk(m.liveRight <= m.panelRight + 0.5 && m.liveLeft >= m.panelLeft - 0.5,
+    "J. the live-stats row stays inside the panel's border",
+    `row ${Math.round(m.liveLeft)}..${Math.round(m.liveRight)} in panel ${Math.round(m.panelLeft)}..${Math.round(m.panelRight)} (overflow ${m.overflow}px)`);
+  const badLabel = m.labels.find((l) => l.clipped || l.right > m.panelRight + 0.5);
+  chk(!badLabel, "J. and no label is cut off, including \"words typed\"",
+    badLabel ? `${badLabel.t} right=${Math.round(badLabel.right)} clipped=${badLabel.clipped}` : m.labels.map((l) => l.t).join(", "));
+  chk(m.scrubH >= 44, "J. the scrub slider is at least 44 px of hit area", `${m.scrubH} px tall, ${m.scrubW} px wide`);
+  const offPanel = m.buttons.filter((b) => b.right > m.panelRight + 0.5);
+  chk(offPanel.length === 0, "J. and every control is inside the panel too",
+    offPanel.length ? JSON.stringify(offPanel[0]) : `${m.buttons.length} controls`);
+  await ctxJ.close();
 }
 
 // ---------------------------------------------------------------- done
