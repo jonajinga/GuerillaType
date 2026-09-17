@@ -61,7 +61,15 @@ async function loadWasm() {
   return bytes;
 }
 
-const ready = (async () => hbjs(await hb({ wasmBinary: await loadWasm() })))();
+/* locateFile is belt to wasmBinary's braces. With the bytes supplied,
+   getWasmBinary() never calls readAsync and this is never used -- but
+   if a future harfbuzzjs stops honouring Module.wasmBinary, the
+   fallback fetch should at least go to the right URL rather than to
+   /hb.wasm relative to whatever page the user is on. */
+const ready = (async () => hbjs(await hb({
+  wasmBinary: await loadWasm(),
+  locateFile: (file) => (file === "hb.wasm" ? wasmUrl() : file),
+})))();
 
 /* Owned here and now. satori awaits this promise the first time it
    shapes text, which is one fetch later than the rejection; without a
