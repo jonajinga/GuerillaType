@@ -627,6 +627,73 @@ chk(nodeSvg.includes("<svg width=\"1200\" height=\"630\""), "F. the compared SVG
   nodeSvg.slice(0, 48));
 await ctxF.close();
 
+// ================================================================ G
+console.log("\nG. the other way a text of your own is typed: by chapter");
+/* ?book=custom:<id> is a custom text read like a library book. Its slug
+   IS the private id, state.bookSlug is set and state.mode is "book", so
+   nothing about the ?mode=custom path above covers it -- and it is the
+   same private text. The bundled sample is used rather than a seeded
+   record because the id has to be one the app minted, and because it is
+   the only custom text in the build with chapters. */
+const ctxG = await freshContext();
+const pageG = await ctxG.newPage();
+const wG = watch(pageG);
+await pageG.goto(B + "/custom/", { waitUntil: "domcontentloaded" });
+await pageG.evaluate(async () => {
+  localStorage.clear();
+  await new Promise((r) => {
+    const q = indexedDB.deleteDatabase("tt-custom");
+    q.onsuccess = q.onerror = q.onblocked = () => r();
+  });
+});
+await pageG.goto(B + "/custom/", { waitUntil: "domcontentloaded" });
+const seeded = await pageG.waitForSelector(".saved-item", { timeout: 30000 }).then(() => true).catch(() => false);
+if (!seeded) await bail("G. the bundled sample seeded itself into an empty list");
+const sample = await pageG.evaluate(() => {
+  const list = JSON.parse(localStorage.getItem("tt:custom-texts") || "[]");
+  const it = list.find((x) => x && x.sample) || list[0] || null;
+  return it ? { id: it.id, chapCount: it.chapCount || 0 } : null;
+});
+chk(!!sample && /^c_/.test(sample.id || "") && sample.chapCount > 1,
+  "G. it has an app-minted id and chapters to read", JSON.stringify(sample));
+/* Chapter 8, page 15 of the sample is the shortest page in it; chapter 1
+   page 1 is 2,372 characters, which is 166 seconds at 70 ms/key. */
+await pageG.goto(`${B}/practice/?book=${encodeURIComponent("custom:" + sample.id)}&ch=8&page=15`, { waitUntil: "domcontentloaded" });
+await pageG.waitForSelector(".tt-char", { timeout: 15000 });
+await pageG.click(".tt-stage").catch(() => {});
+const pageText = await surfaceText(pageG);
+chk(pageText.length > 0 && pageText.length < 700, "G. a page short enough to finish at 70 ms/key", `${pageText.length} chars`);
+await typeAll(pageG, pageText);
+await pageG.waitForSelector("#tt-results:not([hidden])", { timeout: 40000 });
+const shareG = await pageG.evaluate(() => Object.assign({}, document.getElementById("tt-share").dataset));
+chk(shareG.sharePrivate === "1",
+  "G. a chapter of your own text is private too", `data-share-private=${JSON.stringify(shareG.sharePrivate)}`);
+const numsG = await resultNumbers(pageG);
+await pageG.click("#tt-share");
+await pageG.waitForTimeout(200);
+await pageG.evaluate(() => { window.__ttEvents.length = 0; });
+wG.on = true;
+const [dlG] = await Promise.all([
+  pageG.waitForEvent("download", { timeout: 60000 }).catch(() => null),
+  pageG.click("#share-sheet [data-share-download]"),
+]);
+wG.on = false;
+if (!dlG) await bail("G. Download PNG produced a download for the chapter run");
+const localG = pngInfo(await readFile(await dlG.path()));
+const gridG = await readFile(join(ROOT, gridPathFor(numsG.wpm, numsG.acc))).catch(() => null);
+chk(!!localG && localG.w === 1200 && localG.h === 630,
+  "G. and it is a 1200x630 PNG drawn here", localG ? `${localG.bytes} bytes` : "not a PNG");
+chk(!!localG && !!gridG && localG.bytes !== gridG.length,
+  "G. not the grid card", localG && gridG ? `${localG.bytes} vs ${gridG.length}` : "?");
+const savedG = await pageG.evaluate(() => (window.__ttEvents || []).find((e) => e.name === "share_image_saved") || null);
+chk(!!savedG && savedG.props.method === "local", "G. method=local", JSON.stringify(savedG && savedG.props));
+const hayG = wG.requests.map((r) => `${r.url} ${r.post}`).join(" ");
+let hayGDecoded = hayG;
+try { hayGDecoded = decodeURIComponent(hayG); } catch {}
+chk(!hayG.includes(sample.id) && !hayGDecoded.includes(sample.id),
+  "G. and the text's id is in none of the requests it made", `${wG.requests.length} requests, id ${sample.id}`);
+await ctxG.close();
+
 await browser.close();
 server.close();
 console.log(`\n${pass} passed, ${fail} failed`);
