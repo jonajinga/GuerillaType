@@ -194,6 +194,18 @@ async function freshContext() {
   return context;
 }
 
+/* Anything that runs INSIDE the page can throw for a reason that is the
+   very thing under test -- a font that will not load, a wasm that is
+   refused. A verifier reverting src/ and re-running this file should see
+   a readable FAIL and a count, not a Playwright stack. */
+async function inPage(fn, name, fallback) {
+  try { return await fn(); }
+  catch (err) {
+    chk(false, name, String((err && err.message) || err).split("\n")[0].slice(0, 120));
+    return fallback;
+  }
+}
+
 const PNG_SIG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 function pngInfo(buf) {
   if (!buf || buf.length < 24 || !buf.subarray(0, 8).equals(PNG_SIG)) return null;
@@ -317,7 +329,7 @@ chk(localBuf.length !== gridDisk.length,
    the same size. Decode both in the page and walk three rows: the wpm
    digits, the stat row that a grid card does not have, and the excerpt
    panel. */
-const rows = await page.evaluate(async ({ a, b }) => {
+const rows = await inPage(() => page.evaluate(async ({ a, b }) => {
   const toImage = async (b64) => {
     const bin = atob(b64);
     const u8 = new Uint8Array(bin.length);
@@ -344,7 +356,9 @@ const rows = await page.evaluate(async ({ a, b }) => {
     out.rows.push({ y, diff, total: ca.width });
   }
   return out;
-}, { a: localBuf.toString("base64"), b: gridDisk.toString("base64") });
+}, { a: localBuf.toString("base64"), b: gridDisk.toString("base64") }),
+  "B. both PNGs decode in the page",
+  { w: 0, h: 0, sameSize: false, rows: [{ y: 200, diff: 0, total: 1 }, { y: 320, diff: 0, total: 1 }, { y: 410, diff: 0, total: 1 }] });
 chk(rows.sameSize, "B. both decode to the same canvas size, so a pixel diff means content");
 const excerptRow = rows.rows.find((r) => r.y === 410);
 chk(excerptRow.diff / excerptRow.total > 0.05,
@@ -360,7 +374,7 @@ chk(rows.rows.every((r) => r.diff > 0), "B. every sampled row differs",
 const stats = await page.evaluate(() => new URLSearchParams({
   v: "1", wpm: "80", raw: "88", acc: "96.4", con: "88", dur: "47", mode: "custom", d: "2026-09-16",
 }).toString());
-const diffRender = await page.evaluate(async ({ stats, text }) => {
+const diffRender = await inPage(() => page.evaluate(async ({ stats, text }) => {
   const m = await import("/assets/js/share/local-card.js");
   const fnv = (u8) => { let h = 0x811c9dc5; for (let i = 0; i < u8.length; i++) { h ^= u8[i]; h = (h * 0x01000193) >>> 0; } return h.toString(16); };
   const bytes = async (src) => new Uint8Array(await (await m.renderCardPng(src)).arrayBuffer());
@@ -372,7 +386,9 @@ const diffRender = await page.evaluate(async ({ stats, text }) => {
     without: { len: without.length, hash: fnv(without) },
     again: { len: again.length, hash: fnv(again) },
   };
-}, { stats, text: BODY });
+}, { stats, text: BODY }),
+  "B. the module renders a card when called directly",
+  { withText: { len: 0, hash: "threw" }, without: { len: 0, hash: "threw" }, again: { len: 0, hash: "also-threw" } });
 chk(diffRender.withText.hash !== diffRender.without.hash,
   "B. removing the excerpt from the model changes the pixels, so it IS drawn",
   `${diffRender.withText.len}B/${diffRender.withText.hash} vs ${diffRender.without.len}B/${diffRender.without.hash}`);
@@ -552,10 +568,12 @@ nodeModel.content = { kind: "custom", text: FIXTURE.text };
 const ctxF = await freshContext();
 const pageF = await ctxF.newPage();
 await pageF.goto(B + "/about/", { waitUntil: "domcontentloaded" });
-const browserSide = await pageF.evaluate(async (fx) => {
+const browserSide = await inPage(() => pageF.evaluate(async (fx) => {
   const m = await import("/assets/js/share/local-card.js");
   return { model: m.resultModel(fx), svg: await m.renderCardSvg(fx) };
-}, FIXTURE);
+}, FIXTURE),
+  "F. the shipped module loads in the page and renders the fixture",
+  { model: null, svg: "" });
 chk(JSON.stringify(browserSide.model) === JSON.stringify(nodeModel),
   "F. the browser's model is the object lib/og/validate.js builds",
   JSON.stringify(browserSide.model).slice(0, 150));
