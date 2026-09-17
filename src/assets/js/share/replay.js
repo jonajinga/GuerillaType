@@ -155,7 +155,6 @@ export class ReplayPlayer {
     this.verdict = null;
     this.verdictText = "";
     this.stoppedEarly = false;
-    this.playedAll = false;
     this.reducedMotion = prefersReducedMotion();
 
     this._raf = null;
@@ -577,6 +576,11 @@ export class ReplayPlayer {
     this._setBadge(false);
     this.finishedRun = false;
     this.stoppedEarly = false;
+    /* Reset with the rest of the finish state. Without this, seeking
+       away from a finished run left state().playedAll reading true
+       about a run that is no longer over, which is a lie to anything
+       reading the player between one finish and the next. */
+    this.playedAll = false;
     this.verdict = null;
     this.verdictText = "";
     this.result = null;

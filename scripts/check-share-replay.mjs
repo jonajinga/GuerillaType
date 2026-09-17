@@ -424,14 +424,27 @@ chk(bErrors.length === 0, "B. the page threw nothing while playing", bErrors.joi
    player, numbers from somebody else's link: the verdict has to flip,
    or it is decoration. Two fixtures, because one that is 25 wpm out
    holds the tolerance to nothing -- widening it from 1 to 10 would
-   still pass. The second is 2 wpm out: one more than is allowed. */
+   still pass. The second is 2 wpm out: one more than is allowed.
+
+   The fixture is built from the wpm the REPLAY computed a moment ago,
+   not from the wpm in the query. Those two are allowed to differ by 1
+   -- this gate says so itself, twenty lines up -- so a fixture placed
+   2 above the query could land 1 from the replay, inside the tolerance,
+   and the verdict would correctly read "matches" while this section
+   called it a failure. That is a guard accusing a healthy tree, and it
+   fired on one clean run in four before a verifier caught it. Measured
+   from the replay's own number, the distance is exact by construction. */
 {
+  const base = endState.wpm;
   for (const [gap, why] of [[25, "25 wpm out"], [2, "2 wpm out, just past the tolerance"]]) {
+    /* Away from the replay's number by exactly `gap`, in whichever
+       direction stays inside the 0-400 the validator accepts. */
+    const fixtureWpm = base + gap <= 400 ? base + gap : base - gap;
     const ctxX = await mkContext();
     const pageX = await ctxX.newPage();
     const other = new URL(FULL_URL);
     const q = new URLSearchParams(other.search);
-    q.set("wpm", String(Number(QUERY.get("wpm")) + gap));
+    q.set("wpm", String(fixtureWpm));
     const bogus = `${other.origin}${other.pathname}?${q.toString()}#${FULL_URL.split("#")[1]}`;
     await pageX.goto(bogus, { waitUntil: "networkidle" });
     await pageX.waitForFunction(() => window.__ttReplay && window.__ttReplay.ready, null, { timeout: 15000 });
@@ -441,12 +454,18 @@ chk(bErrors.length === 0, "B. the page threw nothing while playing", bErrors.joi
       s: window.__ttReplay.state(),
       text: (document.querySelector("[data-replay-verdict]").textContent || "").trim(),
     }));
+    chk(Math.abs(v.s.shared.wpm - base) === gap,
+      `B. the ${why} fixture really is ${gap} from the replay's own number`,
+      `link says ${v.s.shared.wpm}, the replay computed ${base}`);
+    /* The same log, the same target, the same engine: the number the
+       replay computes must not move between one page and the next. If
+       this ever fails it is the replay that is wrong, not the fixture --
+       which is the point of asserting it rather than allowing slack. */
+    chk(v.s.wpm === base,
+      "B. ...and the replay computes the same wpm as it did on the first page",
+      `${v.s.wpm} here, ${base} there`);
     chk(v.s.verdict === "differ" && /Replay differs from the shared numbers/.test(v.text),
-      `B. a link ${why} says the replay differs`,
-      `replay ${v.s.wpm} vs shared ${v.s.shared.wpm}: ${v.text || "(nothing shown)"}`);
-    chk(Math.abs(v.s.wpm - v.s.shared.wpm) === gap,
-      `B. ...and it really is ${gap} out, so the tolerance is what rejected it`,
-      `${v.s.wpm} vs ${v.s.shared.wpm}`);
+      `B. a link ${why} says the replay differs`, v.text || "(nothing shown)");
     await ctxX.close();
   }
 }
