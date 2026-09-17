@@ -65,6 +65,22 @@ export function todayStamp(d = new Date()) {
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
 }
 
+/* Is this a text of the reader's own?
+
+   THE definition, not a copy of one. practice-boot.js's isOwnText()
+   calls this, because it needs exactly the same answer before it lets
+   analytics say anything about a run, and a privacy predicate with two
+   implementations is a privacy predicate with two answers.
+
+   Two URL shapes reach the same private import: ?mode=custom&custom=<id>
+   reads it a segment at a time, ?book=custom:<id>&ch=N&page=M reads it
+   by chapter -- and the second sets state.mode = "book", so neither
+   test alone covers both. */
+export function isOwnText(state) {
+  const s = state || {};
+  return isCustomBookSlug(s.bookSlug) || s.mode === "custom";
+}
+
 /* Which public thing was typed, as "<prefix>:<id>", or null when
    nothing public was. Null is the normal answer for random words, a
    timed test and anything of the reader's own. */
@@ -159,7 +175,7 @@ export function shareText(ctx) {
   const { result = {}, state = {} } = ctx || {};
   const wpm = clampInt(result.wpm, 0, 400);
   const acc = clampInt(result.accuracy, 0, 100);
-  const own = isCustomBookSlug(state.bookSlug) || state.mode === "custom";
+  const own = isOwnText(state);
   const mode = modeFor(ctx);
   const label = own ? "custom text"
     : state.mode === "time" ? `${state.duration || 30}s test`

@@ -24,7 +24,7 @@ import { Analytics } from "../analytics.js";
    public `src` id, the accuracy band that names the pre-rendered card,
    and the fragment that carries the text and the keystroke replay.
    One call, from renderResults, and no share knowledge in this file. */
-import { wireResultShare } from "../share/result-link.js";
+import { wireResultShare, isOwnText as isOwnTextOf } from "../share/result-link.js";
 /* The keystroke log of a finished run, kept in this browser so /stats/
    can offer to share or replay a past session later. Never uploaded,
    never in a query string. */
@@ -151,13 +151,35 @@ const bookPage = params.get("page") != null ? parseInt(params.get("page"), 10) :
    /custom/, opened straight onto its chapter picker. */
 const customChapterListUrl = () =>
   `/custom/#chapters-${encodeURIComponent(customBookId(state.bookSlug))}`;
+/* Anything that arrived in the query string is a string a visitor
+   chose, and session_start puts four of them on the wire: mode, lang,
+   quote and drill. A real one is a slug -- "time", "en-1k", "medium",
+   "home-row", "alice-in-wonderland". Anything else is free text: a
+   pasted title, a search phrase, a sentence. ?quote=SECRET%20ZEBRA
+   reached Umami verbatim, and it did not have to be a word anyone would
+   want there.
+
+   A shape test rather than an allowlist, so a new wordlist or drill does
+   not have to be added here to be counted -- and it is applied where the
+   value ENTERS the page rather than at the analytics call, because
+   state.mode alone is echoed by a dozen later events and patching one
+   call site would have left the other eleven. Every id the site itself
+   ships passes it: 23 wordlists, 71 drills, every mode, every book slug.
+   An unknown value behaves exactly as it did before -- "other" resolves
+   to no wordlist and no drill, same as the garbage did. */
+const PUBLIC_PARAM = /^[a-z0-9-]{1,80}$/;
+const publicParam = (v, fallback = "other") => {
+  if (v == null || v === "") return null;
+  const s = String(v);
+  return PUBLIC_PARAM.test(s) ? s : fallback;
+};
 const state = {
-  mode: params.get("mode") || "time",
+  mode: publicParam(params.get("mode")) || "time",
   duration: parseInt(params.get("duration") || "30", 10),
   words: parseInt(params.get("words") || "25", 10),
-  quote: params.get("quote") || "medium",
+  quote: publicParam(params.get("quote")) || "medium",
   quoteTag: params.get("tag") || "",
-  language: params.get("lang") || settings.language || "en-1k",
+  language: publicParam(params.get("lang")) || settings.language || "en-1k",
   layout: settings.layout || "qwerty",
   // stopOnError preference overrides freedom: when on, freedom is false
   // (cursor refuses to advance until you hit the right key).
@@ -170,7 +192,7 @@ const state = {
   customSeg: parseInt(params.get("seg") || "0", 10),
   bookSlug, bookCh, bookParaId, bookPage,
   lessonId: params.get("lesson") ? parseInt(params.get("lesson"), 10) : null,
-  drillId: params.get("drill") || null,
+  drillId: publicParam(params.get("drill")),
 };
 // If a lesson was requested, override mode to "lesson" so the runner knows.
 if (state.lessonId) state.mode = "lesson";
@@ -252,6 +274,31 @@ const model = new AdaptiveModel(profile, { layout: state.layout });
    three recording sites use this. */
 const lessonKeyOf = () =>
   (state.lessonId != null ? state.lessonId : (state._customLessonId || null));
+
+/* Is the text on the surface one the reader imported themselves?
+
+   Two URL shapes reach the same private import: ?mode=custom&custom=<id>
+   reads it a segment at a time, ?book=custom:<id>&ch=N&page=M reads it
+   by chapter -- and the second sets state.mode = "book", so neither
+   test alone covers both. Analytics must answer this question before
+   sending anything that came OUT of the text: its slug, its id, its
+   title, or a character or word lifted from its body.
+
+   Corpus items (quote / idiom / poem / parable) run through the same
+   "custom" pipeline and are public, so this predicate is occasionally
+   more careful than it strictly needs to be. That is deliberate: the
+   share payload draws the line in exactly this place already
+   (see the results-card ownText), and one predicate that is sometimes
+   too cautious beats two that can disagree about what is private.
+
+   And so there IS only one: the body of it lives in
+   share/result-link.js, which needs the same answer to decide whether
+   a run may name a public `src`. This wrapper exists because every
+   call site in this file already reads the module-level `state`. Two
+   copies of a privacy predicate is how they end up disagreeing. */
+function isOwnText() {
+  return isOwnTextOf(state);
+}
 
 let engine = null;
 
@@ -452,11 +499,28 @@ async function buildText() {
     }
     return item;
   }
+  /* A deep link pins one item by its public id: /idioms/<id>/ and
+     /poetry/<id>/ and /parables/<id>/ all send the reader here with
+     ?iid= / ?pid=. An id that no longer exists in the corpus (a piece
+     was pulled, or somebody typed it by hand) falls back to a fresh
+     pick rather than to an empty typing surface. Pinning also records
+     the item as "last seen" so the next fresh pick excludes it. */
+  function pinOrFresh(all, kind, pinnedId) {
+    if (pinnedId && Array.isArray(all)) {
+      const hit = all.find((x) => x && x.id === pinnedId);
+      if (hit) {
+        state._lastCorpusId = state._lastCorpusId || {};
+        state._lastCorpusId[kind] = hit.id;
+        return hit;
+      }
+    }
+    return pickFresh(all, kind);
+  }
   if (state.mode === "idiom") {
     try {
       const res = await fetch("/data/idioms.json", { cache: "default" });
       const all = await res.json();
-      const item = pickFresh(all, "idiom");
+      const item = pinOrFresh(all, "idiom", params.get("iid"));
       if (item) {
         state._customMeta = {
           kind: "idiom",
@@ -476,7 +540,7 @@ async function buildText() {
     try {
       const res = await fetch("/data/poetry.json", { cache: "default" });
       const all = await res.json();
-      const item = pickFresh(all, "poem");
+      const item = pinOrFresh(all, "poem", params.get("pid"));
       if (item) {
         state._customMeta = {
           kind: "poem",
@@ -497,6 +561,39 @@ async function buildText() {
       }
     } catch {}
     return "Hope is the thing with feathers";
+  }
+  /* Parables became a real engine mode here. Until now a parable was
+     typed only by saving a throwaway copy of it into the user's own
+     custom texts -- which put a piece of public-domain text into their
+     storage every time they clicked Type, and made the URL a local id
+     that means nothing on another device. ?mode=parable&pid=<id> is
+     resolvable from repo data alone, so /parables/<id>/ can link
+     straight to it. */
+  if (state.mode === "parable") {
+    try {
+      const res = await fetch("/data/parables.json", { cache: "default" });
+      const all = await res.json();
+      const item = pinOrFresh(all, "parable", params.get("pid"));
+      if (item) {
+        state._customMeta = {
+          kind: "parable",
+          sourceId: item.id || null,
+          title: item.title || null,
+          source: item.source || null,
+          // The moral is rendered as its own centered paragraph by
+          // .tt-text[data-kind="parable"] .tt-paragraph:last-child.
+          moral: item.moral || null,
+        };
+        state._customTitle = item.title;
+        const body = String(item.text || "").trim();
+        // Two paragraphs when there is a moral -- the renderer turns
+        // an array into paragraph blocks and the engine joins them
+        // with one typed space, exactly as the custom-text route did.
+        // 198 of the 269 parables have no moral and stay one block.
+        return item.moral ? [body, String(item.moral).trim()] : body;
+      }
+    } catch {}
+    return "The hare, deeming her assertion to be impossible, agreed to the proposal.";
   }
   if (state.mode === "custom") {
     // The bodies live in IndexedDB now (custom-store.js) -- reading
@@ -738,6 +835,7 @@ function startEngine(target) {
     : (target || "").length;
   const isLongFormPre = state.mode === "custom" || state.mode === "book"
     || state.mode === "quote" || state.mode === "idiom" || state.mode === "poem"
+    || state.mode === "parable"
     || (state.mode === "lesson" && targetLen > 200);
   textEl.classList.toggle("tt-text--full", !!isLongFormPre);
   // Apply the "reader" book-page styling to every literary target:
@@ -747,6 +845,7 @@ function startEngine(target) {
     || state.mode === "quote"
     || state.mode === "idiom"
     || state.mode === "poem"
+    || state.mode === "parable"
     || (state.mode === "custom" && state._customMeta && ["quote","idiom","parable","poem"].indexOf(state._customMeta.kind) !== -1);
   textEl.classList.toggle("tt-text--reader", !!isLiterary);
   // Tape mode: single horizontal line that scrolls left as the
@@ -759,8 +858,13 @@ function startEngine(target) {
   // just the last .tt-paragraph block via CSS.
   if (state.mode === "custom" && state._customMeta && state._customMeta.kind) {
     textEl.dataset.kind = state._customMeta.kind;
-  } else if (state.mode === "quote") {
-    textEl.dataset.kind = "quote";
+  } else if (state.mode === "quote" || state.mode === "idiom"
+          || state.mode === "poem" || state.mode === "parable") {
+    // Native corpus modes name themselves. Parable is the one that
+    // needs it: without data-kind="parable" the moral renders as an
+    // ordinary last paragraph instead of a centered italic line, so
+    // the native route would look wrong next to the custom route.
+    textEl.dataset.kind = state.mode;
   } else if (state.mode === "book") {
     textEl.dataset.kind = "book";
   } else {
@@ -1016,7 +1120,7 @@ function handleFinish(result) {
          file on one person's device, which tells the analytics nothing
          and is not ours to send. Report the kind instead. */
       emit("bookCompletion", {
-        book: isCustomBook(state.bookSlug) ? "custom" : state.bookSlug,
+        book: isCustomBook(state.bookSlug) ? "custom" : publicParam(state.bookSlug),
         event: completed ? "finished" : "started",
       });
     }
@@ -1039,7 +1143,13 @@ function handleFinish(result) {
       for (const k of Object.keys(charMiss)) {
         if (charMiss[k] > worstChCount) { worstCh = k; worstChCount = charMiss[k]; }
       }
-      if (worstCh) emit("worstChar", { char: worstCh, missCount: worstChCount });
+      /* char and word below are literally cut out of the target. For a
+         library book or a wordlist that is public text; for someone's
+         own import it is a piece of their document, so it does not go.
+         finger_acc / worst_finger stay either way -- a finger name comes
+         from the keyboard layout, not from the text. */
+      const ownText = isOwnText();
+      if (worstCh && !ownText) emit("worstChar", { char: worstCh, missCount: worstChCount });
 
       // Per-finger totals + misses.
       const layout = state.layout || "qwerty";
@@ -1090,7 +1200,7 @@ function handleFinish(result) {
       for (const k of Object.keys(wordMiss)) {
         if (wordMiss[k] > worstWordCount) { worstWord = k; worstWordCount = wordMiss[k]; }
       }
-      if (worstWord) emit("worstWord", { word: worstWord, missCount: worstWordCount });
+      if (worstWord && !ownText) emit("worstWord", { word: worstWord, missCount: worstWordCount });
     }
   } catch {}
   // 100 % accuracy + non-trivial length is a celebration event.
@@ -1172,10 +1282,14 @@ function handleFinish(result) {
   // Auto-advance is an opt-in, per-mode preference (the Auto button
   // in the toolbar, or /settings/). Never on a run the user ended
   // with Esc/Stop -- they asked to see the card -- never on a result
-  // the engine flagged as suspect, and never on a touch device, where
-  // the next run cannot take focus without a tap and the card is the
-  // only way to see the numbers. The old 10 s countdown is gone: when
-  // it fires, the next run loads in place and waits for a keystroke.
+  // the engine flagged as suspect, and never on a phone or tablet
+  // (isMobileLike: touch-first media query or a mobile user agent,
+  // nothing weaker), where the next run cannot take focus without a
+  // tap and the card is the only way to see the numbers. A narrow or
+  // zoomed desktop window and a desktop with a touch monitor are not
+  // that; they have keyboards, and the switch works there. The old
+  // 10 s countdown is gone: when it fires, the next run loads in place
+  // and waits for a keystroke.
   result._autoAdvance = !stopped && !result.suspect && !isMobileLike() && autoAdvanceOn();
   // Corpus item completion (quotes / idioms / parables / poetry).
   // Recorded only when the user typed all the way through AND
@@ -1297,10 +1411,11 @@ function syncAutoAdvanceButton() {
   const key = autoAdvanceKey();
   btn.hidden = !key;
   if (!key) return;
-  // Touch devices never auto-advance (the next run cannot take focus
-  // without a tap), so the button stays visible with the rest of the
-  // row but reads as unavailable instead of as a switch that does
-  // nothing.
+  // Phones and tablets never auto-advance (the next run cannot take
+  // focus without a tap), so the button stays visible with the rest of
+  // the row but reads as unavailable instead of as a switch that does
+  // nothing. Desktops always get the live switch, whatever the window
+  // width or the touch hardware attached (see isMobileLike).
   if (isMobileLike()) {
     btn.setAttribute("aria-disabled", "true");
     btn.setAttribute("aria-pressed", "false");
@@ -1348,6 +1463,15 @@ function getAutoAdvanceAction(result) {
   }
   if (state.lessonId != null) return { kind: "lesson", id: state.lessonId + 1 };
   if (state.drillId) return { kind: "drill" };
+  /* Native corpus modes. These used to fall through to "restart",
+     which re-runs buildText -- and buildText honours ?iid= / ?pid=,
+     so a session opened from /idioms/<id>/ would have served the SAME
+     idiom forever. Routing them through the corpus action instead
+     also keeps the behaviour the custom route had: advance to the
+     next piece you have not completed, not to a random one. */
+  if (state.mode === "idiom" || state.mode === "poem" || state.mode === "parable") {
+    return { kind: "corpus", corpus: state.mode };
+  }
   if (state.mode === "custom") {
     const kind = state._customMeta && state._customMeta.kind;
     if (kind === "idiom" || kind === "poem" || kind === "parable" || kind === "quote") return { kind: "corpus", corpus: kind };
@@ -1434,20 +1558,38 @@ async function applyAdvance(action) {
     }
     if (!next) next = items[(start + 1) % items.length];
     if (!next || next.id === curId) return false;
-    const title = next.title || (kind === "idiom" ? next.text : kind === "quote" && next.author ? next.author : (next.text || "").slice(0, 60));
-    const item = await saveCustomText({
-      title,
-      raw: next.text,
-      meta: {
-        kind, sourceId: next.id || null, title: next.title || null, author: next.author || null,
-        year: next.year || null, source: next.source || null, meaning: next.meaning || null, moral: next.moral || null,
-      },
-    });
-    if (!item || !item.id) return false;
-    state.customId = item.id;
-    state.customSeg = 0;
-    state.mode = "custom";
-    url = `/practice/?mode=custom&custom=${encodeURIComponent(item.id)}&seg=0&from=${encodeURIComponent(kind)}`;
+    /* Native modes (?mode=idiom&iid= / ?mode=poem&pid= /
+       ?mode=parable&pid=) advance by rewriting the public id in the
+       URL and letting buildText resolve it from /data/. Nothing is
+       written to the user's storage, and the resulting link is the
+       same one the item page publishes. The custom route below stays
+       for sessions that really did come from a saved text. */
+    if (kind === state.mode) {
+      const key = kind === "idiom" ? "iid" : "pid";
+      // buildText() reads the pinned id straight off `params`, so
+      // updating it here is what makes the next boot() serve the next
+      // piece. The URL rewrite at the end of this function keeps the
+      // address bar, a refresh and the back button agreeing with it.
+      params.set(key, next.id);
+      state._lastCorpusId = state._lastCorpusId || {};
+      state._lastCorpusId[kind] = next.id;
+      url = `/practice/?mode=${kind}&${key}=${encodeURIComponent(next.id)}${fromQ}`;
+    } else {
+      const title = next.title || (kind === "idiom" ? next.text : kind === "quote" && next.author ? next.author : (next.text || "").slice(0, 60));
+      const item = await saveCustomText({
+        title,
+        raw: next.text,
+        meta: {
+          kind, sourceId: next.id || null, title: next.title || null, author: next.author || null,
+          year: next.year || null, source: next.source || null, meaning: next.meaning || null, moral: next.moral || null,
+        },
+      });
+      if (!item || !item.id) return false;
+      state.customId = item.id;
+      state.customSeg = 0;
+      state.mode = "custom";
+      url = `/practice/?mode=custom&custom=${encodeURIComponent(item.id)}&seg=0&from=${encodeURIComponent(kind)}`;
+    }
   } else if (action.kind === "restart") {
     // A single quote deep-linked by id would come back identical;
     // drop the pin so the bucket picker draws a fresh one. Daily
@@ -1590,6 +1732,15 @@ function renderBackLink() {
   } else if (state.mode === "quote") {
     label = "← Back to quotes";
     href = "/quotes/";
+  } else if (state.mode === "idiom") {
+    label = "← Back to idioms";
+    href = "/idioms/";
+  } else if (state.mode === "poem") {
+    label = "← Back to poetry";
+    href = "/poetry/";
+  } else if (state.mode === "parable") {
+    label = "← Back to parables";
+    href = "/parables/";
   }
   if (!href) {
     el.hidden = true;
@@ -1940,7 +2091,7 @@ function renderResults(r) {
            the text and the replay all live in that module, next to the
            validator that has to accept them. */
         const shareAttrs = `type="button" data-share data-share-kind="result" data-share-surface="result"`;
-        const shareBtn = wrap(ICONS.share, "Share", { attrs: `id="tt-share" ${shareAttrs}` }, "Share this result -- your numbers and a link to the same text. What you typed rides after the # and never reaches a server.");
+        const shareBtn = wrap(ICONS.share, "Share", { attrs: `id="tt-share" ${shareAttrs}` }, "Share this result. The numbers travel in the link. What you typed sits after the # and never reaches this site; it travels only where you choose to send the link.");
         // Book mode: Next page / Type page again / back to chapter list.
         if (state.bookSlug) {
           const paraMode = state.bookPage == null;
@@ -2222,7 +2373,14 @@ async function boot() {
       lessonId: state.lessonId || null,
       drillId: state.drillId || null,
       challenge: (activeChallenge && activeChallenge.id) || null,
-      bookSlug: state.bookSlug || null,
+      /* A library slug is a public book id: "moby-dick" means something
+         in aggregate and is ours to send. A custom slug is
+         "custom:c_9f3a1b" -- the id of a file on one person's device.
+         It means nothing in aggregate, and the server is only ever
+         supposed to see allowlisted public ids. Report the kind, the
+         same substitution book_completion makes at the end of this very
+         run (see handleFinish). */
+      bookSlug: state.bookSlug ? (isCustomBook(state.bookSlug) ? "custom" : publicParam(state.bookSlug)) : null,
     });
   } catch (err) {
     console.error(err);
