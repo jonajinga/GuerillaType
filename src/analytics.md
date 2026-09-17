@@ -119,7 +119,7 @@ pageSlug: analytics
 
 ## What is tracked
 
-- **Pageviews** &mdash; every route a visitor lands on.
+- **Pageviews** &mdash; every route a visitor lands on, without the query string and without the part after `#`. The share page loads no analytics at all, so it is not counted here.
 - **Sessions** &mdash; anonymous, hash-based grouping of one visitor's pageviews. No cookies, no persistent identifier.
 - **Events** &mdash; named user actions emitted by the practice surface: session lifecycle, mode picks, library opens, achievements, settings changes, and a few perf timings. Each event carries up to a handful of categorical properties. See [`src/assets/js/analytics.js`](https://github.com/jonajinga/GuerillaType/blob/main/src/assets/js/analytics.js) for the full list.
 - **Geography** &mdash; country from IP, then IP discarded.

@@ -8,6 +8,15 @@
    in but disabled by default", had already been false since Umami was
    switched on in src/_data/site.js.
 
+   Two facts about analytics, both settled on 2026-09-16 and both
+   easy to get wrong in copy: the share page loads no analytics at all
+   (base.njk skips the trackers when a page sets noAnalytics, and /r/
+   does), and everywhere else the tracker carries data-exclude-search
+   and data-exclude-hash, so what it records is a path with no query
+   and no fragment. An earlier draft of this page said Umami recorded
+   the share link's query string; it does not, and a privacy page that
+   over-reports is as wrong as one that under-reports.
+
    So this gate reads the BUILT site, not the sources, because what a
    reader sees is _site: markdown becomes HTML, tinyhtml minifies it, and
    a gate grepping the .md files would pass while the published page said
@@ -197,14 +206,16 @@ const MUST = [
   ["/privacy/", "Nothing leaves your device unless you press Share."],
   ["/privacy/", "the words ride in the fragment, the part of a link after #"],
   ["/privacy/", "Then the mode, the word list, the keyboard layout, whether the run was a personal best, whether a challenge was cleared, the date, and a public content id"],
-  ["/privacy/", "That is everything the site puts in the link."],
+  ["/privacy/", "That is everything the site puts before the #."],
   ["/privacy/", "It never carries the text you typed, the title of a custom text, or your keystrokes."],
   ["/privacy/", "every whole number of wpm up to 200, one card for anything faster"],
   ["/privacy/", "Browsers never send that part to any server"],
   ["/privacy/", "A share link is public."],
   ["/privacy/", "Nothing is drawn per visitor"],
   ["/privacy/", "Cloudflare's standard edge logs record the request for a share link"],
-  ["/privacy/", "the personal-best and challenge-result flags, the date and the public content id, and never the part after #, because a browser does not send it."],
+  ["/privacy/", "That still holds for a shared result, and the share page goes further: it loads no analytics at all, so nothing on it is counted or reported."],
+  ["/privacy/", "The page a share link opens loads no analytics at all, so nothing about a shared result is counted or reported."],
+  ["/privacy/", "The tracker is loaded with data-exclude-search and data-exclude-hash, so /practice/?book=custom:c_9f3a1b is recorded as /practice/."],
   ["/privacy/", "The pre-built preview image can never show a custom text"],
   ["/privacy/", "Umami is the only analytics this site runs."],
   ["/about/", "Nothing leaves your device unless you press Share."],
@@ -216,6 +227,7 @@ const MUST = [
   ["/faq/", "So a server never sees your words, and anyone you send the link to sees everything in it."],
   ["/faq/", "Nothing goes anywhere unless you press Share"],
   ["/faq/", "the mode, the word list, the keyboard layout, whether it was a personal best, whether a challenge was cleared, the date"],
+  ["/faq/", "The page that opens a share link loads no analytics at all, so nothing about the run is counted or reported."],
   ["/features/", "unless you press Share"],
   ["/guide/", "Nothing leaves your device unless you press Share."],
   ["/guide/", "Cloudflare Web Analytics is wired in and switched off."],
@@ -229,6 +241,7 @@ const MUST = [
   ["/blog/custom-text/", "The text stays on your device unless you share a run of it"],
   ["/settings/", "until you export it, or share a result"],
   ["/analytics/", "Analytics never receives it."],
+  ["/analytics/", "every route a visitor lands on, without the query string and without the part after #"],
   ["/why-contribute/", "nothing you actually type ever leaves your browser unless you press Share"],
   ["/blog/modes-explained/", "the words ride in the part of the link after the #"],
   ["/roadmap/", "Share your result, or share any page."],
