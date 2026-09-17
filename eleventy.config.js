@@ -104,6 +104,7 @@ const CSS_ORDER = [
   "pages/legal.css",
   "pages/404.css",
   "pages/quotes.css",
+  "pages/corpus-detail.css",
   "pages/library.css",
   "pages/wordlists.css",
   "pages/contribute.css",

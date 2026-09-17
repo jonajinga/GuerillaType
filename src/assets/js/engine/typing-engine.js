@@ -18,25 +18,36 @@ import { toast } from "../util/dom.js";
    practice page nothing but the fetch. */
 import { MARK_BACKSPACE, MARK_WORD_BACKSPACE, MARK_PAUSE, MARK_END } from "../share/codec.js";
 
-/* Touch / mobile detection. Generous on purpose -- ANY positive signal
-   means we treat the device as touch + skip auto-focus. Tablets in
-   desktop-UA mode (iPadOS 13+) report hover:hover and pointer:fine,
-   so matchMedia alone misses them; touchstart support catches those.
-   Inverted: this is also true for laptops with touchscreens, which is
-   acceptable -- they have soft keyboards available too. */
+/* Touch-only detection: does this device type with a soft keyboard?
+   True for phones and tablets, false for desktops and laptops, and
+   deliberately so even when the desktop has a touch digitizer or the
+   browser window is narrow. An earlier version returned true on any
+   single touch signal (a window under 768 px, a bare coarse pointer,
+   ontouchstart, maxTouchPoints > 0). A zoomed-in desktop browser, or a
+   Windows machine with a touch monitor and a mouse, then never got
+   auto-focus and could never switch auto-advance on (the Auto button
+   read as unavailable and the header ignored the Settings switch).
+   What remains:
+   - the primary input cannot hover and is coarse: the standard
+     touch-first query. iPadOS keeps reporting it with a trackpad or
+     keyboard attached, so iPads stay on the tap-to-start path (known
+     limit, and the safe direction to be wrong in);
+   - a phone or tablet user agent. (Chrome for Android in "desktop
+     site" mode sends a Linux UA with neither word, and then depends
+     on the media query above staying coarse, which it does unless a
+     mouse is paired: with a mouse, it is a desktop here.)
+   - iPadOS in desktop-UA mode, which says Macintosh but has touch points.
+   Windows reports the primary pointer as fine and hover as possible
+   whenever a mouse or trackpad is present, so touch laptops count as
+   desktops, which is what their keyboards make them. */
+/* Copied by hand into src/_includes/partials/practice/typing-shell.njk,
+   which stamps <html data-touch> before any module loads. Change both. */
 export function isMobileLike() {
   if (typeof window === "undefined") return false;
   try {
-    if (window.matchMedia) {
-      if (window.matchMedia("(max-width: 767px)").matches) return true;
-      if (window.matchMedia("(hover: none) and (pointer: coarse)").matches) return true;
-      if (window.matchMedia("(pointer: coarse)").matches) return true;
-    }
-    if ("ontouchstart" in window) return true;
-    if (navigator.maxTouchPoints > 0) return true;
-    // iPadOS reports as Mac Safari -- catch via UA platform check.
+    if (window.matchMedia && window.matchMedia("(hover: none) and (pointer: coarse)").matches) return true;
     const ua = (navigator.userAgent || "").toLowerCase();
-    if (/iphone|ipad|ipod|android/.test(ua)) return true;
+    if (/iphone|ipad|ipod|android|mobile/.test(ua)) return true;
     if (/macintosh/.test(ua) && navigator.maxTouchPoints > 1) return true;
   } catch {}
   return false;
@@ -153,11 +164,10 @@ export class TypingEngine {
     // is a jarring experience. Show the unfocused state instead;
     // input-capture's touchend/click handlers will turn the user's
     // first tap on the typing surface into a real focus that raises
-    // the keyboard. The mobile predicate is intentionally generous --
-    // touchstart support, coarse pointer, no-hover media query,
-    // viewport width, AND iOS-specific UA detection -- because any
-    // single signal can flip false on tablets in desktop-mode UA
-    // spoofing. If ANY signal says "touch device", we treat it as one.
+    // the keyboard. The predicate is isMobileLike() above: touch-first
+    // media query or a phone/tablet user agent, and nothing weaker,
+    // because a desktop that lands here by mistake has to click the
+    // surface before every run and can never auto-advance.
     if (!this.capturing) {
       /* No keyboard, so no focus story to tell. */
     } else if (isMobileLike()) {
@@ -405,7 +415,8 @@ export class TypingEngine {
     if (this.mode === "words" || this.mode === "quote" || this.mode === "custom" ||
         this.mode === "challenge" || this.mode === "lesson" || this.mode === "drill" ||
         this.mode === "adaptive" || this.mode === "book" ||
-        this.mode === "idiom" || this.mode === "poem" || this.mode === "tape") {
+        this.mode === "idiom" || this.mode === "poem" || this.mode === "parable" ||
+        this.mode === "tape") {
       if (this.cursor >= this.targetArr.length) this.finish();
     }
     // Zen: stream more words as we approach the end.
@@ -534,7 +545,7 @@ export class TypingEngine {
           const wordsDone = this.targetArr.slice(0, this.cursor).join("").split(/\s+/).filter(Boolean).length;
           tel.textContent = `${wordsDone}/${this.wordsTarget}`;
           if (tlb) tlb.textContent = "words typed";
-        } else if (this.mode === "quote" || this.mode === "custom" || this.mode === "lesson" || this.mode === "drill" || this.mode === "challenge" || this.mode === "adaptive" || this.mode === "book" || this.mode === "idiom" || this.mode === "poem") {
+        } else if (this.mode === "quote" || this.mode === "custom" || this.mode === "lesson" || this.mode === "drill" || this.mode === "challenge" || this.mode === "adaptive" || this.mode === "book" || this.mode === "idiom" || this.mode === "poem" || this.mode === "parable") {
           const pct = this.targetArr.length ? Math.round((this.cursor / this.targetArr.length) * 100) : 0;
           tel.textContent = `${pct}%`;
           if (tlb) tlb.textContent = "complete";

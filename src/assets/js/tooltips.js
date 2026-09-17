@@ -11,9 +11,35 @@ let _tippy = null;
 let _bindQueue = [];
 let _loadPromise = null;
 
+/* Promote data-tip to a native title so hovering still says something.
+   Used when the CDN is unreachable, and when a page has asked for no
+   third-party scripts at all. */
+function nativeFallback() {
+  document.querySelectorAll("[data-tip]").forEach((el) => {
+    if (!el.hasAttribute("title")) el.setAttribute("title", stripTags(el.dataset.tip || ""));
+  });
+  return null;
+}
+
+/* A page can refuse third-party scripts outright with
+   `noThirdPartyScripts: true` in its front matter, which base.njk
+   turns into data-no-third-party on <body>. /r/ does, because its URL
+   fragment holds what somebody typed and the record of how they typed
+   it, and anything that executes in that document can read it. Tippy
+   has no reason to; the promise on that page has no exception in it,
+   so this has none either. Tooltips degrade to the browser's own. */
+function refusesThirdParty() {
+  try { return !!(document.body && document.body.dataset.noThirdParty); }
+  catch { return false; }
+}
+
 async function loadTippy() {
   if (_tippy) return _tippy;
   if (_loadPromise) return _loadPromise;
+  if (refusesThirdParty()) {
+    _loadPromise = Promise.resolve(nativeFallback());
+    return _loadPromise;
+  }
   _loadPromise = (async () => {
     try {
       const mod = await import(/* @vite-ignore */ TIPPY_CDN);
@@ -21,13 +47,9 @@ async function loadTippy() {
       return _tippy;
     } catch (err) {
       // Network failure — fall back to native title="" so the user
-      // still sees a tooltip on hover. Promote data-tip → title on
-      // every queued and future element.
+      // still sees a tooltip on hover.
       console.warn("[tooltips] Tippy load failed; falling back to native title.", err);
-      document.querySelectorAll("[data-tip]").forEach((el) => {
-        if (!el.hasAttribute("title")) el.setAttribute("title", stripTags(el.dataset.tip || ""));
-      });
-      return null;
+      return nativeFallback();
     }
   })();
   return _loadPromise;

@@ -683,6 +683,26 @@ const analyticsHits = thirdParty.filter((r) => /umami|cloudflareinsights|analyti
 chk(analyticsHits.length === 0, "C. and sent nothing to an analytics endpoint",
   analyticsHits.map((r) => r.url.slice(0, 70)).join(" | "));
 
+/* NO third-party SCRIPT, not just no tracker. Anything that executes
+   in this document can read location.hash, and on this page that is
+   somebody's typed text and the record of how they typed it. Whether a
+   given script would bother is not the point: the promise in the
+   footnote has no exception in it, so neither does this.
+
+   Stylesheets and fonts from fonts.bunny.net are allowed and are meant
+   to stay. A stylesheet cannot read a fragment and a Referer header
+   never carries one. */
+const offsiteScripts = seen.filter((r) => {
+  if (r.url.startsWith(B) || r.url.startsWith("data:") || r.url.startsWith("blob:")) return false;
+  return /\.m?js(\?|$)/i.test(r.url) || /instant\.page|\/script\.js|beacon/i.test(r.url);
+});
+chk(offsiteScripts.length === 0, "C. and executed no script from any host but this one",
+  offsiteScripts.map((r) => r.url.slice(0, 80)).join(" | ") || `${thirdParty.length} third-party requests, none of them scripts`);
+const scriptSrcs = [...rawHtmlEarly.matchAll(/<script[^>]*\ssrc=["']?([^"'\s>]+)/gi)].map((m) => m[1]);
+const offsiteTags = scriptSrcs.filter((s) => /^(https?:)?\/\//.test(s));
+chk(offsiteTags.length === 0, "C. and the built HTML names no off-site script at all",
+  offsiteTags.join(" | ") || `${scriptSrcs.length} script tags, all same-origin`);
+
 chk((await pageC.textContent('[data-r="wpm"]')) === "62", "C. the wpm renders from the query");
 chk((await pageC.textContent('[data-r="acc"]')) === "96%", "C. so does the accuracy");
 chk((await pageC.textContent('[data-r="raw"]')) === "70", "C. and the raw speed");
@@ -697,9 +717,10 @@ chk(cErrors.length === 0, "C. the page threw nothing", cErrors.join(" | "));
    because it is a claim about behaviour, and the two must not drift
    apart quietly. */
 const footnote = (await pageC.textContent('[data-r="footnote"]') || "").replace(/\s+/g, " ").trim();
-chk(footnote.startsWith("The numbers and the public id travel in the address. The text you typed and the replay, if any, sit after the # and never reach a server."),
-  "C. the privacy footnote says what actually happens", footnote.slice(0, 120));
-chk(/analytics/i.test(footnote), "C. and that this page reports nothing", footnote.slice(-70));
+const WANT_FOOTNOTE = "The numbers and the public id travel in the address. "
+  + "The text you typed and the replay, if any, sit after the # in the address. "
+  + "This site and its analytics never receive them; they travel only where you choose to send the link.";
+chk(footnote === WANT_FOOTNOTE, "C. the privacy footnote says what actually happens, word for word", footnote);
 
 const robots = await pageC.getAttribute('meta[name="robots"]', "content");
 chk(/noindex/.test(robots || ""), "C. the template carries noindex", robots || "(absent)");

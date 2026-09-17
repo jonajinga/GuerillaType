@@ -55,6 +55,13 @@ function pick(arr) {
   // Footer mark only. The header mark + wordmark and the footer
   // wordmark are intentionally NOT decorated; their text labels are
   // already self-evident.
+  /* A page can refuse third-party scripts outright with
+     `noThirdPartyScripts: true` in its front matter, which base.njk
+     turns into data-no-third-party on <body>. /r/ does: its URL
+     fragment holds what somebody typed, anything that executes in that
+     document can read it, and a greeting on the footer gorilla is not
+     worth an exception to that. */
+  try { if (document.body && document.body.dataset.noThirdParty) return; } catch {}
   const marks = Array.from(document.querySelectorAll("[data-brand-emoji]"))
     .filter((el) => !!el.closest(".site-footer"));
   if (!marks.length) return;

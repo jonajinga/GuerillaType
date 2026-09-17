@@ -1,0 +1,126 @@
+/* Per-item corpus pages — /quotes/<id>/, /idioms/<id>/,
+   /parables/<id>/, /poetry/<id>/. One piece of public-domain text per
+   page, printed like a page of a book, with the actions that do
+   something with it underneath.
+
+   Shares the 880px measure and the serif display face with the
+   library detail pages so a poem and a book chapter feel like the
+   same shelf. */
+
+.corpus-page{
+  max-width:880px;margin:0 auto var(--space-8);
+}
+.corpus-page__head{
+  padding-bottom:var(--space-4);margin-bottom:var(--space-5);
+  border-bottom:1px solid var(--rule);
+}
+.corpus-page__title{
+  font-family:var(--font-display);font-size:var(--fs-700);
+  line-height:1.15;margin:0 0 .3rem;letter-spacing:-.01em;
+}
+.corpus-page__byline{
+  font-family:var(--font-display);font-style:italic;color:var(--fg-2);
+  margin:0;
+}
+/* `hidden` has to be said out loud here. The UA's [hidden] rule is
+   display:none, but the display declaration below is an author rule of
+   the same specificity and wins -- so without the second rule the tick
+   shows on every page whether or not the piece was ever typed. Every
+   other component in this stylesheet carries the same guard for the
+   same reason (nav.css, live-aids.css, practice-bar.css ...). */
+.corpus-page__done[hidden]{display:none}
+.corpus-page__done{
+  display:inline-block;margin:var(--space-3) 0 0;
+  font-family:var(--font-mono);font-size:.7rem;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--accent);
+  border:1px solid var(--accent);border-radius:var(--radius-sm);
+  padding:.2rem .55rem;
+}
+
+/* The text itself. `pre-wrap` on every variant: a parable's source
+   keeps its paragraph breaks and a quote may carry a line break the
+   author meant. */
+.corpus-page__text{
+  font-family:var(--font-display);font-size:var(--fs-500);
+  line-height:1.65;color:var(--fg-0);
+  white-space:pre-wrap;
+  margin:0 0 var(--space-5);
+}
+.corpus-page__text--quote{
+  font-style:italic;
+  border-left:3px solid var(--accent);
+  padding-left:var(--space-5);
+}
+/* An idiom is one phrase, so it is centred -- and a centred block
+   with the global blockquote's left accent rule reads as a mistake.
+   Padding goes with the rule. */
+.corpus-page__text--idiom{
+  font-style:italic;text-align:center;
+  font-size:var(--fs-600);
+  border-left:0;padding-left:0;padding-right:0;
+}
+.corpus-page__text--parable{
+  border-left:3px solid var(--rule);
+  padding-left:var(--space-5);
+}
+
+/* Poetry: one <p> per source line, so the line breaks are structural
+   rather than a lucky consequence of the column width. A blank source
+   line becomes an empty line with the same height -- the stanza
+   break. */
+.corpus-page__text--poem{white-space:normal;padding-left:var(--space-5);border-left:3px solid var(--rule)}
+.poem-line{
+  margin:0;white-space:pre-wrap;
+  font-family:var(--font-display);font-size:var(--fs-500);line-height:1.6;
+}
+.poem-line--break{height:.9em;line-height:.9em}
+
+.corpus-page__meaning,
+.corpus-page__moral{
+  margin:0 0 var(--space-5);color:var(--fg-1);
+  font-size:var(--fs-400);line-height:1.6;
+}
+/* The moral is the punchline of the parable: centred, italic, set
+   apart -- the same treatment the typing surface gives it
+   (typing-surface.css, .tt-text[data-kind="parable"]). */
+.corpus-page__moral{
+  text-align:center;font-style:italic;color:var(--fg-2);
+  max-width:60ch;margin-inline:auto;
+}
+.corpus-page__moral em,
+.corpus-page__meaning strong{
+  color:var(--accent);font-style:normal;font-family:var(--font-mono);
+  font-size:.72em;letter-spacing:.06em;text-transform:uppercase;margin-right:.45em;
+}
+
+.corpus-page__actions{
+  display:flex;gap:.5rem;flex-wrap:wrap;
+  padding-top:var(--space-4);border-top:1px solid var(--rule);
+}
+
+.corpus-page__nav{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:var(--space-3);flex-wrap:wrap;
+  margin-top:var(--space-5);padding-top:var(--space-4);
+  border-top:1px solid var(--rule);
+  font-family:var(--font-mono);font-size:var(--fs-200);letter-spacing:.04em;
+}
+.corpus-page__seq{display:flex;gap:var(--space-4)}
+.corpus-page__nav a{color:var(--fg-2);text-decoration:none}
+.corpus-page__nav a:hover{color:var(--accent)}
+
+/* The "Open" link the client-rendered list rows carry to their item
+   page. Small and quiet: the primary action on a row is still Type. */
+.corpus-table__open,
+.corpus-book__open{
+  font-family:var(--font-mono);font-size:var(--fs-200);
+  color:var(--fg-2);text-decoration:none;white-space:nowrap;
+  padding:0 .35rem;
+}
+.corpus-table__open:hover,
+.corpus-book__open:hover{color:var(--accent);text-decoration:underline}
+
+@media (max-width:600px){
+  .corpus-page__title{font-size:var(--fs-600)}
+  .corpus-page__text,.poem-line{font-size:var(--fs-400)}
+}

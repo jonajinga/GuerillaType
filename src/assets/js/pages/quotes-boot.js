@@ -50,7 +50,7 @@ if (randomBtn) randomBtn.addEventListener("click", () => {
   const filtered = allQuotes.filter(quoteMatches);
   if (!filtered.length) return;
   const qt = filtered[Math.floor(Math.random() * filtered.length)];
-  window.location.href = `/practice/?mode=quote&quote=id&qid=${encodeURIComponent(qt.id)}`;
+  window.location.href = `/practice/?mode=quote&quote=id&qid=${encodeURIComponent(qt.id)}&from=quote`;
 });
 
 const _i = () => document.createElement("i");
@@ -153,7 +153,8 @@ function quoteRow(qt, inColl) {
     ? (inThis
         ? `<button type="button" class="btn btn--small" data-action="coll-remove" data-id="${htmlEscape(qt.id)}">Remove</button>`
         : `<button type="button" class="btn btn--small btn--primary" data-action="coll-add" data-id="${htmlEscape(qt.id)}">Add</button>`)
-    : `<a class="btn btn--small btn--primary" href="/practice/?mode=quote&quote=id&qid=${encodeURIComponent(qt.id)}">${typeLabel}</a>
+    : `<a class="btn btn--small btn--primary" href="/practice/?mode=quote&quote=id&qid=${encodeURIComponent(qt.id)}&from=quote">${typeLabel}</a>
+       <a class="corpus-table__open" href="/quotes/${encodeURIComponent(qt.id)}/">Open</a>
        <button type="button" class="btn btn--small" data-action="add-to-coll" data-id="${htmlEscape(qt.id)}">Save to collection</button>${done ? `
        <button type="button" class="btn btn--small btn--ghost" data-action="reset" data-id="${htmlEscape(qt.id)}" data-tip="Clear completion record">Reset</button>` : ""}`;
   return `
