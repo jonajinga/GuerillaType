@@ -7,6 +7,13 @@
 <meta name="color-scheme" content="dark light">
 <title>{{ title }}{% if title %} | {% endif %}{{ site.shortTitle }}</title>
 <meta name="description" content="{{ description or site.description }}">
+{%- if noindex %}
+{# `noindex: true` in a page's front matter already keeps it out of
+   sitemap.xml. This makes it mean the whole thing: crawlers are told
+   as well. Used by /r/, a shared result -- one person's run, not a
+   page of this site. #}
+<meta name="robots" content="noindex, nofollow">
+{%- endif %}
 {% if canonicalUrl %}<link rel="canonical" href="{{ canonicalUrl }}">{% else %}<link rel="canonical" href="{{ site.url }}{{ page.url }}">{% endif %}
 
 {# Open Graph / Twitter. og:image MUST be a raster format: X, Facebook,
@@ -77,11 +84,23 @@ document.documentElement.setAttribute("data-theme", t);
    See partials/head/jsonld.njk for the @graph composition. #}
 {% include "partials/head/jsonld.njk" %}
 
-{# Analytics #}
+{# Analytics. A page can switch third-party analytics off entirely with
+   `noThirdPartyScripts: true`, and /r/ does. (`noAnalytics` is still
+   honoured; it was the narrower first version of the same flag.)
+
+   Measured on 2026-09-16, not assumed: umami's tracker reports
+   `location.href` verbatim in every payload it sends, fragment
+   included. On /r/ the fragment is what somebody typed and the
+   keystroke record of how they typed it, so loading umami there would
+   POST both to gateway.umami.is on page load. The script does support
+   `data-exclude-hash`, but the fix for this page should not depend on
+   a third party keeping an attribute. #}
+{% if not noAnalytics and not noThirdPartyScripts %}
 {% include "partials/analytics/umami.njk" %}
 {% include "partials/analytics/cf-web-analytics.njk" %}
+{% endif %}
 </head>
-<body data-page="{{ pageSlug or page.fileSlug or 'page' }}">
+<body data-page="{{ pageSlug or page.fileSlug or 'page' }}"{% if noThirdPartyScripts %} data-no-third-party="true"{% endif %}>
 <script>
 /* Mark the body as embedded when the URL has ?embed=1 so iframe
    hosts (settings modal) can hide site chrome via CSS. Inline +
@@ -115,8 +134,18 @@ if (location.search.indexOf("embed=1") !== -1) document.body.classList.add("is-e
 {# instant.page -- preloads internal links on hover/touchstart so
    in-site navigation feels instant. ~1 KB, no config required.
    Skip prefetching the practice surface so we never preload its
-   heavy bundle on a casual hover. #}
+   heavy bundle on a casual hover.
+
+   Not on /r/. A third-party script runs in this document, and this
+   document's address carries what somebody typed after the "#". It
+   does not matter that instant.page has no reason to read it; the
+   promise on that page is that nothing which can read the fragment is
+   loaded from anywhere but here, and a promise with an exception in it
+   is not one. The Bunny Fonts stylesheet stays: a stylesheet cannot
+   read a fragment, and a Referer header never carries one. #}
+{% if not noThirdPartyScripts %}
 <link rel="preconnect" href="https://instant.page" crossorigin>
 <script src="//instant.page/5.2.0" type="module" integrity="sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMbh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z"></script>
+{% endif %}
 </body>
 </html>

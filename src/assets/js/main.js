@@ -576,5 +576,6 @@ const map = {
   idioms: () => import("./pages/corpus-boot.js" + _v),
   parables: () => import("./pages/corpus-boot.js" + _v),
   poetry: () => import("./pages/corpus-boot.js" + _v),
+  "share-result": () => import("./pages/share-boot.js" + _v),
 };
 if (map[page]) map[page]().catch((err) => console.warn("[boot]", page, err));

@@ -570,9 +570,6 @@ console.log("\nI. the tracker is told to drop the query string and the fragment"
    BUILT html, on the pages where a private id or a private fragment can
    appear. */
 const TRACKER_PAGES = ["/practice/", "/custom/", "/library/"];
-const rStatus = await fetch(B + "/r/").then((r) => r.status).catch(() => 0);
-if (rStatus === 200) TRACKER_PAGES.push("/r/");
-else console.log(`  note: /r/ is not in this build (HTTP ${rStatus}) — the share page ships with its own check`);
 /* The build minifies: tinyHTML drops attribute quotes, so what is in
    _site is data-exclude-search=true, not ="true". Match either, or
    this check fails against a correct build -- which it did, first run. */
@@ -585,6 +582,26 @@ for (const p of TRACKER_PAGES) {
     tag ? tag.replace(/data-website-id="[^"]*"/, 'data-website-id="…"') : "");
   chk(hasAttr(tag, "data-exclude-hash"), `I. ${p} — and the fragment`,
     tag ? tag.replace(/data-website-id="[^"]*"/, 'data-website-id="…"') : "");
+}
+
+/* /r/ is the exception, and it is an exception in the safe direction.
+   This section used to demand a tracker on it too. That page's address
+   carries what somebody typed and the record of how they typed it, and
+   it now loads no third-party script at all -- not umami, not
+   Cloudflare, not instant.page, not tippy from esm.sh. So the question
+   for /r/ is not "does it carry the two attributes" but "is there
+   anything here that could read the fragment". Written either/or, so
+   that a future decision to give the share page analytics after all
+   still has to bring both attributes with it. scripts/check-share-page.mjs
+   asserts the stronger, current position. */
+{
+  const html = await fetch(B + "/r/").then((r) => r.text()).catch(() => "");
+  const tag = (html.match(/<script[^>]*umami[^>]*>/i) || [])[0] || "";
+  chk(/<title>/i.test(html), "I. /r/ is in this build at all", html ? "" : "no /r/ page");
+  chk(!tag || hasAttr(tag, "data-exclude-search"),
+    "I. /r/ — no tracker, or one that drops the query string", tag || "no umami script tag");
+  chk(!tag || hasAttr(tag, "data-exclude-hash"),
+    "I. /r/ — no tracker, or one that drops the fragment", tag || "no umami script tag");
 }
 
 await browser.close();

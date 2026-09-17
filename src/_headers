@@ -35,5 +35,16 @@
 /data/*
   Cache-Control: public, max-age=86400
 
+# Shared results. A /r/ link is one person's run, not a page of this
+# site: it must never turn up in a search result. Note that _headers
+# rules do NOT apply to Pages Function responses, and /r/ is served by
+# functions/r/index.js, which sets the same two headers itself. This
+# block covers the static asset behind it (which the Function fetches
+# through env.ASSETS) and anything that reaches /r/ without the
+# Function -- a preview built before the Function deployed, say.
+/r/*
+  X-Robots-Tag: noindex
+  Cache-Control: public, max-age=300
+
 /*.html
   Cache-Control: public, max-age=300, must-revalidate
