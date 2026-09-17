@@ -141,6 +141,7 @@ chk(isThisProject, `A. server on ${PORT} is this project's /practice/`);
 if (!isThisProject) {
   console.log("\nRUN ABORTED — refusing to test something that is not this build.");
   server.close();
+  console.log(`\n${pass} passed, ${fail} failed`);
   process.exit(1);
 }
 /* A port that answers is not necessarily yours: a verifier once got a
@@ -152,10 +153,15 @@ try { diskModule = await readFile(join(ROOT, "assets", "js", "share", "local-car
 const sameFile = !!servedModule && !!diskModule
   && Buffer.from(servedModule).equals(diskModule);
 chk(sameFile, "A. the local-card.js it serves is the one in THIS worktree's _site",
-  servedModule ? `${servedModule.byteLength} bytes served` : "not served at all (build first)");
+  servedModule
+    ? `${servedModule.byteLength} bytes served`
+    : diskModule
+      ? "the server would not serve it"
+      : "this build has no assets/js/share/local-card.js — the feature is not here");
 if (!sameFile) {
-  console.log("\nRUN ABORTED — the server is not answering out of this tree.");
+  console.log("\nRUN ABORTED — nothing below this point would be testing the change.");
   server.close();
+  console.log(`\n${pass} passed, ${fail} failed`);
   process.exit(1);
 }
 
