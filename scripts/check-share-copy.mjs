@@ -427,6 +427,33 @@ const faqMissing = prefBits.map((k) => PREF_PHRASES[k]).filter(Boolean)
   .filter((phrase) => !faqPara.toLowerCase().includes(phrase));
 chk(faqMissing.length === 0, "the FAQ's answer names them too", faqMissing.join(", ") || (faqStart === -1 ? "the FAQ paragraph was not found" : ""));
 
+/* Naming all five is not the whole claim: the sentence also COUNTS
+   them. A verifier added a sixth bit to codec.js, its phrase here, and
+   "blind mode" to both paragraphs, and every check above went green
+   while the pages still read "the five practice settings" in front of
+   a list of six. So the numeral is checked against prefBits.length as
+   well, wherever the site states one. */
+const NUMWORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+const expectedWord = NUMWORDS[prefBits.length] || String(prefBits.length);
+const COUNTED = /the (zero|one|two|three|four|five|six|seven|eight|nine|ten) practice settings/gi;
+for (const [label, para] of [["the privacy page's fragment paragraph", fragPara], ["the FAQ's answer", faqPara]]) {
+  const found = [...para.matchAll(COUNTED)].map((m) => m[1].toLowerCase());
+  chk(found.length > 0 && found.every((w) => w === expectedWord),
+    `${label} counts the practice settings correctly ("the ${expectedWord} practice settings")`,
+    found.length === 0 ? "no count in that sentence at all" : `says "${found.join('", "')}" for ${prefBits.length} bits in codec.js`);
+}
+/* Same sentence, other pages: about.md and the changelog carry the
+   numeral too, and a fix that reached only the two paragraphs above
+   would leave those two lying. */
+const miscounted = [];
+for (const f of files) {
+  const t = visibleText(readFileSync(f, "utf8"));
+  for (const m of t.matchAll(COUNTED)) {
+    if (m[1].toLowerCase() !== expectedWord) miscounted.push(`${f.slice(SITE.length)}: "${m[0]}"`);
+  }
+}
+chk(miscounted.length === 0, `every page that counts the practice settings says ${expectedWord}`, miscounted.slice(0, 4).join(" | "));
+
 /* Two destinations are NOT in INTENTS, so the loop above never sees
    them: Copy link is a call site (`const url = (c && c.fullUrl) ||
    location.href`) and the native sheet builds its own payload
