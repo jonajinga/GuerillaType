@@ -28,6 +28,7 @@ import { resolveSrc } from "../og/resolve.js";
 import { rMeta, canonicalQuery, resultCardPath } from "../og/r-meta.js";
 import { unpackLog, prefsFromMask } from "../share/codec.js";
 import { openShareSheet } from "../share/share.js";
+import { mountReplay } from "../share/replay.js";
 
 const $ = (sel) => document.querySelector(sel);
 const byRole = (name) => document.querySelector(`[data-r="${name}"]`);
@@ -128,25 +129,42 @@ function paintNumbers(model) {
   }
 }
 
+/* The kinds whose resolved `text` really is the string the engine was
+   typing against. A lesson, a challenge and a drill resolve to a
+   title and a blurb -- useful on a preview card, and nothing like the
+   words that were typed -- so a replay is not offered for those
+   rather than played against the wrong target. */
+const REPLAYABLE_KINDS = new Set(["quote", "idiom", "parable", "poem", "book"]);
+
+function targetFromPiece(piece) {
+  if (!piece || !REPLAYABLE_KINDS.has(piece.kind)) return "";
+  if (piece.kind === "poem") return (piece.lines || []).join("\n");
+  return piece.text || "";
+}
+
 /* The words on screen. Three possible sources, in this order:
      1. the fragment's `t` -- what they typed, carried by the link
      2. the public piece named by `src`, fetched from /data/
-     3. nothing at all, and the block stays hidden */
+     3. nothing at all, and the block stays hidden
+
+   Returns the string the replay player should type against, which is
+   NOT what is painted here: the panel shows a title and a byline round
+   the words, and the engine only ever saw the words. */
 async function paintText(model, fragText) {
   const box = byRole("text");
   const label = byRole("text-label");
-  if (!box) return;
+  if (!box) return "";
 
   if (fragText) {
     box.textContent = fragText;
     box.hidden = false;
     if (label) { label.textContent = "What they typed"; label.hidden = false; }
-    return;
+    return fragText;
   }
-  if (!model.src) return;
+  if (!model.src) return "";
   let piece = null;
   try { piece = await resolveSrc(model.src, fetchJson); } catch { piece = null; }
-  if (!piece) return;
+  if (!piece) return "";
 
   const bits = [];
   if (piece.title) bits.push(piece.title);
@@ -156,7 +174,7 @@ async function paintText(model, fragText) {
   if (piece.meaning) bits.push(piece.meaning);
   const by = [piece.author, piece.year, piece.source].filter(Boolean).join(" · ");
   if (by) bits.push(by);
-  if (!bits.length) return;
+  if (!bits.length) return "";
 
   box.textContent = bits.join("\n\n");
   box.style.whiteSpace = "pre-wrap";
@@ -167,6 +185,7 @@ async function paintText(model, fragText) {
       : "What they typed";
     label.hidden = false;
   }
+  return targetFromPiece(piece);
 }
 
 async function boot() {
@@ -184,7 +203,11 @@ async function boot() {
   cardEl.hidden = false;
   invalidEl.hidden = true;
   paintNumbers(model);
-  paintText(model, fragText).catch((err) => console.warn("[share] text", err));
+  /* Started here, awaited at the bottom. The card must not wait on a
+     fetch of /data/, and the player must not be built before the text
+     it replays against is known. */
+  const textReady = paintText(model, fragText)
+    .catch((err) => { console.warn("[share] text", err); return ""; });
 
   const tryLink = $("#tt-try");
   if (tryLink) tryLink.setAttribute("href", tryUrl(model));
@@ -213,25 +236,61 @@ async function boot() {
     });
   }
 
-  /* Phase D3 lands the player here. Decoding now (rather than in the
-     player) keeps the "is there a replay in this link at all" question
-     in one place, and it is what decides whether the Play button is
-     ever shown. The namespace is reserved so the player can attach
-     without this file changing shape again. */
+  /* The replay. Decoding here rather than in the player keeps the "is
+     there a replay in this link at all" question in one place, and it
+     is what decides whether the Play button is ever shown: no `r` or
+     `ru` in the fragment, or nothing to type against, and the page
+     stays exactly as it was without a replay panel promising a run it
+     cannot show. */
   const log = frag ? await unpackLog({ r: frag.get("r"), ru: frag.get("ru") }) : null;
+  const root = $("#tt-replay-root");
+  const playButton = $("#tt-replay-play");
+  const replayText = await textReady;
+
+  let player = null;
+  try {
+    player = mountReplay({
+      root,
+      button: playButton,
+      entries: log ? log.entries : null,
+      text: replayText,
+      prefs,
+      model,
+      /* Deliberately a no-op. This page loads no analytics -- see its
+         own footnote -- so there is nothing to report to and nothing
+         here may become a network call. */
+      onEvent: () => {},
+    });
+  } catch (err) {
+    console.warn("[share] replay", err);
+    player = null;
+  }
+  if (!player && root) root.hidden = true;
+
+  /* The namespace the /r/ gate drives, and the shape D2 reserved.
+     Every method is safe to call when there is no player: a link with
+     no replay answers "no" rather than throwing. */
   window.__ttReplay = {
     version: 1,
-    ready: false,
+    ready: !!player,
     entries: log ? log.entries : null,
     quantum: log ? log.quantum : null,
     prefs,
     text: fragText || null,
+    target: replayText || null,
     model,
-    root: $("#tt-replay-root"),
-    playButton: $("#tt-replay-play"),
-    /* Replaced by share/replay.js in D3. Until then the button stays
-       hidden and this is what "no player loaded" looks like. */
-    play: () => false,
+    root,
+    playButton,
+    player,
+    play: (speed) => (player ? player.play(speed) : false),
+    pause: () => (player ? player.pause() : false),
+    seek: (k) => (player ? player.seek(k) : -1),
+    restart: () => (player ? player.restart() : false),
+    setSpeed: (s) => (player ? player.setSpeed(s) : 1),
+    state: () => (player ? player.state() : {
+      ready: false, playing: false, index: 0,
+      total: log ? log.entries.length : 0, finished: false,
+    }),
   };
 }
 

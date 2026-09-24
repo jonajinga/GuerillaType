@@ -727,8 +727,10 @@ chk(/noindex/.test(robots || ""), "C. the template carries noindex", robots || "
 chk(/name=["']?robots["']?[^>]*noindex|noindex[^>]*name=["']?robots/.test(rawHtmlEarly),
   "C. noindex is in the built HTML, not added by script");
 
-/* The replay is decoded and reserved for the D3 player, and the player
-   itself is not here yet -- so the Play button stays hidden. */
+/* The replay is decoded, and now that the D3 player exists it is
+   mounted: the panel and its Play button come out of hiding because
+   this link carried a replay. What the player then DOES is
+   check-share-replay.mjs's job, not this file's. */
 const replayState = await pageC.evaluate(() => {
   const r = window.__ttReplay;
   const root = document.getElementById("tt-replay-root");
@@ -743,7 +745,9 @@ chk(replayState.has && replayState.keys === MESSY_LOG.length,
   "C. window.__ttReplay holds the decoded log for the D3 player", `${replayState.keys} entries`);
 chk(replayState.prefs && replayState.prefs.stopOnError === true && replayState.prefs.spaceSkipsWords === true,
   "C. and the preference mask that makes a replay exact", JSON.stringify(replayState.prefs));
-chk(replayState.rootHidden && replayState.btnHidden, "C. the replay root and its Play button stay hidden until D3");
+chk(!replayState.rootHidden && !replayState.btnHidden,
+  "C. the replay root and its Play button are showing, because the link carried one",
+  `root hidden=${replayState.rootHidden} button hidden=${replayState.btnHidden}`);
 
 /* The re-share row hands on the whole link, fragment included. */
 await pageC.click("#tt-reshare");
