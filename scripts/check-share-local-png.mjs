@@ -789,8 +789,23 @@ console.log("\nH. the same question on /r/, where the text is in the fragment");
    from /data/, has no fragment text, and is unchanged. */
 const R_SECRET = "QUILLFEATHER";
 const R_TEXT = `the ${R_SECRET} drifted past a brindlewick gate at dusk`;
+/* With a real keystroke replay in it, so share/replay.js mounts its
+   player on this page. Drawing the card and playing the run back are
+   two features reading the same fragment, and the merge that brought
+   the player in is exactly where they could have started fighting. */
+let R_REPLAY = "";
+try {
+  const codec = await import("../src/assets/js/share/codec.js");
+  const packed = await codec.packLog([
+    ["t", 0], ["h", 90], ["e", 80], [codec.MARK_BACKSPACE, 210],
+    ["e", 140], [codec.MARK_PAUSE, 3000], ["!", 120], [codec.MARK_END, 90],
+  ], { quantum: 1 });
+  R_REPLAY = `&${packed.key}=${packed.value}`;
+} catch (err) {
+  chk(false, "H. a replay could be packed for the fixture", String(err && err.message || err));
+}
 const R_PRIVATE = `${B}/r/?v=1&wpm=62&raw=70&acc=96&con=88&dur=30&n=180&err=7&mode=custom&d=2026-09-16`
-  + `#v=1&t=${encodeURIComponent(R_TEXT)}&o=3`;
+  + `#v=1&t=${encodeURIComponent(R_TEXT)}&o=3${R_REPLAY}`;
 const R_PUBLIC = `${B}/r/?v=1&wpm=62&raw=70&acc=96&con=88&dur=30&mode=quote&src=q%3Aq-do-love&d=2026-09-16`;
 const rGrid = await readFile(join(ROOT, gridPathFor(62, 96))).catch(() => null);
 if (!rGrid) await bail(`H. the grid card ${gridPathFor(62, 96)} is in the build`);
@@ -851,6 +866,22 @@ for (const [label, url, wantLocal] of [["a text in the fragment", R_PRIVATE, tru
     `H. [${label}] the renderer is ${wantLocal ? "loaded" : "never loaded"}`,
     rendererH.map((r) => r.url.replace(B, "")).join(" ") || `${wH.requests.length} requests, none of them the renderer`);
   chk(errsH.length === 0, `H. [${label}] the page threw nothing`, errsH.join(" | "));
+  /* The replay player and the card renderer share one fragment and one
+     page. Neither may cost the other anything: the player must still be
+     offered after the sheet has been opened and a card drawn. */
+  const replayH = await pageH.evaluate(() => {
+    const r = window.__ttReplay || null;
+    const btn = document.getElementById("tt-replay-play");
+    return { ready: !!(r && r.ready), entries: (r && r.entries && r.entries.length) || 0, btnHidden: btn ? btn.hidden : null };
+  });
+  chk(replayH.entries === (wantLocal ? 8 : 0),
+    `H. [${label}] the replay log is ${wantLocal ? "still decoded" : "absent, as it should be"}`,
+    `${replayH.entries} entries`);
+  if (wantLocal) {
+    chk(replayH.ready === true && replayH.btnHidden === false,
+      "H. [a text in the fragment] and the player is still offered after a card was drawn",
+      JSON.stringify(replayH));
+  }
   await ctxH.close();
 }
 
