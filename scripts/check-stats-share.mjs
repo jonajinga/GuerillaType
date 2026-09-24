@@ -374,6 +374,47 @@ if (!quoteRow) await bail("B. the quote row has a Share button");
     "B. and the results card named the same quote", `card ${quoteCardSrc} / row ${q.get("src")}`);
 }
 
+// =============================================================== B2
+console.log("\nB2. every other public source, through the stored record");
+/* The link record keeps a book's slug, chapter and page, a lesson id,
+   a drill id, a challenge id and whether it was cleared. Each of those
+   is a separate field written by a separate line, and a helper wired
+   into one call site out of four is this codebase's signature failure.
+   Esc ends each run after two keys: what is being checked is the id
+   the row rebuilds, not the typing. */
+for (const [url, want, label] of [
+  /* Chapter 1, page 2, not 0 and 0: srcFor defaults a missing chapter
+     to 0 and a missing page to 0, so a fixture at the origin cannot
+     tell a stored field from a default. */
+  [`${B}/practice/?book=a-christmas-carol&ch=1&page=2`, "bk:a-christmas-carol:1:2", "a book page"],
+  [`${B}/practice/?lesson=3`, "ls:3", "a lesson"],
+  [`${B}/practice/?drill=home-row`, "dr:home-row", "a drill"],
+  [`${B}/practice/?challenge=sprint`, "ch:sprint", "a challenge"],
+]) {
+  await page.goto(url, { waitUntil: "domcontentloaded" });
+  const painted = await page.waitForSelector(".tt-char", { timeout: 12000 }).then(() => true).catch(() => false);
+  chk(painted, `B2. ${label} painted a target`, url);
+  if (!painted) continue;
+  await page.click(".tt-stage").catch(() => {});
+  await page.keyboard.type("th", { delay: 70 });
+  await page.keyboard.press("Escape");
+  const carded = await page.waitForSelector("#tt-share", { timeout: 12000 }).then(() => true).catch(() => false);
+  if (!carded) { chk(false, `B2. ${label}: the card came up after Esc`); continue; }
+  const cardSrc = qOf(await page.getAttribute("#tt-share", "data-share-short-url")).get("src");
+  const cardOk = qOf(await page.getAttribute("#tt-share", "data-share-short-url")).get("ok");
+  const sess = await newestSession();
+  const row = await shareFromStats(sess.id);
+  if (!row) { chk(false, `B2. ${label}: the row has a Share button`); continue; }
+  const q = qOf(row.ds.shareShortUrl);
+  chk(q.get("src") === want && cardSrc === want,
+    `B2. ${label} rebuilds as ${want}`, `card ${cardSrc} / row ${q.get("src")}`);
+  chk(!fragOf(row.ds.shareUrl).get("t"), `B2. ${label} carries no text`, fragOf(row.ds.shareUrl).get("t") || "(absent)");
+  if (want.startsWith("ch:")) {
+    chk(q.get("ok") === cardOk && (q.get("ok") === "0" || q.get("ok") === "1"),
+      "B2. and the challenge verdict travels with it", `card ok=${cardOk} / row ok=${q.get("ok")}`);
+  }
+}
+
 // =============================================================== C
 console.log("\nC. a text of your own: the words travel, the title and the id never do");
 await page.goto(B + "/custom/", { waitUntil: "domcontentloaded" });
