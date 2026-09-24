@@ -30,6 +30,11 @@ import { wireResultShare, isOwnText as isOwnTextOf } from "../share/result-link.
    never in a query string. */
 import { save as saveReplayRecord, textHash } from "../engine/replay-store.js";
 import { prefsMask } from "../share/codec.js";
+/* What a past run needs to become a share link again: which target is
+   worth keeping on this device (replayTextFor) and the ids the link is
+   built from. Both rules live next to the adapter that reads them
+   back, in share/session-link.js, not here. */
+import { replayTextFor } from "../share/session-link.js";
 
 function saveReplay(sessionId, result, preferences) {
   try {
@@ -39,8 +44,44 @@ function saveReplay(sessionId, result, preferences) {
       keylog: result.keylog,
       textHash: textHash(result.target),
       prefs: prefsMask(preferences),
+      /* Null for a quote, a book page, a lesson: those have a public
+         id and /r/ looks the words up. */
+      text: replayTextFor(state, result),
     }).catch(() => {});
   } catch {}
+}
+
+/* The ids and settings session-recorder files beside the numbers.
+   Everything here is read from `state`, the same object the results
+   card's own Share button is built from, so the link a row on /stats/
+   offers is the link the card offered.
+
+   `state.lessonId` and not lessonKeyOf(): a text of your own pinned as
+   a lesson is recorded against "custom:<id>", which is a private
+   handle and not a lesson anybody can open. The card does not call it
+   a lesson either. */
+function linkRecordFor(result, challengeOutcome) {
+  const cm = state._customMeta || {};
+  return {
+    mode: state.mode,
+    language: state.language,
+    layout: state.layout,
+    words: state.mode === "words" ? state.words : null,
+    duration: state.mode === "time" ? state.duration : null,
+    bookSlug: state.bookSlug || null,
+    bookCh: state.bookSlug ? state.bookCh : null,
+    bookPage: state.bookSlug ? state.bookPage : null,
+    bookParaId: state.bookSlug ? state.bookParaId : null,
+    lessonId: state.lessonId,
+    drillId: state.drillId || null,
+    customId: state.customId || null,
+    kind: cm.kind || null,
+    sourceId: cm.sourceId || null,
+    challengeId: (activeChallenge && activeChallenge.id) || null,
+    challengeOk: challengeOutcome ? !!challengeOutcome.passed : null,
+    prefs: prefsMask(prefs),
+    textHash: textHash(result.target),
+  };
 }
 
 /* Inlined bucket helpers. These also live in analytics.js as named
@@ -1307,7 +1348,12 @@ function handleFinish(result) {
       return p;
     });
   }
-  const { meta, id: sessionId } = recordSession(result, model.serialize());
+  /* Evaluated here rather than in the challenge block below because
+     the record is written first and a link says whether the challenge
+     was cleared. evaluateGoal is pure -- goal plus numbers in, a
+     verdict out -- so reading it early changes nothing. */
+  const challengeOutcome = activeChallenge ? evaluateGoal(activeChallenge.goal, result) : null;
+  const { meta, id: sessionId } = recordSession(result, model.serialize(), linkRecordFor(result, challengeOutcome));
   result._meta = meta || {};
   /* File the keystroke log against this session, on this device only.
      Fire and forget, and every failure inside is swallowed: a browser
@@ -1316,7 +1362,7 @@ function handleFinish(result) {
   saveReplay(sessionId, result, prefs);
   // Challenge: evaluate goal and update bests.
   if (activeChallenge) {
-    const evalRes = evaluateGoal(activeChallenge.goal, result);
+    const evalRes = challengeOutcome || evaluateGoal(activeChallenge.goal, result);
     result._challenge = { id: activeChallenge.id, name: activeChallenge.name, goal: activeChallenge.goal, passed: evalRes.passed, reasons: evalRes.reasons };
     updateActive((p) => {
       p.challengeBests = p.challengeBests || {};

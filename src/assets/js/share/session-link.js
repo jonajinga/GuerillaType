@@ -43,7 +43,8 @@
    `link` key, no stored target and often no replay: they share their
    numbers and their date, which is what they have. */
 
-import { build, buildQuery, WORD_STREAM, isOwnText, srcFor } from "./result-link.js";
+import { build, buildQuery, shareText, WORD_STREAM, isOwnText, srcFor } from "./result-link.js";
+import { resultImagePath } from "./share.js";
 import { prefsFromMask } from "./codec.js";
 import { get as getReplay } from "../engine/replay-store.js";
 import { getSaved as getSavedCustom } from "../engine/custom-text.js";
@@ -157,6 +158,29 @@ export function queryForSession(session) {
   return { query: qs, state, result };
 }
 
+/* Everything a Share button needs before anything has been read out of
+   a database: the query-only link, the card the build pre-rendered for
+   these numbers, and the one-line summary the sheet shows. Numbers and
+   a mode name, never a word of the run.
+
+   This is what lets a list of rows paint a working button in one pass
+   and upgrade each one with its fragment afterwards, the same two
+   steps wireResultShare() takes on the results card. A button is never
+   without a link and never has a wrong one. */
+export function shortLinkForSession(session, opts = {}) {
+  const base = queryForSession(session);
+  if (!base) return null;
+  const origin = opts.origin || (typeof location !== "undefined" ? location.origin : "");
+  const { title, text, kindMode } = shareText(base);
+  const p = new URLSearchParams(base.query);
+  return {
+    query: base.query,
+    shortUrl: `${origin}/r/?${base.query}`,
+    imageUrl: origin + resultImagePath(p.get("wpm"), p.get("acc")),
+    title, text, mode: kindMode,
+  };
+}
+
 /* The whole link: query, fragment, image, and the sheet's title and
    text. Async because the replay lives in IndexedDB and the fragment
    goes through a compressor.
@@ -224,4 +248,7 @@ export function replayTextFor(state, result) {
   return WORD_STREAM.has(st.mode) ? text : null;
 }
 
-export default { linkForSession, queryForSession, stateForSession, resultForSession, replayTextFor };
+export default {
+  linkForSession, shortLinkForSession, queryForSession,
+  stateForSession, resultForSession, replayTextFor,
+};
