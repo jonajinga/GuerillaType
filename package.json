@@ -66,7 +66,8 @@
     "share-local-png": "node scripts/check-share-local-png.mjs",
     "item-pages": "node scripts/check-item-pages.mjs",
     "analytics-privacy": "node scripts/check-analytics-privacy.mjs",
-    "share-page": "node scripts/check-share-page.mjs"
+    "share-page": "node scripts/check-share-page.mjs",
+    "share-replay": "node scripts/check-share-replay.mjs"
   },
   "dependencies": {
     "@11ty/eleventy": "^3.0.0",
