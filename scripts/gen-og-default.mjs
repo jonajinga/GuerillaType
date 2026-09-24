@@ -1,17 +1,20 @@
 #!/usr/bin/env node
 /* Render the default Open Graph card to a PNG.
 
-   Why this exists: the site's og:image was src/assets/img/og-default.svg,
-   and X, Facebook, LinkedIn, Slack and iMessage all refuse SVG for
-   og:image -- so every share preview of guerillatype.com was blank. The
-   design is fine; the format was not. This script re-draws that same
-   design in HTML, rasterises it with Playwright at exactly 1200x630, and
-   writes src/assets/img/og-default.png, which IS committed (a share card
-   has to exist as a static file at a stable URL; regenerating it at build
-   time would put a browser download in the deploy path).
+   Why this exists: the site's og:image used to be an SVG, and X,
+   Facebook, LinkedIn, Slack and iMessage all refuse SVG for og:image --
+   so every share preview of guerillatype.com was blank. The design was
+   fine; the format was not. This script re-draws that same design in
+   HTML, rasterises it with Playwright at exactly 1200x630, and writes
+   src/assets/img/og-default.png, which IS committed (a share card has to
+   exist as a static file at a stable URL).
 
-   The layout numbers below are lifted straight from og-default.svg, which
-   is kept as the design source. SVG places text on its BASELINE; CSS
+   Superseded, kept as a fallback: since the shared renderer landed,
+   `npm run build` rewrites the same PNG from defaultCard() in
+   lib/og/card.js, with no browser and no network.
+
+   The layout numbers below come from the hand-drawn card this replaced,
+   which placed text the way SVG does. SVG places text on its BASELINE; CSS
    places a box by its TOP edge and where the baseline lands inside that
    box depends on the font's own metrics. Rather than hard-code an offset
    per font (which silently drifts the day a font changes), each text node
@@ -61,7 +64,7 @@ const html = `<!doctype html>
     -webkit-font-smoothing: antialiased;
   }
   /* Every text node is positioned by its SVG baseline; data-baseline is
-     the y from og-default.svg and JS corrects for the font metrics. */
+     the y from the original card and JS corrects for the font metrics. */
   .t { position: absolute; white-space: nowrap; line-height: 1; }
   .strut { display: inline-block; width: 0; height: 0; vertical-align: baseline; }
 

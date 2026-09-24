@@ -102,7 +102,7 @@ Light + dark + system preference, with a no-flash inline script in `<head>`. Fou
 
 ## Privacy by default
 
-No accounts. No backend. No cookies. Everything lives in your browser's localStorage on this device. The site runs [Umami](https://umami.is/) for cookieless aggregate analytics — the full dashboard is public at [/analytics/](/analytics/). What's typed never leaves your browser.
+No accounts. No database. No cookies. Everything lives in your browser's localStorage on this device. The site runs [Umami](https://umami.is/) for cookieless aggregate analytics -- the full dashboard is public at [/analytics/](/analytics/). What you type never leaves your browser unless you press Share, and a share link carries numbers and a public content id where a server can see them; a custom text's words ride after the `#`, which browsers never send to this site. [Privacy](/privacy/) spells it out.
 
 ## Mobile
 

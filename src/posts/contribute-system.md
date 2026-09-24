@@ -10,7 +10,7 @@ There is now a contribute hub at [/contribute/](/contribute/). It holds eight fo
 
 Six of them suggest content for the library: a quote, a book, a parable, an idiom, a poem, or a drill. Two are for feedback: a testimonial and a thank-you note.
 
-Each form posts directly to [Web3Forms](https://web3forms.com). The submission lands in the project inbox. There is no account, no captcha, and no backend. The honeypot field handles spam.
+Each form posts directly to [Web3Forms](https://web3forms.com). The submission lands in the project inbox. There is no account, no captcha, and nothing of mine sitting in the middle. The honeypot field handles spam.
 
 Three small things make the forms easier to fill out.
 
