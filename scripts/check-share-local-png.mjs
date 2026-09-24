@@ -38,6 +38,15 @@
         the one scripts/lib/og-node.mjs produces for it. That last one is
         the whole anti-drift argument: not "it looks similar", the same
         bytes out of the same card.js.
+     G. The same text read by chapter (?book=custom:<id>) is the same
+        private text. It reaches the results card by a different route
+        -- state.bookSlug set, state.mode "book" -- so nothing above
+        covers it.
+     H. /r/, where a shared result's text arrives in the fragment.
+        Browsers never put a fragment on the wire, so it is on that
+        device and nowhere else: same situation, same answer. A public
+        result still gets the server's card, and drawing a picture must
+        not be the thing that finally sends the fragment anywhere.
 
    Section F is the one that makes the rest worth having. B could pass
    forever against a hand-drawn canvas copy that slowly stopped looking
@@ -770,6 +779,74 @@ try { hayGDecoded = decodeURIComponent(hayG); } catch {}
 chk(!hayG.includes(sample.id) && !hayGDecoded.includes(sample.id),
   "G. and the text's id is in none of the requests it made", `${wG.requests.length} requests, id ${sample.id}`);
 await ctxG.close();
+
+// ================================================================ H
+console.log("\nH. the same question on /r/, where the text is in the fragment");
+/* A shared link carries the text after the "#", which browsers never
+   put on the wire. So on /r/ the text is on THIS device and nowhere
+   else -- the same situation as the practice page after a run of your
+   own, and it gets the same answer. A result whose text is public came
+   from /data/, has no fragment text, and is unchanged. */
+const R_SECRET = "QUILLFEATHER";
+const R_TEXT = `the ${R_SECRET} drifted past a brindlewick gate at dusk`;
+const R_PRIVATE = `${B}/r/?v=1&wpm=62&raw=70&acc=96&con=88&dur=30&n=180&err=7&mode=custom&d=2026-09-16`
+  + `#v=1&t=${encodeURIComponent(R_TEXT)}&o=3`;
+const R_PUBLIC = `${B}/r/?v=1&wpm=62&raw=70&acc=96&con=88&dur=30&mode=quote&src=q%3Aq-do-love&d=2026-09-16`;
+const rGrid = await readFile(join(ROOT, gridPathFor(62, 96))).catch(() => null);
+if (!rGrid) await bail(`H. the grid card ${gridPathFor(62, 96)} is in the build`);
+
+for (const [label, url, wantLocal] of [["a text in the fragment", R_PRIVATE, true],
+                                        ["a public quote", R_PUBLIC, false]]) {
+  const ctxH = await freshContext();
+  const pageH = await ctxH.newPage();
+  const errsH = [];
+  pageH.on("pageerror", (e) => errsH.push(String(e).slice(0, 140)));
+  const wH = watch(pageH);
+  await pageH.goto(url, { waitUntil: "domcontentloaded" });
+  const shown = await pageH.waitForSelector("#tt-shared:not([hidden])", { timeout: 15000 }).then(() => true).catch(() => false);
+  if (!shown) await bail(`H. [${label}] /r/ renders the shared card`);
+  chk(true, `H. [${label}] /r/ renders the shared card`);
+  wH.on = true;
+  await pageH.click("#tt-reshare");
+  await pageH.waitForTimeout(250);
+  const noteH = await inPage(() => pageH.evaluate(() => {
+    const el = document.querySelector("[data-share-local-note]");
+    return el ? { hidden: el.hidden, text: el.textContent } : null;
+  }), `H. [${label}] the sheet's caption can be read`, null);
+  chk(!!noteH && noteH.hidden === !wantLocal,
+    `H. [${label}] the local-picture caption is ${wantLocal ? "shown" : "hidden"}`,
+    `hidden=${noteH && noteH.hidden}`);
+  await pageH.evaluate(() => { window.__ttEvents.length = 0; });
+  const [dlH] = await Promise.all([
+    pageH.waitForEvent("download", { timeout: 40000 }).catch(() => null),
+    pageH.click("#share-sheet [data-share-download]"),
+  ]);
+  wH.on = false;
+  if (!dlH) await bail(`H. [${label}] Download PNG produces a download`);
+  const gotH = await readFile(await dlH.path());
+  const infoH = pngInfo(gotH);
+  chk(!!infoH && infoH.w === 1200 && infoH.h === 630,
+    `H. [${label}] it is a 1200x630 PNG`, infoH ? `${infoH.bytes} bytes` : "not a PNG");
+  chk(gotH.equals(rGrid) === !wantLocal,
+    `H. [${label}] it is ${wantLocal ? "NOT the grid card" : "the grid card, byte for byte"}`,
+    `${gotH.length} vs ${rGrid.length} bytes`);
+  const savedH = await pageH.evaluate(() => (window.__ttEvents || []).find((e) => e.name === "share_image_saved") || null);
+  chk(!!savedH && savedH.props.method === (wantLocal ? "local" : "server"),
+    `H. [${label}] share_image_saved says method=${wantLocal ? "local" : "server"}`,
+    JSON.stringify(savedH && savedH.props));
+  /* The whole point of a fragment is that it does not travel. Drawing a
+     picture from it must not be the thing that finally sends it. */
+  const hayH = wH.requests.map((r) => `${r.url} ${r.post}`).join(" ");
+  let decH = hayH;
+  try { decH = decodeURIComponent(hayH); } catch {}
+  chk(!hayH.includes(R_SECRET) && !decH.includes(R_SECRET) && !hayH.includes(encodeURIComponent(R_SECRET)),
+    `H. [${label}] no request carries the fragment's text`, `${wH.requests.length} requests checked`);
+  chk(wH.requests.every((r) => r.url.startsWith(B)),
+    `H. [${label}] and every one of them is same-origin`,
+    wH.requests.filter((r) => !r.url.startsWith(B)).map((r) => r.url).join(" ") || "0 off-origin");
+  chk(errsH.length === 0, `H. [${label}] the page threw nothing`, errsH.join(" | "));
+  await ctxH.close();
+}
 
 await browser.close();
 server.close();
