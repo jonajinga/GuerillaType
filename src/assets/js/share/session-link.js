@@ -109,7 +109,14 @@ export function resultForSession(session) {
     layout: l.lay || s.layout || null,
     _meta: { newOverallBest: l.pb === 2, newModeBest: l.pb === 1 },
   };
-  if (l.challengeId) result._challenge = { id: l.challengeId, passed: !!l.challengeOk };
+  /* Both halves or neither. A record with a challenge id and no
+     verdict would report the challenge as MISSED on a public card,
+     which is a worse thing to say than nothing: without the pair, the
+     run shares as an ordinary one. practice-boot writes them together,
+     so this is a rule about records nobody has written yet. */
+  if (l.challengeId && l.challengeOk != null) {
+    result._challenge = { id: l.challengeId, passed: !!l.challengeOk };
+  }
   return result;
 }
 
