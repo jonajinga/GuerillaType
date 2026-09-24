@@ -276,6 +276,8 @@ const MUST = [
   ["/roadmap/", "Session replay."],
   ["/changelog/", "Sharing, auto-advance everywhere, custom books by chapter, and a page that stops jolting"],
   ["/changelog/", "What a share link carries, exactly"],
+  ["/changelog/", "A shared result plays back."],
+  ["/changelog/", "at 0.5x, 1x, 2x or 4x"],
 ];
 for (const [route, sentence] of MUST) {
   const t = pageText(route);
@@ -398,6 +400,25 @@ const missingBits = prefBits.map((k) => PREF_PHRASES[k]).filter(Boolean)
   .filter((phrase) => !fragPara.toLowerCase().includes(phrase));
 chk(missingBits.length === 0,
   "the fragment paragraph names every practice setting that travels after the #", missingBits.join(", "));
+
+/* The roadmap is where this project says what exists and what does
+   not, so a feature that has shipped must not still sit under "In
+   flight". Searching the whole page for "Session replay" proves
+   nothing: the item is on the page in BOTH states, which is exactly
+   how a stale roadmap survives a grep. Slice the sections apart and
+   ask which one holds it. */
+const road = pageText("/roadmap/") || "";
+const iShipped = road.indexOf("Recently shipped");
+const iFlight = road.indexOf("In flight");
+const iPlanned = road.indexOf("Planned");
+const shippedSec = iShipped === -1 || iFlight === -1 ? "" : road.slice(iShipped, iFlight);
+const inFlightSec = iFlight === -1 || iPlanned === -1 ? "" : road.slice(iFlight, iPlanned);
+chk(shippedSec.length > 2000 && inFlightSec.length > 80,
+  "the roadmap's sections are sliced apart and neither is empty (an empty section would pass the next two checks for the wrong reason)",
+  `shipped ${shippedSec.length} chars / in flight ${inFlightSec.length} chars`);
+chk(shippedSec.includes("Session replay"), "the roadmap lists session replay under Recently shipped");
+chk(!inFlightSec.includes("Session replay") && !/being built/i.test(inFlightSec),
+  "the roadmap no longer lists session replay as being built", inFlightSec.slice(0, 140));
 
 const faqFrag = (pageText("/faq/") || "");
 const faqStart = faqFrag.indexOf("After the # comes anything the site cannot look up for itself");
