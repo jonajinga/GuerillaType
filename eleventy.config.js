@@ -133,18 +133,12 @@ export default function (eleventyConfig) {
      Same README-is-not-a-template problem as the fonts directory. */
   eleventyConfig.addPassthroughCopy("src/assets/vendor");
   eleventyConfig.ignores.add("src/assets/vendor/README.md");
-  /* lib/og/ is the renderer the build-time cards are drawn with, and it
-     lives OUTSIDE src/ on purpose (Eleventy's input dir is src, so a
-     .js there would not be globbed as a template anyway -- but it is
-     also meant to run in a Cloudflare Worker). Exactly the five files
-     the browser card needs are copied, by name rather than as a
-     directory, so adding a Node-only file to lib/og/ cannot silently
-     start shipping it to every visitor. Copying rather than duplicating
-     is the whole point: the browser draws from the same card.js the
-     build does, so the two cannot drift. */
-  for (const f of ["card.js", "theme.js", "labels.js", "render.js", "validate.js"]) {
-    eleventyConfig.addPassthroughCopy({ [`lib/og/${f}`]: `assets/vendor/og/${f}` });
-  }
+  /* lib/og/ itself is NOT copied here. It used to be, as five named
+     files under /assets/vendor/og/, and then main started copying the
+     whole directory to /assets/js/og/ for the /r/ page. Two copies of
+     one directory at two URLs is two module instances of every file,
+     and the browser-drawn card now imports the /assets/js/og/ one --
+     see the passthrough further down, and share/local-card.js. */
   // src/data -> _site/data. The default 11ty passthrough uses
   // @11ty/recursive-copy which races against OneDrive's sync locks
   // and emits cryptic "Benchmark after() without a before()" errors.
@@ -165,6 +159,20 @@ export default function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy({ "src/_redirects": "_redirects" });
   eleventyConfig.addPassthroughCopy({ "src/_headers": "_headers" });
   eleventyConfig.addPassthroughCopy({ "src/humans.txt": "humans.txt" });
+  /* Which paths Cloudflare Pages may invoke a Function for. Everything
+     not listed here is served straight from the static bucket, which
+     is what keeps the Free plan's request budget for the one page that
+     needs a server: /r/. */
+  eleventyConfig.addPassthroughCopy({ "src/_routes.json": "_routes.json" });
+  /* lib/og is plain ESM with no Node built-ins, and three of its files
+     -- labels.js, validate.js, resolve.js -- are needed in the browser
+     too: the /r/ landing page validates its own query before drawing
+     anything and resolves a public `src` from /data/. Copying the
+     directory rather than duplicating the files is the point. The
+     label maps and the query schema must have ONE definition, or a
+     link the browser builds stops being a link the card renderer
+     accepts, and the failure is a blank preview nobody notices. */
+  eleventyConfig.addPassthroughCopy({ "lib/og": "assets/js/og" });
 
   // Plugins
   eleventyConfig.addPlugin(pluginRss);

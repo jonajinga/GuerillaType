@@ -227,7 +227,7 @@ function ensureSheet() {
         <button type="button" class="btn share-sheet__action" data-share-copy>${ICONS.copy}<span>Copy link</span></button>
         <button type="button" class="btn share-sheet__action" data-share-download hidden>${ICONS.download}<span>Download PNG</span></button>
       </div>
-      <p class="share-sheet__note">Links carry your numbers, never what you typed.</p>
+      <p class="share-sheet__note">The numbers travel in the link. What you typed sits after the # and never reaches this site; it travels only where you choose to send the link.</p>
       <p class="share-sheet__note share-sheet__note--local" data-share-local-note hidden>The picture includes your text and is made on your device</p>
     </div>
   `;

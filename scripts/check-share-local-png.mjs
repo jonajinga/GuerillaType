@@ -32,7 +32,7 @@
         as js_error, so a failure we have already handled must not also
         be filed as a bug by the user's browser.
      F. The browser draws the SAME card the build does. Every file
-        /assets/vendor/ serves is byte-identical to its source, every
+        /assets/js/og/ serves is byte-identical to its source, every
         import in the shipped module resolves to a file that exists, and
         the SVG the browser produces for a fixture is byte-identical to
         the one scripts/lib/og-node.mjs produces for it. That last one is
@@ -216,6 +216,14 @@ async function inPage(fn, name, fallback) {
     return fallback;
   }
 }
+
+/* Every URL that exists only because the browser is drawing a card.
+   /assets/js/og/ is lib/og itself, passthrough-copied for the /r/ page
+   and imported by local-card.js rather than copied a second time -- so
+   it is on this list, and share-boot.js's own use of labels.js and
+   validate.js is NOT, which is why the pattern names the three files
+   the renderer adds rather than the directory. */
+const RENDERER_URL = /\/assets\/vendor\/|\/assets\/js\/share\/local-card\.js|\/assets\/js\/og\/(card|render|theme)\.js/;
 
 const PNG_SIG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 function pngInfo(buf) {
@@ -426,7 +434,7 @@ chk(!!saved && Object.keys(saved.props).join(",") === "kind,mode,method",
    two navigations, a whole typing session and the share sheet -- is in
    w.before, and none of it may be the renderer. check-typing-perf.mjs
    would notice the cost; this names the file. */
-const early = beforeClick.filter((r) => /\/assets\/vendor\/|local-card\.js/.test(r.url));
+const early = beforeClick.filter((r) => RENDERER_URL.test(r.url));
 chk(early.length === 0,
   "B. none of it was loaded before the click",
   early.map((r) => r.url.replace(B, "")).join(" ") || `${beforeClick.length} requests up to the click, none of them the renderer`);
@@ -503,7 +511,7 @@ chk(!!savedD && savedD.props.method === "server",
    the local renderer for every run and fell back would download the
    same bytes, having pulled 915 KB and flashed a toast on the way. The
    renderer must not be reached at all. */
-const reachedRenderer = wD.requests.filter((r) => /\/assets\/vendor\/|local-card\.js/.test(r.url));
+const reachedRenderer = wD.requests.filter((r) => RENDERER_URL.test(r.url));
 chk(reachedRenderer.length === 0,
   "D. and the browser renderer is never even loaded for a public run",
   reachedRenderer.map((r) => r.url.replace(B, "")).join(" ") || `${wD.requests.length} requests, none of them the renderer`);
@@ -531,7 +539,7 @@ const BLOCKED = [
   ["the wasm", "**/hb.wasm*", null],
   ["the satori bundle", "**/satori.browser.js*", null],
   ["a font", "**/assets/fonts/og/lora-600.ttf*", null],
-  ["a vendored lib/og module", "**/assets/vendor/og/card.js*", null],
+  ["a lib/og module", "**/assets/js/og/card.js*", null],
   /* Not blocked: served, with a 200, carrying something that is not
      wasm. A captive portal or a rewritten 404 does this, and it reaches
      further into emscripten than a refused request does. */
@@ -583,13 +591,34 @@ for (const [what, pattern, fulfill] of BLOCKED) {
 // ================================================================ F
 console.log("\nF. the browser draws the build's card, not a copy of it");
 const VENDOR_OG = ["card.js", "theme.js", "labels.js", "render.js", "validate.js"];
+/* The ONE difference allowed between lib/og/x.js and the copy the
+   browser gets: eleventy.config.js's import versioner stamps every
+   relative import under _site/assets/js with the build's ?v=. Stripped
+   here rather than skipped, so a second character of difference still
+   fails. */
+const unstamp = (t) => t.replace(/(\.\.?\/[^"']+\.js)\?v=\d+/g, "$1");
 for (const f of VENDOR_OG) {
-  const src = await readFile(join(LIB, f)).catch(() => null);
-  const out = await readFile(join(ROOT, "assets", "vendor", "og", f)).catch(() => null);
-  chk(!!src && !!out && src.equals(out),
-    `F. /assets/vendor/og/${f} is lib/og/${f}, byte for byte`,
-    src && out ? `${out.length} bytes` : "missing from the build");
+  const src = await readFile(join(LIB, f), "utf8").catch(() => null);
+  const out = await readFile(join(ROOT, "assets", "js", "og", f), "utf8").catch(() => null);
+  const stamps = out ? (out.match(/\?v=\d+/g) || []).length : 0;
+  chk(src != null && out != null && unstamp(out) === src,
+    `F. /assets/js/og/${f} is lib/og/${f}, byte for byte (bar ${stamps} cache-bust stamp${stamps === 1 ? "" : "s"})`,
+    src != null && out != null ? `${out.length} bytes` : "missing from the build");
 }
+/* The stamps are not decoration: without them the browser would hold a
+   second module instance of theme.js -- local-card.js's import carries
+   ?v= because the versioner walks /assets/js, card.js's ./theme.js
+   would not -- and one design change would live on in a cache. */
+const stampedCard = await readFile(join(ROOT, "assets", "js", "og", "card.js"), "utf8").catch(() => "");
+chk(/from "\.\/theme\.js\?v=\d+"/.test(stampedCard),
+  "F. and the versioner reached inside it, so there is one theme.js and not two",
+  (stampedCard.match(/from "\.\/theme\.js[^"]*"/) || ["(no import found)"])[0]);
+/* One copy of lib/og on the site, not two. The card was served from
+   /assets/vendor/og/ until main started copying the whole directory to
+   /assets/js/og/ for the /r/ page; two copies is two module instances
+   of theme.js and a second download of every file. */
+chk(!(await stat(join(ROOT, "assets", "vendor", "og")).then(() => true).catch(() => false)),
+  "F. and there is no second copy of it under /assets/vendor/og/");
 const bundle = await readFile(join(ROOT, "assets", "vendor", "satori", "satori.browser.js")).catch(() => null);
 chk(!!bundle && bundle.length > 200000 && /export\s*\{/.test(bundle.toString("utf8", bundle.length - 400)),
   "F. the satori bundle is in the build and is an ES module",

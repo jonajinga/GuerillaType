@@ -11,10 +11,10 @@
    This is NOT a second implementation of the card. It is the same one:
 
      lib/og/card.js      the element tree           <- passthrough-copied
-     lib/og/theme.js     colours, geometry, fonts      to /assets/vendor/og/
-     lib/og/labels.js    every string a card draws     by eleventy.config.js
-     lib/og/render.js    satori -> SVG -> raster
-     lib/og/validate.js  query string -> card model
+     lib/og/theme.js     colours, geometry, fonts      to /assets/js/og/
+     lib/og/labels.js    every string a card draws     by eleventy.config.js,
+     lib/og/render.js    satori -> SVG -> raster       the same copy the
+     lib/og/validate.js  query string -> card model    /r/ page reads
 
    render.js was written with a seam for exactly this (its header says
    "a Cloudflare Worker would import the wasm as a module and fetch
@@ -40,9 +40,9 @@
       costs nothing -- scripts/check-typing-perf.mjs would notice.
 */
 import satori from "../../vendor/satori/satori.browser.js";
-import { createRenderer } from "../../vendor/og/render.js";
-import { validate } from "../../vendor/og/validate.js";
-import { CARD } from "../../vendor/og/theme.js";
+import { createRenderer } from "../og/render.js";
+import { validate } from "../og/validate.js";
+import { CARD } from "../og/theme.js";
 
 /* The same Latin-subset faces the build-time cards use, already
    passthrough-copied for satori's sake. Named from theme.js rather than

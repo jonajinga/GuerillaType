@@ -50,3 +50,8 @@ rasterised by the browser's own SVG renderer, which is why there is no
 The Latin-subset fonts the card draws with are not duplicated here:
 they are the ones already at `/assets/fonts/og/*.ttf` and their licences
 are in `src/assets/fonts/licenses/`.
+
+Neither is `lib/og`. Eleventy copies that whole directory to
+`/assets/js/og/` for the `/r/` landing page, and the browser-drawn card
+imports the same copy, so there is one `card.js` on the site and not
+two.
