@@ -480,6 +480,56 @@ if (!legacyRow) await bail("E. an old record still gets a Share button");
   chk(errs.length === 0 && pageErrors.length === 0, "E. and nothing threw", [...errs, ...pageErrors].join(" | "));
 }
 
+/* ...and the two records nothing can be built from. This is the whole
+   of "hidden for rows the site cannot build a valid link for": a row
+   whose query lib/og/validate.js refuses, and a row with no session id
+   to find a replay or a record by. Neither gets a button; both still
+   draw as rows. */
+console.log("\nE2. and the rows no link can be built for");
+await page.evaluate(() => {
+  const ps = JSON.parse(localStorage.getItem("tt:profiles") || "[]");
+  const active = JSON.parse(localStorage.getItem("tt:active-profile") || "null");
+  const i = Math.max(0, ps.findIndex((x) => x.id === active));
+  /* 1999 is outside the range lib/og/validate.js accepts for `d`
+     (2015..2100), so the query it produces is not a valid one. */
+  ps[i].sessions.unshift({
+    id: "s_ancient001", at: "1999-05-05T10:00:00.000Z", mode: "time", duration: 30,
+    wpm: 44.1, raw: 47, acc: 95, cons: 80, chars: 120, correctChars: 114, errors: 6,
+    lang: "en-1k", layout: "qwerty", suspect: false,
+  });
+  /* And a record with no id at all. */
+  ps[i].sessions.unshift({
+    at: new Date().toISOString(), mode: "time", duration: 30,
+    wpm: 41.5, raw: 44, acc: 93, cons: 77, chars: 110, correctChars: 102, errors: 8,
+    lang: "en-1k", layout: "qwerty", suspect: false,
+  });
+  localStorage.setItem("tt:profiles", JSON.stringify(ps));
+});
+await page.goto(B + "/stats/", { waitUntil: "domcontentloaded" });
+await waitOr((t) => page.waitForSelector(`[data-session-id="${LEGACY_ID}"] button[data-share][data-share-ready]`, { timeout: t }),
+  "E2. the shareable rows finished building");
+{
+  const seen = await page.evaluate(() => {
+    const rows = Array.from(document.querySelectorAll("[data-session-id]"));
+    const idless = rows.filter((r) => !r.getAttribute("data-session-id"));
+    const ancient = document.querySelector('[data-session-id="s_ancient001"]');
+    return {
+      rows: rows.length,
+      buttons: document.querySelectorAll("button[data-share]").length,
+      idless: idless.length,
+      idlessWithButton: idless.filter((r) => r.querySelector("button[data-share]")).length,
+      ancientDrawn: !!ancient,
+      ancientHasButton: !!(ancient && ancient.querySelector("button[data-share]")),
+    };
+  });
+  chk(seen.ancientDrawn && !seen.ancientHasButton,
+    "E2. a record whose date the validator refuses is drawn, with no Share button", JSON.stringify(seen));
+  chk(seen.idless === 1 && seen.idlessWithButton === 0,
+    "E2. and neither does a record with no session id", `${seen.idless} id-less row(s), ${seen.idlessWithButton} with a button`);
+  chk(seen.buttons === seen.rows - 2,
+    "E2. every other row has one", `${seen.buttons} buttons on ${seen.rows} rows`);
+}
+
 // =============================================================== F
 console.log("\nF. the sheet opens from the keyboard");
 await clearEvents();
