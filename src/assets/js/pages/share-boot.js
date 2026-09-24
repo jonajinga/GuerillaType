@@ -27,7 +27,7 @@ import { MODES, LANGS, LAYOUTS, KIND_EYEBROW, durationLabel } from "../og/labels
 import { resolveSrc } from "../og/resolve.js";
 import { rMeta, canonicalQuery, resultCardPath } from "../og/r-meta.js";
 import { unpackLog, prefsFromMask } from "../share/codec.js";
-import { openShareSheet } from "../share/share.js";
+import { openShareSheet, setLocalCard } from "../share/share.js";
 import { mountReplay } from "../share/replay.js";
 
 const $ = (sel) => document.querySelector(sel);
@@ -218,10 +218,24 @@ async function boot() {
      a reshare that dropped them would hand on an emptier link than the
      one that arrived. */
   const meta = rMeta(params, { origin: location.origin });
-  const short = `${location.origin}/r/?${canonicalQuery(params) || params.toString()}`;
+  const canon = canonicalQuery(params) || params.toString();
+  const short = `${location.origin}/r/?${canon}`;
   const reshare = $("#tt-reshare");
   if (reshare) {
     reshare.addEventListener("click", () => {
+      /* A text that arrived in the fragment is on THIS device and
+         nowhere else -- exactly the situation the practice page is in
+         after a run of your own, and the same answer: Download PNG
+         draws the card here, from the query above, so the picture can
+         include the words. `imageUrl` stays the pre-rendered grid card
+         either way, because that is what a scraper is handed.
+
+         A result whose text is public came from /data/ and is not in
+         the fragment, so fragText is empty and nothing changes for it.
+         Nothing here puts the text in a request: share/local-card.js
+         fetches only static assets, asserted by
+         scripts/check-share-local-png.mjs section C. */
+      setLocalCard(fragText ? { text: fragText.slice(0, 600), stats: canon } : null);
       openShareSheet({
         title: meta.title,
         text: `${meta.title} · GuerillaType`,
@@ -231,6 +245,7 @@ async function boot() {
         kind: "result",
         mode: model.mode || "",
         surface: "share-landing",
+        private: !!fragText,
         opener: reshare,
       });
     });
