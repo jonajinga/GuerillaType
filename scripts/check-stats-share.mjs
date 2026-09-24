@@ -1175,9 +1175,14 @@ console.log("\nK. the roadmap and the changelog say what this does");
     chk(!/[\u2014\u2013]/.test(mine), `K. ${where}: and no em-dash or en-dash in it`,
       (mine.match(/[\u2014\u2013][^]{0,30}/) || [""])[0]);
   }
-  /* The claim about sixty is a claim about the list, so read the list. */
+  /* The claim about sixty is a claim about the list, so read the list --
+     BOTH lists. A number that is only true while a CDN answers is not a
+     number worth publishing. */
   const sixty = await readFile(resolve("src/assets/js/stats/viz-sessions-d3.js"), "utf8").catch(() => "");
   chk(/sessions\.slice\(0,\s*60\)/.test(sixty), "K. and the list really does take the newest sixty");
+  const boot = await readFile(resolve("src/assets/js/pages/stats-boot.js"), "utf8").catch(() => "");
+  chk(/sessions\.slice\(0,\s*60\)/.test(boot),
+    "K. and so does the plain table drawn when d3 cannot be fetched");
 }
 
 await browser.close();

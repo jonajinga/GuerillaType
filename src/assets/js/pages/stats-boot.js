@@ -483,12 +483,15 @@ if (sessions.length) {
   (async () => {
     const ok = await renderSessionsD3(sl, sessions, { onRows: (rows) => { wireRowShare(rows); } });
     if (!ok) {
-      // Legacy fallback if D3 fails to load.
+      /* Legacy fallback if D3 fails to load. The same sixty rows the
+         D3 list draws, and the same number the roadmap and the
+         changelog tell people: a claim that is only true when a CDN
+         answers is not a claim worth publishing. */
       sl.innerHTML = `
         <table class="sessions-table">
           <thead><tr><th>When</th><th>Mode</th><th class="r">wpm</th><th class="r">acc</th><th class="r">cons</th><th></th></tr></thead>
           <tbody>
-          ${sessions.slice(0, 12).map((s) => `<tr data-session-id="${htmlEscape(s.id || "")}"><td>${new Date(s.at).toLocaleString()}</td><td>${htmlEscape(s.mode)} ${s.duration ? `· ${s.duration}s` : ""}</td><td class="r" style="color:var(--accent)">${Math.round(s.wpm)}</td><td class="r">${Math.round(s.acc)}%</td><td class="r">${Math.round(s.cons)}%</td><td class="r" data-share-slot></td></tr>`).join("")}
+          ${sessions.slice(0, 60).map((s) => `<tr data-session-id="${htmlEscape(s.id || "")}"><td>${new Date(s.at).toLocaleString()}</td><td>${htmlEscape(s.mode)} ${s.duration ? `· ${s.duration}s` : ""}</td><td class="r" style="color:var(--accent)">${Math.round(s.wpm)}</td><td class="r">${Math.round(s.acc)}%</td><td class="r">${Math.round(s.cons)}%</td><td class="r" data-share-slot></td></tr>`).join("")}
           </tbody></table>`;
       await wireRowShare(sl);
     }
