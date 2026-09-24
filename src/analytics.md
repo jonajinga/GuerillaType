@@ -119,7 +119,7 @@ pageSlug: analytics
 
 ## What is tracked
 
-- **Pageviews** &mdash; every route a visitor lands on.
+- **Pageviews** &mdash; every route a visitor lands on, without the query string and without the part after `#`. The share page loads no analytics at all, so it is not counted here.
 - **Sessions** &mdash; anonymous, hash-based grouping of one visitor's pageviews. No cookies, no persistent identifier.
 - **Events** &mdash; named user actions emitted by the practice surface: session lifecycle, mode picks, library opens, achievements, settings changes, and a few perf timings. Each event carries up to a handful of categorical properties. See [`src/assets/js/analytics.js`](https://github.com/jonajinga/GuerillaType/blob/main/src/assets/js/analytics.js) for the full list.
 - **Geography** &mdash; country from IP, then IP discarded.
@@ -127,7 +127,7 @@ pageSlug: analytics
 
 ## What is NOT tracked
 
-- The character stream you type. None of it leaves your browser.
+- The character stream you type. Analytics never receives it. The only way any of it leaves your browser is a share link you build yourself, and even then the words sit after the `#`, which a browser does not send to this site. They travel with the link, wherever you choose to send it.
 - Cookies. Umami is cookieless.
 - Cross-site activity. Nothing follows you off `guerillatype.com`.
 - Identifiers tied to a real person (name, email, IP).

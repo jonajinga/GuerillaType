@@ -2,7 +2,7 @@
 layout: layouts/article.njk
 title: "Tech stack"
 eyebrow: "Under the hood"
-lede: "How GuerillaType is built. A static site, vanilla JavaScript, no frameworks, no backend, no database. Open source under MIT."
+lede: "How GuerillaType is built. A static site, vanilla JavaScript, no frameworks, no database, no application server. The only code that runs outside your browser is at Cloudflare's edge, on the share page. Open source under MIT."
 description: "Tech stack: Eleventy v3, Nunjucks, vanilla CSS, vanilla JS, Cloudflare Pages, Bunny Fonts. No frameworks, no build tooling beyond Eleventy itself."
 cta:
   title: "Source on GitHub"
@@ -75,8 +75,9 @@ Five hand-rolled SVG components, no chart library:
 
 - **Cloudflare Pages** — static asset hosting, free tier covers more bandwidth than this site will ever need.
 - **Cloudflare DNS** — already free.
-- **Cloudflare Web Analytics** — optional, privacy-friendly, no cookies.
-- **Umami** — optional self-hosted alternative if you bring your own.
+- **Cloudflare Pages Functions** are used on the share page, and nowhere else on the site. What runs there fills a shared link's preview tags in from the numbers in its address; it never sees the part of the link after `#`, because browsers do not send that part. Every other page is a static file.
+- **Umami** is what this site runs for page-view analytics. Cookieless, and the dashboard is public at [/analytics/](/analytics/).
+- **Cloudflare Web Analytics** is wired in and switched off.
 - **Bunny Fonts** — free CDN for my two web fonts. No Google Fonts.
 
 ## Build tooling

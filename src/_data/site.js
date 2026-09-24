@@ -10,8 +10,8 @@ export default {
   themeColor: "#14161e",
   // Share card. PNG, not SVG: every major platform (X, Facebook,
   // LinkedIn, Slack, iMessage) refuses an SVG og:image and shows no
-  // preview at all. Regenerate with `npm run og-default` after
-  // changing the design in src/assets/img/og-default.svg.
+  // preview at all. The design is defaultCard() in lib/og/card.js; the
+  // build rewrites the committed PNG whenever that design changes.
   ogImage: "/assets/img/og-default.png",
   ogImageWidth: 1200,
   ogImageHeight: 630,

@@ -24,7 +24,7 @@ The site doesn't ask who you are or what you're working toward. Pick a mode, typ
 
 Typing is one of the most-used skills in modern life and one of the least-taught. Most of the free tools that exist are either dated and unloved or tied to platforms that collect data they do not need.
 
-GuerillaType is the typing tutor I wanted to use: instant practice, structured lessons, a real adaptive engine, and the ability to type through any text I bring in. It is calm, it is fast, and nothing leaves the device.
+GuerillaType is the typing tutor I wanted to use: instant practice, structured lessons, a real adaptive engine, and the ability to type through any text I bring in. It is calm, it is fast, and nothing leaves the device unless you press Share.
 
 ## How it works
 
@@ -38,9 +38,13 @@ GuerillaType is the typing tutor I wanted to use: instant practice, structured l
 
 ## Privacy
 
-Nothing leaves your device. Profiles, sessions, daily activity, custom texts — all in your browser's localStorage. There are no accounts. There are no cookies. Optional, privacy-friendly Umami and Cloudflare Web Analytics are wired in but disabled by default.
+Nothing leaves your device unless you press Share. Profiles, sessions, daily activity, custom texts: all in your browser's localStorage. There are no accounts. There are no cookies.
 
-See [Analytics](/analytics/) for the full breakdown.
+The site runs Umami for cookieless page-view analytics, and the dashboard is public, no login. Cloudflare Web Analytics is wired in and switched off.
+
+A share link carries numbers and a public content id where a server can see them. A custom text's words, a keystroke replay when a run has one, and the five practice settings the run used ride after the `#`, which browsers never send to this site. They travel with the link, so they go where you send it. [Privacy](/privacy/) has the full account.
+
+See [Analytics](/analytics/) for what the dashboard shows.
 
 ## Open source
 
