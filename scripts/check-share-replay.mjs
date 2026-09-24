@@ -832,11 +832,24 @@ console.log("\nH. a run is played to its last keystroke, or it does not claim to
   /* The other direction: a link whose text is one character shorter
      than the log. The engine reaches the end of the text and finishes
      with events still in hand, and the numbers come out within a
-     whisker of the shared ones (one fewer character over one fewer
+     whisker of the whole run's (one fewer character over one fewer
      keystroke's worth of time). Only "did I play all of it" can tell
-     these apart, which is why the verdict asks. */
+     these apart, which is why the verdict asks.
+
+     The fixture carries the numbers the REPLAY computed for the whole
+     run, not the ones in the original query. Those two are allowed to
+     differ by 1, and truncation moves the wpm by up to another 1, so
+     measuring the truncated run against the query could stack to 2 and
+     turn a healthy tree red -- one run measured 157 against 158 with no
+     margin left. Against the replay's own full-run number there is
+     nothing to stack: the only difference is the truncation, which is
+     the thing being tested. It also keeps this fixture doing its job,
+     which is to be a run the numbers alone would wave through. */
   const shortText = TARGET.slice(0, -1);
-  const shortUrl = `${FULL_URL.split("#")[0]}#v=1&t=${encodeURIComponent(shortText)}`
+  const shortTextQ = new URLSearchParams(QUERY);
+  shortTextQ.set("wpm", String(endState.wpm));
+  shortTextQ.set("acc", String(endState.accuracy));
+  const shortUrl = `${B}/r/?${shortTextQ.toString()}#v=1&t=${encodeURIComponent(shortText)}`
     + `&${FRAG.get("r") ? "r" : "ru"}=${FRAG.get("r") || FRAG.get("ru")}`;
   const ctxS = await mkContext();
   const pageS = await ctxS.newPage();
@@ -850,9 +863,12 @@ console.log("\nH. a run is played to its last keystroke, or it does not claim to
   }));
   chk(sh.s.playedAll === false && sh.s.index < sh.s.total,
     "H. a text one character short leaves events unplayed", `${sh.s.index} of ${sh.s.total}`);
+  chk(sh.s.shared.wpm === endState.wpm,
+    "H. the link it is being judged against carries the whole run's own number",
+    `link ${sh.s.shared.wpm}, whole run ${endState.wpm}`);
   chk(Math.abs(sh.s.wpm - sh.s.shared.wpm) <= 1,
-    "H. and its numbers are close enough that the numbers alone would have said yes",
-    `${sh.s.wpm} vs shared ${sh.s.shared.wpm}`);
+    "H. and the truncated run's numbers are inside the tolerance, so the numbers alone would have said yes",
+    `${sh.s.wpm} vs the whole run's ${sh.s.shared.wpm}`);
   chk(sh.s.verdict === "differ" && /Replay differs/.test(sh.text),
     "H. so the verdict refuses it on the strength of the unplayed events", sh.text || "(nothing shown)");
   await ctxS.close();
