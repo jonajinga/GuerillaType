@@ -10,7 +10,90 @@ import { evaluate as evaluateAchievements } from "./achievements.js";
 
 const SESSIONS_CAP = 500;
 
-export function recordSession(result, modelSerialized) {
+/* What a stored run needs to become a share link later, and nothing
+   else. The rounded numbers above are for the page that draws them;
+   these are what the link is built from.
+
+   Two rules hold this to a small, boring shape:
+
+     - It carries IDS and SETTINGS, never words. No title, no sentence,
+       no typed text. `customId` is the exception that proves it: it is
+       the private handle of a text of this browser's own, kept so the
+       words can be looked up HERE, on this device, and never so they
+       can be named in a link. share/result-link.js has refused to put
+       a custom id in a `src` since the day it was written, and it is
+       still the only thing that decides.
+     - It stores the numbers UNROUNDED. A link built from a past run
+       has to come out character-identical to the one the results card
+       offered for the same run, and `round1(71.46)` is 71.5, which
+       rounds up to 72 where the card said 71. Rounding twice is how
+       two views of one run quietly disagree.
+
+   Every field is optional. A record written before this existed has
+   no `link` at all, and share/session-link.js shares it on its
+   numbers and its date. */
+function linkRecord(result, link) {
+  const l = link || {};
+  const out = {
+    v: 1,
+    exact: {
+      wpm: numOrNull(result.wpm),
+      raw: numOrNull(result.raw),
+      acc: numOrNull(result.accuracy),
+      con: numOrNull(result.consistency),
+      ms: numOrNull(result.ms),
+    },
+  };
+  const put = (key, value) => {
+    if (value === undefined || value === null || value === "") return;
+    out[key] = value;
+  };
+  put("mode", str(l.mode, 40));
+  put("lang", str(l.language, 40));
+  put("lay", str(l.layout, 40));
+  put("words", intOrNull(l.words));
+  put("dur", intOrNull(l.duration));
+  put("bookSlug", str(l.bookSlug, 120));
+  put("bookCh", intOrNull(l.bookCh));
+  put("bookPage", intOrNull(l.bookPage));
+  put("bookParaId", str(l.bookParaId, 80));
+  put("lessonId", l.lessonId == null ? null : str(l.lessonId, 80));
+  put("drillId", str(l.drillId, 80));
+  put("customId", str(l.customId, 80));
+  put("kind", str(l.kind, 40));
+  put("sourceId", str(l.sourceId, 80));
+  put("challengeId", str(l.challengeId, 80));
+  if (l.challengeId && l.challengeOk != null) out.challengeOk = !!l.challengeOk;
+  /* The five settings that change what a keystroke MEANS, as the
+     bitmask share/codec.js defines. Stored beside the run rather than
+     read off today's preferences, because a run typed a month ago with
+     stopOnError on is not replayable under whatever is set now. */
+  const prefs = intOrNull(l.prefs);
+  if (prefs != null) out.prefs = Math.max(0, Math.min(31, prefs));
+  /* A fingerprint of the target, so a text looked up later can be
+     checked against the one that was actually typed. Not the text. */
+  put("th", str(l.textHash, 60));
+  return out;
+}
+
+function str(v, max) {
+  if (v === undefined || v === null) return null;
+  const s = String(v).trim();
+  return s ? s.slice(0, max) : null;
+}
+function numOrNull(n) {
+  const v = Number(n);
+  return Number.isFinite(v) ? v : null;
+}
+function intOrNull(n) {
+  if (n === undefined || n === null || n === "") return null;
+  const v = Math.round(Number(n));
+  return Number.isFinite(v) ? v : null;
+}
+
+/* `link` is optional and additive: every caller that does not pass it
+   keeps exactly the record it had before, minus the `link` key. */
+export function recordSession(result, modelSerialized, link) {
   const id = "s_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
   const entry = {
     id,
@@ -27,7 +110,13 @@ export function recordSession(result, modelSerialized) {
     lang: result.lang || null,
     layout: result.layout || null,
     suspect: !!result.suspect,
+    /* How long the run actually took. `duration` above is the setting
+       (30 for a 30-second test, nothing for a words run); this is the
+       elapsed time, which is what a share link reports and what the
+       sessions list already tried to read. */
+    ms: numOrNull(result.ms),
   };
+  if (link) entry.link = linkRecord(result, link);
 
   const meta = { newOverallBest: false, newModeBest: false, modeBestKey: null, achievementsEarned: [] };
 
@@ -57,6 +146,16 @@ export function recordSession(result, modelSerialized) {
         meta.newModeBest = true;
         meta.modeBestKey = modeBestKey;
       }
+    }
+
+    /* The `pb` badge on a share card, decided here because this is
+       where a best is decided. It has to be written INSIDE this
+       callback: updateActive persists when the callback returns, so an
+       entry mutated afterwards is only mutated in memory. 2 beats 1,
+       the same order share/result-link.js uses. */
+    if (entry.link) {
+      const pb = meta.newOverallBest ? 2 : meta.newModeBest ? 1 : 0;
+      if (pb) entry.link.pb = pb;
     }
 
     // Daily bucket
