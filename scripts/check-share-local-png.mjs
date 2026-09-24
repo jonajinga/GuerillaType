@@ -844,6 +844,12 @@ for (const [label, url, wantLocal] of [["a text in the fragment", R_PRIVATE, tru
   chk(wH.requests.every((r) => r.url.startsWith(B)),
     `H. [${label}] and every one of them is same-origin`,
     wH.requests.filter((r) => !r.url.startsWith(B)).map((r) => r.url).join(" ") || "0 off-origin");
+  /* Same rule as section D: a result the server CAN draw must not cost
+     a reader 915 KB of renderer to find that out. */
+  const rendererH = wH.requests.filter((r) => RENDERER_URL.test(r.url));
+  chk((rendererH.length > 0) === wantLocal,
+    `H. [${label}] the renderer is ${wantLocal ? "loaded" : "never loaded"}`,
+    rendererH.map((r) => r.url.replace(B, "")).join(" ") || `${wH.requests.length} requests, none of them the renderer`);
   chk(errsH.length === 0, `H. [${label}] the page threw nothing`, errsH.join(" | "));
   await ctxH.close();
 }
