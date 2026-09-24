@@ -1079,6 +1079,81 @@ console.log("\nJ. Download PNG on a row typed from a text of your own");
   }
 }
 
+// =============================================================== J2
+console.log("\nJ2. two private rows, one renderer slot");
+/* share.js holds ONE local card: it was written for a results page,
+   where there is one result on screen. A list has sixty rows. If the
+   slot is filled when a row is WIRED rather than when it is CLICKED,
+   the last private row wired owns the renderer and every other private
+   row downloads its words.
+
+   Two rows with IDENTICAL numbers and different words, so the query
+   that goes into both cards is the same string and the only thing left
+   that can make the two pictures differ is the text. */
+{
+  const A = { id: "c_slotalpha", sid: "s_slotalpha", words: "alphapelican trundling past the marmalade lighthouse" };
+  const Z = { id: "c_slotomega", sid: "s_slotomega", words: "omegawalrus bickering beneath the cardamom viaduct" };
+  await page.goto(B + "/stats/", { waitUntil: "domcontentloaded" });
+  await page.evaluate(async ({ a, z }) => {
+    const rs = await import("/assets/js/engine/replay-store.js");
+    localStorage.setItem("tt:custom-texts", JSON.stringify([a, z].map((x) => ({
+      id: x.id, title: "slot test", createdAt: new Date().toISOString(),
+      bytes: x.words.length, lastSeg: 0, segments: [x.words], meta: null,
+    }))));
+    const ps = JSON.parse(localStorage.getItem("tt:profiles") || "[]");
+    const active = JSON.parse(localStorage.getItem("tt:active-profile") || "null");
+    const i = Math.max(0, ps.findIndex((x) => x.id === active));
+    for (const x of [a, z]) {
+      /* Identical in every number, and on the same day. */
+      ps[i].sessions.unshift({
+        id: x.sid, at: "2026-09-20T12:00:00.000Z", mode: "custom", duration: 30,
+        wpm: 77, raw: 80, acc: 94, cons: 88, chars: 200, correctChars: 188, errors: 12,
+        lang: "en-1k", layout: "qwerty", suspect: false, ms: 30000,
+        link: { v: 1, exact: { wpm: 77, raw: 80, acc: 94, con: 88, ms: 30000 },
+          mode: "custom", lang: "en-1k", lay: "qwerty", customId: x.id, prefs: 0,
+          th: rs.textHash(x.words) },
+      });
+      await rs.save({
+        id: x.sid, keylog: Array.from(x.words).map((c, n) => [c, n === 0 ? 0 : 66]),
+        textHash: rs.textHash(x.words), prefs: 0, text: x.words,
+      });
+    }
+    localStorage.setItem("tt:profiles", JSON.stringify(ps));
+  }, { a: A, z: Z });
+  await page.goto(B + "/stats/", { waitUntil: "domcontentloaded" });
+
+  const shots = {};
+  let queries = [];
+  for (const x of [A, Z]) {
+    const sel = `[data-session-id="${x.sid}"] button[data-share][data-share-ready]`;
+    const there = await page.waitForSelector(sel, { timeout: 15000 }).then(() => true).catch(() => false);
+    if (!there) { chk(false, `J2. the row for ${x.id} is on the page`); continue; }
+    const d = await page.evaluate((sl) => {
+      const b = document.querySelector(sl);
+      return { priv: b.getAttribute("data-share-private"), q: new URL(b.dataset.shareShortUrl).search };
+    }, sel);
+    chk(d.priv === "1", `J2. ${x.id} is a private row`, String(d.priv));
+    queries.push(d.q);
+    await page.click(sel);
+    await page.waitForTimeout(150);
+    const [dl] = await Promise.all([
+      page.waitForEvent("download", { timeout: 90000 }).catch(() => null),
+      page.click("#share-sheet [data-share-download]"),
+    ]);
+    shots[x.id] = dl ? await readFile(await dl.path()) : null;
+    chk(!!shots[x.id] && !!pngInfo(shots[x.id]), `J2. ${x.id} downloaded a PNG`,
+      shots[x.id] ? `${shots[x.id].length} bytes` : "no download");
+    await page.keyboard.press("Escape");
+    await page.waitForTimeout(100);
+  }
+  chk(queries.length === 2 && queries[0] === queries[1],
+    "J2. both rows produce the identical query, so only the words can differ", queries[0] || "");
+  const a = shots[A.id], z = shots[Z.id];
+  chk(!!a && !!z && !a.equals(z),
+    "J2. and the two cards are different pictures — each row drew its own words",
+    a && z ? `${a.length} vs ${z.length} bytes` : "one of them is missing");
+}
+
 // =============================================================== K
 console.log("\nK. the roadmap and the changelog say what this does");
 {
