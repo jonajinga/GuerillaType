@@ -54,6 +54,7 @@ import { readFile, stat } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { extname, join, normalize, resolve } from "node:path";
 import { chromium } from "playwright";
+import { bandFor } from "../lib/og/labels.js";
 
 /* The pure half, imported rather than reimplemented, and dynamically
    so a verifier who has reverted src/ sees a FAIL with a count instead
@@ -165,6 +166,7 @@ const context = await browser.newContext({
   viewport: { width: 1366, height: 900 },
   serviceWorkers: "block",
   hasTouch: false,
+  acceptDownloads: true,
 });
 await context.addInitScript(() => {
   window.__ttEvents = [];
@@ -183,6 +185,7 @@ await context.route("**/*", (route) => {
   return route.continue();
 });
 const page = await context.newPage();
+/* Section J presses Download PNG, which is a real download. */
 const pageErrors = [];
 page.on("pageerror", (e) => pageErrors.push(String(e).slice(0, 200)));
 
@@ -217,6 +220,33 @@ async function typeRun(target, { errorsAt = [3, 9] } = {}) {
   }
 }
 
+/* The replay store is written fire-and-forget: a browser with no
+   IndexedDB, or a full one, must cost somebody a replay and never the
+   session that earned it, so nothing awaits the write. A page opened
+   in the same breath as the run that produced it can therefore read
+   the store before the record lands, and a gate that asserts "the
+   replay travels" without waiting is asserting how fast this machine
+   is. Polls for up to four seconds and says plainly if it gave up.
+
+   This is a real property of the app, not only of the gate: click View
+   stats the instant a run ends and that row may share without its
+   replay until the next load. */
+async function waitForReplay(id, ms = 4000) {
+  const until = Date.now() + ms;
+  for (;;) {
+    const keys = await page.evaluate(async (sid) => {
+      try {
+        const m = await import("/assets/js/engine/replay-store.js");
+        const r = await m.get(sid);
+        return r && Array.isArray(r.keylog) ? r.keylog.length : 0;
+      } catch { return -1; }
+    }, id);
+    if (keys > 0) return keys;
+    if (Date.now() > until) return keys;
+    await page.waitForTimeout(120);
+  }
+}
+
 /* The newest stored session, straight out of the profile. */
 const newestSession = () => page.evaluate(() => {
   const ps = JSON.parse(localStorage.getItem("tt:profiles") || "[]");
@@ -244,6 +274,15 @@ async function shareFromStats(sessionId, { reload = true } = {}) {
       visible: !!(b.offsetParent || b.getClientRects().length),
     };
   }, sel);
+}
+
+/* Enough of a PNG header to say it is one, and how big. The same
+   reader check-share-local-png.mjs uses. */
+const PNG_SIG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+function pngInfo(buf) {
+  if (!buf || buf.length < 24 || !buf.subarray(0, 8).equals(PNG_SIG)) return null;
+  if (buf.toString("latin1", 12, 16) !== "IHDR") return null;
+  return { w: buf.readUInt32BE(16), h: buf.readUInt32BE(20), bytes: buf.length };
 }
 
 const qOf = (url) => new URLSearchParams(new URL(url).search);
@@ -290,6 +329,7 @@ chk(!!(wordsSession && wordsSession.link && wordsSession.link.exact),
   "A. and the record carries the link fields the card was built from",
   wordsSession && wordsSession.link ? Object.keys(wordsSession.link).join(",") : "no link record");
 
+chk(await waitForReplay(wordsSession.id) > 0, "A. its keystrokes reached the replay store");
 const rowShare = await shareFromStats(wordsSession.id);
 if (!rowShare) await bail("A. the row for that run has a Share button");
 chk(rowShare.tag === "BUTTON" && rowShare.type === "button" && rowShare.ds.share === "",
@@ -362,6 +402,7 @@ await page.keyboard.press("Escape");
 await waitOr((t) => page.waitForSelector("#tt-share", { timeout: t }), "B. the card is up after Esc");
 const quoteCardSrc = qOf(await page.getAttribute("#tt-share", "data-share-short-url")).get("src");
 const quoteSession = await newestSession();
+chk(await waitForReplay(quoteSession.id) > 0, "B. the quote run's keystrokes reached the store");
 const quoteRow = await shareFromStats(quoteSession.id);
 if (!quoteRow) await bail("B. the quote row has a Share button");
 {
@@ -372,6 +413,13 @@ if (!quoteRow) await bail("B. the quote row has a Share button");
   chk(q.get("mode") === "quote", "B. the mode reads quote, not custom", q.get("mode"));
   chk(quoteCardSrc === "q:q-do-love" && q.get("src") === quoteCardSrc,
     "B. and the results card named the same quote", `card ${quoteCardSrc} / row ${q.get("src")}`);
+  /* The counterweight to sections C and D2: a replay travels wherever
+     the link can say what was typed, and a public id says it. Without
+     this, "drop the replay" everywhere would pass every other check
+     in this file. */
+  chk(!!(f.get("r") || f.get("ru")),
+    "B. and the replay DOES travel, because /r/ can resolve the words from the id",
+    `${(f.get("r") || f.get("ru") || "").length} chars`);
 }
 
 // =============================================================== B2
@@ -403,12 +451,18 @@ for (const [url, want, label] of [
   const cardSrc = qOf(await page.getAttribute("#tt-share", "data-share-short-url")).get("src");
   const cardOk = qOf(await page.getAttribute("#tt-share", "data-share-short-url")).get("ok");
   const sess = await newestSession();
+  await waitForReplay(sess.id);
   const row = await shareFromStats(sess.id);
   if (!row) { chk(false, `B2. ${label}: the row has a Share button`); continue; }
   const q = qOf(row.ds.shareShortUrl);
   chk(q.get("src") === want && cardSrc === want,
     `B2. ${label} rebuilds as ${want}`, `card ${cardSrc} / row ${q.get("src")}`);
   chk(!fragOf(row.ds.shareUrl).get("t"), `B2. ${label} carries no text`, fragOf(row.ds.shareUrl).get("t") || "(absent)");
+  {
+    const rf = fragOf(row.ds.shareUrl);
+    chk(!!(rf.get("r") || rf.get("ru")), `B2. ${label} does carry its replay`,
+      `${(rf.get("r") || rf.get("ru") || "").length} chars`);
+  }
   if (want.startsWith("ch:")) {
     chk(q.get("ok") === cardOk && (q.get("ok") === "0" || q.get("ok") === "1"),
       "B2. and the challenge verdict travels with it", `card ok=${cardOk} / row ok=${q.get("ok")}`);
@@ -432,6 +486,7 @@ chk(customTarget.includes("velvetmoose"), "C. the sentinel body is what is being
 await typeRun(customTarget, { errorsAt: [4] });
 await waitOr((t) => page.waitForSelector("#tt-results:not([hidden])", { timeout: t }), "C. the custom run finished");
 const customSession = await newestSession();
+chk(await waitForReplay(customSession.id) > 0, "C. the custom run's keystrokes reached the store");
 const customRow = await shareFromStats(customSession.id);
 if (!customRow) await bail("C. the custom row has a Share button");
 {
@@ -467,6 +522,17 @@ if (!customRow2) await bail("C. the row is still there after the text was delete
   const f = fragOf(customRow2.ds.shareUrl);
   const q = qOf(customRow2.ds.shareShortUrl);
   chk(!f.get("t"), "C. after the delete the link carries no text at all", f.get("t") || "(absent)");
+  /* And the keystrokes go with the words. Round 1 of this branch
+     dropped `t` and went on carrying `r`, which decoded to the same
+     sentence one character at a time: the words were still in the link,
+     spelled out. A replay with no target cannot be played anyway -- /r/
+     shows no Play button for it -- so there is nothing to keep it for. */
+  chk(!f.get("r") && !f.get("ru"),
+    "C. and no replay either, which would spell the same words out", f.toString().slice(0, 80));
+  const decoded = await codec.unpackLog({ r: f.get("r"), ru: f.get("ru") });
+  chk(!decoded || !decoded.entries || decoded.entries.length === 0,
+    "C. decoding what is left yields no keystrokes at all",
+    decoded && decoded.entries ? `${decoded.entries.length} entries: ${JSON.stringify(decoded.entries.slice(0, 6))}` : "nothing to decode");
   chk(Number(q.get("wpm")) > 0 && /^\d{4}-\d{2}-\d{2}$/.test(q.get("d") || ""),
     "C. but still the numbers and the date", `wpm=${q.get("wpm")} d=${q.get("d")}`);
   const squash = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -474,6 +540,55 @@ if (!customRow2) await bail("C. the row is still there after the text was delete
   const errs = await page.evaluate(() => window.__ttErrors.slice());
   chk(errs.length === errorsBefore && pageErrors.length === 0,
     "C. and nothing threw on the way", [...errs.slice(errorsBefore), ...pageErrors].join(" | "));
+}
+
+// =============================================================== C2
+console.log("\nC2. a published quote read through /custom/ keeps nothing");
+/* The one case where "a text of your own" and "a public piece" are the
+   same run: a quote, idiom, poem or parable opened from its own page is
+   saved as a custom text carrying meta.kind and meta.sourceId, so
+   isOwnText() says yes and srcFor() also says q:<id>. Whichever of the
+   two is asked first decides whether this browser keeps the words of a
+   published quote for fifty runs. It shares by id, so it must not. */
+const CORPUS_TEXT_ID = "c_corpusquote";
+const CORPUS_BODY = "The only way to do great work is to love what you do.";
+await page.goto(B + "/custom/", { waitUntil: "domcontentloaded" });
+await page.evaluate(({ id, body }) => {
+  localStorage.setItem("tt:custom-texts", JSON.stringify([{
+    id, title: "Steve Jobs", createdAt: new Date().toISOString(), bytes: body.length,
+    lastSeg: 0, segments: [body],
+    meta: { kind: "quote", sourceId: "q-do-love", title: "Steve Jobs" },
+  }]));
+}, { id: CORPUS_TEXT_ID, body: CORPUS_BODY });
+await page.goto(`${B}/practice/?mode=custom&custom=${CORPUS_TEXT_ID}&seg=0`, { waitUntil: "domcontentloaded" });
+{
+  const painted = await page.waitForSelector(".tt-char", { timeout: 12000 }).then(() => true).catch(() => false);
+  chk(painted, "C2. the quote is on the surface");
+  if (painted) {
+    await page.click(".tt-stage").catch(() => {});
+    await page.keyboard.type("Th", { delay: 70 });
+    await page.keyboard.press("Escape");
+    await page.waitForSelector("#tt-share", { timeout: 12000 }).catch(() => {});
+    const sess = await newestSession();
+    await waitForReplay(sess.id);
+    const rec = await page.evaluate(async (id) => {
+      const m = await import("/assets/js/engine/replay-store.js");
+      const r = await m.get(id);
+      return r ? { text: r.text, keys: (r.keylog || []).length } : null;
+    }, sess.id);
+    chk(!!rec && rec.keys > 0, "C2. the run's keystrokes were filed", rec ? `${rec.keys} keys` : "no record");
+    chk(!!rec && rec.text === null,
+      "C2. and the store kept NO text for it, because the link names the quote by id",
+      rec ? JSON.stringify(String(rec.text).slice(0, 40)) : "no record");
+    const row = await shareFromStats(sess.id);
+    if (row) {
+      const q = qOf(row.ds.shareShortUrl), f = fragOf(row.ds.shareUrl);
+      chk(q.get("src") === "q:q-do-love", "C2. the row shares it by id", q.get("src"));
+      chk(!f.get("t"), "C2. with no words in the link", f.get("t") || "(absent)");
+    } else {
+      chk(false, "C2. the row has a Share button");
+    }
+  }
 }
 
 // =============================================================== D
@@ -512,8 +627,11 @@ console.log("\nD2. a stored target whose fingerprint disagrees with the run");
 /* The store answers by session id, so a record under this id IS this
    run -- unless the fingerprint of the target it kept disagrees with
    the one the profile kept, which means one of the two was rewritten
-   underneath the other. The keystrokes are still this run's; the words
-   beside them are not vouched for, so they do not travel. */
+   underneath the other. The words beside the keystrokes are then not
+   vouched for, and by the rule in section C the keystrokes do not
+   travel without them: a replay whose target cannot be trusted would
+   be played against the wrong text or not at all, and either way it
+   only spells out what was typed. */
 await page.evaluate(async ({ sid, text }) => {
   const rs = await import("/assets/js/engine/replay-store.js");
   await rs.save({
@@ -529,8 +647,44 @@ if (!mismatchRow) await bail("D2. the row is still shareable");
 {
   const f = fragOf(mismatchRow.ds.shareUrl);
   chk(!f.get("t"), "D2. the words the store offered do not travel", f.get("t") || "(absent)");
-  chk(!!(f.get("r") || f.get("ru")), "D2. but the keystrokes, which are keyed by the session id, still do",
-    `${(f.get("r") || f.get("ru") || "").length} chars`);
+  chk(!f.get("r") && !f.get("ru"), "D2. and neither do the keystrokes beside them",
+    f.toString().slice(0, 80));
+  const d2log = await codec.unpackLog({ r: f.get("r"), ru: f.get("ru") });
+  chk(!d2log || !d2log.entries || d2log.entries.length === 0,
+    "D2. nothing decodes out of the fragment", d2log && d2log.entries ? `${d2log.entries.length} entries` : "nothing to decode");
+  const d2q = qOf(mismatchRow.ds.shareShortUrl);
+  chk(Number(d2q.get("wpm")) > 0 && d2q.get("d"), "D2. the numbers and the date are untouched",
+    `wpm=${d2q.get("wpm")} d=${d2q.get("d")}`);
+}
+
+// =============================================================== D3
+console.log("\nD3. how long a target the store will keep");
+/* A book imported as one custom text is millions of characters, and a
+   5.4 MB target was read back out of this store during review. Fifty of
+   those is a quarter of a gigabyte in somebody's browser, for words no
+   link could carry anyway: the fragment budget is 8 KB. Over the cap,
+   no text is kept, and by section C's rule the replay goes with it. */
+{
+  const capped = await page.evaluate(async () => {
+    const m = await import("/assets/js/engine/replay-store.js");
+    const max = m.TEXT_MAX;
+    const log = [["a", 0], ["b", 70]];
+    await m.save({ id: "s_capunder", keylog: log, textHash: "x:1", prefs: 0, text: "u".repeat(max) });
+    await m.save({ id: "s_capover", keylog: log, textHash: "x:1", prefs: 0, text: "o".repeat(max + 1) });
+    const under = await m.get("s_capunder");
+    const over = await m.get("s_capover");
+    return {
+      max,
+      underLen: under && typeof under.text === "string" ? under.text.length : -1,
+      overText: over ? over.text : "missing",
+      overKeys: over ? (over.keylog || []).length : -1,
+    };
+  });
+  chk(capped.max === 20000, "D3. the cap is 20,000 characters, from the store's own export", String(capped.max));
+  chk(capped.underLen === capped.max, "D3. a target exactly at the cap is kept", `${capped.underLen} chars`);
+  chk(capped.overText === null, "D3. one character over it is not kept at all",
+    typeof capped.overText === "string" ? `${capped.overText.length} chars kept` : String(capped.overText));
+  chk(capped.overKeys === 2, "D3. and the keystrokes are still filed either way", String(capped.overKeys));
 }
 
 // =============================================================== E
@@ -797,6 +951,158 @@ if (hOk) {
   chk(h.tag === "TR" && !h.d3, "H. and it is the plain table, not the D3 rows", `${h.tag} d3rows=${h.d3}`);
   chk(h.label === "Share" && fragOf(h.url).get("t"), "H. with the same label and the same link", h.label);
   chk(hErrors.length === 0, "H. and nothing threw", hErrors.join(" | "));
+}
+
+// =============================================================== I
+console.log("\nI. the home page's 15-second sprint is a session like any other");
+/* recordSession has two call sites. The home page's tape sprint lands
+   in the profile, on the contribution grid and in Recent sessions, so
+   its rows sat on /stats/ with no Share button at all while every
+   other row had one: it was passing two arguments to a function that
+   had grown a third. */
+await page.goto(B + "/", { waitUntil: "domcontentloaded" });
+{
+  const painted = await page.waitForSelector("#tt-stage .tt-char", { timeout: 12000 }).then(() => true).catch(() => false);
+  chk(painted, "I. the home sprint painted a target");
+  if (painted) {
+    await page.click("#tt-stage").catch(() => {});
+    const homeTarget = (await page.$$eval("#tt-stage .tt-char", (els) =>
+      els.map((e) => (e.classList.contains("tt-char--space") ? " " : e.textContent)).join(""))).slice(0, 24);
+    for (const ch of homeTarget) await page.keyboard.type(ch, { delay: 70 });
+    await page.keyboard.press("Escape");
+    await page.waitForTimeout(400);
+    const sess = await newestSession();
+    chk(!!(sess && sess.link && sess.link.exact), "I. the sprint stored a link record",
+      sess && sess.link ? Object.keys(sess.link).join(",") : "no link record");
+    chk(!!(sess && sess.mode === "tape" && Number(sess.ms) > 0),
+      "I. with its mode and its elapsed time", sess ? `${sess.mode} ${Math.round(sess.ms)}ms` : "");
+    await waitForReplay(sess.id);
+    const rec = await page.evaluate(async (id) => {
+      const m = await import("/assets/js/engine/replay-store.js");
+      const r = await m.get(id);
+      return r ? { keys: (r.keylog || []).length, text: r.text } : null;
+    }, sess.id);
+    chk(!!rec && rec.keys > 0, "I. and filed its keystrokes", rec ? `${rec.keys} keys` : "no replay record");
+    const row = await shareFromStats(sess.id);
+    if (!row) { chk(false, "I. the home sprint's row has a Share button"); }
+    else {
+      const q = qOf(row.ds.shareShortUrl), f = fragOf(row.ds.shareUrl);
+      chk(q.get("mode") === "tape" && Number(q.get("wpm")) > 0 && /^\d{4}-\d{2}-\d{2}$/.test(q.get("d") || ""),
+        "I. and its row shares a valid link", q.toString());
+      chk(!!f.get("t") && homeTarget.startsWith(f.get("t").slice(0, 12)),
+        "I. carrying the word stream it generated", `${(f.get("t") || "").slice(0, 30)}…`);
+      chk(!!(f.get("r") || f.get("ru")), "I. and the replay", `${(f.get("r") || f.get("ru") || "").length} chars`);
+    }
+  }
+}
+
+// =============================================================== J
+console.log("\nJ. Download PNG on a row typed from a text of your own");
+/* The results card draws that card in the browser, because this site
+   has never seen the words. A row on /stats/ has to do the same or the
+   same run gives two different pictures depending on where it was
+   shared from. share.js holds ONE local card at a time, so the row
+   also has to fill that slot at click time -- sixty rows cannot each
+   own a module-level variable. */
+{
+  await page.goto(B + "/stats/", { waitUntil: "domcontentloaded" });
+  const sel = `[data-session-id="${customSession.id}"] button[data-share][data-share-ready]`;
+  const there = await page.waitForSelector(sel, { timeout: 15000 }).then(() => true).catch(() => false);
+  chk(there, "J. the custom row is on the page with its link built");
+  if (there) {
+    const priv = await page.getAttribute(sel, "data-share-private");
+    chk(priv === "1", "J. and it is marked private, like the results card's button", String(priv));
+    const nums = await page.evaluate((s) => {
+      const q = new URLSearchParams(new URL(document.querySelector(s).dataset.shareShortUrl).search);
+      return { wpm: Number(q.get("wpm")), acc: Number(q.get("acc")) };
+    }, sel);
+    await page.click(sel);
+    await page.waitForTimeout(200);
+    const noteHidden = await page.evaluate(() =>
+      (document.querySelector("#share-sheet [data-share-local-note]") || {}).hidden);
+    chk(noteHidden === false, "J. the sheet says the picture is made on this device", String(noteHidden));
+    await page.evaluate(() => { window.__ttEvents.length = 0; });
+    const [dl] = await Promise.all([
+      page.waitForEvent("download", { timeout: 90000 }).catch(() => null),
+      page.click("#share-sheet [data-share-download]"),
+    ]);
+    if (!dl) { chk(false, "J. Download PNG produced a download"); }
+    else {
+      const got = await readFile(await dl.path());
+      const info = pngInfo(got);
+      chk(!!info && info.w === 1200 && info.h === 630,
+        "J. it is a 1200x630 PNG", info ? `${info.w}x${info.h}, ${info.bytes} bytes` : "not a PNG");
+      const gridPath = `/og/result/${nums.wpm > 200 ? "200p" : nums.wpm}-${bandFor(nums.acc)}.png`;
+      const grid = await readFile(join(ROOT, gridPath)).catch(() => null);
+      chk(!!grid, `J. the grid card ${gridPath} is in the build (copy _site/og in, or build without OG_SKIP=1)`);
+      chk(!!grid && !got.equals(grid), "J. and it is NOT the pre-rendered grid card",
+        grid ? `local ${got.length} vs grid ${grid.length} bytes` : "");
+      const saved = (await events()).find((e) => e.name === "share_image_saved");
+      chk(!!saved && saved.props.method === "local",
+        "J. share_image_saved says method=local", JSON.stringify(saved && saved.props));
+      chk(!!saved && Object.keys(saved.props).join(",") === "kind,mode,method",
+        "J. and carries nothing else", JSON.stringify(saved && Object.keys(saved.props)));
+    }
+    await page.keyboard.press("Escape");
+    /* And the slot does not leak: a public row's Download PNG must be
+       the grid card, even though a private row filled the slot a
+       moment ago. */
+    const pubSel = `[data-session-id="${wordsSession.id}"] button[data-share][data-share-ready]`;
+    const pubThere = await page.waitForSelector(pubSel, { timeout: 12000 }).then(() => true).catch(() => false);
+    if (pubThere) {
+      const pubPriv = await page.getAttribute(pubSel, "data-share-private");
+      chk(pubPriv === null, "J. a public row is not marked private", String(pubPriv));
+      const pnums = await page.evaluate((s) => {
+        const q = new URLSearchParams(new URL(document.querySelector(s).dataset.shareShortUrl).search);
+        return { wpm: Number(q.get("wpm")), acc: Number(q.get("acc")) };
+      }, pubSel);
+      await page.click(pubSel);
+      await page.waitForTimeout(200);
+      await page.evaluate(() => { window.__ttEvents.length = 0; });
+      const [dl2] = await Promise.all([
+        page.waitForEvent("download", { timeout: 30000 }).catch(() => null),
+        page.click("#share-sheet [data-share-download]"),
+      ]);
+      const gridPath2 = `/og/result/${pnums.wpm > 200 ? "200p" : pnums.wpm}-${bandFor(pnums.acc)}.png`;
+      const want = await readFile(join(ROOT, gridPath2)).catch(() => null);
+      const got2 = dl2 ? await readFile(await dl2.path()) : null;
+      chk(!!got2 && !!want && got2.equals(want),
+        "J. and downloads the pre-rendered card BYTE FOR BYTE, with no words in it",
+        got2 && want ? `${got2.length} vs ${want.length} bytes of ${gridPath2}` : "no download");
+      const saved2 = (await events()).find((e) => e.name === "share_image_saved");
+      chk(!!saved2 && saved2.props.method === "server", "J. method=server for that one",
+        JSON.stringify(saved2 && saved2.props));
+      await page.keyboard.press("Escape");
+    } else {
+      chk(false, "J. the public row is still on the page");
+    }
+  }
+}
+
+// =============================================================== K
+console.log("\nK. the roadmap and the changelog say what this does");
+{
+  const roadmap = await fetch(B + "/roadmap/").then((r) => r.text()).catch(() => "");
+  const changelog = await fetch(B + "/changelog/").then((r) => r.text()).catch(() => "");
+  const flat = (h) => h.replace(/<[^>]+>/g, " ").replace(/&#39;|&apos;/g, "'").replace(/&amp;/g, "&").replace(/\s+/g, " ");
+  const road = flat(roadmap), chan = flat(changelog);
+  chk(road.length > 2000 && chan.length > 2000, "K. both pages were fetched",
+    `${road.length} and ${chan.length} characters`);
+  for (const [where, hay] of [["roadmap", road], ["changelog", chan]]) {
+    chk(/Share a run from your stats/.test(hay), `K. ${where}: the item is there`);
+    chk(/sixty newest sessions/.test(hay), `K. ${where}: it says how many sessions are listed`);
+    chk(/only while this browser still has them/.test(hay),
+      `K. ${where}: and that the text and the replay travel only while this browser has them`);
+    chk(/carries no button|carries no button at all/.test(hay),
+      `K. ${where}: and that a row with no valid link carries no button`);
+    const mine = (hay.match(/Share a run from your stats[^]*?(?:carries no button at all\.|carries no button\.)/) || [""])[0];
+    chk(mine.length > 400, `K. ${where}: the whole paragraph, not a fragment of it`, `${mine.length} chars`);
+    chk(!/[\u2014\u2013]/.test(mine), `K. ${where}: and no em-dash or en-dash in it`,
+      (mine.match(/[\u2014\u2013][^]{0,30}/) || [""])[0]);
+  }
+  /* The claim about sixty is a claim about the list, so read the list. */
+  const sixty = await readFile(resolve("src/assets/js/stats/viz-sessions-d3.js"), "utf8").catch(() => "");
+  chk(/sessions\.slice\(0,\s*60\)/.test(sixty), "K. and the list really does take the newest sixty");
 }
 
 await browser.close();

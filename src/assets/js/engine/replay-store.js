@@ -37,6 +37,18 @@ const DB_VERSION = 1;
 const STORE = "replays";
 export const KEEP = 50;
 
+/* How long a target may be before this store stops keeping it.
+
+   A book imported as one custom text can be millions of characters,
+   and the practice page types it a page at a time -- but a single
+   `target` of 5.4 MB was read back from this store during review, and
+   fifty of those is a quarter of a gigabyte in somebody's browser for
+   a link that could never carry them anyway (the fragment budget is
+   8 KB). Over the cap, no text is kept: the run shares its numbers,
+   its date and its replay is dropped with the words, because a replay
+   with no target cannot be played. */
+export const TEXT_MAX = 20000;
+
 let _dbPromise = null;
 
 /* Cheap capability probe. Some browsers expose `indexedDB` and then
@@ -114,9 +126,10 @@ export async function save(entry) {
     keylog: e.keylog,
     textHash: e.textHash || null,
     prefs: Number(e.prefs) || 0,
-    /* Absent, not empty: a record written before this field existed
-       and a run whose target is not kept must read the same way. */
-    text: typeof e.text === "string" && e.text ? e.text : null,
+    /* Absent, not empty: a record written before this field existed,
+       a run whose target is not kept, and a target too long to keep
+       must all read the same way. */
+    text: typeof e.text === "string" && e.text && e.text.length <= TEXT_MAX ? e.text : null,
   };
   try {
     await tx("readwrite", (store) => { store.put(record); });
@@ -189,4 +202,4 @@ export async function clear() {
   }
 }
 
-export default { save, get, list, prune, clear, textHash, idbSupported, KEEP };
+export default { save, get, list, prune, clear, textHash, idbSupported, KEEP, TEXT_MAX };

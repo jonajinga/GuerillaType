@@ -26,6 +26,12 @@ import { $, htmlEscape } from "../util/dom.js";
    offered for it. Every rule about what may be in one lives there and
    in share/result-link.js; this page only draws the button. */
 import { shortLinkForSession, linkForSession } from "../share/session-link.js";
+/* Download PNG on a result typed from a text of your own draws the
+   card in this browser, because this site has never seen the words.
+   The results card does the same; these are the two halves of that
+   one feature and they must not drift. */
+import { setLocalCard } from "../share/share.js";
+import { excerptOf } from "../share/result-link.js";
 
 const profile = getActive();
 const lt = profile.lifetime || {};
@@ -373,6 +379,28 @@ const SHARE_ICON = `<svg class="session-row__share-icon" viewBox="0 0 24 24" wid
 const sessionsById = new Map();
 for (const s of sessions) if (s && s.id) sessionsById.set(String(s.id), s);
 
+/* The excerpt for the card the browser draws, one entry per button.
+
+   share.js holds ONE local card at a time -- it was written for the
+   results page, where there is one result on screen. A list has sixty
+   rows, so the row that was wired last would otherwise own the slot
+   and row 3's Download PNG would draw row 7's words. The slot is
+   therefore filled at click time, from this map, by a listener in the
+   CAPTURE phase: share.js's own listener is a bubbling one on the
+   document, so capture always runs first.
+
+   A WeakMap and not an attribute, for the reason result-link gives:
+   everything in a button's dataset is one careless template away from
+   an intent url. */
+const localCards = new WeakMap();
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest && e.target.closest("button[data-share]");
+  if (!btn) return;
+  /* Cleared for every share, so a public row cannot download the
+     previous private row's picture. */
+  setLocalCard(localCards.get(btn) || null);
+}, true);
+
 function shareButtonFor(session) {
   const short = shortLinkForSession(session);
   /* No valid link, no button. That is a record with no numbers a
@@ -426,6 +454,25 @@ async function wireRowShare(root) {
       btn.setAttribute("data-share-url", link.fullUrl);
       btn.setAttribute("data-share-short-url", link.shortUrl);
       if (link.dropped && link.dropped.length) btn.setAttribute("data-share-dropped", link.dropped.join(","));
+      /* A text of your own, with no public id: the one kind of result
+         this site can never draw a picture of. data-share-image stays
+         the pre-rendered grid card, which is what a crawler is given
+         and must not show the words; Download PNG renders the real
+         card from the same query instead. The predicate and the
+         excerpt are the ones wireResultShare() uses on the results
+         card -- same rule, same 600 characters, one definition.
+
+         Only when the words are actually in hand: a run whose text
+         this browser no longer has (deleted, or evicted with its
+         replay) keeps the grid card, because there is nothing to draw
+         with. */
+      if (link.private && link.target) {
+        localCards.set(btn, { text: excerptOf({ target: link.target }), stats: link.query });
+        btn.setAttribute("data-share-private", "1");
+      } else {
+        localCards.delete(btn);
+        btn.removeAttribute("data-share-private");
+      }
     }
     btn.setAttribute("data-share-ready", "1");
   }

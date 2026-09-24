@@ -25,31 +25,18 @@ import { Analytics } from "../analytics.js";
    and the fragment that carries the text and the keystroke replay.
    One call, from renderResults, and no share knowledge in this file. */
 import { wireResultShare, isOwnText as isOwnTextOf } from "../share/result-link.js";
-/* The keystroke log of a finished run, kept in this browser so /stats/
-   can offer to share or replay a past session later. Never uploaded,
-   never in a query string. */
-import { save as saveReplayRecord, textHash } from "../engine/replay-store.js";
+/* The fingerprint of what a run was typed against, for the link
+   record below. The keystrokes themselves are filed by saveRunReplay,
+   imported underneath. */
+import { textHash } from "../engine/replay-store.js";
 import { prefsMask } from "../share/codec.js";
-/* What a past run needs to become a share link again: which target is
-   worth keeping on this device (replayTextFor) and the ids the link is
-   built from. Both rules live next to the adapter that reads them
-   back, in share/session-link.js, not here. */
-import { replayTextFor } from "../share/session-link.js";
-
-function saveReplay(sessionId, result, preferences) {
-  try {
-    if (!sessionId || !Array.isArray(result.keylog) || !result.keylog.length) return;
-    saveReplayRecord({
-      id: sessionId,
-      keylog: result.keylog,
-      textHash: textHash(result.target),
-      prefs: prefsMask(preferences),
-      /* Null for a quote, a book page, a lesson: those have a public
-         id and /r/ looks the words up. */
-      text: replayTextFor(state, result),
-    }).catch(() => {});
-  } catch {}
-}
+/* What a past run needs to become a share link again: the writer that
+   files its keystrokes (saveRunReplay, which decides what target is
+   worth keeping on this device) and the ids the link is built from.
+   Both rules live next to the adapter that reads them back, in
+   share/session-link.js, not here -- the home page's sprint files its
+   runs through the same function. */
+import { saveRunReplay } from "../share/session-link.js";
 
 /* The ids and settings session-recorder files beside the numbers.
    Everything here is read from `state`, the same object the results
@@ -1359,7 +1346,7 @@ function handleFinish(result) {
      Fire and forget, and every failure inside is swallowed: a browser
      with no IndexedDB, or a full one, must cost somebody a replay and
      never the session that earned it. */
-  saveReplay(sessionId, result, prefs);
+  saveRunReplay({ id: sessionId, state, result, prefs });
   // Challenge: evaluate goal and update bests.
   if (activeChallenge) {
     const evalRes = challengeOutcome || evaluateGoal(activeChallenge.goal, result);

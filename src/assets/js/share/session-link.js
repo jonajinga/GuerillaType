@@ -45,8 +45,8 @@
 
 import { build, buildQuery, shareText, WORD_STREAM, isOwnText, srcFor } from "./result-link.js";
 import { resultImagePath } from "./share.js";
-import { prefsFromMask } from "./codec.js";
-import { get as getReplay } from "../engine/replay-store.js";
+import { prefsFromMask, prefsMask } from "./codec.js";
+import { get as getReplay, save as saveReplay, textHash as textHashOf } from "../engine/replay-store.js";
 import { getSaved as getSavedCustom } from "../engine/custom-text.js";
 import { customBookId, isCustomBookSlug } from "../engine/book-structure.js";
 /* The real validator, the same file lib/og and the /r/ page use --
@@ -208,13 +208,27 @@ export async function linkForSession(session, opts = {}) {
   /* The store answers by session id, so a record under this id IS this
      run -- unless its fingerprint of the target disagrees with the one
      the profile kept, which means one of the two was rewritten. In
-     that case the keystrokes are still this run's, but the words
-     beside them cannot be vouched for. */
+     that case the words beside the keystrokes cannot be vouched for,
+     and by the rule below the keystrokes then do not travel either. */
   const textTrusted = !(replay && l.th && replay.textHash && replay.textHash !== l.th);
   const stored = replay && textTrusted && typeof replay.text === "string" ? replay.text : "";
 
-  result.keylog = replay && Array.isArray(replay.keylog) ? replay.keylog : [];
   result.target = textFor({ state, result, stored });
+
+  /* THE REPLAY TRAVELS ONLY WHERE THE LINK CAN SAY WHAT WAS TYPED.
+     Either a public `src`, which /r/ resolves from /data/, or the words
+     themselves in `t`.
+
+     A keystroke log with no target cannot be played -- the player has
+     nothing to type against and /r/ shows no Play button for it -- so
+     all it could do is sit in the link spelling out the characters
+     somebody pressed. That is the case the first round of this branch
+     got wrong: a custom text deleted from this browser correctly
+     dropped its `t` and went on carrying an `r` that decoded to the
+     same sentence, one keystroke per entry. */
+  const src = new URLSearchParams(base.query).get("src");
+  const canSayWhatWasTyped = !!src || !!result.target;
+  result.keylog = canSayWhatWasTyped && replay && Array.isArray(replay.keylog) ? replay.keylog : [];
 
   /* The settings this run was typed under, or nothing at all. Never
      today's preferences: an empty object is what leaves `o` out, and
@@ -233,6 +247,16 @@ export async function linkForSession(session, opts = {}) {
     sessionId: s.id || null,
     hasReplay: !!(result.keylog && result.keylog.length),
     hasText: !!result.target,
+    /* The words themselves, and whether this is the one kind of result
+       guerillatype.com can never draw a picture of: a text of your own
+       with no public id. Both are for the card the BROWSER draws
+       (share/local-card.js), which is handed them in process. Neither
+       may ever become an attribute -- everything in a share button's
+       dataset is one careless template away from an intent url, and
+       check-share-sheet.mjs asserts that dataset is free of anything
+       typed. */
+    target: result.target || "",
+    private: isOwnText(state) && !src,
   };
 }
 
@@ -243,19 +267,54 @@ export async function linkForSession(session, opts = {}) {
    A public piece is not kept: /r/ resolves it from its id, so the
    words would be a copy of something already published. What is kept
    is what nothing else can name -- the word stream a words or time run
-   generated, and a text of this browser's own. */
+   generated, and a text of this browser's own.
+
+   The two tests are in the same order as textFor()'s, and the order is
+   the whole of it. A quote or a poem read through /custom/ is "a text
+   of your own" by isOwnText() AND has a public id by srcFor(), and
+   asking isOwnText() first therefore kept the words of a published
+   quote in this browser for fifty runs, for a link that was never
+   going to carry them. Whatever changes here changes there. */
 export function replayTextFor(state, result) {
   const st = state || {};
   const res = result || {};
   const t = res.target;
   const text = Array.isArray(t) ? t.join(" ") : String(t == null ? "" : t);
   if (!text) return null;
-  if (isOwnText(st)) return text;
   if (srcFor({ result: res, state: st })) return null;
+  if (isOwnText(st)) return text;
   return WORD_STREAM.has(st.mode) ? text : null;
+}
+
+/* File a finished run's keystrokes against its session id, on this
+   device only. Both boots call this -- /practice/ and the home page's
+   15-second sprint -- because a rule with two implementations is a
+   rule with two answers, and the first version of this feature had the
+   home page storing nothing at all.
+
+   Fire and forget, and every failure inside is swallowed: a browser
+   with no IndexedDB, or a full one, must cost somebody a replay and
+   never the session that earned it. */
+export function saveRunReplay({ id, state, result, prefs }) {
+  try {
+    const res = result || {};
+    if (!id || !Array.isArray(res.keylog) || !res.keylog.length) return false;
+    saveReplay({
+      id,
+      keylog: res.keylog,
+      textHash: textHashOf(res.target),
+      prefs: prefsMask(prefs),
+      /* Null for a quote, a book page, a lesson: those have a public
+         id and /r/ looks the words up. */
+      text: replayTextFor(state, res),
+    }).catch(() => {});
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export default {
   linkForSession, shortLinkForSession, queryForSession,
-  stateForSession, resultForSession, replayTextFor,
+  stateForSession, resultForSession, replayTextFor, saveRunReplay,
 };

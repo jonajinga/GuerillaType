@@ -269,8 +269,12 @@ export async function build(ctx) {
    button is never without a link, and never has a wrong one. */
 /* The passage that was typed, for the picture the browser draws. Never
    for a url: buildFragment() is the only thing that puts text in one,
-   and it puts it after the "#". */
-function excerptOf(result) {
+   and it puts it after the "#".
+
+   Exported because /stats/ draws the same card for the same kind of
+   run, and 600 is a number the card's layout chose. Two copies of it
+   would drift the first time that layout changed. */
+export function excerptOf(result) {
   const t = (result && result.target) || "";
   return String(Array.isArray(t) ? t.join(" ") : t).slice(0, 600);
 }
