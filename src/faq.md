@@ -35,9 +35,9 @@ In your browser's `localStorage` on this device only. Nothing goes anywhere unle
 
 Two parts, and the difference is the whole privacy story.
 
-Before the `#` come the numbers and a public id: wpm, raw wpm, accuracy, consistency, duration, character counts, the mode, the word list, the keyboard layout, whether it was a personal best, whether a challenge was cleared, the date, and which quote, book page, poem, idiom, parable, lesson, challenge or drill you typed. That part is in the address, so a server sees it. The page that opens a share link loads no analytics at all, so nothing about the run is counted or reported.
+Before the `#` come the numbers and a public id: wpm, raw wpm, accuracy, consistency, duration, character counts, the mode, the word list, the keyboard layout, whether it was a personal best, whether a challenge was cleared, the date, a version number for the link format, and which quote, book page, poem, idiom, parable, lesson, challenge or drill you typed. That part is in the address, so a server sees it. The page that opens a share link loads no analytics at all, so nothing about the run is counted or reported.
 
-After the `#` comes anything the site cannot look up for itself: the words of a custom text, and the keystroke replay when a run has one. Browsers never send that part to this site. It is decoded in the browser of whoever opens the link, and it travels with the link, so it goes wherever you send it.
+After the `#` comes anything the site cannot look up for itself: the words of a custom text, the keystroke replay when a run has one, and the five practice settings the run used (stop cursor on error, space skips words, forgive errors, ignore capitalization, skip punctuation), so the same keys replay into the same screen. Browsers never send that part to this site. It is decoded in the browser of whoever opens the link, and it travels with the link, so it goes wherever you send it.
 
 So this site never sees your words. Where you send the link is your choice, and whoever opens it sees everything in it. A share link is public. Nothing is shared until you press Share.
 

@@ -231,7 +231,7 @@ const MUST = [
   ["/privacy/", "Sharing a result or a page"],
   ["/privacy/", "Nothing leaves your device unless you press Share."],
   ["/privacy/", "the words ride in the fragment, the part of a link after #"],
-  ["/privacy/", "Then the mode, the word list, the keyboard layout, whether the run was a personal best, whether a challenge was cleared, the date, and a public content id"],
+  ["/privacy/", "Then the mode, the word list, the keyboard layout, whether the run was a personal best, whether a challenge was cleared, the date, a version number for the link format, and a public content id"],
   ["/privacy/", "That is everything the site puts before the #."],
   ["/privacy/", "It never carries the text you typed, the title of a custom text, or your keystrokes."],
   ["/privacy/", "every whole number of wpm up to 200, one card for anything faster"],
@@ -253,7 +253,7 @@ const MUST = [
   ["/faq/", "Can I share a custom text?"],
   ["/faq/", "So this site never sees your words. Where you send the link is your choice, and whoever opens it sees everything in it."],
   ["/faq/", "Nothing goes anywhere unless you press Share"],
-  ["/faq/", "the mode, the word list, the keyboard layout, whether it was a personal best, whether a challenge was cleared, the date"],
+  ["/faq/", "the mode, the word list, the keyboard layout, whether it was a personal best, whether a challenge was cleared, the date, a version number for the link format"],
   ["/faq/", "The page that opens a share link loads no analytics at all, so nothing about the run is counted or reported."],
   ["/features/", "unless you press Share"],
   ["/guide/", "Nothing leaves your device unless you press Share."],
@@ -295,17 +295,25 @@ const VALIDATOR_KEYS = {
   lang: "the word list", lay: "the keyboard layout",
   pb: "personal best", ok: "challenge was cleared",
   d: "the date", src: "public content id",
+  v: "version number",
 };
 const validatorSrc = readFileSync(resolve(ROOT, "lib/og/validate.js"), "utf8");
-/* Two shapes in that file: the num/pick/date helpers take the key as a
-   literal, and `src` is read with params.has("src") + parseSrc. Miss the
-   second and the gate would never check that "which item you typed" is
-   documented. */
+/* Three shapes in that file: the num/pick/date helpers take the key as
+   a literal, `src` is read with params.has("src") + parseSrc, and the
+   format version is read with params.get("v") (validate.js:87,
+   `if (params.get("v") !== "1") return null`). Miss the second and the
+   gate would never check that "which item you typed" is documented;
+   miss the third, as the first version of this check did, and the
+   accepted list is 14 keys where the link carries 15. The bare
+   `params.get(key)` calls inside the helpers take a variable, not a
+   literal, so they do not match and do not need to. */
 const accepted = [...new Set([
   ...[...validatorSrc.matchAll(/(?:num|pick|date)\(params, "([a-z]+)"/g)].map((m) => m[1]),
   ...[...validatorSrc.matchAll(/params\.has\("([a-z]+)"\)/g)].map((m) => m[1]),
+  ...[...validatorSrc.matchAll(/params\.get\("([a-z]+)"\)/g)].map((m) => m[1]),
 ])];
-chk(accepted.length >= 14, "read the accepted query keys out of lib/og/validate.js", accepted.join(" "));
+chk(accepted.length >= 15, "read the accepted query keys out of lib/og/validate.js", accepted.join(" "));
+chk(accepted.includes("v"), "the format version is among them (it is read with params.get, not num/pick/date)");
 chk(accepted.includes("lang") && accepted.includes("lay") && accepted.includes("pb") && accepted.includes("ok") && accepted.includes("src"),
   "the four keys the first draft of this copy missed are among them", "lang lay pb ok src");
 const undocumented = accepted.filter((k) => !(k in VALIDATOR_KEYS));
@@ -362,6 +370,41 @@ const misfiled = targets.filter((t) => (t.variant === "full"
   : !named(carriesNothing, t.label) || named(carriesFragment, t.label)));
 chk(misfiled.length === 0, "every share destination is named on the right side of that split",
   misfiled.map((t) => `${t.label} is "${t.variant}" in share.js`).join(", "));
+
+/* The fragment carries three things, not two. The words and the replay
+   were always in the copy; the five practice settings were not, and
+   they are what makes a replay exact -- the same keystrokes under
+   different rules produce a different screen (codec.js:60-72). Read the
+   bits out of codec.js so a sixth one cannot be added silently, and
+   require every one of them in the paragraph that describes the part
+   after the #, not merely somewhere on the page. */
+const PREF_PHRASES = {
+  stopOnError: "stop cursor on error", spaceSkipsWords: "space skips words",
+  forgiveErrors: "forgive errors", ignoreCapitalization: "ignore capitalization",
+  skipPunctuation: "skip punctuation",
+};
+const codecSrc = readFileSync(resolve(ROOT, "src/assets/js/share/codec.js"), "utf8");
+const prefBits = [...codecSrc.matchAll(/\["([A-Za-z]+)",\s*\d+\]/g)].map((m) => m[1]);
+chk(prefBits.length >= 5, "read the practice settings out of src/assets/js/share/codec.js", prefBits.join(" "));
+const undocumentedBits = prefBits.filter((k) => !(k in PREF_PHRASES));
+chk(undocumentedBits.length === 0, "every setting the fragment carries has a phrase this gate knows about",
+  undocumentedBits.join(", "));
+
+const fragStart = priv.indexOf("What travels after the #");
+const fragEnd = priv.indexOf("Which buttons carry your words", fragStart + 1);
+const fragPara = fragStart === -1 || fragEnd === -1 ? "" : priv.slice(fragStart, fragEnd);
+chk(fragPara.length > 400, "the fragment paragraph is a real paragraph", `${fragPara.length} chars`);
+const missingBits = prefBits.map((k) => PREF_PHRASES[k]).filter(Boolean)
+  .filter((phrase) => !fragPara.toLowerCase().includes(phrase));
+chk(missingBits.length === 0,
+  "the fragment paragraph names every practice setting that travels after the #", missingBits.join(", "));
+
+const faqFrag = (pageText("/faq/") || "");
+const faqStart = faqFrag.indexOf("After the # comes anything the site cannot look up for itself");
+const faqPara = faqStart === -1 ? "" : faqFrag.slice(faqStart, faqStart + 400);
+const faqMissing = prefBits.map((k) => PREF_PHRASES[k]).filter(Boolean)
+  .filter((phrase) => !faqPara.toLowerCase().includes(phrase));
+chk(faqMissing.length === 0, "the FAQ's answer names them too", faqMissing.join(", ") || (faqStart === -1 ? "the FAQ paragraph was not found" : ""));
 
 /* Two destinations are NOT in INTENTS, so the loop above never sees
    them: Copy link is a call site (`const url = (c && c.fullUrl) ||

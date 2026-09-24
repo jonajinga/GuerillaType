@@ -344,7 +344,7 @@ Nothing leaves your device unless you press Share. The one thing running in the 
 - No cookies for tracking, sessions, or fingerprinting.
 - No third-party tracking scripts.
 - Umami page-view analytics: cookieless, no personal data, dashboard public at [/analytics/](/analytics/). Cloudflare Web Analytics is wired in and switched off.
-- Share links: numbers and a public content id in the address; a custom text's words, and a keystroke replay when a run has one, only after the `#`, which browsers never send to this site. The link carries them wherever you send it, and anyone with the link can read it.
+- Share links: numbers and a public content id in the address; a custom text's words, a keystroke replay when a run has one, and the practice settings the run used, only after the `#`, which browsers never send to this site. The link carries them wherever you send it, and anyone with the link can read it.
 
 See [Analytics](/analytics/) and [Privacy](/privacy/) for the full breakdown.
 
