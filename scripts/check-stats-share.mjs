@@ -332,6 +332,26 @@ chk(rowShare.visible, "A. and it is visible on the row");
     "A. short url has no fragment, full url does");
 }
 
+{
+  /* Sorting re-renders every row from scratch. A button that is wired
+     once and never again is a button that disappears the first time
+     somebody sorts by WPM. */
+  const sortBtn = await page.$(".sessions-d3__sort[data-sort='wpm']");
+  chk(!!sortBtn, "A. the list has its sort buttons (the D3 rows, not the fallback)");
+  if (sortBtn) {
+    await sortBtn.click();
+    const back = await page.waitForSelector(
+      `[data-session-id="${wordsSession.id}"] button[data-share][data-share-ready]`, { timeout: 12000 }
+    ).then(() => true).catch(() => false);
+    chk(back, "A. and the row still has a working Share button after a re-sort");
+    if (back) {
+      const url = await page.getAttribute(`[data-session-id="${wordsSession.id}"] button[data-share]`, "data-share-url");
+      chk(url === rowShare.ds.shareUrl, "A. the same link, not a fresh guess at one",
+        url === rowShare.ds.shareUrl ? "" : `${String(url).slice(0, 60)}…`);
+    }
+  }
+}
+
 // =============================================================== B
 console.log("\nB. a quote run names the quote and carries no text");
 await page.goto(`${B}/practice/?mode=quote&qid=q-do-love`, { waitUntil: "domcontentloaded" });
@@ -444,6 +464,32 @@ if (!noReplayRow) await bail("D. the row is still shareable with no replay");
   });
   chk(r.ready === false && r.entries === 0, "D. /r/ has no replay to play", JSON.stringify(r));
   chk(!r.buttonShown, "D. and shows no Play button", `buttonShown=${r.buttonShown} rootHidden=${r.rootHidden}`);
+}
+
+// =============================================================== D2
+console.log("\nD2. a stored target whose fingerprint disagrees with the run");
+/* The store answers by session id, so a record under this id IS this
+   run -- unless the fingerprint of the target it kept disagrees with
+   the one the profile kept, which means one of the two was rewritten
+   underneath the other. The keystrokes are still this run's; the words
+   beside them are not vouched for, so they do not travel. */
+await page.evaluate(async ({ sid, text }) => {
+  const rs = await import("/assets/js/engine/replay-store.js");
+  await rs.save({
+    id: sid,
+    keylog: Array.from(text).map((ch, i) => [ch, i === 0 ? 0 : 65]),
+    textHash: "deadbeef:999",
+    prefs: 0,
+    text: "a different sentence entirely, from some other run",
+  });
+}, { sid: wordsSession.id, text: wordsTarget });
+const mismatchRow = await shareFromStats(wordsSession.id);
+if (!mismatchRow) await bail("D2. the row is still shareable");
+{
+  const f = fragOf(mismatchRow.ds.shareUrl);
+  chk(!f.get("t"), "D2. the words the store offered do not travel", f.get("t") || "(absent)");
+  chk(!!(f.get("r") || f.get("ru")), "D2. but the keystrokes, which are keyed by the session id, still do",
+    `${(f.get("r") || f.get("ru") || "").length} chars`);
 }
 
 // =============================================================== E

@@ -37,11 +37,11 @@ function linkRecord(result, link) {
   const out = {
     v: 1,
     exact: {
-      wpm: numOrNull(result.wpm),
-      raw: numOrNull(result.raw),
-      acc: numOrNull(result.accuracy),
-      con: numOrNull(result.consistency),
-      ms: numOrNull(result.ms),
+      wpm: num4(result.wpm),
+      raw: num4(result.raw),
+      acc: num4(result.accuracy),
+      con: num4(result.consistency),
+      ms: num4(result.ms),
     },
   };
   const put = (key, value) => {
@@ -84,6 +84,15 @@ function str(v, max) {
 function numOrNull(n) {
   const v = Number(n);
   return Number.isFinite(v) ? v : null;
+}
+/* Four decimals. The point of keeping these at all is that rounding
+   twice makes two views of one run disagree -- round1(71.46) is 71.5,
+   which rounds up to 72 where the card said 71 -- and four decimals is
+   far below the width of that mistake while keeping the record
+   readable and about 50 bytes a session smaller than a raw double. */
+function num4(n) {
+  const v = Number(n);
+  return Number.isFinite(v) ? Math.round(v * 1e4) / 1e4 : null;
 }
 function intOrNull(n) {
   if (n === undefined || n === null || n === "") return null;
