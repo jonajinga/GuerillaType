@@ -43,6 +43,7 @@ You don't get:
 ## Third-party assets
 
 - **Bunny Fonts** — Lora, Inter, JetBrains Mono. SIL Open Font License 1.1.
+- **satori** (MPL-2.0) and **HarfBuzz** via harfbuzzjs (MIT). Vendored into `/assets/vendor/satori/` so a result typed from your own text can be turned into a picture in your browser, which is the only place that text exists. Loaded only when you press Download PNG. Full licences for those and the fifteen other packages in that bundle: [`/assets/vendor/licenses/satori-bundle-LICENSES.txt`](/assets/vendor/licenses/satori-bundle-LICENSES.txt).
 - **Public-domain quote text** — sourced from established public-domain attributions or marked as paraphrase where the original wording can't be verified.
 - **Public-domain library texts** — sourced from [Project Gutenberg](https://www.gutenberg.org/) and other public-domain repositories, all out of copyright in the United States.
 

@@ -25,7 +25,7 @@
    Deliberately NOT here: any custom-text id, any custom-text title,
    any analytics. share.js decides what analytics see. */
 
-import { resultImagePath } from "./share.js";
+import { resultImagePath, setLocalCard } from "./share.js";
 import { buildFragment, prefsMask } from "./codec.js";
 /* The label maps, from the same file the server-side card renderer
    reads. lib/og is passthrough-copied to /assets/js/og/, so this is
@@ -267,7 +267,18 @@ export async function build(ctx) {
    something correct; the fragment (which needs a compressor and
    therefore a promise) upgrades data-share-url a moment later. The
    button is never without a link, and never has a wrong one. */
+/* The passage that was typed, for the picture the browser draws. Never
+   for a url: buildFragment() is the only thing that puts text in one,
+   and it puts it after the "#". */
+function excerptOf(result) {
+  const t = (result && result.target) || "";
+  return String(Array.isArray(t) ? t.join(" ") : t).slice(0, 600);
+}
+
 export function wireResultShare(btn, ctx) {
+  /* Cleared before anything can throw, so a share that fails to build
+     cannot leave the PREVIOUS run's text sitting in the renderer. */
+  setLocalCard(null);
   if (!btn) return Promise.resolve(null);
   const c = ctx || {};
   const origin = c.origin || (typeof location !== "undefined" ? location.origin : "");
@@ -285,6 +296,22 @@ export function wireResultShare(btn, ctx) {
     btn.setAttribute("data-share-short-url", shortUrl);
     btn.setAttribute("data-share-url", shortUrl);
     btn.setAttribute("data-share-image", origin + resultImagePath(query.get("wpm"), query.get("acc")));
+    /* A text of your own, with no public id: the one kind of result
+       guerillatype.com can never draw a picture of, because it has
+       never seen the words. `data-share-image` above stays the
+       pre-rendered grid card -- that is what a crawler is given and it
+       must not show the text -- but Download PNG renders the real card
+       here instead, from this same query (share/local-card.js).
+
+       The predicate is isOwnText() AND no src: a poem typed through
+       custom mode is "own text" by the first test and has a public page
+       by the second, so it keeps the server's card. The excerpt is
+       handed over in process, never as an attribute: everything in this
+       button's dataset is one careless template away from an intent
+       url. */
+    const ownPrivate = isOwnText(c.state) && !srcFor(c);
+    if (ownPrivate) btn.setAttribute("data-share-private", "1");
+    if (ownPrivate) setLocalCard({ text: excerptOf(c.result), stats: query.toString() });
   } catch (err) {
     /* A share button that cannot be built must not take the results
        card down with it. */

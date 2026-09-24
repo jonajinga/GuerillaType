@@ -126,6 +126,19 @@ export default function (eleventyConfig) {
   // render /assets/fonts/README/index.html. Ignore it as a template.
   eleventyConfig.ignores.add("src/assets/fonts/README.md");
   eleventyConfig.addPassthroughCopy("src/assets/js");
+  /* Vendored third-party code the browser needs but npm cannot deliver:
+     the satori bundle and HarfBuzz's wasm, plus their licences. Nothing
+     on a page visit touches any of it -- share/local-card.js imports it
+     on the first Download PNG of a result typed from your own text.
+     Same README-is-not-a-template problem as the fonts directory. */
+  eleventyConfig.addPassthroughCopy("src/assets/vendor");
+  eleventyConfig.ignores.add("src/assets/vendor/README.md");
+  /* lib/og/ itself is NOT copied here. It used to be, as five named
+     files under /assets/vendor/og/, and then main started copying the
+     whole directory to /assets/js/og/ for the /r/ page. Two copies of
+     one directory at two URLs is two module instances of every file,
+     and the browser-drawn card now imports the /assets/js/og/ one --
+     see the passthrough further down, and share/local-card.js. */
   // src/data -> _site/data. The default 11ty passthrough uses
   // @11ty/recursive-copy which races against OneDrive's sync locks
   // and emits cryptic "Benchmark after() without a before()" errors.

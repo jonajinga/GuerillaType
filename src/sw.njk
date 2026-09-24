@@ -105,6 +105,18 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // The satori bundle and HarfBuzz's wasm, for the browser-drawn share
+  // card: pass through, let the HTTP cache own it. The cache-first
+  // branch below would be tempting -- 915 KB fetched once, instant the
+  // second time -- but hb.wasm carries no version in its name and a
+  // cached copy would outlive the bundle it belongs to. src/_headers
+  // gives these a day. (The card's own modules live under
+  // /assets/js/og/ and are already covered by the /assets/js/ rule
+  // above, which is what puts the build's ?v= on them.)
+  if (url.pathname.startsWith("/assets/vendor/")) {
+    return;
+  }
+
   // Cache-first for everything else (fonts, images, CSS that carries
   // its own ?v=cssVersion cache-bust on the <link> href).
   event.respondWith((async () => {
