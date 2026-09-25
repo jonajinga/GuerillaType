@@ -46,6 +46,14 @@ import { Analytics } from "../analytics.js";
 })();
 
 /* ── Tape sprint engine ──────────────────────────────────────── */
+/* The hero button, the eyebrow counter and the page copy all promise
+   15 seconds, so 15 is the sprint. One constant feeds the engine, the
+   stored session and the analytics event.
+   The engine option is `durationSec`, not `duration`: passing
+   `duration` was silently ignored and every home sprint ran the
+   engine's 30-second default while the results card, the session
+   record and the share link all said 15. */
+const SPRINT_SECONDS = 15;
 const stage = document.getElementById("tt-stage");
 const inputEl = document.getElementById("tt-input");
 const textEl = document.getElementById("tt-text");
@@ -111,7 +119,7 @@ if (stage && inputEl && textEl && hintEl) {
       hintEl,
       timerEl,
       mode: "tape",
-      duration: 15,
+      durationSec: SPRINT_SECONDS,
       freedom: profile.settings && profile.settings.freedom !== false,
       caret: (profile.preferences && profile.preferences.cursorStyle) || (profile.settings && profile.settings.caret) || "line",
       adaptive: { onChar: (prev, ch, ok, ms) => model.record(prev, ch, ok, ms) },
@@ -119,7 +127,10 @@ if (stage && inputEl && textEl && hintEl) {
         result.lang = "en-1k";
         result.layout = layout;
         result.mode = "tape";
-        result.duration = 15;
+        /* No `result.duration = 15` here any more. The engine reports
+           the setting it actually ran (Math.round(this.duration/1000)),
+           so overwriting it was what hid the 30-second run: the card
+           and the record said 15 while the clock said 30. */
         /* The same shape practice-boot's linkRecordFor() builds, for
            the one mode this page has. `tape` is a word stream, so the
            target it generated is kept on this device and travels after
@@ -141,7 +152,7 @@ if (stage && inputEl && textEl && hintEl) {
             mode: "tape", lang: "en-1k", layout,
             wpm: Math.round(result.wpm || 0),
             acc: Math.round(result.accuracy || 0),
-            duration: 15, chars: result.chars || 0,
+            duration: SPRINT_SECONDS, chars: result.chars || 0,
             source: "home_sprint",
           });
         } catch {}
