@@ -8,10 +8,23 @@
    in this file talks to a network, and nothing that reads it may put
    a log anywhere except the URL fragment (see share/codec.js).
 
-   Shape: { id, at, keylog, textHash, prefs }, keyed by the session id
-   that session-recorder.js minted for the same run. The newest 50 are
-   kept; 50 runs is roughly a fortnight of daily practice and about
-   2 MB, and the cap runs on every save so the store cannot creep.
+   Shape: { id, at, keylog, textHash, prefs, text }, keyed by the
+   session id that session-recorder.js minted for the same run. The
+   newest 50 are kept; 50 runs is roughly a fortnight of daily practice
+   and about 2 MB, and the cap runs on every save so the store cannot
+   creep.
+
+   `text` is the target the run was typed against, and it is written
+   only for the runs whose words no public id can ever name: a
+   generated word stream, and a text of your own. The rule lives in
+   replayTextFor() in share/session-link.js, which is also the only
+   thing that reads it back. A quote, a book page or a lesson is not
+   kept here -- /r/ resolves those from the `src` id instead. Storing
+   it costs nothing this store was not already holding: the keylog
+   beside it is every keystroke of the same passage, which is why the
+   whole file says "on this device only" at the top. `textHash` stays,
+   and stays the thing a replay checks itself against, because it is
+   also written for the runs where `text` is not.
 
    No IndexedDB (private windows, locked-down browsers, old WebViews)
    means every function here is a no-op that resolves: save() resolves
@@ -23,6 +36,18 @@ const DB_NAME = "tt-replays";
 const DB_VERSION = 1;
 const STORE = "replays";
 export const KEEP = 50;
+
+/* How long a target may be before this store stops keeping it.
+
+   A book imported as one custom text can be millions of characters,
+   and the practice page types it a page at a time -- but a single
+   `target` of 5.4 MB was read back from this store during review, and
+   fifty of those is a quarter of a gigabyte in somebody's browser for
+   a link that could never carry them anyway (the fragment budget is
+   8 KB). Over the cap, no text is kept: the run shares its numbers,
+   its date and its replay is dropped with the words, because a replay
+   with no target cannot be played. */
+export const TEXT_MAX = 20000;
 
 let _dbPromise = null;
 
@@ -88,7 +113,7 @@ export function textHash(text) {
   return h.toString(36) + ":" + s.length;
 }
 
-/* save({id, keylog, textHash, prefs, at?}) -> Promise<boolean>.
+/* save({id, keylog, textHash, prefs, at?, text?}) -> Promise<boolean>.
    Resolves false when the browser has no IndexedDB, or when the entry
    has no id or no keystrokes to keep. */
 export async function save(entry) {
@@ -101,6 +126,10 @@ export async function save(entry) {
     keylog: e.keylog,
     textHash: e.textHash || null,
     prefs: Number(e.prefs) || 0,
+    /* Absent, not empty: a record written before this field existed,
+       a run whose target is not kept, and a target too long to keep
+       must all read the same way. */
+    text: typeof e.text === "string" && e.text && e.text.length <= TEXT_MAX ? e.text : null,
   };
   try {
     await tx("readwrite", (store) => { store.put(record); });
@@ -173,4 +202,4 @@ export async function clear() {
   }
 }
 
-export default { save, get, list, prune, clear, textHash, idbSupported, KEEP };
+export default { save, get, list, prune, clear, textHash, idbSupported, KEEP, TEXT_MAX };

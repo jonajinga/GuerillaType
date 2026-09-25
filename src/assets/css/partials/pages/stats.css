@@ -142,7 +142,7 @@
 .session-row:last-child{border-bottom:0}
 .session-row__head{
   display:grid;
-  grid-template-columns:auto auto 1fr auto auto;
+  grid-template-columns:auto auto 1fr auto auto auto;
   align-items:center;gap:.8rem;
 }
 .session-row__when{display:flex;flex-direction:column;align-items:flex-start;gap:.1rem;min-width:60px}
@@ -155,10 +155,23 @@
 .session-row__wpm-label{font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:var(--fg-3)}
 .session-row__acc{font-family:var(--font-mono);font-size:.95rem;font-weight:500;min-width:46px;text-align:right}
 
+/* Share a past run. A quiet ghost button rather than a hover-only
+   one: sixty rows of loud buttons would be a toolbar, but an action
+   that appears only on hover is an action a keyboard and a touch
+   screen cannot find. */
+.session-row__share{
+  display:inline-flex;align-items:center;gap:.35rem;
+  padding:.2rem .5rem;font-size:.7rem;
+  border-color:var(--rule);color:var(--fg-2);background:transparent;
+}
+.session-row__share:hover{background:var(--bg-2);border-color:var(--accent);color:var(--accent)}
+.session-row__share-icon{flex:none}
+
 @media (max-width:640px){
-  .session-row__head{grid-template-columns:auto 1fr auto;gap:.5rem}
+  .session-row__head{grid-template-columns:auto 1fr auto auto;gap:.5rem}
   .session-row__mode{display:none}
   .session-row__spark{display:none}
+  .session-row__share-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 }
 
 /* Character report -- D3-driven table with inline bar viz. */

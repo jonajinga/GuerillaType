@@ -8,7 +8,12 @@ import { loadD3 } from "./d3-loader.js";
 
 let _sortBy = "date";    // date | wpm | acc | duration
 
-export async function renderSessionsD3(host, sessions) {
+/* `opts.onRows(scrollEl)` is called after every paint, re-sorts
+   included. The rows carry a session id and nothing else new; who
+   decides what may be done with one -- /stats/'s Share button reads it
+   back through share/session-link.js -- is not this file's business,
+   and a callback is how it stays that way. */
+export async function renderSessionsD3(host, sessions, opts = {}) {
   const d3 = await loadD3();
   if (!d3) return false;
 
@@ -19,6 +24,7 @@ export async function renderSessionsD3(host, sessions) {
 
   const all = sessions.slice(0, 60).map((s, i) => ({
     i,
+    id: s.id || "",
     at: new Date(s.at),
     mode: s.mode || "?",
     duration: s.duration || (s.ms ? Math.round(s.ms / 1000) : 0),
@@ -56,13 +62,13 @@ export async function renderSessionsD3(host, sessions) {
     btn.classList.toggle("is-active", btn.dataset.sort === _sortBy);
     btn.addEventListener("click", async () => {
       _sortBy = btn.dataset.sort;
-      await renderSessionsD3(host, sessions);
+      await renderSessionsD3(host, sessions, opts);
     });
   });
 
   const scrollEl = host.querySelector("#sessions-d3-scroll");
   scrollEl.innerHTML = all.map((s, idx) => `
-    <article class="session-row" data-idx="${idx}">
+    <article class="session-row" data-idx="${idx}" data-session-id="${escape(s.id)}">
       <div class="session-row__head">
         <div class="session-row__when">
           <div class="session-row__date">${s.at.toLocaleDateString(undefined, { month: "short", day: "numeric" })}</div>
@@ -86,6 +92,10 @@ export async function renderSessionsD3(host, sessions) {
     const spark = row.querySelector(".session-row__spark");
     paintSpark(d3, spark, s, globalMaxWpm);
   });
+
+  if (typeof opts.onRows === "function") {
+    try { opts.onRows(scrollEl); } catch (err) { console.warn("[stats] onRows", err); }
+  }
 
   return true;
 }

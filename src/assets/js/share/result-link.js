@@ -41,8 +41,12 @@ const ID_RE = /^[a-z0-9-]{1,80}$/;
 
 /* The modes whose text really is a stream from the chosen word list.
    Everywhere else the language chip would describe a setting that had
-   nothing to do with what was on screen. */
-const WORD_STREAM = new Set(["time", "words", "zen", "adaptive", "tape", "game"]);
+   nothing to do with what was on screen.
+
+   Exported since share/session-link.js needs the same answer for a
+   different question: which past runs have a target worth keeping on
+   this device, because no public id can ever name it. */
+export const WORD_STREAM = new Set(["time", "words", "zen", "adaptive", "tape", "game"]);
 
 /* `src` prefixes, mirroring KINDS in lib/og/labels.js from the other
    direction: kind -> prefix. */
@@ -161,7 +165,15 @@ export function buildQuery(ctx) {
   else if (meta.newModeBest) p.set("pb", "1");
 
   if (result._challenge) p.set("ok", result._challenge.passed ? "1" : "0");
-  p.set("d", todayStamp());
+  /* `at` is the day a PAST run happened, for a link built from the
+     stored record of one (share/session-link.js). Absent -- which is
+     every caller that shares a run as it finishes -- means today. An
+     unparseable date falls back to today rather than writing
+     "NaN-NaN-NaN", which validate.js would refuse and which would
+     take the whole link down with it. */
+  const atRaw = (ctx || {}).at;
+  const at = atRaw == null ? null : new Date(atRaw);
+  p.set("d", todayStamp(at && !Number.isNaN(at.getTime()) ? at : undefined));
 
   const src = srcFor(ctx);
   if (src) p.set("src", src);
@@ -257,8 +269,12 @@ export async function build(ctx) {
    button is never without a link, and never has a wrong one. */
 /* The passage that was typed, for the picture the browser draws. Never
    for a url: buildFragment() is the only thing that puts text in one,
-   and it puts it after the "#". */
-function excerptOf(result) {
+   and it puts it after the "#".
+
+   Exported because /stats/ draws the same card for the same kind of
+   run, and 600 is a number the card's layout chose. Two copies of it
+   would drift the first time that layout changed. */
+export function excerptOf(result) {
   const t = (result && result.target) || "";
   return String(Array.isArray(t) ? t.join(" ") : t).slice(0, 600);
 }

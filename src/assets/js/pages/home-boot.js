@@ -11,7 +11,15 @@
 import { TypingEngine } from "../engine/typing-engine.js";
 import { uniformText } from "../engine/wordpicker.js";
 import { recordSession } from "../engine/session-recorder.js";
+/* The home sprint is a real session: it lands in the profile, on the
+   contribution grid and in Recent sessions on /stats/, so it gets the
+   same link record and the same keystroke log as a run typed on
+   /practice/. Without them its rows were the only ones on that page
+   with no Share button. */
+import { saveRunReplay } from "../share/session-link.js";
 import { AdaptiveModel } from "../engine/adaptive.js";
+import { textHash } from "../engine/replay-store.js";
+import { prefsMask } from "../share/codec.js";
 import { getActive } from "../profiles.js";
 import { Analytics } from "../analytics.js";
 
@@ -112,7 +120,22 @@ if (stage && inputEl && textEl && hintEl) {
         result.layout = layout;
         result.mode = "tape";
         result.duration = 15;
-        try { recordSession(result, model.serialize()); } catch (e) { console.warn(e); }
+        /* The same shape practice-boot's linkRecordFor() builds, for
+           the one mode this page has. `tape` is a word stream, so the
+           target it generated is kept on this device and travels after
+           the "#"; there is no public id to name it by. */
+        const sprintState = { mode: "tape", language: "en-1k", layout };
+        const sprintPrefs = (profile && profile.preferences) || {};
+        try {
+          const rec = recordSession(result, model.serialize(), {
+            mode: "tape",
+            language: "en-1k",
+            layout,
+            prefs: prefsMask(sprintPrefs),
+            textHash: textHash(result.target),
+          });
+          saveRunReplay({ id: rec && rec.id, state: sprintState, result, prefs: sprintPrefs });
+        } catch (e) { console.warn(e); }
         try {
           Analytics.sessionFinish({
             mode: "tape", lang: "en-1k", layout,

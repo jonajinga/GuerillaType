@@ -22,6 +22,16 @@ import { renderKeyStrip } from "../stats/viz-key-strip.js";
 import { ACHIEVEMENTS } from "../engine/achievements.js";
 import { localDayIso } from "../util/format.js";
 import { $, htmlEscape } from "../util/dom.js";
+/* A past run, turned back into the link the results card would have
+   offered for it. Every rule about what may be in one lives there and
+   in share/result-link.js; this page only draws the button. */
+import { shortLinkForSession, linkForSession } from "../share/session-link.js";
+/* Download PNG on a result typed from a text of your own draws the
+   card in this browser, because this site has never seen the words.
+   The results card does the same; these are the two halves of that
+   one feature and they must not drift. */
+import { setLocalCard } from "../share/share.js";
+import { excerptOf } from "../share/result-link.js";
 
 const profile = getActive();
 const lt = profile.lifetime || {};
@@ -348,18 +358,142 @@ function formatModeKey(mode, key) {
 // ── Recent sessions (D3 with sparklines) ─────────────────────────
 const sl = $("#sessions-list");
 const sessions = profile.sessions || [];
+
+/* ── Share a past run ─────────────────────────────────────────────
+   The same button the results card carries, on every row that the
+   site can still build a valid link for: a button[data-share] with
+   data-share-* attributes, opening the same sheet through the
+   delegated listener share.js installed once in main.js. Nothing
+   here knows what a link may contain -- share/session-link.js
+   answers that, and answers null for a row with no link, which is
+   the only reason a row has no button.
+
+   Two passes, for the reason wireResultShare() takes two: the
+   query-only link is written as the row is drawn, so a Share clicked
+   in the first second still shares something correct, and the
+   fragment (the text and the keystroke replay, which need a database
+   read and a compressor) upgrades data-share-url a moment later.
+   data-share-ready marks a button whose upgrade has been through. */
+const SHARE_TIP = "Share this run. The numbers travel in the link; the text and replay, if kept, sit after the #.";
+const SHARE_ICON = `<svg class="session-row__share-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg>`;
+const sessionsById = new Map();
+for (const s of sessions) if (s && s.id) sessionsById.set(String(s.id), s);
+
+/* The excerpt for the card the browser draws, one entry per button.
+
+   share.js holds ONE local card at a time -- it was written for the
+   results page, where there is one result on screen. A list has sixty
+   rows, so the row that was wired last would otherwise own the slot
+   and row 3's Download PNG would draw row 7's words. The slot is
+   therefore filled at click time, from this map, by a listener in the
+   CAPTURE phase: share.js's own listener is a bubbling one on the
+   document, so capture always runs first.
+
+   A WeakMap and not an attribute, for the reason result-link gives:
+   everything in a button's dataset is one careless template away from
+   an intent url. */
+const localCards = new WeakMap();
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest && e.target.closest("button[data-share]");
+  if (!btn) return;
+  /* Cleared for every share, so a public row cannot download the
+     previous private row's picture. */
+  setLocalCard(localCards.get(btn) || null);
+}, true);
+
+function shareButtonFor(session) {
+  const short = shortLinkForSession(session);
+  /* No valid link, no button. That is a record with no numbers a
+     card could be drawn from, or one the validator in lib/og refuses
+     for any other reason -- not a judgement made here. */
+  if (!short) return null;
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "btn btn--small session-row__share";
+  btn.setAttribute("data-share", "");
+  btn.setAttribute("data-share-kind", "result");
+  btn.setAttribute("data-share-surface", "stats");
+  btn.setAttribute("data-share-mode", short.mode || "");
+  btn.setAttribute("data-share-title", short.title);
+  btn.setAttribute("data-share-text", short.text);
+  btn.setAttribute("data-share-short-url", short.shortUrl);
+  btn.setAttribute("data-share-url", short.shortUrl);
+  btn.setAttribute("data-share-image", short.imageUrl);
+  btn.setAttribute("data-tip", SHARE_TIP);
+  /* A real <button>, so Enter and Space work with no key handling of
+     our own. The label is visible text AND the accessible name; the
+     icon is decorative. */
+  btn.setAttribute("aria-label", "Share");
+  btn.innerHTML = `${SHARE_ICON}<span class="session-row__share-label">Share</span>`;
+  return btn;
+}
+
+async function wireRowShare(root) {
+  if (!root) return;
+  const pending = [];
+  root.querySelectorAll("[data-session-id]").forEach((row) => {
+    const id = row.getAttribute("data-session-id");
+    if (!id || row.querySelector("button[data-share]")) return;
+    const session = sessionsById.get(id);
+    if (!session) return;
+    const btn = shareButtonFor(session);
+    if (!btn) return;
+    const host = row.querySelector(".session-row__head") || row.querySelector("[data-share-slot]") || row;
+    host.appendChild(btn);
+    pending.push([btn, session]);
+  });
+  if (!pending.length) return;
+  /* One row at a time. Sixty rows is sixty reads out of IndexedDB and
+     sixty trips through the compressor; doing them in a queue keeps
+     the page responsive while they land. */
+  for (const [btn, session] of pending) {
+    let link = null;
+    try { link = await linkForSession(session); } catch (err) { console.warn("[stats] share link", err); }
+    if (!document.contains(btn)) continue;
+    if (link) {
+      btn.setAttribute("data-share-url", link.fullUrl);
+      btn.setAttribute("data-share-short-url", link.shortUrl);
+      if (link.dropped && link.dropped.length) btn.setAttribute("data-share-dropped", link.dropped.join(","));
+      /* A text of your own, with no public id: the one kind of result
+         this site can never draw a picture of. data-share-image stays
+         the pre-rendered grid card, which is what a crawler is given
+         and must not show the words; Download PNG renders the real
+         card from the same query instead. The predicate and the
+         excerpt are the ones wireResultShare() uses on the results
+         card -- same rule, same 600 characters, one definition.
+
+         Only when the words are actually in hand: a run whose text
+         this browser no longer has (deleted, or evicted with its
+         replay) keeps the grid card, because there is nothing to draw
+         with. */
+      if (link.private && link.target) {
+        localCards.set(btn, { text: excerptOf({ target: link.target }), stats: link.query });
+        btn.setAttribute("data-share-private", "1");
+      } else {
+        localCards.delete(btn);
+        btn.removeAttribute("data-share-private");
+      }
+    }
+    btn.setAttribute("data-share-ready", "1");
+  }
+}
+
 if (sessions.length) {
   sl.classList.remove("stats-empty");
   (async () => {
-    const ok = await renderSessionsD3(sl, sessions);
+    const ok = await renderSessionsD3(sl, sessions, { onRows: (rows) => { wireRowShare(rows); } });
     if (!ok) {
-      // Legacy fallback if D3 fails to load.
+      /* Legacy fallback if D3 fails to load. The same sixty rows the
+         D3 list draws, and the same number the roadmap and the
+         changelog tell people: a claim that is only true when a CDN
+         answers is not a claim worth publishing. */
       sl.innerHTML = `
         <table class="sessions-table">
-          <thead><tr><th>When</th><th>Mode</th><th class="r">wpm</th><th class="r">acc</th><th class="r">cons</th></tr></thead>
+          <thead><tr><th>When</th><th>Mode</th><th class="r">wpm</th><th class="r">acc</th><th class="r">cons</th><th></th></tr></thead>
           <tbody>
-          ${sessions.slice(0, 12).map((s) => `<tr><td>${new Date(s.at).toLocaleString()}</td><td>${htmlEscape(s.mode)} ${s.duration ? `· ${s.duration}s` : ""}</td><td class="r" style="color:var(--accent)">${Math.round(s.wpm)}</td><td class="r">${Math.round(s.acc)}%</td><td class="r">${Math.round(s.cons)}%</td></tr>`).join("")}
+          ${sessions.slice(0, 60).map((s) => `<tr data-session-id="${htmlEscape(s.id || "")}"><td>${new Date(s.at).toLocaleString()}</td><td>${htmlEscape(s.mode)} ${s.duration ? `· ${s.duration}s` : ""}</td><td class="r" style="color:var(--accent)">${Math.round(s.wpm)}</td><td class="r">${Math.round(s.acc)}%</td><td class="r">${Math.round(s.cons)}%</td><td class="r" data-share-slot></td></tr>`).join("")}
           </tbody></table>`;
+      await wireRowShare(sl);
     }
   })();
 }
