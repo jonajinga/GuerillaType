@@ -32,6 +32,9 @@ import { shortLinkForSession, linkForSession } from "../share/session-link.js";
    one feature and they must not drift. */
 import { setLocalCard } from "../share/share.js";
 import { excerptOf } from "../share/result-link.js";
+/* Read directly, and only to answer one question: is a write from a
+   run that has just finished still in the air? See settleReplays(). */
+import { get as getReplay, list as listReplays, idbSupported } from "../engine/replay-store.js";
 
 const profile = getActive();
 const lt = profile.lifetime || {};
@@ -428,6 +431,72 @@ function shareButtonFor(session) {
   return btn;
 }
 
+/* ── the write that may still be in the air ───────────────────────
+   practice-boot awaits the replay write before it draws the results
+   card, so by the time anybody can click "View stats" the record is
+   normally already filed. Normally. That await has a ceiling, a user
+   can open /stats/ in a second tab while the first one is still
+   finishing, and an IndexedDB write on a cold profile is not always
+   instant. In all three cases the symptom is the same and it is
+   silent: the newest row builds its link from a store that does not
+   have the run yet, so it shares numbers only, and looks permanent
+   until the page is loaded again.
+
+   What can be observed from here is cheap: the profile's newest
+   session, and the newest record the store holds. If the session is
+   newer than the record, a write is either in flight or was never
+   going to happen, and the two are indistinguishable from here. So
+   the wait is small and hard-capped, and it only starts when the
+   newest session is FRESH -- a run from yesterday is not a write in
+   flight, and a run with no keystrokes to file (Esc before typing a
+   single character) never writes at all. Without the freshness test a
+   browser with IndexedDB turned off would pay the full cap on every
+   single load, forever. */
+const REPLAY_SETTLE_MS = 1000;   // the cap the whole wait lives under
+const REPLAY_POLL_MS = 60;       // how often to look while waiting
+const RUN_IS_FRESH_MS = 20000;   // older than this is not a pending write
+
+async function settleReplays() {
+  if (!idbSupported()) return "no store";
+  /* The latest run by its stamp, not by its position. recordSession
+     unshifts, so index 0 is normally the newest -- but a record
+     imported or repaired by hand is not obliged to be, and a
+     freshness test that reads the wrong row either waits for nothing
+     or skips a wait it needed. */
+  let newest = null;
+  for (const s of sessions || []) {
+    if (!s || !s.id || !s.at) continue;
+    if (!newest || String(s.at) > String(newest.at)) newest = s;
+  }
+  if (!newest) return "no sessions";
+  const age = Date.now() - Date.parse(newest.at);
+  if (!(age >= 0 && age < RUN_IS_FRESH_MS)) return "newest run is not fresh";
+  let rows = [];
+  try { rows = await listReplays(); } catch { return "store unreadable"; }
+  /* list() is newest first. String compare is right for the ISO
+     stamps both sides write, and a record whose stamp is not older
+     than the run is either this run's or newer than it; either way
+     nothing is pending. */
+  if (rows.length && String(rows[0].at) >= String(newest.at)) return "already landed";
+  const until = Date.now() + REPLAY_SETTLE_MS;
+  for (;;) {
+    let rec = null;
+    try { rec = await getReplay(newest.id); } catch { rec = null; }
+    if (rec) return "waited for the write";
+    if (Date.now() >= until) return "gave up waiting";
+    await new Promise((go) => setTimeout(go, REPLAY_POLL_MS));
+  }
+}
+
+/* Once per page load, however many times the rows are redrawn. The
+   verdict is left on window in the same spirit as /r/'s
+   window.__ttReplay: a wait nobody can see is a wait nobody can hold
+   to its cap. */
+let settling = null;
+const replaysSettled = () => (settling || (settling = settleReplays()
+  .catch(() => "failed")
+  .then((why) => { try { window.__ttReplaySettle = why; } catch {} return why; })));
+
 async function wireRowShare(root) {
   if (!root) return;
   const pending = [];
@@ -443,6 +512,10 @@ async function wireRowShare(root) {
     pending.push([btn, session]);
   });
   if (!pending.length) return;
+  /* Before any link is built: let a write that is still in the air
+     land, or give up on it. Only the second pass waits -- every
+     button already carries its query-only link from the first. */
+  await replaysSettled();
   /* One row at a time. Sixty rows is sixty reads out of IndexedDB and
      sixty trips through the compressor; doing them in a queue keeps
      the page responsive while they land. */

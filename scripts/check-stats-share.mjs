@@ -33,6 +33,12 @@
      G. Every request from /stats/ through the sheet is intercepted.
         Nothing carries the text, the title or the id, and sharing
         contacts no host the page did not already contact.
+     L. A /stats/ page opened in the same breath as a finish still
+        shares the replay. The write used to be fire and forget, so a
+        row read before it landed shared numbers only until the next
+        load. The card now waits for the write, /stats/ waits a
+        moment of its own for one it can tell is missing, and neither
+        wait is unbounded.
 
    A note on G and third parties. /stats/ is not /r/: it loads d3 and
    tippy from esm.sh and the site's analytics tag, and it did before
@@ -220,17 +226,15 @@ async function typeRun(target, { errorsAt = [3, 9] } = {}) {
   }
 }
 
-/* The replay store is written fire-and-forget: a browser with no
-   IndexedDB, or a full one, must cost somebody a replay and never the
-   session that earned it, so nothing awaits the write. A page opened
-   in the same breath as the run that produced it can therefore read
-   the store before the record lands, and a gate that asserts "the
-   replay travels" without waiting is asserting how fast this machine
-   is. Polls for up to four seconds and says plainly if it gave up.
+/* Waits for a run's keystrokes to reach the store. Every failure
+   inside the store is swallowed by design -- a browser with no
+   IndexedDB must cost somebody a replay and never the session that
+   earned it -- so a gate that asserts "the replay travels" without
+   waiting is asserting how fast this machine is. Polls for up to four
+   seconds and says plainly if it gave up.
 
-   This is a real property of the app, not only of the gate: click View
-   stats the instant a run ends and that row may share without its
-   replay until the next load. */
+   Section L is the one that does NOT use this, on purpose: whether a
+   row is correct with no wait at all is the thing it measures. */
 async function waitForReplay(id, ms = 4000) {
   const until = Date.now() + ms;
   for (;;) {
@@ -1183,6 +1187,273 @@ console.log("\nK. the roadmap and the changelog say what this does");
   const boot = await readFile(resolve("src/assets/js/pages/stats-boot.js"), "utf8").catch(() => "");
   chk(/sessions\.slice\(0,\s*60\)/.test(boot),
     "K. and so does the plain table drawn when d3 cannot be fetched");
+}
+
+// =============================================================== L
+console.log("\nL. /stats/ opened in the same breath as the finish");
+/* The replay write used to be fire and forget. A run ended, the card
+   went up in the same turn, and the write to IndexedDB was still on
+   its way when somebody pressed View stats -- so the newest row built
+   its link from a store that did not have the run yet and shared
+   numbers only. Nothing was broken afterwards; the next load of
+   /stats/ was correct. It was a row that lied for one page view, and
+   the only way to see it was to be quick.
+
+   So: no waiting anywhere in this section. The card appearing is the
+   signal to navigate, which is exactly what a user has to go on, and
+   pressing the card's own "View stats" link is the same race with one
+   extra frame in it.
+
+   WITH ONE THING ADDED, and it is the whole reason this section is
+   worth having. The first draft of it did not hold the store, and it
+   passed with the fix reverted, four times out of four: on this
+   machine the write wins the race anyway, so the assertion was
+   measuring the hardware. A race you cannot lose is not a race. The
+   store is therefore held busy across the finish -- one readwrite
+   transaction on the replays store, kept alive for HOLD_MS, which is
+   what a second tab or a prune of fifty records does to it -- and
+   the save() the run issues has to queue behind it. Now the ordering
+   is the only thing that decides the outcome: a card that waits for
+   its write shares a replay, a card that does not gets navigated
+   away from while the write is still queued and shares numbers.
+
+   Timing still does not fail every time, so the case runs REPEATS
+   times and every repeat has to carry the replay. */
+const REPEATS = 4;
+const HOLD_MS = 700;
+await page.addInitScript(() => {
+  /* An IndexedDB transaction stays alive as long as a request is
+     issued from its own success handler, and transactions with
+     overlapping scope are serialised across connections. Both are
+     the spec, not a trick: this is the same queue the app's own
+     prune() sits in. The store is created here only if it does not
+     exist yet, with the schema engine/replay-store.js uses, so that
+     a hold taken before the first run does not invent a different
+     shape of database. */
+  window.__ttHoldReplays = (ms) => new Promise((ready) => {
+    let req;
+    try { req = indexedDB.open("tt-replays", 1); }
+    catch (e) { ready("open threw: " + e); return; }
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains("replays")) {
+        db.createObjectStore("replays", { keyPath: "id" }).createIndex("at", "at");
+      }
+    };
+    req.onerror = () => ready("open failed");
+    req.onsuccess = () => {
+      let t;
+      try { t = req.result.transaction("replays", "readwrite"); }
+      catch (e) { ready("no transaction: " + e); return; }
+      const store = t.objectStore("replays");
+      const until = Date.now() + ms;
+      window.__ttHeld = "holding";
+      const spin = () => {
+        if (Date.now() >= until) { window.__ttHeld = "released"; return; }
+        const r = store.get("__gate-hold-never-written__");
+        r.onsuccess = spin;
+        r.onerror = spin;
+      };
+      spin();
+      ready("holding");
+    };
+  });
+});
+{
+  const carried = [];
+  for (let i = 1; i <= REPEATS; i++) {
+    await page.goto(`${B}/practice/?mode=words&words=10`, { waitUntil: "domcontentloaded" });
+    await waitOr((t) => page.waitForSelector(".tt-char", { timeout: t }), `L${i}. the practice page painted a target`);
+    await page.click(".tt-stage").catch(() => {});
+    const targetL = await surfaceText();
+    /* Everything but the last keystroke, then the store is taken,
+       then the keystroke that ends the run. */
+    await typeRun(targetL.slice(0, -1));
+    const held = await page.evaluate((ms) => window.__ttHoldReplays(ms), HOLD_MS);
+    chk(held === "holding", `L${i}. the replay store is held busy across the finish`, String(held));
+    await page.keyboard.type(targetL.slice(-1), { delay: 70 });
+    const t0 = Date.now();
+    await waitOr((t) => page.waitForSelector("#tt-results:not([hidden])", { timeout: t }),
+      `L${i}. the run finished and the card is up`);
+    const cardMs = Date.now() - t0;
+    /* Here. Nothing at all between the card and the navigation. */
+    await page.goto(B + "/stats/", { waitUntil: "domcontentloaded" });
+    const sess = await newestSession();
+    if (!sess || !sess.id) { chk(false, `L${i}. the run was recorded`, JSON.stringify(sess)); continue; }
+    const row = await shareFromStats(sess.id, { reload: false });
+    if (!row) { chk(false, `L${i}. the row has a Share button`); continue; }
+    const f = fragOf(row.ds.shareUrl);
+    const hasReplay = !!(f.get("r") || f.get("ru"));
+    const log = hasReplay ? await codec.unpackLog({ r: f.get("r"), ru: f.get("ru") }) : null;
+    const entries = log && log.entries ? log.entries.length : 0;
+    const settle = await page.evaluate(() => window.__ttReplaySettle || "(never ran)");
+    carried.push({ i, hasReplay, entries, cardMs });
+    chk(cardMs >= 250, `L${i}. the card waited for the store instead of going up over a queued write`,
+      `${cardMs} ms of a ${HOLD_MS} ms hold`);
+    chk(hasReplay && entries > 20,
+      `L${i}. and the newest row carries its replay with no pause before /stats/`,
+      `${entries} entries, t=${(f.get("t") || "").length} chars, settle=${settle}`);
+  }
+  /* Every repeat, not most of them, and REPEATS of them: a loop that
+     quietly ran twice would otherwise read as a clean pass. */
+  chk(carried.length === REPEATS && carried.every((c) => c.hasReplay),
+    `L. all ${REPEATS} repeats ran and every one of them carried it`,
+    `${carried.length} of ${REPEATS}: ` + carried.map((c) => `#${c.i}:${c.hasReplay ? c.entries : "none"}@${c.cardMs}ms`).join(" "));
+}
+
+// =============================================================== L5
+console.log("\nL5. a write that lands after the stats page did");
+/* The other half of the same fix. The await on the results card has a
+   ceiling, and a second tab opened mid-finish never had it at all, so
+   /stats/ waits a moment of its own for a record it can tell is
+   missing -- the newest session is newer than the newest replay it
+   holds -- and gives up after a fixed cap rather than sitting there.
+
+   The late write is fired off the page's OWN first read of the replay
+   store, 150 ms after it, so this cannot pass by being slow: whatever
+   /stats/ does, the record does not exist when it first looks. A
+   /stats/ that does not wait reads once, finds nothing, and builds a
+   numbers-only link.
+
+   The record handed back is the one the run actually wrote, read out
+   and re-saved verbatim. Rebuilding it by hand would mean rebuilding
+   its textHash by hand, and a fingerprint that disagrees with the
+   profile's is a different test entirely (section D2). */
+const LATE_FLAG = "tt:gate-late-write";
+{
+  await page.goto(`${B}/practice/?mode=words&words=10`, { waitUntil: "domcontentloaded" });
+  await waitOr((t) => page.waitForSelector(".tt-char", { timeout: t }), "L5. a words run to seed from");
+  await page.click(".tt-stage").catch(() => {});
+  const lateTarget = await surfaceText();
+  await typeRun(lateTarget);
+  await waitOr((t) => page.waitForSelector("#tt-results:not([hidden])", { timeout: t }), "L5. it finished");
+  const lateSession = await newestSession();
+  const lateRecord = await page.evaluate(async (sid) => {
+    const m = await import("/assets/js/engine/replay-store.js");
+    const r = await m.get(sid);
+    return r ? { id: r.id, keylog: r.keylog, textHash: r.textHash, prefs: r.prefs, text: r.text } : null;
+  }, lateSession.id);
+  chk(!!lateRecord && (lateRecord.keylog || []).length > 20 && !!lateRecord.text,
+    "L5. its record is in the store to begin with",
+    lateRecord ? `${(lateRecord.keylog || []).length} keys, ${(lateRecord.text || "").length} chars of target` : "no record");
+
+  await page.addInitScript(({ flag, record }) => {
+    /* Installed on every load of this origin, and inert unless the
+       gate has just armed it. Playwright cannot take an init script
+       back off a page, so the flag is how it is switched off. */
+    if (localStorage.getItem(flag) !== "1") return;
+    const fire = async () => {
+      try {
+        const m = await import("/assets/js/engine/replay-store.js");
+        await m.save(record);
+        window.__ttLateWrite = "done";
+      } catch (e) { window.__ttLateWrite = "failed: " + e; }
+    };
+    window.__ttLateWrite = "armed";
+    let armed = true;
+    for (const fn of ["get", "getAll"]) {
+      const orig = IDBObjectStore.prototype[fn];
+      IDBObjectStore.prototype[fn] = function (...a) {
+        if (armed && this.name === "replays") { armed = false; window.__ttLateWrite = "firing"; setTimeout(fire, 150); }
+        return orig.apply(this, a);
+      };
+    }
+  }, { flag: LATE_FLAG, record: lateRecord });
+
+  /* Taken away again, and armed to be handed back late. */
+  await page.evaluate(async (flag) => {
+    const m = await import("/assets/js/engine/replay-store.js");
+    await m.clear();
+    localStorage.setItem(flag, "1");
+  }, LATE_FLAG);
+
+  await page.goto(B + "/stats/", { waitUntil: "domcontentloaded" });
+  const lateRow = await shareFromStats(lateSession.id, { reload: false });
+  if (!lateRow) await bail("L5. the row has a Share button");
+  const lf = fragOf(lateRow.ds.shareUrl);
+  const lateState = await page.evaluate(() => ({
+    write: window.__ttLateWrite || "(absent)",
+    settle: window.__ttReplaySettle || "(never ran)",
+  }));
+  chk(lateState.write === "done", "L5. the late write really did land, and only after the page had looked",
+    JSON.stringify(lateState));
+  const lateLog = await codec.unpackLog({ r: lf.get("r"), ru: lf.get("ru") });
+  chk(!!(lf.get("r") || lf.get("ru")) && !!lateLog && lateLog.entries.length > 20,
+    "L5. and the row picked it up rather than sharing numbers only",
+    `${lateLog && lateLog.entries ? lateLog.entries.length : 0} entries, settle=${lateState.settle}`);
+  chk(lateState.settle === "waited for the write",
+    "L5. the page says so itself: it waited, it did not merely get lucky", lateState.settle);
+  await page.evaluate((flag) => localStorage.removeItem(flag), LATE_FLAG);
+}
+
+// =============================================================== L6
+console.log("\nL6. and it does not wait for a write that is not coming");
+/* A cap is only a cap if it is not paid on every load. The wait
+   starts only when the newest run is recent enough to have a write
+   still in the air; a profile whose newest session is days old has
+   nothing pending, and neither does a browser that will never write
+   at all. Without this the store-less browsers -- private windows,
+   locked down profiles -- would pay the full cap on every single
+   visit to /stats/, forever, for nothing. */
+{
+  const stale = await page.evaluate(() => {
+    const ps = JSON.parse(localStorage.getItem("tt:profiles") || "[]");
+    const active = JSON.parse(localStorage.getItem("tt:active-profile") || "null");
+    const i = Math.max(0, ps.findIndex((x) => x.id === active));
+    const old = new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString();
+    let n = 0;
+    for (const s of ps[i].sessions || []) { s.at = old; n++; }
+    localStorage.setItem("tt:profiles", JSON.stringify(ps));
+    return { old, n };
+  });
+  chk(stale.n > 0, "L6. every session in the profile was stamped three days ago", `${stale.n} sessions`);
+  const t0 = Date.now();
+  await page.goto(B + "/stats/", { waitUntil: "domcontentloaded" });
+  const ready = await page.waitForSelector("button[data-share][data-share-ready]", { timeout: 20000 })
+    .then(() => true).catch(() => false);
+  chk(ready, "L6. the buttons still build", `${Date.now() - t0} ms`);
+  const why = await page.evaluate(() => window.__ttReplaySettle || "(never ran)");
+  chk(why === "newest run is not fresh", "L6. and nothing waited for a write that was never coming", why);
+}
+
+// =============================================================== L7
+console.log("\nL7. a fresh run whose write is never coming");
+/* The other end of the same wait. A run that recorded no keystrokes
+   at all -- Esc pressed before a single character -- writes nothing
+   to the replay store, ever, and from /stats/ that is indisputable
+   from a write that is one millisecond away. So the wait has a hard
+   cap, and this is the case that holds it to it: a session stamped
+   NOW, with no replay behind it and none on the way. Without the cap
+   the page would sit here for the rest of the visit. */
+{
+  const cloneId = await page.evaluate(() => {
+    const ps = JSON.parse(localStorage.getItem("tt:profiles") || "[]");
+    const active = JSON.parse(localStorage.getItem("tt:active-profile") || "null");
+    const i = Math.max(0, ps.findIndex((x) => x.id === active));
+    /* A real record, so the link builds; a new id, so no replay in
+       the store is its; stamped now, so the page believes a write
+       could still be in the air. */
+    const seed = JSON.parse(JSON.stringify((ps[i].sessions || [])[0]));
+    seed.id = "s_neverwritten01";
+    seed.at = new Date().toISOString();
+    ps[i].sessions.unshift(seed);
+    localStorage.setItem("tt:profiles", JSON.stringify(ps));
+    return seed.id;
+  });
+  const t0 = Date.now();
+  await page.goto(B + "/stats/", { waitUntil: "domcontentloaded" });
+  const built = await page.waitForSelector(`[data-session-id="${cloneId}"] button[data-share][data-share-ready]`, { timeout: 20000 })
+    .then(() => true).catch(() => false);
+  const tookMs = Date.now() - t0;
+  chk(built, "L7. the page gives up and builds its buttons anyway", `${tookMs} ms`);
+  const verdict = await page.evaluate(() => window.__ttReplaySettle || "(never ran)");
+  chk(verdict === "gave up waiting", "L7. and says that is what it did", verdict);
+  chk(tookMs < 12000, "L7. inside a cap, not for the rest of the visit", `${tookMs} ms`);
+  if (built) {
+    const f = fragOf(await page.getAttribute(`[data-session-id="${cloneId}"] button[data-share]`, "data-share-url"));
+    chk(!f.get("r") && !f.get("ru") && !f.get("t"),
+      "L7. the row shares its numbers only, which is the honest answer for it", f.toString() || "(empty fragment)");
+  }
 }
 
 await browser.close();

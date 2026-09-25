@@ -292,14 +292,24 @@ export function replayTextFor(state, result) {
    rule with two answers, and the first version of this feature had the
    home page storing nothing at all.
 
-   Fire and forget, and every failure inside is swallowed: a browser
-   with no IndexedDB, or a full one, must cost somebody a replay and
-   never the session that earned it. */
-export function saveRunReplay({ id, state, result, prefs }) {
+   Every failure inside is swallowed and the promise NEVER rejects: a
+   browser with no IndexedDB, or a full one, must cost somebody a
+   replay and never the session that earned it. What changed is that
+   there is a promise at all. This used to be fire and forget, and
+   forgetting it had a visible cost: /stats/ reads this same store, so
+   a stats page opened in the same breath as a finish read it before
+   the record landed and that row shared numbers only until the next
+   load. practice-boot awaits this before the results card wires its
+   Share button (the card appears in place, so waiting for it costs a
+   frame and loses nothing); the home page's sprint does not await it,
+   because nothing there reads the store back. Resolves true when a
+   record was written, false when there was nothing to write or the
+   browser would not keep it. */
+export async function saveRunReplay({ id, state, result, prefs }) {
   try {
     const res = result || {};
     if (!id || !Array.isArray(res.keylog) || !res.keylog.length) return false;
-    saveReplay({
+    return await saveReplay({
       id,
       keylog: res.keylog,
       textHash: textHashOf(res.target),
@@ -307,8 +317,7 @@ export function saveRunReplay({ id, state, result, prefs }) {
       /* Null for a quote, a book page, a lesson: those have a public
          id and /r/ looks the words up. */
       text: replayTextFor(state, res),
-    }).catch(() => {});
-    return true;
+    });
   } catch {
     return false;
   }
