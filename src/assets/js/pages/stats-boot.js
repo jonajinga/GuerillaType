@@ -469,10 +469,15 @@ async function settleReplays() {
     if (!newest || String(s.at) > String(newest.at)) newest = s;
   }
   if (!newest) return "no sessions";
-  const age = Date.now() - Date.parse(newest.at);
-  if (!(age >= 0 && age < RUN_IS_FRESH_MS)) return "newest run is not fresh";
+  /* Read before the freshness test, not after it. list() is also
+     where engine/replay-store.js catches up with records written
+     before its text cap existed, and a /stats/ visit is the one
+     moment a profile that has finished no run since then passes
+     through the store at all. */
   let rows = [];
   try { rows = await listReplays(); } catch { return "store unreadable"; }
+  const age = Date.now() - Date.parse(newest.at);
+  if (!(age >= 0 && age < RUN_IS_FRESH_MS)) return "newest run is not fresh";
   /* list() is newest first. String compare is right for the ISO
      stamps both sides write, and a record whose stamp is not older
      than the run is either this run's or newer than it; either way

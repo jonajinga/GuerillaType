@@ -39,6 +39,11 @@
         load. The card now waits for the write, /stats/ waits a
         moment of its own for one it can tell is missing, and neither
         wait is unbounded.
+     M. A record written before the 20,000-character target cap
+        existed loses its text the first time the store looks at
+        everything it holds, keeps its keystrokes, its date and its
+        fingerprint, and does it once per page rather than on every
+        list. A record exactly at the cap is not touched at all.
 
    A note on G and third parties. /stats/ is not /r/: it loads d3 and
    tippy from esm.sh and the site's analytics tag, and it did before
@@ -207,6 +212,19 @@ const waitOr = async (fn, msg, timeout = 12000) => {
   try { await fn(timeout); return true; }
   catch { await bail(msg); return false; }
 };
+/* Anything that runs INSIDE the page can throw for a reason that is
+   the very thing under test -- a record that is not there, a store
+   that refuses a write. A verifier who has reverted src/ and re-run
+   this file should see a readable FAIL and a count, not a Playwright
+   stack. The same helper check-share-local-png.mjs uses, deliberately
+   unchanged. */
+async function inPage(fn, name, fallback) {
+  try { return await fn(); }
+  catch (err) {
+    chk(false, name, String((err && err.message) || err).split("\n")[0].slice(0, 140));
+    return fallback;
+  }
+}
 const events = () => page.evaluate(() => window.__ttEvents.slice());
 const clearEvents = () => page.evaluate(() => { window.__ttEvents.length = 0; });
 
@@ -1454,6 +1472,191 @@ console.log("\nL7. a fresh run whose write is never coming");
     chk(!f.get("r") && !f.get("ru") && !f.get("t"),
       "L7. the row shares its numbers only, which is the honest answer for it", f.toString() || "(empty fragment)");
   }
+}
+
+// =============================================================== M
+console.log("\nM. a record written before the text cap existed");
+/* TEXT_MAX is applied on the way in (section D3), and a cap applied
+   on the way in is not retroactive. A browser that stored a 5.4 MB
+   target before the rule was written -- that number is from a real
+   store read during review -- goes on holding it, goes on offering it
+   to a link that could never carry it (the fragment budget is 8 KB),
+   and goes on making every read of the whole store expensive. Fifty
+   of those is a quarter of a gigabyte in somebody's browser.
+
+   So the store forgets the words the first time it looks at
+   everything it holds, which is list() and prune(). What must hold:
+   the oversized record loses its TEXT and keeps everything else, the
+   record one character under the cap is not touched at all, a normal
+   row goes on sharing its words and its replay, and the sweep happens
+   ONCE per page rather than on every list.
+
+   The legacy record is written through raw IndexedDB on purpose.
+   save() would refuse to keep the text, which is the point: this is a
+   record the CURRENT code could not create, and the only way to have
+   one is to write it the way the old code did. */
+const M_SENTINEL = "MARZIPANTHISTLE";
+{
+  /* Two runs: one to carry the legacy record, one to prove the sweep
+     leaves a healthy row alone. */
+  const runs = [];
+  for (const label of ["legacy", "control"]) {
+    await page.goto(`${B}/practice/?mode=words&words=10`, { waitUntil: "domcontentloaded" });
+    await waitOr((t) => page.waitForSelector(".tt-char", { timeout: t }), `M. a words run for the ${label} row`);
+    await page.click(".tt-stage").catch(() => {});
+    const target = await surfaceText();
+    await typeRun(target);
+    await waitOr((t) => page.waitForSelector("#tt-results:not([hidden])", { timeout: t }), `M. the ${label} run finished`);
+    runs.push({ label, session: await newestSession(), target });
+  }
+  const legacy = runs[0], control = runs[1];
+  chk(!!legacy.session.id && !!control.session.id && legacy.session.id !== control.session.id,
+    "M. two runs, two sessions", `${legacy.session.id} / ${control.session.id}`);
+
+  /* The legacy record: this run's own keystrokes and fingerprint, with
+     a target nobody would keep today bolted on. Everything except the
+     text is what the app itself wrote a moment ago, so anything the
+     sweep changes beyond the text is the sweep's doing. */
+  const seeded = await inPage(() => page.evaluate(async ({ id, max, sentinel, ctlId }) => {
+    const m = await import("/assets/js/engine/replay-store.js");
+    const real = await m.get(id);
+    if (!real) return { error: "no record for the run" };
+    const oversized = { ...real, text: sentinel + "z".repeat(max + 1 - sentinel.length) };
+    const atCap = {
+      id: ctlId, at: new Date(Date.now() - 86400000).toISOString(),
+      keylog: [["a", 0], ["b", 70]], textHash: "x:1", prefs: 0,
+      text: sentinel + "u".repeat(max - sentinel.length),
+    };
+    const put = (record) => new Promise((ok, no) => {
+      const req = indexedDB.open("tt-replays", 1);
+      req.onerror = () => no(req.error);
+      req.onsuccess = () => {
+        const t = req.result.transaction("replays", "readwrite");
+        t.objectStore("replays").put(record);
+        t.oncomplete = () => ok(true);
+        t.onerror = t.onabort = () => no(t.error || new Error("refused"));
+      };
+    });
+    await put(oversized);
+    await put(atCap);
+    const back = await m.get(id), backCap = await m.get(ctlId);
+    return {
+      max,
+      overLen: back && typeof back.text === "string" ? back.text.length : -1,
+      capLen: backCap && typeof backCap.text === "string" ? backCap.text.length : -1,
+      keys: back ? (back.keylog || []).length : -1,
+      at: back ? back.at : null, textHash: back ? back.textHash : null, prefs: back ? back.prefs : null,
+    };
+  }, { id: legacy.session.id, max: 20000, sentinel: M_SENTINEL, ctlId: "s_capexact_ctl" }),
+    "M. the legacy record could be seeded", { error: "it threw" });
+  if (seeded.error) await bail(`M. the legacy record could be seeded — ${seeded.error}`);
+  chk(seeded.max === 20000 && seeded.overLen === seeded.max + 1,
+    "M. the store really is holding a target one character over the cap", `${seeded.overLen} chars`);
+  chk(seeded.capLen === seeded.max, "M. and one exactly at it, which must survive", `${seeded.capLen} chars`);
+
+  /* Load /stats/. Nothing else: no run finishes here, so the only
+     thing that can have touched the store is the page's own read. */
+  await page.goto(B + "/stats/", { waitUntil: "domcontentloaded" });
+  const legacyRow = await shareFromStats(legacy.session.id, { reload: false });
+  if (!legacyRow) await bail("M. the legacy row has a Share button");
+  const after = await inPage(() => page.evaluate(async ({ id, ctlId }) => {
+    const m = await import("/assets/js/engine/replay-store.js");
+    const over = await m.get(id), cap = await m.get(ctlId);
+    return {
+      over: over ? { text: over.text, keys: (over.keylog || []).length, at: over.at, textHash: over.textHash, prefs: over.prefs } : null,
+      cap: cap ? { len: typeof cap.text === "string" ? cap.text.length : -1, head: String(cap.text || "").slice(0, 15), keys: (cap.keylog || []).length } : null,
+    };
+  }, { id: legacy.session.id, ctlId: "s_capexact_ctl" }),
+    "M. the store could be read back after /stats/ loaded", { over: null, cap: null });
+
+  chk(!!after.over && after.over.text === null,
+    "M. loading /stats/ dropped the oversized target",
+    after.over ? `text is ${typeof after.over.text === "string" ? after.over.text.length + " chars" : String(after.over.text)}` : "the record is gone entirely");
+  chk(!!after.over && after.over.keys === seeded.keys && after.over.at === seeded.at
+    && after.over.textHash === seeded.textHash && after.over.prefs === seeded.prefs,
+    "M. and changed nothing else about the record: the keystrokes, the date, the fingerprint and the settings all stand",
+    after.over ? `${after.over.keys} keys (was ${seeded.keys}), at ${after.over.at === seeded.at}, th ${after.over.textHash === seeded.textHash}` : "no record");
+  chk(!!after.cap && after.cap.len === seeded.max && after.cap.head === M_SENTINEL,
+    "M. the record exactly at the cap is untouched, to the character",
+    after.cap ? `${after.cap.len} chars starting ${JSON.stringify(after.cap.head)}` : "the record is gone");
+
+  {
+    const f = fragOf(legacyRow.ds.shareUrl);
+    const q = qOf(legacyRow.ds.shareShortUrl);
+    chk(!f.get("t") && !f.get("r") && !f.get("ru"),
+      "M. the legacy row shares its numbers only", f.toString() || "(empty fragment)");
+    chk(Number(q.get("wpm")) > 0 && !!q.get("d"), "M. the numbers and the date still travel",
+      `wpm=${q.get("wpm")} d=${q.get("d")}`);
+    const all = `${legacyRow.ds.shareUrl} ${legacyRow.ds.shareShortUrl} ${legacyRow.ds.shareTitle} ${legacyRow.ds.shareText}`;
+    chk(!all.includes(M_SENTINEL) && !all.toLowerCase().includes(M_SENTINEL.toLowerCase()),
+      `M. and no "${M_SENTINEL}" anywhere in what the button carries`);
+  }
+
+  /* The counterweight. A sweep that emptied the store would pass every
+     assertion above. */
+  const controlRow = await shareFromStats(control.session.id, { reload: false });
+  if (!controlRow) await bail("M. the control row has a Share button");
+  {
+    const f = fragOf(controlRow.ds.shareUrl);
+    const log = await codec.unpackLog({ r: f.get("r"), ru: f.get("ru") });
+    chk((f.get("t") || "").replace(/\s+/g, " ").trim() === control.target.replace(/\s+/g, " ").trim(),
+      "M. the healthy row beside it still shares exactly the words it was typed against",
+      `${(f.get("t") || "").length} chars`);
+    chk(!!log && log.entries.length > 20, "M. and its replay",
+      log && log.entries ? `${log.entries.length} entries` : "nothing decoded");
+  }
+
+  /* Once, not on every read: the sweep rewrites records, and a list
+     is drawn every time somebody opens a page. Put the record back
+     oversized behind a module that has already had its look, and it
+     must be left alone; a fresh page must not leave it alone.
+
+     The "already had its look" needs saying. eleventy.config.js
+     stamps every import in the built JS with ?v=<build>, so the copy
+     /stats/ runs and the copy this evaluate imports are two different
+     URLs and therefore two different module instances with two
+     separate flags. That is why the first list() below is there: it
+     is this instance's one look, taken deliberately while there is
+     nothing oversized to find. */
+  const again = await inPage(() => page.evaluate(async ({ id, max, sentinel }) => {
+    const m = await import("/assets/js/engine/replay-store.js");
+    const put = (record) => new Promise((ok, no) => {
+      const req = indexedDB.open("tt-replays", 1);
+      req.onerror = () => no(req.error);
+      req.onsuccess = () => {
+        const t = req.result.transaction("replays", "readwrite");
+        t.objectStore("replays").put(record);
+        t.oncomplete = () => ok(true);
+        t.onerror = t.onabort = () => no(t.error || new Error("refused"));
+      };
+    });
+    const first = await m.list();
+    const real = await m.get(id);
+    /* Nothing to put back means the sweep took the whole record, and
+       that is section M's own business a few lines up, not a stack. */
+    if (!real) return { first: first.length, rows: -1, len: -1 };
+    await put({ ...real, text: sentinel + "z".repeat(max + 1 - sentinel.length) });
+    const rows = await m.list();
+    const still = await m.get(id);
+    return {
+      first: first.length, rows: rows.length,
+      len: still && typeof still.text === "string" ? still.text.length : -1,
+    };
+  }, { id: legacy.session.id, max: 20000, sentinel: M_SENTINEL }),
+    "M. the oversized target could be put back for the second look", { first: 0, rows: -1, len: -1 });
+  chk(again.first > 0 && again.rows === again.first,
+    "M. both list() calls saw the same store", `${again.first} then ${again.rows} records`);
+  chk(again.len === 20001,
+    "M. and the second one did NOT sweep again: one look per module, not one per list",
+    `${again.len} chars still there`);
+  await page.goto(B + "/stats/", { waitUntil: "domcontentloaded" });
+  await shareFromStats(legacy.session.id, { reload: false });
+  const nextLoad = await inPage(() => page.evaluate(async (id) => {
+    const m = await import("/assets/js/engine/replay-store.js");
+    const r = await m.get(id);
+    return r ? r.text : "the record is gone";
+  }, legacy.session.id), "M. the store could be read after the reload", "it threw");
+  chk(nextLoad === null, "M. and the next page that looks does sweep it", String(nextLoad).slice(0, 30));
 }
 
 await browser.close();
