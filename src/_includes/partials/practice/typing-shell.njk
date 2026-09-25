@@ -45,14 +45,27 @@
 
   {# Synchronous flip to data-focused="false" on touch devices. Runs
      before paint so the user never sees the brief "focused with
-     cursor blinking" flash before the engine boots. The same
-     predicate as isMobileLike() in typing-engine.js, copied by hand
-     because it has to run before any module loads: touch-first media
-     query, phone or tablet user agent, iPadOS in desktop-UA mode. Not
-     the window width and not the touch-point count: a zoomed desktop
-     browser and a desktop with a touch monitor have keyboards, and
-     "Tap here to start typing" is wrong there. Change both together;
-     check-auto-advance.mjs section O fails when they disagree. #}
+     cursor blinking" flash before the engine boots.
+
+     This is a hand copy of practice-boot.js's isMobileLike(), which is
+     typing-engine.js's isMobileLike() AND the "This device has a
+     physical keyboard" preference. It has to be a copy because it runs
+     before any module loads. Both halves, in order:
+
+       1. the hardware guess: touch-first media query, phone or tablet
+          user agent, iPadOS in desktop-UA mode. Not the window width
+          and not the touch-point count -- a zoomed desktop browser and
+          a desktop with a touch monitor have keyboards, and "Tap here
+          to start typing" is wrong there;
+       2. the preference, read straight out of localStorage because
+          profiles.js is a module and modules are too late. On when the
+          active profile says so, and then this is not a touch-first
+          device at all: the engine will focus the surface and the
+          overlay must not be painted over it for the frame in between.
+
+     Change all three together (here, typing-engine.js,
+     practice-boot.js); check-auto-advance.mjs sections L, O and P fail
+     when they disagree. #}
   <script>
     (function(){
       try{
@@ -62,6 +75,26 @@
         if (w.matchMedia && w.matchMedia("(hover: none) and (pointer: coarse)").matches) touch = true;
         if (!touch && /iphone|ipad|ipod|android|mobile/.test(ua)) touch = true;
         if (!touch && /macintosh/.test(ua) && navigator.maxTouchPoints > 1) touch = true;
+        if (touch) {
+          /* The owner's override. The substring test first: the
+             preference is off by default, so in almost every load this
+             answers no without parsing a profile that can carry
+             hundreds of sessions, and we are on the critical path
+             before first paint. When it is present the parse decides,
+             because what matters is the ACTIVE profile, not any
+             profile in the browser. Same fallback as getActive(). */
+          try {
+            var raw = localStorage.getItem("tt:profiles") || "";
+            if (raw.indexOf('"physicalKeyboard":true') !== -1) {
+              var ps = JSON.parse(raw) || [];
+              var id = JSON.parse(localStorage.getItem("tt:active-profile") || "null");
+              var active = null;
+              for (var i = 0; i < ps.length; i++) { if (ps[i] && ps[i].id === id) active = ps[i]; }
+              if (!active) active = ps[0];
+              if (active && active.preferences && active.preferences.physicalKeyboard === true) touch = false;
+            }
+          } catch (e2) {}
+        }
         if (touch) document.documentElement.setAttribute("data-touch", "true");
       }catch(e){}
     })();
@@ -103,5 +136,10 @@
     </div>
   </div>
 
-  <div id="tt-results" class="results" hidden></div>
+  {# tabindex="-1" so practice-boot can move focus here the moment the
+     card is drawn. It is not in the tab order (-1, not 0); it is a
+     landing place, so a keyboard user lands at the top of the card and
+     tabs forward through its actions instead of being held inside the
+     typing input, which used to swallow Tab. #}
+  <div id="tt-results" class="results" tabindex="-1" hidden></div>
 </div>

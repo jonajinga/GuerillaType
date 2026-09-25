@@ -109,11 +109,31 @@ if (!flag("--file") && existsSync(resolve("_site/analytics/index.html")) && exis
   const stale = ageDays > STALE_AFTER_DAYS;
   for (const [path, html] of Object.entries(pages)) {
     chk(html.includes(data.updatedAtDate), `${path} names the snapshot's date`, data.updatedAtDate);
-    const hasNote = /snapshot is \d+ days old/i.test(html);
-    chk(hasNote === stale, `${path} ${stale ? "warns that the snapshot is stale" : "carries no staleness warning"} (age ${ageDays.toFixed(0)} days, threshold ${STALE_AFTER_DAYS})`, hasNote ? html.match(/snapshot is \d+ days old[^<]{0,80}/i)[0] : "no note");
+    /* Two shapes of note, both written by the same {% if %} in
+       community-stats.njk and analytics.njk: the snapshot's age when
+       the date parses, and "This snapshot has no readable date" when
+       it does not. The regex used to know only the first, so a
+       snapshot with an unreadable updatedAt would have been read as
+       "no warning present" and the gate would have failed the page
+       for carrying exactly the warning it is supposed to carry. */
+    const NOTE = /snapshot is \d+ days old|snapshot has no readable date/i;
+    const hasNote = NOTE.test(html);
+    const found = hasNote ? html.match(new RegExp(NOTE.source + "[^<]{0,80}", "i"))[0] : "no note";
+    chk(hasNote === stale, `${path} ${stale ? "warns that the snapshot is stale" : "carries no staleness warning"} (age ${ageDays.toFixed(0)} days, threshold ${STALE_AFTER_DAYS})`, found);
   }
   const cadence = pages["/community-stats/"];
-  chk(/refreshed every week/i.test(cadence) && !/at each site deploy/i.test(cadence), "/community-stats/ describes the weekly refresh, not a deploy-time bake");
+  /* The threshold has to RENDER, not just exist in the data file. The
+     page says "more than {{ communityStatsMeta.staleAfterDays }}
+     days"; if that variable ever goes undefined the way
+     communityStatsMeta.stale did (Eleventy 3 prefers a data file's
+     named exports to its default export, which silently emptied this
+     object once), the sentence still reads plausibly -- "for more
+     than  days" -- and nothing else here would notice. The number is
+     read from the same default export the page reads. */
+  const threshold = new RegExp(`more than ${STALE_AFTER_DAYS} days`, "i");
+  chk(/refreshed every week/i.test(cadence) && !/at each site deploy/i.test(cadence) && threshold.test(cadence),
+    `/community-stats/ describes the weekly refresh, not a deploy-time bake, and names the ${STALE_AFTER_DAYS}-day threshold`,
+    (cadence.match(/for more than [^<]{0,24}/i) || ["(threshold sentence not found)"])[0]);
 } else if (!flag("--file")) {
   console.log("  note  _site has no analytics pages; build first to check the rendered notes");
 }

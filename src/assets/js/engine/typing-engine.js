@@ -79,6 +79,16 @@ export class TypingEngine {
        onChar/onBackspace itself. Absent or true -> the normal engine. */
     this.capturing = opts.capture !== false;
 
+    /* The user's answer to "does this device have a physical
+       keyboard", when they have given one. isMobileLike() above is a
+       guess about hardware and it cannot be right for a tablet with a
+       keyboard case: an iPad with a Magic Keyboard reports the
+       touch-first media query and a tablet user agent exactly like a
+       bare iPad. The page that owns the profile passes this in (a
+       boolean, or a function when the preference can change under a
+       live engine) -- the engine reads no storage of its own. */
+    this.physicalKeyboard = opts.physicalKeyboard;
+
     /* Append-only keystroke log: [char-or-marker, ms since the previous
        entry]. typed[] cannot do this job -- backspace truncates it, so
        by the end of a session it holds what survived rather than what
@@ -170,13 +180,24 @@ export class TypingEngine {
     // surface before every run and can never auto-advance.
     if (!this.capturing) {
       /* No keyboard, so no focus story to tell. */
-    } else if (isMobileLike()) {
+    } else if (this.softKeyboardOnly()) {
       this.host.dataset.mobileWaiting = "true";
       this.host.dataset.focused = "false";
       this.setHint("");
     } else {
       this.capture.focus();
     }
+  }
+
+  /* "Nothing here can type without a tap first." Touch-first hardware
+     AND no physical keyboard declared for this device. Every place the
+     engine decides whether to take focus by itself asks this rather
+     than isMobileLike() directly, so a tablet with a keyboard case
+     starts its next run already able to type. */
+  softKeyboardOnly() {
+    const pk = typeof this.physicalKeyboard === "function"
+      ? this.physicalKeyboard() : this.physicalKeyboard;
+    return !pk && isMobileLike();
   }
 
   /* Append one entry to the keystroke log. `op` is a single character:
@@ -247,7 +268,7 @@ export class TypingEngine {
     // post-completion flows behave the same way.
     if (!this.capturing) {
       /* capture:false -- nothing to focus and nobody to ask for a key. */
-    } else if (isMobileLike()) {
+    } else if (this.softKeyboardOnly()) {
       this.host.dataset.mobileWaiting = "true";
       this.host.dataset.focused = "false";
       try {

@@ -32,6 +32,15 @@ const DEFAULT_PREFERENCES = {
   // practice page derives (time, words, quote, custom, book, lesson,
   // drill, challenge, adaptive, idiom, poem, parable). Missing = off.
   autoAdvance: {},
+  /* "This device has a physical keyboard", the Settings switch under
+     Auto-advance. The browser cannot tell an iPad with a Magic
+     Keyboard from an iPad without one: both report the touch-first
+     media query and a tablet user agent, so isMobileLike() in
+     typing-engine.js says soft keyboard and the site waits for a tap
+     before every run. This is the user overruling that, per device
+     (it lives in the profile, which is per browser). Off by default:
+     the tap-to-start path is the safe direction to be wrong in. */
+  physicalKeyboard: false,
 };
 
 export function newProfile(name = "Default") {
@@ -88,6 +97,21 @@ export function getActive() {
   const id = getActiveId();
   return ps.find((p) => p.id === id) || ps[0];
 }
+/* "This device has a physical keyboard", the Settings switch under
+   Auto-advance, read fresh from the ACTIVE profile every time.
+
+   It lives here rather than in practice-boot because more than one
+   page builds a TypingEngine and every one of them has to ask the
+   same question: the practice page, and the home page's tape sprint
+   (which was the fifth call site nobody wired, verifier round 1).
+   Fresh on every call on purpose -- a module-level copy read at boot
+   is wrong the moment somebody changes the switch in another tab, and
+   wrong for the whole session if they switch profiles. */
+export function physicalKeyboardOn() {
+  const p = getActive();
+  return !!(p && p.preferences && p.preferences.physicalKeyboard === true);
+}
+
 export function updateActive(mut) {
   const ps = getProfiles();
   const id = getActiveId();
