@@ -18,7 +18,7 @@ pageSlug: analytics
   </p>
   {% if communityStatsMeta.stale %}
   <p class="page__sub muted" data-stale-note>
-    This snapshot is {{ communityStatsMeta.ageDays }} days old. The weekly refresh has not run since {{ d.updatedAtDate }}; the numbers below are from that date, not from today.
+    {% if communityStatsMeta.ageDays != null %}This snapshot is {{ communityStatsMeta.ageDays }} days old. The weekly refresh has not run since {{ d.updatedAtDate }}; the numbers below are from that date, not from today.{% else %}This snapshot has no readable date, so treat every number below as old.{% endif %}
   </p>
   {% endif %}
 </header>

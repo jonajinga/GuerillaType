@@ -53,14 +53,17 @@ jobs:
       - name: Check the snapshot is whole and fresh
         run: node scripts/check-community-stats.mjs --max-age-days 2
 
-      - name: Commit it if it changed
+      # updatedAt changes on every fetch, so this commits every week on
+      # purpose: the date on the pages is the point. The guard only
+      # matters if a run ever produces a byte-identical file.
+      - name: Commit the snapshot
         run: |
           if git diff --quiet -- src/_data/communityStats.json; then
             echo "Snapshot unchanged, nothing to commit."
             exit 0
           fi
-          git config user.name "guerillatype-stats[bot]"
-          git config user.email "stats-bot@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add src/_data/communityStats.json
           git commit -m "data(stats): refresh the community snapshot ($(date -u +%Y-%m-%d))"
           git push origin HEAD:main

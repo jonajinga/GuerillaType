@@ -294,6 +294,19 @@ if (!snapshot.site || !Number.isFinite(snapshot.site.pageviews)) {
   console.error("[umami-stats] FAILED: site totals did not come back, so this is not a snapshot. The committed file is left as it was.");
   process.exit(1);
 }
+/* Nor a hollow one: site totals can succeed while every event-data
+   call 500s or answers an empty list (an outage, a key with reduced
+   scope). Over a 365-day window a site with pageviews has top pages,
+   and a site with any finished session has wpm and mode buckets. */
+const hollow = [
+  ["wpm", Object.keys(snapshot.wpm || {}).length],
+  ["modes", Object.keys(snapshot.modes || {}).length],
+  ["dimensions.pages", ((snapshot.dimensions || {}).pages || []).length],
+].filter(([, n]) => n === 0).map(([k]) => k);
+if (hollow.length) {
+  console.error(`[umami-stats] FAILED: these sections came back empty: ${hollow.join(", ")}. That is an outage or a key with reduced scope, not a snapshot. The committed file is left as it was.`);
+  process.exit(1);
+}
 
 try {
   await mkdir(dirname(OUT_FILE), { recursive: true });

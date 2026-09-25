@@ -26,12 +26,13 @@
 */
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
+import communityStatsMeta from "../src/_data/communityStatsMeta.js";
+const STALE_AFTER_DAYS = communityStatsMeta().staleAfterDays; // one source of truth, the data file the pages read
 
 const args = process.argv.slice(2);
 const flag = (name) => { const i = args.indexOf(name); return i === -1 ? null : args[i + 1]; };
 const FILE = resolve(flag("--file") || "src/_data/communityStats.json");
 const MAX_AGE = flag("--max-age-days") != null ? Number(flag("--max-age-days")) : null;
-const STALE_AFTER_DAYS = 45; // keep in step with src/_data/communityStatsMeta.js
 
 let pass = 0, fail = 0;
 const chk = (ok, name, extra = "") => {
@@ -73,6 +74,16 @@ const taken = Date.parse(data.updatedAt);
 chk(Number.isFinite(taken), "updatedAt is a real timestamp", String(data.updatedAt));
 chk(typeof data.updatedAtDate === "string" && data.updatedAtDate === String(data.updatedAt).slice(0, 10), "updatedAtDate is the date of updatedAt", `${data.updatedAtDate} vs ${String(data.updatedAt).slice(0, 10)}`);
 chk(data.windowDays === 365, "the window is the trailing 365 days the pages describe", String(data.windowDays));
+
+/* Present is not enough: a snapshot with site totals and every
+   section empty is what an event-data outage produces, and it would
+   look fresh. The three sections a live site cannot lack over a year. */
+const floors = [
+  ["wpm", Object.keys(data.wpm || {}).length],
+  ["modes", Object.keys(data.modes || {}).length],
+  ["dimensions.pages", ((data.dimensions || {}).pages || []).length],
+];
+chk(floors.every(([, n]) => n > 0), "the sections the pages lead with are not empty (a hollow snapshot is an outage, not data)", floors.map(([k, n]) => `${k}=${n}`).join(" "));
 
 const dims = data.dimensions || {};
 const DIM_KEYS = ["pages", "countries", "devices", "browsers", "os", "referrers", "topEvents"];

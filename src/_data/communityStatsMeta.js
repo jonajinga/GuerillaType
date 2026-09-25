@@ -9,6 +9,11 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+/* Not a named export: Eleventy 3 reads a data file's named exports in
+   preference to its default export, and the page then sees only the
+   constant and no "stale" flag (that happened; the note vanished).
+   scripts/check-community-stats.mjs reads staleAfterDays from the
+   default export instead. */
 const STALE_AFTER_DAYS = 45;
 
 export default function () {
