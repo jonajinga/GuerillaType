@@ -69,7 +69,8 @@
     "analytics-privacy": "node scripts/check-analytics-privacy.mjs",
     "share-page": "node scripts/check-share-page.mjs",
     "share-replay": "node scripts/check-share-replay.mjs",
-    "stats-share": "node scripts/check-stats-share.mjs"
+    "stats-share": "node scripts/check-stats-share.mjs",
+    "community-stats": "node scripts/check-community-stats.mjs"
   },
   "dependencies": {
     "@11ty/eleventy": "^3.0.0",

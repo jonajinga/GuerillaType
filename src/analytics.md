@@ -16,6 +16,11 @@ pageSlug: analytics
     Site totals: trailing 365 days. Time-series chart: trailing 30 days (hourly &rarr; daily). Snapshot taken {{ d.updatedAt or "&mdash;" }}.
     Community-facing summary lives at <a href="/community-stats/">/community-stats/</a>.
   </p>
+  {% if communityStatsMeta.stale %}
+  <p class="page__sub muted" data-stale-note>
+    {% if communityStatsMeta.ageDays != null %}This snapshot is {{ communityStatsMeta.ageDays }} days old. The weekly refresh has not run since {{ d.updatedAtDate }}; the numbers below are from that date, not from today.{% else %}This snapshot has no readable date, so treat every number below as old.{% endif %}
+  </p>
+  {% endif %}
 </header>
 
 <section class="ac-summary">
