@@ -47,6 +47,15 @@
         device and nowhere else: same situation, same answer. A public
         result still gets the server's card, and drawing a picture must
         not be the thing that finally sends the fragment anywhere.
+     I. navigator.share -- the system sheet, which is where a phone
+        actually shares and the only path that can attach a file --
+        carries the SAME picture. It used to attach the grid card for
+        every result, including the private ones this file is about.
+        navigator.share and navigator.canShare are stubbed in the page
+        and every File they receive is decoded: the local card for a
+        private result (byte-identical to what Download PNG draws from
+        the same open sheet), the grid card for a public one, and the
+        grid card with the same apology when the renderer cannot run.
 
    Section F is the one that makes the rest worth having. B could pass
    forever against a hand-drawn canvas copy that slowly stopped looking
@@ -883,6 +892,230 @@ for (const [label, url, wantLocal] of [["a text in the fragment", R_PRIVATE, tru
       JSON.stringify(replayH));
   }
   await ctxH.close();
+}
+
+// ================================================================ I
+console.log("\nI. the system share sheet carries the same picture");
+/* navigator.share is where a phone actually shares, and it is the one
+   path that can attach a file. It used to attach the pre-rendered
+   grid card for EVERY result, including the one kind this whole file
+   is about: a run on a text of your own, where the grid card is a
+   number and an accuracy band and nothing else, while the Download
+   PNG button two rows below it drew the real card with the words in
+   it. Same sheet, same result, two different pictures.
+
+   Playwright cannot open a real system sheet, so navigator.share and
+   navigator.canShare are replaced in the page before any of its own
+   script runs and every File they are handed is decoded and kept. The
+   stub is the only fiction here: the file it receives is the file the
+   product built, and it is compared against real bytes on disk --
+   the grid card for a public run, and for a private one the picture
+   Download PNG produces from the very same open sheet.
+
+   og:image is NOT what changes. That stays the grid card in every
+   case, because it is what a crawler is given and a crawler must
+   never be sent a picture of something the server has never seen. */
+const SHARE_STUB = () => {
+  window.__ttShared = [];
+  const b64 = (u8) => {
+    let s = "";
+    for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
+    return btoa(s);
+  };
+  const share = async (data) => {
+    const rec = { title: data.title, text: data.text, url: data.url, files: [] };
+    for (const f of (data.files || [])) {
+      const u8 = new Uint8Array(await f.arrayBuffer());
+      rec.files.push({ name: f.name, type: f.type, size: u8.length, b64: b64(u8) });
+    }
+    window.__ttShared.push(rec);
+  };
+  /* What a real implementation answers: yes to a files payload of
+     real Files. Saying yes to everything would hide a payload that a
+     platform would have refused. */
+  const canShare = (data) => {
+    if (!data || !data.files) return true;
+    return Array.isArray(data.files) && data.files.length > 0 && data.files.every((f) => f instanceof File);
+  };
+  try {
+    Object.defineProperty(navigator, "share", { value: share, configurable: true, writable: true });
+    Object.defineProperty(navigator, "canShare", { value: canShare, configurable: true, writable: true });
+  } catch {
+    navigator.share = share;
+    navigator.canShare = canShare;
+  }
+};
+
+async function sharedFilesFrom(pageX) {
+  const ok = await pageX.waitForFunction(() => (window.__ttShared || []).length > 0, null, { timeout: 60000 })
+    .then(() => true).catch(() => false);
+  if (!ok) return null;
+  const rec = await pageX.evaluate(() => window.__ttShared[0]);
+  return {
+    ...rec,
+    files: (rec.files || []).map((f) => ({ ...f, buf: Buffer.from(f.b64, "base64") })),
+  };
+}
+
+/* I1 -- a text of your own. */
+{
+  const ctxI = await freshContext();
+  await ctxI.addInitScript(SHARE_STUB);
+  const pageI = await ctxI.newPage();
+  const errsI = [];
+  pageI.on("pageerror", (e) => errsI.push(String(e).slice(0, 140)));
+  const wI = watch(pageI);
+  const targetI = await runCustomToTheEnd(pageI);
+  chk(targetI.includes("quillfeather"), "I1. the private run typed the sentinel text");
+  const numsI = await resultNumbers(pageI);
+  await pageI.click("#tt-share");
+  await pageI.waitForTimeout(200);
+  const nativeShown = await inPage(() => pageI.evaluate(() => {
+    const b = document.querySelector("[data-share-native]");
+    return b ? { hidden: b.hidden, label: b.textContent.trim() } : null;
+  }), "I1. the sheet's native button can be read", null);
+  chk(!!nativeShown && nativeShown.hidden === false,
+    "I1. the sheet offers the system share button", JSON.stringify(nativeShown));
+
+  wI.on = true;
+  await pageI.click("#share-sheet [data-share-native]");
+  const sharedI = await sharedFilesFrom(pageI);
+  wI.on = false;
+  if (!sharedI) await bail("I1. navigator.share was called");
+  chk(sharedI.files.length === 1, "I1. exactly one file went to the system sheet",
+    `${sharedI.files.length} files`);
+  const fileI = sharedI.files[0] || { buf: Buffer.alloc(0), name: "", type: "" };
+  const infoI = pngInfo(fileI.buf);
+  chk(!!infoI && infoI.w === 1200 && infoI.h === 630,
+    "I1. and it decodes as a 1200x630 PNG", infoI ? `${infoI.w}x${infoI.h}, ${infoI.bytes} bytes` : "not a PNG");
+  chk(fileI.type === "image/png" && /\.png$/.test(fileI.name || ""),
+    "I1. declared as one, with a .png name", `${fileI.name} ${fileI.type}`);
+  const gridI = await readFile(join(ROOT, gridPathFor(numsI.wpm, numsI.acc))).catch(() => null);
+  if (!gridI) await bail(`I1. the grid card ${gridPathFor(numsI.wpm, numsI.acc)} is in the build`);
+  chk(!fileI.buf.equals(gridI),
+    "I1. it is NOT the pre-rendered grid card, which is what used to be attached",
+    `${fileI.buf.length} vs grid ${gridI.length} bytes`);
+
+  /* And it is the local card, not merely something else: the same
+     sheet is still open, so Download PNG draws the picture this very
+     result would save, and the two must be the same bytes. */
+  const [dlI] = await Promise.all([
+    pageI.waitForEvent("download", { timeout: 60000 }).catch(() => null),
+    pageI.click("#share-sheet [data-share-download]"),
+  ]);
+  if (!dlI) await bail("I1. Download PNG still works from the same sheet");
+  const downloadedI = await readFile(await dlI.path());
+  chk(downloadedI.equals(fileI.buf),
+    "I1. it is byte for byte the card Download PNG draws for the same result",
+    `${fileI.buf.length} shared vs ${downloadedI.length} downloaded`);
+  chk(!downloadedI.equals(gridI), "I1. and that one is not the grid card either",
+    `${downloadedI.length} vs ${gridI.length}`);
+
+  chk(sharedI.url === (await pageI.getAttribute("#tt-share", "data-share-url")),
+    "I1. the link that went with it is the result's full link",
+    String(sharedI.url || "").slice(0, 60) + "…");
+  const toastI = await pageI.evaluate(() => (document.getElementById("toast") || {}).textContent || "");
+  chk(toastI === "", "I1. and nothing was apologised for", JSON.stringify(toastI));
+  chk(errsI.length === 0, "I1. the page threw nothing", errsI.join(" | "));
+
+  /* Nothing left the device to make that picture, and nothing carried
+     a word of it. The share itself is a local API call; what is being
+     checked is everything the page asked for while serving it. */
+  const offI = wI.requests.filter((r) => !r.url.startsWith(B));
+  chk(offI.length === 0, "I1. the share asked nothing of any other origin",
+    offI.map((r) => r.url).join(" ") || `${wI.requests.length} requests, all same-origin`);
+  const hayI = wI.requests.map((r) => `${r.url} ${r.post}`).join(" ");
+  let decI = hayI;
+  try { decI = decodeURIComponent(hayI); } catch {}
+  for (const secret of ["quillfeather", "brindlewick", "SAFFRONVOLE", TEXT_ID]) {
+    const found = hayI.toLowerCase().includes(secret.toLowerCase())
+      || decI.toLowerCase().includes(secret.toLowerCase())
+      || hayI.includes(encodeURIComponent(secret));
+    chk(!found, `I1. no request carries "${secret}"`, found ? "FOUND" : `${wI.requests.length} requests checked`);
+  }
+  chk(!/\/og\/result\//.test(hayI),
+    "I1. and the grid card was never fetched, so it cannot have been what travelled");
+  chk(wI.requests.length >= 3, "I1. there were real requests to check, not an empty list",
+    `${wI.requests.length} requests`);
+  await ctxI.close();
+}
+
+/* I2 -- a public run. The server can draw this one, so it should, and
+   the browser renderer must not be reached at all. */
+{
+  const ctxI2 = await freshContext();
+  await ctxI2.addInitScript(SHARE_STUB);
+  const pageI2 = await ctxI2.newPage();
+  const wI2 = watch(pageI2);
+  await pageI2.goto(`${B}/practice/?mode=words&words=10`, { waitUntil: "domcontentloaded" });
+  await pageI2.waitForSelector(".tt-char", { timeout: 15000 });
+  await pageI2.click(".tt-stage").catch(() => {});
+  const targetI2 = await surfaceText(pageI2);
+  await typeAll(pageI2, targetI2, [3, 9]);
+  await pageI2.waitForSelector("#tt-results:not([hidden])", { timeout: 20000 });
+  const numsI2 = await resultNumbers(pageI2);
+  chk(numsI2.acc < 100, "I2. the words run landed below 100 %, so the band is not a constant", `${numsI2.acc}%`);
+  await pageI2.click("#tt-share");
+  await pageI2.waitForTimeout(200);
+  wI2.on = true;
+  await pageI2.click("#share-sheet [data-share-native]");
+  const sharedI2 = await sharedFilesFrom(pageI2);
+  wI2.on = false;
+  if (!sharedI2) await bail("I2. navigator.share was called for the public run");
+  const fileI2 = sharedI2.files[0] || { buf: Buffer.alloc(0) };
+  const gridI2 = await readFile(join(ROOT, gridPathFor(numsI2.wpm, numsI2.acc))).catch(() => null);
+  if (!gridI2) await bail(`I2. the grid card ${gridPathFor(numsI2.wpm, numsI2.acc)} is in the build`);
+  chk(fileI2.buf.equals(gridI2),
+    "I2. a public run still attaches the pre-rendered grid card, byte for byte",
+    `${fileI2.buf.length} vs ${gridI2.length} bytes of ${gridPathFor(numsI2.wpm, numsI2.acc)}`);
+  const rendererI2 = wI2.requests.filter((r) => RENDERER_URL.test(r.url));
+  chk(rendererI2.length === 0,
+    "I2. and the browser renderer is never loaded for it",
+    rendererI2.map((r) => r.url.replace(B, "")).join(" ") || `${wI2.requests.length} requests, none of them the renderer`);
+  const toastI2 = await pageI2.evaluate(() => (document.getElementById("toast") || {}).textContent || "");
+  chk(toastI2 === "", "I2. and nothing is apologised for", JSON.stringify(toastI2));
+  await ctxI2.close();
+}
+
+/* I3 -- the renderer cannot run. Section E's question, asked of the
+   other button: the grid card goes instead, the user is told in the
+   same words the download path uses, and nothing is reported as a
+   bug by their browser. */
+{
+  const ctxI3 = await freshContext();
+  await ctxI3.addInitScript(SHARE_STUB);
+  await ctxI3.route("**/satori.browser.js*", (route) => route.abort());
+  const pageI3 = await ctxI3.newPage();
+  const errsI3 = [];
+  pageI3.on("pageerror", (e) => errsI3.push(String(e).slice(0, 140)));
+  await runCustomToTheEnd(pageI3);
+  const numsI3 = await resultNumbers(pageI3);
+  await pageI3.click("#tt-share");
+  await pageI3.waitForTimeout(200);
+  await pageI3.evaluate(() => { window.__ttEvents.length = 0; });
+  await pageI3.click("#share-sheet [data-share-native]");
+  const sharedI3 = await sharedFilesFrom(pageI3);
+  if (!sharedI3) await bail("I3. navigator.share was still called with the renderer blocked");
+  const fileI3 = sharedI3.files[0] || { buf: Buffer.alloc(0) };
+  const gridI3 = await readFile(join(ROOT, gridPathFor(numsI3.wpm, numsI3.acc))).catch(() => null);
+  if (!gridI3) await bail(`I3. the grid card ${gridPathFor(numsI3.wpm, numsI3.acc)} is in the build`);
+  chk(fileI3.buf.equals(gridI3),
+    "I3. with the renderer blocked the grid card travels instead, byte for byte",
+    `${fileI3.buf.length} vs ${gridI3.length} bytes`);
+  const toastI3 = await pageI3.evaluate(() => {
+    const t = document.getElementById("toast");
+    return t ? { text: t.textContent, hidden: t.hidden, bad: t.classList.contains("toast--bad") } : null;
+  });
+  chk(!!toastI3 && toastI3.text === "Saved the plain card. The picture will not include your text."
+    && toastI3.hidden === false && toastI3.bad === true,
+    "I3. and the user is told, in the same words the download path uses",
+    JSON.stringify(toastI3 && toastI3.text));
+  await pageI3.waitForTimeout(800);
+  chk(errsI3.length === 0, "I3. nothing escaped to window.onerror", errsI3.join(" | "));
+  const reportedI3 = await pageI3.evaluate(() => (window.__ttEvents || []).filter((e) => e.name === "js_error"));
+  chk(reportedI3.length === 0, "I3. and nothing was reported to analytics as js_error",
+    reportedI3.map((e) => JSON.stringify(e.props)).join(" | ") || "0 js_error events");
+  await ctxI3.close();
 }
 
 await browser.close();
