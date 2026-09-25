@@ -251,7 +251,7 @@
   display:grid;
   /* 3 link columns + featured rail. The link columns get 1.1fr each
      so they expand wider than the featured panel (0.75fr), giving
-     longer link descriptions room without forcing 2-line wraps. */
+     the one-line items breathing room (the descriptions are gone). */
   grid-template-columns:repeat(3, minmax(0, 1.1fr)) 0.75fr;
   gap:var(--space-5) var(--space-6);
   /* min-height, not height: short menus still fill the panel, long ones
@@ -438,7 +438,7 @@
 /* ── Slide-in panel ────────────────────────────────────────────────
    Best-in-class navigation drawer.
      - 380px wide (more horizontal room than the previous 360 for
-       2-line item descriptions).
+       one-line items (the descriptions are gone)).
      - Slides in from the right with a smooth ease.
      - Subtle internal hairlines instead of one big border-left so
        the panel reads as paper, not a slab.

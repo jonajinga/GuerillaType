@@ -4,8 +4,10 @@
      2. Quick row      -- 4 large iconographic CTAs (start typing, today's
                           quote, stats, settings)
      3. Search filter  -- live filter for the link list below; matches
-                          label OR description in any section (the
-                          description lives only in data-haystack now)
+                          label OR the old description words, which
+                          live only in data-haystack now (the
+                          hand-written Project and Site items carry
+                          them explicitly; keep them when editing)
      4. Stats card     -- streak / sessions / best WPM glance, populated
                           from the active profile by panel.js
      5. Sections       -- one <details> per megamenu category, each item
@@ -109,16 +111,16 @@
         </span>
       </summary>
       <ul class="nav-panel__list">
-        <li class="nav-panel__item" data-haystack="about why this exists"><a href="/about/"><span class="nav-panel__item-label">About</span></a></li>
-        <li class="nav-panel__item" data-haystack="features full list capabilities"><a href="/features/"><span class="nav-panel__item-label">Features</span></a></li>
-        <li class="nav-panel__item" data-haystack="changelog updates additions"><a href="/changelog/"><span class="nav-panel__item-label">Changelog</span></a></li>
-        <li class="nav-panel__item" data-haystack="blog posts notes"><a href="/blog/"><span class="nav-panel__item-label">Blog</span></a></li>
-        <li class="nav-panel__item" data-haystack="faq questions"><a href="/faq/"><span class="nav-panel__item-label">FAQ</span></a></li>
-        <li class="nav-panel__item" data-haystack="contact email feedback"><a href="/contact/"><span class="nav-panel__item-label">Contact</span></a></li>
-        <li class="nav-panel__item" data-haystack="cost run hosting"><a href="/cost/"><span class="nav-panel__item-label">Cost to run</span></a></li>
-        <li class="nav-panel__item" data-haystack="analytics tracking privacy"><a href="/analytics/"><span class="nav-panel__item-label">Analytics</span></a></li>
-        <li class="nav-panel__item" data-haystack="tech stack technology"><a href="/tech-stack/"><span class="nav-panel__item-label">Tech stack</span></a></li>
-        <li class="nav-panel__item" data-haystack="style guide design tokens"><a href="/style-guide/"><span class="nav-panel__item-label">Style guide</span></a></li>
+        <li class="nav-panel__item" data-haystack="about why this exists site"><a href="/about/"><span class="nav-panel__item-label">About</span></a></li>
+        <li class="nav-panel__item" data-haystack="features full list capabilities site can do"><a href="/features/"><span class="nav-panel__item-label">Features</span></a></li>
+        <li class="nav-panel__item" data-haystack="changelog updates additions recent fixes"><a href="/changelog/"><span class="nav-panel__item-label">Changelog</span></a></li>
+        <li class="nav-panel__item" data-haystack="blog posts notes maker"><a href="/blog/"><span class="nav-panel__item-label">Blog</span></a></li>
+        <li class="nav-panel__item" data-haystack="faq questions common answered"><a href="/faq/"><span class="nav-panel__item-label">FAQ</span></a></li>
+        <li class="nav-panel__item" data-haystack="contact email feedback bug feature hello"><a href="/contact/"><span class="nav-panel__item-label">Contact</span></a></li>
+        <li class="nav-panel__item" data-haystack="cost run hosting how site stays free"><a href="/cost/"><span class="nav-panel__item-label">Cost to run</span></a></li>
+        <li class="nav-panel__item" data-haystack="analytics tracking privacy tracked"><a href="/analytics/"><span class="nav-panel__item-label">Analytics</span></a></li>
+        <li class="nav-panel__item" data-haystack="tech stack technology built"><a href="/tech-stack/"><span class="nav-panel__item-label">Tech stack</span></a></li>
+        <li class="nav-panel__item" data-haystack="style guide design tokens components"><a href="/style-guide/"><span class="nav-panel__item-label">Style guide</span></a></li>
       </ul>
     </details>
 
@@ -131,14 +133,14 @@
         </span>
       </summary>
       <ul class="nav-panel__list">
-        <li class="nav-panel__item" data-haystack="search find ctrl k"><a href="/search/"><span class="nav-panel__item-label">Search</span></a></li>
-        <li class="nav-panel__item" data-haystack="sitemap full index pages"><a href="/sitemap/"><span class="nav-panel__item-label">Site index</span></a></li>
-        <li class="nav-panel__item" data-haystack="rss feed subscribe"><a href="/feed.xml"><span class="nav-panel__item-label">RSS feed</span></a></li>
-        <li class="nav-panel__item" data-haystack="github source code repo"><a href="{{ site.repo }}" target="_blank" rel="noopener"><span class="nav-panel__item-label">GitHub repo ↗</span></a></li>
-        <li class="nav-panel__item" data-haystack="github issues bug report"><a href="{{ site.repo }}/issues" target="_blank" rel="noopener"><span class="nav-panel__item-label">Report a bug ↗</span></a></li>
-        <li class="nav-panel__item" data-haystack="privacy policy data"><a href="/privacy/"><span class="nav-panel__item-label">Privacy</span></a></li>
-        <li class="nav-panel__item" data-haystack="terms of use"><a href="/terms/"><span class="nav-panel__item-label">Terms</span></a></li>
-        <li class="nav-panel__item" data-haystack="license mit open source"><a href="/license/"><span class="nav-panel__item-label">License</span></a></li>
+        <li class="nav-panel__item" data-haystack="search find ctrl k any page site"><a href="/search/"><span class="nav-panel__item-label">Search</span></a></li>
+        <li class="nav-panel__item" data-haystack="sitemap full index pages every page one list"><a href="/sitemap/"><span class="nav-panel__item-label">Site index</span></a></li>
+        <li class="nav-panel__item" data-haystack="rss feed subscribe blog"><a href="/feed.xml"><span class="nav-panel__item-label">RSS feed</span></a></li>
+        <li class="nav-panel__item" data-haystack="github source code repo mit licensed"><a href="{{ site.repo }}" target="_blank" rel="noopener"><span class="nav-panel__item-label">GitHub repo ↗</span></a></li>
+        <li class="nav-panel__item" data-haystack="github issues bug report file issue"><a href="{{ site.repo }}/issues" target="_blank" rel="noopener"><span class="nav-panel__item-label">Report a bug ↗</span></a></li>
+        <li class="nav-panel__item" data-haystack="privacy policy data privacy-first analytics no cookies"><a href="/privacy/"><span class="nav-panel__item-label">Privacy</span></a></li>
+        <li class="nav-panel__item" data-haystack="terms of use plain-english"><a href="/terms/"><span class="nav-panel__item-label">Terms</span></a></li>
+        <li class="nav-panel__item" data-haystack="license mit open source code public domain content"><a href="/license/"><span class="nav-panel__item-label">License</span></a></li>
       </ul>
     </details>
   </nav>

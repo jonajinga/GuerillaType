@@ -112,6 +112,114 @@ const hay = await page.$$eval(".nav-panel__item", (els) => els.map((li) => ({
   hay: (li.getAttribute("data-haystack") || "").trim(),
 })));
 const richer = hay.filter((x) => x.hay.length > x.label.length + 2).length;
+/* The hand-written Project and Site items never carried their
+   description in data-haystack (their haystacks were curated keyword
+   lists), and the filter used to match the rendered description
+   through textContent. With the description gone from the DOM those
+   words must be in the haystack, or "cookies" stops finding Privacy
+   (verifier finding). The table is the old descriptions' words. */
+const HANDWRITTEN = {
+  "About": [
+    "why",
+    "site",
+    "exists"
+  ],
+  "Features": [
+    "full",
+    "list",
+    "site",
+    "can",
+    "do"
+  ],
+  "Changelog": [
+    "recent",
+    "additions",
+    "fixes"
+  ],
+  "Blog": [
+    "notes",
+    "maker"
+  ],
+  "FAQ": [
+    "common",
+    "questions",
+    "answered"
+  ],
+  "Contact": [
+    "bug",
+    "feature",
+    "hello"
+  ],
+  "Cost to run": [
+    "how",
+    "site",
+    "stays",
+    "free"
+  ],
+  "Analytics": [
+    "tracked"
+  ],
+  "Tech stack": [
+    "built"
+  ],
+  "Style guide": [
+    "design",
+    "tokens",
+    "components"
+  ],
+  "Search": [
+    "find",
+    "any",
+    "page",
+    "site"
+  ],
+  "Site index": [
+    "every",
+    "page",
+    "one",
+    "list"
+  ],
+  "RSS feed": [
+    "subscribe",
+    "blog"
+  ],
+  "GitHub repo \u2197": [
+    "source",
+    "mit",
+    "licensed"
+  ],
+  "Report a bug \u2197": [
+    "file",
+    "issue",
+    "github"
+  ],
+  "Privacy": [
+    "privacy-first",
+    "analytics",
+    "no",
+    "cookies"
+  ],
+  "Terms": [
+    "plain-english",
+    "terms",
+    "use"
+  ],
+  "License": [
+    "mit",
+    "code",
+    "public",
+    "domain",
+    "content"
+  ]
+};
+const byLabel = new Map(hay.map((x) => [x.label, x.hay.split(/\s+/)]));
+const lost = [];
+for (const [label, words] of Object.entries(HANDWRITTEN)) {
+  const have = byLabel.get(label.toLowerCase());
+  if (!have) { lost.push(`${label}: item missing`); continue; }
+  for (const w of words) if (!have.includes(w)) lost.push(`${label}: ${w}`);
+}
+chk(lost.length === 0, "B. every hand-written Project and Site item keeps its old description words in the haystack", lost.length ? lost.slice(0, 6).join("; ") : `${Object.keys(HANDWRITTEN).length} items, every word present`);
 chk(hay.length > 30 && richer === hay.length, "B. every hamburger item keeps a haystack richer than its label", `${richer} of ${hay.length}`);
 chk(hay.every((x) => x.hay.includes(x.label.split(" ")[0])), "B. and the haystack still contains the label's first word");
 
@@ -165,6 +273,12 @@ if (opener) {
     await phone.waitForTimeout(250);
     const visible = await phone.$$eval(".nav-panel__item", (els) => els.filter((li) => li.offsetParent !== null && !li.hidden).map((li) => li.querySelector(".nav-panel__item-label").textContent.trim()));
     chk(visible.includes("Cost to run") && visible.length <= 3, "B. typing a description word (hosting) still finds the page by its label", JSON.stringify(visible));
+    for (const [word, label] of [["cookies", "Privacy"], ["maker", "Blog"], ["answered", "FAQ"]]) {
+      await search.fill(word);
+      await phone.waitForTimeout(250);
+      const vis = await phone.$$eval(".nav-panel__item", (els) => els.filter((li) => li.offsetParent !== null && !li.hidden).map((li) => li.querySelector(".nav-panel__item-label").textContent.trim()));
+      chk(vis.includes(label), `B. a hand-written item's old description word (${word}) still finds ${label}`, JSON.stringify(vis));
+    }
     await search.fill("");
     await phone.waitForTimeout(250);
   }
