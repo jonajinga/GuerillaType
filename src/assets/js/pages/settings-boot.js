@@ -104,6 +104,10 @@ const PREF_BOOLS = [
   "showVirtualKeyboard", "keyboardFingerColors",
   "mobileKeyboard",
   "showTicker", "hideUI", "hideToolbar", "autoScroll",
+  /* Auto-advance group. Not part of the per-mode autoAdvance map
+     below: it is one answer about this device, and the practice page
+     reads it beside isMobileLike() rather than per mode. */
+  "physicalKeyboard",
 ];
 const PREF_SELECTS = ["whitespaceMark", "reportFrequency", "soundTheme", "typingFont"];
 

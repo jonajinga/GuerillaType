@@ -2,7 +2,12 @@
    card, and adaptive engine. Reads ?mode= ?duration= ?words= ?quote=
    from the URL on load to support deep links from the homepage. */
 
-import { TypingEngine, isMobileLike } from "../engine/typing-engine.js";
+/* isMobileLike is imported under another name on purpose. This file
+   defines its own isMobileLike() further down, which is the engine's
+   answer AND the "This device has a physical keyboard" preference:
+   every decision on this page means "cannot type without a tap",
+   never "has a touch screen". See physicalKeyboardOn(). */
+import { TypingEngine, isMobileLike as isTouchFirstDevice } from "../engine/typing-engine.js";
 import { AdaptiveModel } from "../engine/adaptive.js";
 import { buildPicker, uniformText, drillText } from "../engine/wordpicker.js";
 import { recordSession } from "../engine/session-recorder.js";
@@ -951,6 +956,10 @@ function startEngine(target) {
     forgiveErrors: state.forgiveErrors,
     // Read fresh so the Settings switch applies on the next boot without a reload.
     autoScroll: ((getActive() || {}).preferences || {}).autoScroll !== false,
+    /* A function, not a boolean: the engine outlives a trip to
+       Settings in another tab, and the preference decides whether it
+       may take focus on every start(). */
+    physicalKeyboard: () => physicalKeyboardOn(),
     ignoreCapitalization: state.ignoreCapitalization,
     skipPunctuation: state.skipPunctuation,
     adaptive: adaptiveStream,
@@ -1413,6 +1422,28 @@ function autoAdvanceKey() {
   if (state.mode === "tape") return "time";
   return state.mode;
 }
+/* "This device has a physical keyboard", the Settings switch under
+   Auto-advance, read fresh from the active profile.
+
+   The browser has no way to tell an iPad with a Magic Keyboard from an
+   iPad without one: both report (hover: none) and (pointer: coarse)
+   and a tablet user agent, so isTouchFirstDevice() says soft keyboard
+   for both and the site waits for a tap before every run, shows the
+   results card, and greys the Auto button out. This is the user
+   saying otherwise, per device. Off by default. */
+function physicalKeyboardOn() {
+  const p = getActive();
+  return !!(p && p.preferences && p.preferences.physicalKeyboard === true);
+}
+/* Shadows the engine's export deliberately (imported above as
+   isTouchFirstDevice). Every caller in this file is asking the same
+   question -- "can the next run be typed without a tap first?" -- and
+   the answer has two halves: what the hardware reports, and what the
+   user told us about it. Keeping both behind one name is what stops a
+   later call site from being wired to only one of them. */
+function isMobileLike() {
+  return isTouchFirstDevice() && !physicalKeyboardOn();
+}
 function readAutoAdvanceMap() {
   const p = getActive();
   const map = p && p.preferences && p.preferences.autoAdvance;
@@ -1453,7 +1484,7 @@ function syncAutoAdvanceButton() {
     btn.setAttribute("aria-disabled", "true");
     btn.setAttribute("aria-pressed", "false");
     btn.classList.remove("is-active");
-    btn.dataset.tip = "<strong>Auto-advance</strong><br>Needs a physical keyboard: on a phone the next run waits for a tap, so the results card shows instead. Switch it on for your desktop in Settings.";
+    btn.dataset.tip = "<strong>Auto-advance</strong><br>Needs a physical keyboard: on a phone the next run waits for a tap, so the results card shows instead. If this device has a keyboard attached, say so in Settings and the switch works here.";
     return;
   }
   btn.removeAttribute("aria-disabled");
@@ -1465,7 +1496,7 @@ window.ttToggleAutoAdvance = () => {
   const key = autoAdvanceKey();
   if (!key) return;
   if (isMobileLike()) {
-    toast("Auto-advance needs a keyboard. On a phone the results card shows after each run.");
+    toast("Auto-advance needs a keyboard. On a phone the results card shows after each run. If this device has one, say so in Settings.");
     return;
   }
   const next = !autoAdvanceOn();

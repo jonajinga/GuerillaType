@@ -32,6 +32,15 @@ const DEFAULT_PREFERENCES = {
   // practice page derives (time, words, quote, custom, book, lesson,
   // drill, challenge, adaptive, idiom, poem, parable). Missing = off.
   autoAdvance: {},
+  /* "This device has a physical keyboard", the Settings switch under
+     Auto-advance. The browser cannot tell an iPad with a Magic
+     Keyboard from an iPad without one: both report the touch-first
+     media query and a tablet user agent, so isMobileLike() in
+     typing-engine.js says soft keyboard and the site waits for a tap
+     before every run. This is the user overruling that, per device
+     (it lives in the profile, which is per browser). Off by default:
+     the tap-to-start path is the safe direction to be wrong in. */
+  physicalKeyboard: false,
 };
 
 export function newProfile(name = "Default") {

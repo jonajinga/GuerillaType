@@ -21,6 +21,13 @@
      O. Desktops that used to be mistaken for phones (a window under
         768 px, a touch monitor with a mouse) get the live switch, the
         header agrees with Settings, and the next run takes focus.
+     P. A touch device whose owner has said it has a physical keyboard
+        (an iPad with a Magic Keyboard, an Android tablet in a keyboard
+        case) gets everything a desktop gets: a live Auto button, a run
+        that flows into the next one, and a surface that takes focus by
+        itself. The hardware signals are identical to a phone's, so
+        nothing but the preference can tell them apart -- which is why
+        L, unchanged, still has to pass.
 
    Section D is the one a lazy implementation fails: a swap with no
    guard would mark a wrong first character before the user even looks.
@@ -560,6 +567,114 @@ chk(lit.startsWith("abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz"), "K.
     chk(started === "running" && wrong === 0, `O. ${c.name}: first key starts the next run cleanly`, `state=${started} incorrect=${wrong}`);
     await ctx.close();
   }
+}
+
+// P. The same phone as section L, with "This device has a physical
+//    keyboard" turned on. Every signal the browser offers still says
+//    touch-first -- hasTouch flips the hover/pointer media queries and
+//    isMobile sends a phone user agent -- so if any of this passes,
+//    it passes because of the preference and nothing else. Real
+//    devices behind it: iPads with a Magic Keyboard and Android
+//    tablets in keyboard cases, which never auto-advanced.
+{
+  /* A real iPad user agent, not Playwright's default: the predicate
+     has two halves (the touch-first media query AND a phone/tablet
+     UA) and a tablet in a keyboard case trips both. Faking only the
+     media query would leave half the rule untested. */
+  const kb = await browser.newPage({
+    viewport: { width: 820, height: 1180 }, hasTouch: true, isMobile: true, serviceWorkers: "block",
+    userAgent: "Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
+  });
+  kb.on("pageerror", (e) => console.log("  PAGEERROR:", String(e).slice(0, 160)));
+  const kbText = () => kb.$$eval(".tt-char", (els) =>
+    els.map((e) => (e.classList.contains("tt-char--space") ? " " : e.textContent)).join(""));
+  const kbPrefs = () => kb.evaluate(() => {
+    const ps = JSON.parse(localStorage.getItem("tt:profiles") || "[]");
+    const id = JSON.parse(localStorage.getItem("tt:active-profile") || "null");
+    const q = ps.find((x) => x.id === id) || ps[0];
+    return (q && q.preferences) || {};
+  });
+
+  // The profile has to exist before Settings can write to it.
+  await kb.goto(`${B}/practice/?mode=words&words=10`, { waitUntil: "networkidle" });
+  await kb.waitForSelector(".tt-char", { timeout: 8000 });
+  const hw = await kb.evaluate(() => ({
+    coarse: matchMedia("(hover: none) and (pointer: coarse)").matches,
+    ua: /android|iphone|ipad|mobile/i.test(navigator.userAgent),
+  }));
+  chk(hw.coarse && hw.ua, "P. the device still reports itself as touch-first in every way a browser can", JSON.stringify(hw));
+  chk((await kbPrefs()).physicalKeyboard !== true, "P. and the preference starts off");
+  chk((await kb.getAttribute("#tt-autoadvance", "aria-disabled")) === "true", "P. so the Auto button starts unavailable, exactly as in L");
+
+  // The Settings row writes it.
+  await kb.goto(`${B}/settings/`, { waitUntil: "networkidle" });
+  chk(await kb.isVisible("#pref-physicalKeyboard"), "P. Settings has the physical-keyboard row in the Auto-advance group");
+  const rowText = (await kb.$eval("#pref-physicalKeyboard", (el) => el.closest(".settings__row").textContent)) || "";
+  chk(/physical keyboard/i.test(rowText) && /auto-advance will work/i.test(rowText),
+    "P. and it explains what turning it on does", JSON.stringify(rowText.replace(/\s+/g, " ").trim().slice(0, 120)));
+  chk(!(await kb.isChecked("#pref-physicalKeyboard")), "P. the row starts unchecked");
+  await kb.$eval("#pref-physicalKeyboard", (el) => el.closest("label").click());
+  await kb.waitForTimeout(200);
+  chk((await kbPrefs()).physicalKeyboard === true, "P. clicking it writes preferences.physicalKeyboard", JSON.stringify((await kbPrefs()).physicalKeyboard));
+  // Turn auto-advance on for words the same way a user would.
+  await kb.$eval("#pref-autoAdvance-words", (el) => el.closest("label").click());
+  await kb.waitForTimeout(200);
+
+  // The header reflects it on reload.
+  await kb.goto(`${B}/practice/?mode=words&words=10`, { waitUntil: "networkidle" });
+  await kb.waitForSelector(".tt-char", { timeout: 8000 });
+  chk((await kb.getAttribute("#tt-autoadvance", "aria-disabled")) !== "true", "P. the Auto button is a live switch after reload");
+  chk((await kb.getAttribute("#tt-autoadvance", "aria-pressed")) === "true", "P. and shows the Settings switch on");
+  chk(await kb.evaluate(() => document.activeElement && document.activeElement.id === "tt-input"),
+    "P. the surface took focus by itself, with no tap");
+  chk((await kb.getAttribute("#tt-stage", "data-mobile-waiting")) !== "true", "P. and is not waiting for one");
+
+  // A run flows into the next one, typable at once. 70 ms a key: the
+  // engine calls anything over 250 wpm suspect and auto-advance
+  // refuses a suspect result.
+  const before = await kbText();
+  for (const ch of before) await kb.keyboard.type(ch, { delay: 70 });
+  await kb.waitForTimeout(1500);
+  chk(await kb.$eval("#tt-results", (el) => el.hidden), "P. no results card after the run");
+  chk(await kb.isVisible("#tt-last-run"), "P. the last-run strip shows instead");
+  const after = await kbText();
+  chk(after.length > 0 && after !== before, "P. fresh words are on the surface");
+  chk(await kb.evaluate(() => document.activeElement && document.activeElement.id === "tt-input"),
+    "P. the next run already has focus, so it can be typed without a tap");
+  await kb.keyboard.type(after[0], { delay: 70 });
+  await kb.waitForTimeout(200);
+  const started = await kb.getAttribute("#tt-stage", "data-state");
+  const wrong = await kb.$$eval(".tt-char--incorrect", (els) => els.length);
+  chk(started === "running" && wrong === 0, "P. the first key starts the next run cleanly", `state=${started} incorrect=${wrong}`);
+
+  // The header button is a real switch here, not the refusal toast.
+  await kb.click("#tt-autoadvance", { force: true, timeout: 5000 });
+  await kb.waitForTimeout(250);
+  const said = (await kb.textContent("#toast").catch(() => "")) || "";
+  chk(!/needs a keyboard/i.test(said), "P. the header button does not refuse", JSON.stringify(said.trim().slice(0, 80)));
+  chk((await kb.getAttribute("#tt-autoadvance", "aria-pressed")) === "false", "P. it turns auto-advance off");
+
+  // Turning the preference back off restores the phone behaviour on
+  // the very same device: this is the half that proves the preference
+  // is what section L is protected by.
+  await kb.evaluate(() => {
+    const ps = JSON.parse(localStorage.getItem("tt:profiles") || "[]");
+    ps[0].preferences.physicalKeyboard = false;
+    ps[0].preferences.autoAdvance = { words: true };
+    localStorage.setItem("tt:profiles", JSON.stringify(ps));
+  });
+  await kb.reload({ waitUntil: "networkidle" });
+  await kb.waitForSelector(".tt-char", { timeout: 8000 });
+  chk((await kb.getAttribute("#tt-autoadvance", "aria-disabled")) === "true", "P. off again: the Auto button is unavailable");
+  chk(await kb.evaluate(() => document.activeElement && document.activeElement.id !== "tt-input"),
+    "P. off again: the surface waits for a tap");
+  await kb.tap(".tt-stage").catch(() => {});
+  await kb.focus("#tt-input").catch(() => {});
+  const t3 = await kbText();
+  for (const ch of t3) await kb.keyboard.type(ch, { delay: 70 });
+  await kb.waitForTimeout(1500);
+  chk(!(await kb.$eval("#tt-results", (el) => el.hidden)), "P. off again: the results card is back");
+  await kb.close();
 }
 
 await browser.close();
