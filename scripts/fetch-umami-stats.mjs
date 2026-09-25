@@ -31,6 +31,17 @@ if (!KEY) {
 
 const HEADERS = { "x-umami-api-key": KEY, accept: "application/json" };
 
+/* A failure anywhere below must be one readable line and a non-zero
+   exit, so the weekly workflow goes red with a reason and the build
+   hook can say what happened. The committed snapshot is untouched
+   because nothing is written until the very end. */
+process.on("unhandledRejection", (e) => {
+  const msg = e && e.message ? e.message : String(e);
+  const hint = /\b(401|403)\b/.test(msg) ? " The API key was rejected: it may have been revoked or rotated in Umami Cloud." : "";
+  console.error(`[umami-stats] FAILED: ${msg}.${hint} The committed snapshot is left as it was.`);
+  process.exit(1);
+});
+
 // 365-day window. Umami Cloud retains events for the trailing year
 // on the free tier; longer windows return empty.
 const END = Date.now();
@@ -39,6 +50,13 @@ const START = END - 365 * 86400 * 1000;
 async function get(path) {
   const url = `${BASE}${path}`;
   const res = await fetch(url, { headers: HEADERS });
+  if (res.status === 401 || res.status === 403) {
+    /* Fatal, not per-section: every later call would fail the same
+       way, and the per-section catches below would otherwise turn a
+       rejected key into an empty snapshot and write it. */
+    console.error(`[umami-stats] FAILED: ${path}: ${res.status}. The API key was rejected: it may have been revoked or rotated in Umami Cloud. The committed snapshot is left as it was.`);
+    process.exit(1);
+  }
   if (!res.ok) throw new Error(`${path}: ${res.status} ${res.statusText}`);
   return res.json();
 }
@@ -268,6 +286,14 @@ snapshot.dimensions = {
 };
 snapshot.pageviewSeries = await pageviewSeries();
 console.log(`[umami-stats] dashboard dims: ${Object.entries(snapshot.dimensions).map(([k, v]) => `${k}=${v.length}`).join(" ")}`);
+
+/* Never overwrite a good snapshot with an empty one. The site totals
+   are the one section every page leads with; if they did not come
+   back, nothing did. */
+if (!snapshot.site || !Number.isFinite(snapshot.site.pageviews)) {
+  console.error("[umami-stats] FAILED: site totals did not come back, so this is not a snapshot. The committed file is left as it was.");
+  process.exit(1);
+}
 
 try {
   await mkdir(dirname(OUT_FILE), { recursive: true });

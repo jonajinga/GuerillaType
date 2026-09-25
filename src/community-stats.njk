@@ -17,6 +17,11 @@ pageSlug: community-stats
     Updated {{ d.updatedAtDate or "&mdash;" }}.
     {% if site %}{{ site.visitors }} visitors &middot; {{ site.visits }} sessions &middot; {{ site.pageviews }} pageviews.{% endif %}
   </p>
+  {% if communityStatsMeta.stale %}
+  <p class="page__sub muted" data-stale-note>
+    This snapshot is {{ communityStatsMeta.ageDays }} days old. The weekly refresh has not run since {{ d.updatedAtDate }}; everything on this page is as of that date.
+  </p>
+  {% endif %}
 </header>
 
 {# ───────────────── Hero numerics ───────────────── #}
@@ -196,7 +201,7 @@ pageSlug: community-stats
     <li><strong>Bucketing</strong> &mdash; WPM and accuracy are bucketed client-side at session finish (see <code>src/assets/js/pages/practice-boot.js</code> for the exact thresholds). Umami stores the bucket label as a categorical property.</li>
     <li><strong>Derived numerics</strong> &mdash; averages and medians are computed from bucket midpoints (e.g. "40&ndash;50 WPM" contributes 45 to the average). Values are approximations, accurate within roughly &plusmn;5 WPM and &plusmn;1% accuracy.</li>
     <li><strong>What this can't show</strong> &mdash; per-user histories (no cookies), continuous distributions (everything's bucketed), or cross-event correlations beyond the four properties on <code>session_dist</code>. The privacy posture limits what's possible without identifying users.</li>
-    <li><strong>Refresh cadence</strong> &mdash; the page bakes a JSON snapshot at each site deploy. Re-fetch by running <code>UMAMI_API_KEY=&hellip; npm run stats</code> then redeploying.</li>
+    <li><strong>Refresh cadence</strong>: the snapshot is refreshed every week by a scheduled job that fetches from Umami and commits the result, and the site rebuilds from that commit. A deploy with <code>UMAMI_API_KEY</code> in its build environment refreshes it too. When neither has happened for more than {{ communityStatsMeta.staleAfterDays }} days, a note at the top of this page says how old the numbers are.</li>
     <li><strong>Full transparency</strong> &mdash; every tracked event is listed on <a href="/privacy/">/privacy/</a>. The raw operator dashboard is public at <a href="/analytics/">/analytics/</a>. No event includes anything the user actually typed.</li>
   </ul>
 </section>
