@@ -33,6 +33,17 @@
      G. Every request from /stats/ through the sheet is intercepted.
         Nothing carries the text, the title or the id, and sharing
         contacts no host the page did not already contact.
+     L. A /stats/ page opened in the same breath as a finish still
+        shares the replay. The write used to be fire and forget, so a
+        row read before it landed shared numbers only until the next
+        load. The card now waits for the write, /stats/ waits a
+        moment of its own for one it can tell is missing, and neither
+        wait is unbounded.
+     M. A record written before the 20,000-character target cap
+        existed loses its text the first time the store looks at
+        everything it holds, keeps its keystrokes, its date and its
+        fingerprint, and does it once per page rather than on every
+        list. A record exactly at the cap is not touched at all.
 
    A note on G and third parties. /stats/ is not /r/: it loads d3 and
    tippy from esm.sh and the site's analytics tag, and it did before
@@ -201,6 +212,19 @@ const waitOr = async (fn, msg, timeout = 12000) => {
   try { await fn(timeout); return true; }
   catch { await bail(msg); return false; }
 };
+/* Anything that runs INSIDE the page can throw for a reason that is
+   the very thing under test -- a record that is not there, a store
+   that refuses a write. A verifier who has reverted src/ and re-run
+   this file should see a readable FAIL and a count, not a Playwright
+   stack. The same helper check-share-local-png.mjs uses, deliberately
+   unchanged. */
+async function inPage(fn, name, fallback) {
+  try { return await fn(); }
+  catch (err) {
+    chk(false, name, String((err && err.message) || err).split("\n")[0].slice(0, 140));
+    return fallback;
+  }
+}
 const events = () => page.evaluate(() => window.__ttEvents.slice());
 const clearEvents = () => page.evaluate(() => { window.__ttEvents.length = 0; });
 
@@ -220,17 +244,15 @@ async function typeRun(target, { errorsAt = [3, 9] } = {}) {
   }
 }
 
-/* The replay store is written fire-and-forget: a browser with no
-   IndexedDB, or a full one, must cost somebody a replay and never the
-   session that earned it, so nothing awaits the write. A page opened
-   in the same breath as the run that produced it can therefore read
-   the store before the record lands, and a gate that asserts "the
-   replay travels" without waiting is asserting how fast this machine
-   is. Polls for up to four seconds and says plainly if it gave up.
+/* Waits for a run's keystrokes to reach the store. Every failure
+   inside the store is swallowed by design -- a browser with no
+   IndexedDB must cost somebody a replay and never the session that
+   earned it -- so a gate that asserts "the replay travels" without
+   waiting is asserting how fast this machine is. Polls for up to four
+   seconds and says plainly if it gave up.
 
-   This is a real property of the app, not only of the gate: click View
-   stats the instant a run ends and that row may share without its
-   replay until the next load. */
+   Section L is the one that does NOT use this, on purpose: whether a
+   row is correct with no wait at all is the thing it measures. */
 async function waitForReplay(id, ms = 4000) {
   const until = Date.now() + ms;
   for (;;) {
@@ -1183,6 +1205,458 @@ console.log("\nK. the roadmap and the changelog say what this does");
   const boot = await readFile(resolve("src/assets/js/pages/stats-boot.js"), "utf8").catch(() => "");
   chk(/sessions\.slice\(0,\s*60\)/.test(boot),
     "K. and so does the plain table drawn when d3 cannot be fetched");
+}
+
+// =============================================================== L
+console.log("\nL. /stats/ opened in the same breath as the finish");
+/* The replay write used to be fire and forget. A run ended, the card
+   went up in the same turn, and the write to IndexedDB was still on
+   its way when somebody pressed View stats -- so the newest row built
+   its link from a store that did not have the run yet and shared
+   numbers only. Nothing was broken afterwards; the next load of
+   /stats/ was correct. It was a row that lied for one page view, and
+   the only way to see it was to be quick.
+
+   So: no waiting anywhere in this section. The card appearing is the
+   signal to navigate, which is exactly what a user has to go on, and
+   pressing the card's own "View stats" link is the same race with one
+   extra frame in it.
+
+   WITH ONE THING ADDED, and it is the whole reason this section is
+   worth having. The first draft of it did not hold the store, and it
+   passed with the fix reverted, four times out of four: on this
+   machine the write wins the race anyway, so the assertion was
+   measuring the hardware. A race you cannot lose is not a race. The
+   store is therefore held busy across the finish -- one readwrite
+   transaction on the replays store, kept alive for HOLD_MS, which is
+   what a second tab or a prune of fifty records does to it -- and
+   the save() the run issues has to queue behind it. Now the ordering
+   is the only thing that decides the outcome: a card that waits for
+   its write shares a replay, a card that does not gets navigated
+   away from while the write is still queued and shares numbers.
+
+   Timing still does not fail every time, so the case runs REPEATS
+   times and every repeat has to carry the replay. */
+const REPEATS = 4;
+const HOLD_MS = 700;
+await page.addInitScript(() => {
+  /* An IndexedDB transaction stays alive as long as a request is
+     issued from its own success handler, and transactions with
+     overlapping scope are serialised across connections. Both are
+     the spec, not a trick: this is the same queue the app's own
+     prune() sits in. The store is created here only if it does not
+     exist yet, with the schema engine/replay-store.js uses, so that
+     a hold taken before the first run does not invent a different
+     shape of database. */
+  window.__ttHoldReplays = (ms) => new Promise((ready) => {
+    let req;
+    try { req = indexedDB.open("tt-replays", 1); }
+    catch (e) { ready("open threw: " + e); return; }
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains("replays")) {
+        db.createObjectStore("replays", { keyPath: "id" }).createIndex("at", "at");
+      }
+    };
+    req.onerror = () => ready("open failed");
+    req.onsuccess = () => {
+      let t;
+      try { t = req.result.transaction("replays", "readwrite"); }
+      catch (e) { ready("no transaction: " + e); return; }
+      const store = t.objectStore("replays");
+      const until = Date.now() + ms;
+      window.__ttHeld = "holding";
+      const spin = () => {
+        if (Date.now() >= until) { window.__ttHeld = "released"; return; }
+        const r = store.get("__gate-hold-never-written__");
+        r.onsuccess = spin;
+        r.onerror = spin;
+      };
+      spin();
+      ready("holding");
+    };
+  });
+});
+{
+  const carried = [];
+  for (let i = 1; i <= REPEATS; i++) {
+    await page.goto(`${B}/practice/?mode=words&words=10`, { waitUntil: "domcontentloaded" });
+    await waitOr((t) => page.waitForSelector(".tt-char", { timeout: t }), `L${i}. the practice page painted a target`);
+    await page.click(".tt-stage").catch(() => {});
+    const targetL = await surfaceText();
+    /* Everything but the last keystroke, then the store is taken,
+       then the keystroke that ends the run. */
+    await typeRun(targetL.slice(0, -1));
+    const held = await page.evaluate((ms) => window.__ttHoldReplays(ms), HOLD_MS);
+    chk(held === "holding", `L${i}. the replay store is held busy across the finish`, String(held));
+    await page.keyboard.type(targetL.slice(-1), { delay: 70 });
+    const t0 = Date.now();
+    await waitOr((t) => page.waitForSelector("#tt-results:not([hidden])", { timeout: t }),
+      `L${i}. the run finished and the card is up`);
+    const cardMs = Date.now() - t0;
+    /* Here. Nothing at all between the card and the navigation. */
+    await page.goto(B + "/stats/", { waitUntil: "domcontentloaded" });
+    const sess = await newestSession();
+    if (!sess || !sess.id) { chk(false, `L${i}. the run was recorded`, JSON.stringify(sess)); continue; }
+    const row = await shareFromStats(sess.id, { reload: false });
+    if (!row) { chk(false, `L${i}. the row has a Share button`); continue; }
+    const f = fragOf(row.ds.shareUrl);
+    const hasReplay = !!(f.get("r") || f.get("ru"));
+    const log = hasReplay ? await codec.unpackLog({ r: f.get("r"), ru: f.get("ru") }) : null;
+    const entries = log && log.entries ? log.entries.length : 0;
+    const settle = await page.evaluate(() => window.__ttReplaySettle || "(never ran)");
+    carried.push({ i, hasReplay, entries, cardMs });
+    chk(cardMs >= 250, `L${i}. the card waited for the store instead of going up over a queued write`,
+      `${cardMs} ms of a ${HOLD_MS} ms hold`);
+    chk(hasReplay && entries > 20,
+      `L${i}. and the newest row carries its replay with no pause before /stats/`,
+      `${entries} entries, t=${(f.get("t") || "").length} chars, settle=${settle}`);
+  }
+  /* Every repeat, not most of them, and REPEATS of them: a loop that
+     quietly ran twice would otherwise read as a clean pass. */
+  chk(carried.length === REPEATS && carried.every((c) => c.hasReplay),
+    `L. all ${REPEATS} repeats ran and every one of them carried it`,
+    `${carried.length} of ${REPEATS}: ` + carried.map((c) => `#${c.i}:${c.hasReplay ? c.entries : "none"}@${c.cardMs}ms`).join(" "));
+}
+
+// =============================================================== L5
+console.log("\nL5. a write that lands after the stats page did");
+/* The other half of the same fix. The await on the results card has a
+   ceiling, and a second tab opened mid-finish never had it at all, so
+   /stats/ waits a moment of its own for a record it can tell is
+   missing -- the newest session is newer than the newest replay it
+   holds -- and gives up after a fixed cap rather than sitting there.
+
+   The late write is fired off the page's OWN first read of the replay
+   store, 150 ms after it, so this cannot pass by being slow: whatever
+   /stats/ does, the record does not exist when it first looks. A
+   /stats/ that does not wait reads once, finds nothing, and builds a
+   numbers-only link.
+
+   The record handed back is the one the run actually wrote, read out
+   and re-saved verbatim. Rebuilding it by hand would mean rebuilding
+   its textHash by hand, and a fingerprint that disagrees with the
+   profile's is a different test entirely (section D2). */
+const LATE_FLAG = "tt:gate-late-write";
+{
+  await page.goto(`${B}/practice/?mode=words&words=10`, { waitUntil: "domcontentloaded" });
+  await waitOr((t) => page.waitForSelector(".tt-char", { timeout: t }), "L5. a words run to seed from");
+  await page.click(".tt-stage").catch(() => {});
+  const lateTarget = await surfaceText();
+  await typeRun(lateTarget);
+  await waitOr((t) => page.waitForSelector("#tt-results:not([hidden])", { timeout: t }), "L5. it finished");
+  const lateSession = await newestSession();
+  const lateRecord = await page.evaluate(async (sid) => {
+    const m = await import("/assets/js/engine/replay-store.js");
+    const r = await m.get(sid);
+    return r ? { id: r.id, keylog: r.keylog, textHash: r.textHash, prefs: r.prefs, text: r.text } : null;
+  }, lateSession.id);
+  chk(!!lateRecord && (lateRecord.keylog || []).length > 20 && !!lateRecord.text,
+    "L5. its record is in the store to begin with",
+    lateRecord ? `${(lateRecord.keylog || []).length} keys, ${(lateRecord.text || "").length} chars of target` : "no record");
+
+  await page.addInitScript(({ flag, record }) => {
+    /* Installed on every load of this origin, and inert unless the
+       gate has just armed it. Playwright cannot take an init script
+       back off a page, so the flag is how it is switched off. */
+    if (localStorage.getItem(flag) !== "1") return;
+    const fire = async () => {
+      try {
+        const m = await import("/assets/js/engine/replay-store.js");
+        await m.save(record);
+        window.__ttLateWrite = "done";
+      } catch (e) { window.__ttLateWrite = "failed: " + e; }
+    };
+    window.__ttLateWrite = "armed";
+    let armed = true;
+    for (const fn of ["get", "getAll"]) {
+      const orig = IDBObjectStore.prototype[fn];
+      IDBObjectStore.prototype[fn] = function (...a) {
+        if (armed && this.name === "replays") { armed = false; window.__ttLateWrite = "firing"; setTimeout(fire, 150); }
+        return orig.apply(this, a);
+      };
+    }
+  }, { flag: LATE_FLAG, record: lateRecord });
+
+  /* Taken away again, and armed to be handed back late. */
+  await page.evaluate(async (flag) => {
+    const m = await import("/assets/js/engine/replay-store.js");
+    await m.clear();
+    localStorage.setItem(flag, "1");
+  }, LATE_FLAG);
+
+  await page.goto(B + "/stats/", { waitUntil: "domcontentloaded" });
+  const lateRow = await shareFromStats(lateSession.id, { reload: false });
+  if (!lateRow) await bail("L5. the row has a Share button");
+  const lf = fragOf(lateRow.ds.shareUrl);
+  const lateState = await page.evaluate(() => ({
+    write: window.__ttLateWrite || "(absent)",
+    settle: window.__ttReplaySettle || "(never ran)",
+  }));
+  chk(lateState.write === "done", "L5. the late write really did land, and only after the page had looked",
+    JSON.stringify(lateState));
+  const lateLog = await codec.unpackLog({ r: lf.get("r"), ru: lf.get("ru") });
+  chk(!!(lf.get("r") || lf.get("ru")) && !!lateLog && lateLog.entries.length > 20,
+    "L5. and the row picked it up rather than sharing numbers only",
+    `${lateLog && lateLog.entries ? lateLog.entries.length : 0} entries, settle=${lateState.settle}`);
+  chk(lateState.settle === "waited for the write",
+    "L5. the page says so itself: it waited, it did not merely get lucky", lateState.settle);
+  await page.evaluate((flag) => localStorage.removeItem(flag), LATE_FLAG);
+}
+
+// =============================================================== L6
+console.log("\nL6. and it does not wait for a write that is not coming");
+/* A cap is only a cap if it is not paid on every load. The wait
+   starts only when the newest run is recent enough to have a write
+   still in the air; a profile whose newest session is days old has
+   nothing pending, and neither does a browser that will never write
+   at all. Without this the store-less browsers -- private windows,
+   locked down profiles -- would pay the full cap on every single
+   visit to /stats/, forever, for nothing. */
+{
+  const stale = await page.evaluate(() => {
+    const ps = JSON.parse(localStorage.getItem("tt:profiles") || "[]");
+    const active = JSON.parse(localStorage.getItem("tt:active-profile") || "null");
+    const i = Math.max(0, ps.findIndex((x) => x.id === active));
+    const old = new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString();
+    let n = 0;
+    for (const s of ps[i].sessions || []) { s.at = old; n++; }
+    localStorage.setItem("tt:profiles", JSON.stringify(ps));
+    return { old, n };
+  });
+  chk(stale.n > 0, "L6. every session in the profile was stamped three days ago", `${stale.n} sessions`);
+  const t0 = Date.now();
+  await page.goto(B + "/stats/", { waitUntil: "domcontentloaded" });
+  const ready = await page.waitForSelector("button[data-share][data-share-ready]", { timeout: 20000 })
+    .then(() => true).catch(() => false);
+  chk(ready, "L6. the buttons still build", `${Date.now() - t0} ms`);
+  const why = await page.evaluate(() => window.__ttReplaySettle || "(never ran)");
+  chk(why === "newest run is not fresh", "L6. and nothing waited for a write that was never coming", why);
+}
+
+// =============================================================== L7
+console.log("\nL7. a fresh run whose write is never coming");
+/* The other end of the same wait. A run that recorded no keystrokes
+   at all -- Esc pressed before a single character -- writes nothing
+   to the replay store, ever, and from /stats/ that is indisputable
+   from a write that is one millisecond away. So the wait has a hard
+   cap, and this is the case that holds it to it: a session stamped
+   NOW, with no replay behind it and none on the way. Without the cap
+   the page would sit here for the rest of the visit. */
+{
+  const cloneId = await page.evaluate(() => {
+    const ps = JSON.parse(localStorage.getItem("tt:profiles") || "[]");
+    const active = JSON.parse(localStorage.getItem("tt:active-profile") || "null");
+    const i = Math.max(0, ps.findIndex((x) => x.id === active));
+    /* A real record, so the link builds; a new id, so no replay in
+       the store is its; stamped now, so the page believes a write
+       could still be in the air. */
+    const seed = JSON.parse(JSON.stringify((ps[i].sessions || [])[0]));
+    seed.id = "s_neverwritten01";
+    seed.at = new Date().toISOString();
+    ps[i].sessions.unshift(seed);
+    localStorage.setItem("tt:profiles", JSON.stringify(ps));
+    return seed.id;
+  });
+  const t0 = Date.now();
+  await page.goto(B + "/stats/", { waitUntil: "domcontentloaded" });
+  const built = await page.waitForSelector(`[data-session-id="${cloneId}"] button[data-share][data-share-ready]`, { timeout: 20000 })
+    .then(() => true).catch(() => false);
+  const tookMs = Date.now() - t0;
+  chk(built, "L7. the page gives up and builds its buttons anyway", `${tookMs} ms`);
+  const verdict = await page.evaluate(() => window.__ttReplaySettle || "(never ran)");
+  chk(verdict === "gave up waiting", "L7. and says that is what it did", verdict);
+  chk(tookMs < 12000, "L7. inside a cap, not for the rest of the visit", `${tookMs} ms`);
+  if (built) {
+    const f = fragOf(await page.getAttribute(`[data-session-id="${cloneId}"] button[data-share]`, "data-share-url"));
+    chk(!f.get("r") && !f.get("ru") && !f.get("t"),
+      "L7. the row shares its numbers only, which is the honest answer for it", f.toString() || "(empty fragment)");
+  }
+}
+
+// =============================================================== M
+console.log("\nM. a record written before the text cap existed");
+/* TEXT_MAX is applied on the way in (section D3), and a cap applied
+   on the way in is not retroactive. A browser that stored a 5.4 MB
+   target before the rule was written -- that number is from a real
+   store read during review -- goes on holding it, goes on offering it
+   to a link that could never carry it (the fragment budget is 8 KB),
+   and goes on making every read of the whole store expensive. Fifty
+   of those is a quarter of a gigabyte in somebody's browser.
+
+   So the store forgets the words the first time it looks at
+   everything it holds, which is list() and prune(). What must hold:
+   the oversized record loses its TEXT and keeps everything else, the
+   record one character under the cap is not touched at all, a normal
+   row goes on sharing its words and its replay, and the sweep happens
+   ONCE per page rather than on every list.
+
+   The legacy record is written through raw IndexedDB on purpose.
+   save() would refuse to keep the text, which is the point: this is a
+   record the CURRENT code could not create, and the only way to have
+   one is to write it the way the old code did. */
+const M_SENTINEL = "MARZIPANTHISTLE";
+{
+  /* Two runs: one to carry the legacy record, one to prove the sweep
+     leaves a healthy row alone. */
+  const runs = [];
+  for (const label of ["legacy", "control"]) {
+    await page.goto(`${B}/practice/?mode=words&words=10`, { waitUntil: "domcontentloaded" });
+    await waitOr((t) => page.waitForSelector(".tt-char", { timeout: t }), `M. a words run for the ${label} row`);
+    await page.click(".tt-stage").catch(() => {});
+    const target = await surfaceText();
+    await typeRun(target);
+    await waitOr((t) => page.waitForSelector("#tt-results:not([hidden])", { timeout: t }), `M. the ${label} run finished`);
+    runs.push({ label, session: await newestSession(), target });
+  }
+  const legacy = runs[0], control = runs[1];
+  chk(!!legacy.session.id && !!control.session.id && legacy.session.id !== control.session.id,
+    "M. two runs, two sessions", `${legacy.session.id} / ${control.session.id}`);
+
+  /* The legacy record: this run's own keystrokes and fingerprint, with
+     a target nobody would keep today bolted on. Everything except the
+     text is what the app itself wrote a moment ago, so anything the
+     sweep changes beyond the text is the sweep's doing. */
+  const seeded = await inPage(() => page.evaluate(async ({ id, max, sentinel, ctlId }) => {
+    const m = await import("/assets/js/engine/replay-store.js");
+    const real = await m.get(id);
+    if (!real) return { error: "no record for the run" };
+    const oversized = { ...real, text: sentinel + "z".repeat(max + 1 - sentinel.length) };
+    const atCap = {
+      id: ctlId, at: new Date(Date.now() - 86400000).toISOString(),
+      keylog: [["a", 0], ["b", 70]], textHash: "x:1", prefs: 0,
+      text: sentinel + "u".repeat(max - sentinel.length),
+    };
+    const put = (record) => new Promise((ok, no) => {
+      const req = indexedDB.open("tt-replays", 1);
+      req.onerror = () => no(req.error);
+      req.onsuccess = () => {
+        const t = req.result.transaction("replays", "readwrite");
+        t.objectStore("replays").put(record);
+        t.oncomplete = () => ok(true);
+        t.onerror = t.onabort = () => no(t.error || new Error("refused"));
+      };
+    });
+    await put(oversized);
+    await put(atCap);
+    const back = await m.get(id), backCap = await m.get(ctlId);
+    return {
+      max,
+      overLen: back && typeof back.text === "string" ? back.text.length : -1,
+      capLen: backCap && typeof backCap.text === "string" ? backCap.text.length : -1,
+      keys: back ? (back.keylog || []).length : -1,
+      at: back ? back.at : null, textHash: back ? back.textHash : null, prefs: back ? back.prefs : null,
+    };
+  }, { id: legacy.session.id, max: 20000, sentinel: M_SENTINEL, ctlId: "s_capexact_ctl" }),
+    "M. the legacy record could be seeded", { error: "it threw" });
+  if (seeded.error) await bail(`M. the legacy record could be seeded — ${seeded.error}`);
+  chk(seeded.max === 20000 && seeded.overLen === seeded.max + 1,
+    "M. the store really is holding a target one character over the cap", `${seeded.overLen} chars`);
+  chk(seeded.capLen === seeded.max, "M. and one exactly at it, which must survive", `${seeded.capLen} chars`);
+
+  /* Load /stats/. Nothing else: no run finishes here, so the only
+     thing that can have touched the store is the page's own read. */
+  await page.goto(B + "/stats/", { waitUntil: "domcontentloaded" });
+  const legacyRow = await shareFromStats(legacy.session.id, { reload: false });
+  if (!legacyRow) await bail("M. the legacy row has a Share button");
+  const after = await inPage(() => page.evaluate(async ({ id, ctlId }) => {
+    const m = await import("/assets/js/engine/replay-store.js");
+    const over = await m.get(id), cap = await m.get(ctlId);
+    return {
+      over: over ? { text: over.text, keys: (over.keylog || []).length, at: over.at, textHash: over.textHash, prefs: over.prefs } : null,
+      cap: cap ? { len: typeof cap.text === "string" ? cap.text.length : -1, head: String(cap.text || "").slice(0, 15), keys: (cap.keylog || []).length } : null,
+    };
+  }, { id: legacy.session.id, ctlId: "s_capexact_ctl" }),
+    "M. the store could be read back after /stats/ loaded", { over: null, cap: null });
+
+  chk(!!after.over && after.over.text === null,
+    "M. loading /stats/ dropped the oversized target",
+    after.over ? `text is ${typeof after.over.text === "string" ? after.over.text.length + " chars" : String(after.over.text)}` : "the record is gone entirely");
+  chk(!!after.over && after.over.keys === seeded.keys && after.over.at === seeded.at
+    && after.over.textHash === seeded.textHash && after.over.prefs === seeded.prefs,
+    "M. and changed nothing else about the record: the keystrokes, the date, the fingerprint and the settings all stand",
+    after.over ? `${after.over.keys} keys (was ${seeded.keys}), at ${after.over.at === seeded.at}, th ${after.over.textHash === seeded.textHash}` : "no record");
+  chk(!!after.cap && after.cap.len === seeded.max && after.cap.head === M_SENTINEL,
+    "M. the record exactly at the cap is untouched, to the character",
+    after.cap ? `${after.cap.len} chars starting ${JSON.stringify(after.cap.head)}` : "the record is gone");
+
+  {
+    const f = fragOf(legacyRow.ds.shareUrl);
+    const q = qOf(legacyRow.ds.shareShortUrl);
+    chk(!f.get("t") && !f.get("r") && !f.get("ru"),
+      "M. the legacy row shares its numbers only", f.toString() || "(empty fragment)");
+    chk(Number(q.get("wpm")) > 0 && !!q.get("d"), "M. the numbers and the date still travel",
+      `wpm=${q.get("wpm")} d=${q.get("d")}`);
+    const all = `${legacyRow.ds.shareUrl} ${legacyRow.ds.shareShortUrl} ${legacyRow.ds.shareTitle} ${legacyRow.ds.shareText}`;
+    chk(!all.includes(M_SENTINEL) && !all.toLowerCase().includes(M_SENTINEL.toLowerCase()),
+      `M. and no "${M_SENTINEL}" anywhere in what the button carries`);
+  }
+
+  /* The counterweight. A sweep that emptied the store would pass every
+     assertion above. */
+  const controlRow = await shareFromStats(control.session.id, { reload: false });
+  if (!controlRow) await bail("M. the control row has a Share button");
+  {
+    const f = fragOf(controlRow.ds.shareUrl);
+    const log = await codec.unpackLog({ r: f.get("r"), ru: f.get("ru") });
+    chk((f.get("t") || "").replace(/\s+/g, " ").trim() === control.target.replace(/\s+/g, " ").trim(),
+      "M. the healthy row beside it still shares exactly the words it was typed against",
+      `${(f.get("t") || "").length} chars`);
+    chk(!!log && log.entries.length > 20, "M. and its replay",
+      log && log.entries ? `${log.entries.length} entries` : "nothing decoded");
+  }
+
+  /* Once, not on every read: the sweep rewrites records, and a list
+     is drawn every time somebody opens a page. Put the record back
+     oversized behind a module that has already had its look, and it
+     must be left alone; a fresh page must not leave it alone.
+
+     The "already had its look" needs saying. eleventy.config.js
+     stamps every import in the built JS with ?v=<build>, so the copy
+     /stats/ runs and the copy this evaluate imports are two different
+     URLs and therefore two different module instances with two
+     separate flags. That is why the first list() below is there: it
+     is this instance's one look, taken deliberately while there is
+     nothing oversized to find. */
+  const again = await inPage(() => page.evaluate(async ({ id, max, sentinel }) => {
+    const m = await import("/assets/js/engine/replay-store.js");
+    const put = (record) => new Promise((ok, no) => {
+      const req = indexedDB.open("tt-replays", 1);
+      req.onerror = () => no(req.error);
+      req.onsuccess = () => {
+        const t = req.result.transaction("replays", "readwrite");
+        t.objectStore("replays").put(record);
+        t.oncomplete = () => ok(true);
+        t.onerror = t.onabort = () => no(t.error || new Error("refused"));
+      };
+    });
+    const first = await m.list();
+    const real = await m.get(id);
+    /* Nothing to put back means the sweep took the whole record, and
+       that is section M's own business a few lines up, not a stack. */
+    if (!real) return { first: first.length, rows: -1, len: -1 };
+    await put({ ...real, text: sentinel + "z".repeat(max + 1 - sentinel.length) });
+    const rows = await m.list();
+    const still = await m.get(id);
+    return {
+      first: first.length, rows: rows.length,
+      len: still && typeof still.text === "string" ? still.text.length : -1,
+    };
+  }, { id: legacy.session.id, max: 20000, sentinel: M_SENTINEL }),
+    "M. the oversized target could be put back for the second look", { first: 0, rows: -1, len: -1 });
+  chk(again.first > 0 && again.rows === again.first,
+    "M. both list() calls saw the same store", `${again.first} then ${again.rows} records`);
+  chk(again.len === 20001,
+    "M. and the second one did NOT sweep again: one look per module, not one per list",
+    `${again.len} chars still there`);
+  await page.goto(B + "/stats/", { waitUntil: "domcontentloaded" });
+  await shareFromStats(legacy.session.id, { reload: false });
+  const nextLoad = await inPage(() => page.evaluate(async (id) => {
+    const m = await import("/assets/js/engine/replay-store.js");
+    const r = await m.get(id);
+    return r ? r.text : "the record is gone";
+  }, legacy.session.id), "M. the store could be read after the reload", "it threw");
+  chk(nextLoad === null, "M. and the next page that looks does sweep it", String(nextLoad).slice(0, 30));
 }
 
 await browser.close();

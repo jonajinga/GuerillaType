@@ -1343,10 +1343,12 @@ function handleFinish(result) {
   const { meta, id: sessionId } = recordSession(result, model.serialize(), linkRecordFor(result, challengeOutcome));
   result._meta = meta || {};
   /* File the keystroke log against this session, on this device only.
-     Fire and forget, and every failure inside is swallowed: a browser
-     with no IndexedDB, or a full one, must cost somebody a replay and
-     never the session that earned it. */
-  saveRunReplay({ id: sessionId, state, result, prefs });
+     Started here so it overlaps the bookkeeping below, and AWAITED
+     before the card is drawn (see presentResults). Every failure
+     inside is swallowed: a browser with no IndexedDB, or a full one,
+     must cost somebody a replay and never the session that earned
+     it. */
+  const replayWrite = saveRunReplay({ id: sessionId, state, result, prefs });
   // Challenge: evaluate goal and update bests.
   if (activeChallenge) {
     const evalRes = challengeOutcome || evaluateGoal(activeChallenge.goal, result);
@@ -1376,6 +1378,41 @@ function handleFinish(result) {
   result._earnedAchievements = ((meta && meta.achievementsEarned) || [])
     .map((id) => achievementById(id))
     .filter(Boolean);
+  presentResults(result, replayWrite);
+}
+
+/* How long the card will wait for the replay store, at the very most.
+
+   Nothing on the far side of this await is a navigation: the results
+   card is painted in place over a page that is already loaded, so a
+   frame or two spent waiting for an IndexedDB write costs a user
+   nothing and buys the thing that was wrong before it: a /stats/ page
+   opened in the same breath as a finish read the store before the
+   record landed, and that row shared numbers only until the next
+   load. Now it reads a store that already has the run in it.
+
+   But "at the very most" is the operative phrase. openDb() can sit
+   unresolved in a browser that exposes indexedDB and then never
+   answers (private windows, locked down enterprise profiles), and a
+   results card that never appears because a database would not answer
+   is exactly the trade this file refuses everywhere else. So the wait
+   has a ceiling and the card goes up regardless; /stats/ has its own
+   short retry for the case where the ceiling is hit. */
+const REPLAY_WRITE_WAIT_MS = 1500;
+
+/* The results card, once the keystroke log is safely filed.
+
+   Split out of handleFinish so that everything above stays
+   synchronous -- the profile write, the achievements, the challenge
+   bests all still happen in the same turn the run ends in, and only
+   the drawing waits. */
+async function presentResults(result, replayWrite) {
+  try {
+    await Promise.race([
+      replayWrite,
+      new Promise((done) => setTimeout(done, REPLAY_WRITE_WAIT_MS)),
+    ]);
+  } catch {}
   // Everything above has already been persisted; skipping the card
   // loses nothing. autoAdvance() returns false when there is nothing
   // to advance to (end of a text, the last lesson or challenge), and
