@@ -1,4 +1,4 @@
-/* Follow-ups found while Part D was merged, and the gate that
+/* Two follow-ups found while Part D was merged, and the gate that
    keeps them fixed.
 
    A. The home page's sprint is 15 seconds, and says so in three
@@ -18,6 +18,21 @@
       measured. The run has to END on its own: the target is 80 words,
       far more than anyone types in 15 seconds, so the only thing that
       can stop it is the deadline.
+
+   B. Enter and Space did nothing on the results-card buttons. The
+      document-level keydown in engine/input-capture.js pulls focus
+      back to the hidden #tt-input for every key that is not Tab or
+      Escape unless the target is an input, textarea, select or
+      contenteditable -- and a <button> is none of those, so focus
+      moved before the browser could turn the key into a click. Mouse
+      worked; keyboard did not. Measured by the share-sheet verifier
+      on 2026-09-16 and recorded as a known gap in STATE.md; this is
+      that gap turned into an assertion.
+
+      The other half matters just as much: typing while a toolbar
+      button happens to hold focus must still start the run, which is
+      what the focus-stealing handler is FOR. Only Enter and Space on
+      a button, link or [role=button] are let through.
 
    Usage:
      OG_SKIP=1 npm run build     # not optional: this reads _site
@@ -213,6 +228,113 @@ const readSession = (pg) => pg.evaluate(() => {
   chk(!!link, "A. a share link can be built for the sprint");
   const dur = link ? new URLSearchParams(link.query).get("dur") : null;
   chk(dur === "15", "A. and it reports dur=15", `dur=${dur}`);
+
+  await page.close();
+}
+
+// ==================================================================== B
+// Enter and Space belong to the focused button.
+{
+  const page = await browser.newPage({ viewport: { width: 1366, height: 900 }, serviceWorkers: "block", hasTouch: false });
+  page.on("pageerror", (e) => console.log("  PAGEERROR:", String(e).slice(0, 160)));
+  const surfaceText = () => page.$$eval("#tt-text .tt-char", (els) =>
+    els.map((e) => (e.classList.contains("tt-char--space") ? " " : e.textContent)).join(""));
+  /* 70 ms a key. The engine flags anything over 250 wpm as suspect and
+     the results card is not the same card for a suspect run. */
+  const runToTheEnd = async () => {
+    await page.goto(`${B}/practice/?mode=words&words=10`, { waitUntil: "networkidle" });
+    await page.waitForSelector(".tt-char", { timeout: 8000 });
+    await page.click(".tt-stage").catch(() => {});
+    const t = await surfaceText();
+    for (const ch of t) await page.keyboard.type(ch, { delay: 70 });
+    await page.waitForSelector("#tt-results:not([hidden])", { timeout: 8000 });
+  };
+  const active = () => page.evaluate(() => {
+    const el = document.activeElement;
+    if (!el) return { id: null, tag: null, inDialog: false };
+    return {
+      id: el.id || null, tag: el.tagName,
+      inDialog: !!el.closest("dialog"),
+      dialogClass: el.closest("dialog") ? el.closest("dialog").className : null,
+    };
+  });
+
+  await runToTheEnd();
+  chk(await page.isVisible("#tt-share"), "B. the results card has a Share button");
+
+  // B1. Enter on Share opens the sheet, and focus moves into it.
+  await page.focus("#tt-share");
+  chk((await active()).id === "tt-share", "B. the Share button can hold focus");
+  await page.keyboard.press("Enter");
+  await page.waitForTimeout(400);
+  const sheetOpen = await page.evaluate(() => {
+    const d = document.querySelector("dialog.share-sheet");
+    return !!d && d.open;
+  });
+  chk(sheetOpen, "B. Enter on Share opens the share sheet");
+  const inSheet = await active();
+  chk(inSheet.inDialog && /share-sheet/.test(inSheet.dialogClass || ""),
+    "B. and focus moved into the sheet", JSON.stringify(inSheet));
+  chk(inSheet.id !== "tt-input", "B. focus was not stolen by the typing surface", JSON.stringify(inSheet.id));
+
+  // B2. Escape closes it and gives focus back to the button.
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(400);
+  chk(await page.evaluate(() => {
+    const d = document.querySelector("dialog.share-sheet");
+    return !d || !d.open;
+  }), "B. Escape closes the sheet");
+  chk((await active()).id === "tt-share", "B. and focus comes back to the Share button", JSON.stringify(await active()));
+
+  // B3. Space activates it too -- a button's other keyboard press.
+  await page.keyboard.press(" ");
+  await page.waitForTimeout(400);
+  chk(await page.evaluate(() => {
+    const d = document.querySelector("dialog.share-sheet");
+    return !!d && d.open;
+  }), "B. Space on Share opens the sheet as well");
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(300);
+
+  // B4. Enter on Send feedback opens the feedback dialog.
+  const fbSel = '#tt-results button[onclick*="openFeedbackModal"]';
+  chk(await page.isVisible(fbSel), "B. the results card has a Send feedback button");
+  await page.focus(fbSel);
+  await page.keyboard.press("Enter");
+  await page.waitForTimeout(500);
+  const fbOpen = await page.evaluate(() => {
+    const ta = document.getElementById("fb-message");
+    const d = ta && ta.closest("dialog");
+    return !!d && d.open;
+  });
+  chk(fbOpen, "B. Enter on Send feedback opens the feedback dialog");
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(300);
+
+  // B5. The behaviour the focus-stealing handler exists for: an
+  //     ordinary character with a toolbar button focused still starts
+  //     the run. This is what a narrower fix (letting every key
+  //     through to a focused button) would break.
+  await page.goto(`${B}/practice/?mode=words&words=10`, { waitUntil: "networkidle" });
+  await page.waitForSelector(".tt-char", { timeout: 8000 });
+  const t2 = await surfaceText();
+  await page.focus("#tt-restart");
+  chk((await active()).id === "tt-restart", "B. a toolbar button has focus, not the surface");
+  await page.keyboard.type(t2[0], { delay: 70 });
+  await page.waitForTimeout(200);
+  chk((await page.getAttribute("#tt-stage", "data-state")) === "running",
+    "B. a printable key with a toolbar button focused still starts the run");
+  chk((await active()).id === "tt-input", "B. and focus moved to the typing surface");
+  chk(await page.$$eval(".tt-char--incorrect", (els) => els.length) === 0,
+    "B. the key counted as the first correct character, not an error");
+
+  // B6. Tab and Escape were already let through; they still are.
+  await page.goto(`${B}/practice/?mode=words&words=10`, { waitUntil: "networkidle" });
+  await page.waitForSelector(".tt-char", { timeout: 8000 });
+  await page.focus("#tt-restart");
+  await page.keyboard.press("Tab");
+  await page.waitForTimeout(150);
+  chk((await active()).id !== "tt-input", "B. Tab still moves focus normally", JSON.stringify((await active()).id));
 
   await page.close();
 }

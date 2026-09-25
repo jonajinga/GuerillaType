@@ -63,12 +63,24 @@ export function attachInput(inputEl, host, handlers) {
     if (e.target === inputEl) return;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (e.key === "Tab" || e.key === "Escape") return;
+    const t = e.target;
+    /* Enter and Space belong to whatever button has focus: they are
+       how a keyboard user presses it, and moving focus first meant the
+       browser never got to turn the key into a click. That is why the
+       whole results-card actions row -- Share, Send feedback, Next
+       drill, Back to chapter list -- was mouse-only (measured by the
+       share-sheet verifier, 2026-09-16). Links and [role=button] are
+       here for the same reason.
+       Every other key still goes to the typing surface, so typing
+       while a toolbar button happens to hold focus still starts the
+       run, which is the behaviour this handler exists for. */
+    if ((e.key === "Enter" || e.key === " " || e.key === "Spacebar")
+        && t && t.closest && t.closest("button, a, [role=button]")) return;
     // Don't yank focus away from any other form control the user is
     // currently editing -- custom duration / word-count inputs in the
     // mode bar, search boxes, the settings modal, etc. Without this
     // check, the very first keystroke into a number input gets stolen
     // by the typing surface.
-    const t = e.target;
     if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" ||
               t.tagName === "SELECT" || t.isContentEditable)) return;
     focus();
