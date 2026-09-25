@@ -51,6 +51,47 @@ export const TEXT_MAX = 20000;
 
 let _dbPromise = null;
 
+/* Has this page already swept the shelf for records written before
+   the cap existed? The cap is applied on the way in (see save), and a
+   cap applied on the way in is not retroactive: a browser that stored
+   a 5.4 MB target before this rule was written goes on holding it,
+   goes on offering it to a share link that can never carry it, and
+   goes on making every read of the whole store expensive. So the
+   store forgets the words the first time it looks at everything it
+   holds -- once per page, and only for the records that are actually
+   over. Set before the write rather than after it: a readwrite
+   transaction the browser refuses now will be refused again in two
+   hundred milliseconds, and the point of "once" is that nobody pays
+   for this twice. */
+let _sweptOversized = false;
+
+/* Drop the text of every record past the cap, and touch nothing else.
+
+   `rows` is a getAll() the caller already had in hand, so this costs
+   no extra read -- that is the whole reason it hangs off list() and
+   prune() rather than running on a timer. The keystrokes stay: they
+   are what the record is for, and the store has always kept them for
+   runs whose target it does not hold. What goes with the text is the
+   SHAREABILITY of the replay, and that falls out of the rule that was
+   already there -- share/session-link.js will not put a keystroke log
+   in a link that cannot also say what was typed, so the row shares
+   its numbers and its date, exactly as it would if the target had
+   been too long on the day it was written. */
+async function sweepOversized(rows) {
+  if (_sweptOversized) return 0;
+  _sweptOversized = true;
+  const over = (rows || []).filter((r) => r && typeof r.text === "string" && r.text.length > TEXT_MAX);
+  if (!over.length) return 0;
+  try {
+    await tx("readwrite", (store) => {
+      for (const r of over) store.put({ ...r, text: null });
+    });
+  } catch {
+    return 0;
+  }
+  return over.length;
+}
+
 /* Cheap capability probe. Some browsers expose `indexedDB` and then
    throw on open(); a rejected open is treated as "not available" too. */
 export function idbSupported() {
@@ -163,6 +204,10 @@ export async function list() {
       const req = store.getAll();
       return () => req.result || [];
     });
+    /* Everything is in hand here, so this is where the cap catches up
+       with the records that predate it. Awaited: a caller that lists
+       and then reads is entitled to read what the list left behind. */
+    await sweepOversized(all);
     return all
       .map((r) => ({ id: r.id, at: r.at, keys: (r.keylog || []).length, textHash: r.textHash || null }))
       .sort((a, b) => String(b.at).localeCompare(String(a.at)));
@@ -179,6 +224,11 @@ export async function prune(keep = KEEP) {
       const req = store.getAll();
       return () => req.result || [];
     });
+    /* Before the early return below, not after it: a store of three
+       records with a book in one of them never reaches the keep
+       limit, and it is the exact store this sweep exists for. prune()
+       runs after every save(), so finishing one run is enough. */
+    await sweepOversized(rows);
     if (rows.length <= keep) return 0;
     const doomed = rows
       .sort((a, b) => String(b.at).localeCompare(String(a.at)))

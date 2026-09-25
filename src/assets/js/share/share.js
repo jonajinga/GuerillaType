@@ -338,22 +338,60 @@ async function onGridClick(e) {
   emit("shareTarget", props({ target: id, variant: intent.variant }));
 }
 
+/* What the user is told when the browser could not draw their words
+   into the picture. One string: the system sheet and Download PNG are
+   two ways to the same disappointment, and two wordings would be two
+   promises. */
+const PLAIN_CARD_TOAST = "Saved the plain card. The picture will not include your text.";
+
+/* The picture a share carries, as a File, or null.
+
+   A result typed from a text of your own gets the card THIS BROWSER
+   drew, with the words in it -- the same picture Download PNG
+   produces, for the same reason: guerillatype.com has never seen the
+   words, so the only machine that can draw them is this one. The
+   system sheet used to attach the pre-rendered grid card here, a
+   number and an accuracy band and nothing else, while the Download
+   PNG button two rows below it drew the real thing for the same
+   result.
+
+   `ctx.imageUrl` stays the grid card in every case and is what goes
+   into og:image: a scraper must never be sent a picture of something
+   the server has never seen. This is the other path, the one where a
+   person has chosen where the picture is going.
+
+   Everything here is best-effort. A renderer that will not run, a
+   blocked wasm, a failed fetch, an opaque response: any of them must
+   still leave a working text share behind. */
+async function shareFile() {
+  if (ctx.private && ctx.localCard) {
+    try {
+      const mod = await import("./local-card.js");
+      const blob = await mod.renderCardPng(ctx.localCard);
+      return new File([blob], fileName(ctx), { type: "image/png" });
+    } catch {
+      /* Fall through to the grid card, and say so in the same words
+         the download path says it in. */
+      toast(PLAIN_CARD_TOAST, "bad");
+    }
+  }
+  if (!ctx.imageUrl) return null;
+  const res = await fetch(ctx.imageUrl);
+  if (!res.ok) return null;
+  const blob = await res.blob();
+  return new File([blob], fileName(ctx), { type: blob.type || "image/png" });
+}
+
 async function onNativeShare() {
   if (!navigator.share || !ctx) return;
   const payload = { title: ctx.title, text: ctx.text, url: ctx.fullUrl };
   /* A preview card that travels with the post is the whole point of
      the native sheet on a phone; it is also the only path that can
-     attach a file at all. Everything here is best-effort: a failed
-     fetch, an opaque response or a platform that refuses files must
-     still leave a working text share behind. */
+     attach a file at all. */
   try {
-    if (ctx.imageUrl && typeof navigator.canShare === "function") {
-      const res = await fetch(ctx.imageUrl);
-      if (res.ok) {
-        const blob = await res.blob();
-        const file = new File([blob], fileName(ctx), { type: blob.type || "image/png" });
-        if (navigator.canShare({ files: [file] })) payload.files = [file];
-      }
+    if (typeof navigator.canShare === "function") {
+      const file = await shareFile();
+      if (file && navigator.canShare({ files: [file] })) payload.files = [file];
     }
   } catch {}
   try {
@@ -426,7 +464,7 @@ async function onDownload() {
       emit("shareImageSaved", { kind: ctx.kind || "page", mode: ctx.mode || "", method: "local" });
       return;
     } catch {
-      toast("Saved the plain card. The picture will not include your text.", "bad");
+      toast(PLAIN_CARD_TOAST, "bad");
     }
   }
   try {
