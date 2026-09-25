@@ -17,7 +17,7 @@ import { byId as achievementById } from "../engine/achievements.js";
 import { fingerForKey } from "../engine/layouts.js";
 import { bookStructureSig, isCustomBookSlug as isCustomBook, customBookId } from "../engine/book-structure.js";
 import { setSoundPrefs, playKey, playMistake, playFinish } from "../engine/sounds.js";
-import { getActive, updateActive } from "../profiles.js";
+import { getActive, updateActive, physicalKeyboardOn } from "../profiles.js";
 import { loadQuotes, pickQuote, dailyQuote } from "../engine/quotes.js";
 import { getLesson, lessonText } from "../engine/lesson-text.js";
 import { buildSourceText, evaluateGoal } from "../engine/challenge-runner.js";
@@ -1459,20 +1459,18 @@ function autoAdvanceKey() {
   if (state.mode === "tape") return "time";
   return state.mode;
 }
-/* "This device has a physical keyboard", the Settings switch under
-   Auto-advance, read fresh from the active profile.
+/* physicalKeyboardOn() is imported from profiles.js (see the import
+   block at the top): the home page's tape sprint needs the same answer
+   and a second copy is how one of them ends up stale.
 
    The browser has no way to tell an iPad with a Magic Keyboard from an
    iPad without one: both report (hover: none) and (pointer: coarse)
    and a tablet user agent, so isTouchFirstDevice() says soft keyboard
    for both and the site waits for a tap before every run, shows the
-   results card, and greys the Auto button out. This is the user
-   saying otherwise, per device. Off by default. */
-function physicalKeyboardOn() {
-  const p = getActive();
-  return !!(p && p.preferences && p.preferences.physicalKeyboard === true);
-}
-/* Shadows the engine's export deliberately (imported above as
+   results card, and greys the Auto button out. The preference is the
+   user saying otherwise, per device. Off by default.
+
+   Shadows the engine's export deliberately (imported above as
    isTouchFirstDevice). Every caller in this file is asking the same
    question -- "can the next run be typed without a tap first?" -- and
    the answer has two halves: what the hardware reports, and what the
@@ -2265,6 +2263,16 @@ function renderResults(r) {
     });
   }
   resultsEl.hidden = false;
+  /* Hand the keyboard to the card. Until this line focus stayed on the
+     hidden typing input, which is why none of these buttons could be
+     reached without a mouse: the input's own keydown handler swallowed
+     Tab for the restart chord (now released once the run is done, in
+     engine/input-capture.js). The card itself takes focus rather than
+     its first button, so an accidental Enter cannot fire "Next test"
+     and so a screen reader starts at the heading and the numbers.
+     preventScroll because the smooth scroll below owns the scrolling;
+     without it the browser jumps first and then animates. */
+  try { resultsEl.focus({ preventScroll: true }); } catch {}
   // Paint the per-word WPM chart, if we have at least two samples.
   if (r.perWordWpm && r.perWordWpm.length >= 2) {
     drawSessionChart(document.getElementById("results-wpm-chart"), r.perWordWpm);

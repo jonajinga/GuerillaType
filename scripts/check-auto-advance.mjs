@@ -636,6 +636,22 @@ chk(lit.startsWith("abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz"), "K.
     chk(await kb.evaluate(() => document.activeElement && document.activeElement.id === "tt-input"),
       "P. the surface took focus by itself, with no tap");
     chk((await kb.getAttribute("#tt-stage", "data-mobile-waiting")) !== "true", "P. and is not waiting for one");
+    /* The stamp, and the overlay it drives. typing-shell.njk decides
+       this before any module loads, so it has its own hand-written
+       copy of the predicate; until it learned about the preference,
+       a tablet with a keyboard got a blurred surface reading "Tap here
+       to start typing" painted over a run it could already type
+       (verifier round 1). Checked blurred as well as focused, because
+       the overlay has a rule for each. */
+    chk((await kb.getAttribute("html", "data-touch")) !== "true",
+      "P. the page is not stamped data-touch");
+    const overlayOn = await kb.$eval(".tt-stage", (el) => getComputedStyle(el, "::after").content);
+    chk(!/tap here/i.test(overlayOn), "P. and the surface does not say \"Tap here\"", overlayOn);
+    await kb.evaluate(() => document.activeElement && document.activeElement.blur());
+    await kb.waitForTimeout(100);
+    const overlayBlurred = await kb.$eval(".tt-stage", (el) => getComputedStyle(el, "::after").content);
+    chk(!/tap here/i.test(overlayBlurred), "P. not even once it is blurred", overlayBlurred);
+    await kb.click(".tt-stage").catch(() => {});
 
     // A run flows into the next one, typable at once. 70 ms a key: the
     // engine calls anything over 250 wpm suspect and auto-advance
@@ -673,13 +689,64 @@ chk(lit.startsWith("abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz"), "K.
       "P. it turns auto-advance off, in the profile and on the button",
       JSON.stringify((await kbPrefs()).autoAdvance));
 
+    /* Whose preference is it? A second profile, with the switch on for
+       the active one only. Reading "a profile" rather than "the active
+       profile" passed every check above (verifier round 1 rewrote the
+       helper to read the last profile and still got 125/0), so the
+       answer has to move when the active profile does and nothing
+       else changes. */
+    await kb.evaluate(() => {
+      const ps = JSON.parse(localStorage.getItem("tt:profiles") || "[]");
+      const id = JSON.parse(localStorage.getItem("tt:active-profile") || "null");
+      const mine = ps.find((x) => x.id === id) || ps[0];
+      mine.preferences = mine.preferences || {};
+      mine.preferences.physicalKeyboard = true;
+      const other = JSON.parse(JSON.stringify(mine));
+      other.id = "p_nokbd";
+      other.name = "No keyboard";
+      other.preferences.physicalKeyboard = false;
+      ps.push(other);
+      localStorage.setItem("tt:profiles", JSON.stringify(ps));
+      localStorage.setItem("tt:active-profile", JSON.stringify(mine.id));
+    });
+    await kb.reload({ waitUntil: "networkidle" });
+    await kb.waitForSelector(".tt-char", { timeout: 8000 });
+    chk((await kb.getAttribute("#tt-autoadvance", "aria-disabled")) !== "true",
+      "P. two profiles, the switch on for the active one: the button is live");
+    chk((await kb.getAttribute("html", "data-touch")) !== "true",
+      "P. and the page is not stamped data-touch");
+    /* Nothing changes but which profile is active. */
+    await kb.evaluate(() => localStorage.setItem("tt:active-profile", JSON.stringify("p_nokbd")));
+    await kb.reload({ waitUntil: "networkidle" });
+    await kb.waitForSelector(".tt-char", { timeout: 8000 });
+    chk((await kb.evaluate(() => {
+      const ps = JSON.parse(localStorage.getItem("tt:profiles") || "[]");
+      return ps.some((x) => x.preferences && x.preferences.physicalKeyboard === true);
+    })), "P. the other profile still has the switch on, so only 'active' can decide");
+    chk((await kb.getAttribute("#tt-autoadvance", "aria-disabled")) === "true",
+      "P. switching to the profile without it makes the button unavailable again");
+    chk((await kb.getAttribute("html", "data-touch")) === "true",
+      "P. and the data-touch stamp comes back");
+    chk(await kb.evaluate(() => document.activeElement && document.activeElement.id !== "tt-input"),
+      "P. and the surface waits for a tap again");
+    /* Back to the active profile for the teardown below. */
+    await kb.evaluate(() => {
+      const ps = JSON.parse(localStorage.getItem("tt:profiles") || "[]");
+      const mine = ps.find((x) => x.id !== "p_nokbd") || ps[0];
+      localStorage.setItem("tt:active-profile", JSON.stringify(mine.id));
+    });
+
     // Turning the preference back off restores the phone behaviour on
     // the very same device: this is the half that proves the preference
     // is what section L is protected by.
     await kb.evaluate(() => {
+      /* The active profile by id: there are two profiles by now, and
+         ps[0] being the right one is a coincidence, not a rule. */
       const ps = JSON.parse(localStorage.getItem("tt:profiles") || "[]");
-      ps[0].preferences.physicalKeyboard = false;
-      ps[0].preferences.autoAdvance = { words: true };
+      const id = JSON.parse(localStorage.getItem("tt:active-profile") || "null");
+      const mine = ps.find((x) => x.id === id) || ps[0];
+      mine.preferences.physicalKeyboard = false;
+      mine.preferences.autoAdvance = { words: true };
       localStorage.setItem("tt:profiles", JSON.stringify(ps));
     });
     await kb.reload({ waitUntil: "networkidle" });

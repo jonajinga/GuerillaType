@@ -20,7 +20,7 @@ import { saveRunReplay } from "../share/session-link.js";
 import { AdaptiveModel } from "../engine/adaptive.js";
 import { textHash } from "../engine/replay-store.js";
 import { prefsMask } from "../share/codec.js";
-import { getActive } from "../profiles.js";
+import { getActive, physicalKeyboardOn } from "../profiles.js";
 import { Analytics } from "../analytics.js";
 
 /* ── Hero animation ──────────────────────────────────────────────
@@ -120,6 +120,12 @@ if (stage && inputEl && textEl && hintEl) {
       timerEl,
       mode: "tape",
       durationSec: SPRINT_SECONDS,
+      /* The same answer the practice page gives. Without it this
+         engine was the one place on the site that still refused to
+         take focus on a tablet whose owner had said it has a keyboard,
+         so the home sprint sat behind "Tap here to start typing" while
+         /practice/ did not (verifier round 1: a fifth call site). */
+      physicalKeyboard: () => physicalKeyboardOn(),
       freedom: profile.settings && profile.settings.freedom !== false,
       caret: (profile.preferences && profile.preferences.cursorStyle) || (profile.settings && profile.settings.caret) || "line",
       adaptive: { onChar: (prev, ch, ok, ms) => model.record(prev, ch, ok, ms) },

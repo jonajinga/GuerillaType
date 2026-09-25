@@ -63,6 +63,17 @@ export function attachInput(inputEl, host, handlers) {
     if (e.target === inputEl) return;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (e.key === "Tab" || e.key === "Escape") return;
+    /* A bare Shift press is not a character and must not move focus.
+       Control, Alt and Meta already leave through the line above --
+       holding one sets its own flag -- but shiftKey is deliberately
+       not in that list, because Shift+letter is a capital and has to
+       start the run. The result was that pressing Shift ALONE yanked
+       focus to the typing input, and since Shift is pressed before
+       Tab, Shift+Tab always ran from the input instead of from
+       wherever the user was: every Shift+Tab on this page landed on
+       the one button before the surface. Found while writing the
+       Tab-order gate for the results card. */
+    if (e.key === "Shift") return;
     const t = e.target;
     /* Enter and Space belong to whatever button has focus: they are
        how a keyboard user presses it, and moving focus first meant the
@@ -145,6 +156,14 @@ export function attachInput(inputEl, host, handlers) {
     // keyboard-only nav, and Tab outside the input retains its normal
     // role. Two-key combo prevents accidental restart.
     if (e.key === "Tab") {
+      /* A finished run hands the keyboard back. The Tab-then-Enter
+         restart chord only means anything while there is a run to
+         restart; once the engine is done the results card is on
+         screen, and swallowing Tab there is what made the whole card
+         unreachable without a mouse -- ten Tabs and six Shift+Tabs
+         never left this input (verifier, round 1). Nothing else about
+         the chord changes: during a run Tab still arms it. */
+      if (host.dataset.state === "done") return;
       e.preventDefault();
       armRestart();
       return;
